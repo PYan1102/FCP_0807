@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace FCP
 {
@@ -48,6 +49,7 @@ namespace FCP
         public override void ConvertPrepare(int Mode)
         {
             base.ConvertPrepare(Mode);
+            Console.WriteLine(string.IsNullOrEmpty(base.FilePath));
             if (Mode == (int)ModeEnum.OPD)
                 Loop_OPD(0, 0, "");
             else
