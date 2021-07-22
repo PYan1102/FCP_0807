@@ -90,7 +90,7 @@ namespace FCP
                                 WHERE A.DeletedYN = 0 AND A.UseYN = 1");
             while (dr.Read())
             {
-                list.Add(dr["Code"].ToString());
+                list.Add(dr["Mnemonic"].ToString());
                 if (dr["ExtraMnemonic"].ToString().Length > 0)
                     list.Add(dr["ExtraMnemonic"].ToString());
             }
