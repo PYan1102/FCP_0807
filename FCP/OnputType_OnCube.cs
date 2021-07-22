@@ -1121,7 +1121,7 @@ namespace FCP
                         else
                             sw.Write(ECD($"{v.PatientName} 非整數", 20));
                         sw.Write("".PadRight(30));
-                        sw.Write(ECD("住院", 50));
+                        sw.Write(ECD(v.Location, 50));
                         sw.Write("".PadRight(29));
                         sw.Write(Qty.PadRight(5));
                         sw.Write(v.MedicineCode.PadRight(20));

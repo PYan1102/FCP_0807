@@ -7,7 +7,7 @@ using System.IO;
 
 namespace FCP
 {
-    class BASE_JenKang:FunctionCollections
+    class BASE_JenKang : FunctionCollections
     {
         FMT_JenKang JK;
         public BASE_JenKang(MainWindow mw, Settings s)
@@ -49,7 +49,6 @@ namespace FCP
         public override void ConvertPrepare(int Mode)
         {
             base.ConvertPrepare(Mode);
-            Console.WriteLine(string.IsNullOrEmpty(base.FilePath));
             if (Mode == (int)ModeEnum.OPD)
                 Loop_OPD(0, 0, "");
             else
@@ -68,11 +67,21 @@ namespace FCP
 
         public override void Converter()
         {
+            string content = GetFileContent();
+            if (content.Contains("護理"))
+                base.MethodID = 2;
             base.Converter();
             if (JK == null)
                 JK = new FMT_JenKang();
             JK.Load(base.InputPath, base.OutputPath, base.FilePath, base.NowSecond, Settings, base.Log);
             Result(JK.MethodShunt(MethodID), true, true);
+        }
+
+        private string GetFileContent()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(File.ReadAllText(base.FilePath, Encoding.Default));
+            return sb.ToString();
         }
 
         public override void Result(string Result, bool NeedMoveFile, bool NeedReminder)
