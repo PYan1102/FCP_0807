@@ -357,7 +357,7 @@ namespace FCP
         {
             string[] ResultSplit = Result.Split('|');
             string R = ResultSplit[1];
-            string FileName = $"{Path.GetFileNameWithoutExtension(FilePath)}_{ DateTime.Now:ss_fff}";
+            string FileName = $"{Path.GetFileName(FilePath)}_{ DateTime.Now:ss_fff}";
             switch(Convert.ToInt32(ResultSplit[0]))
             {
                 case (int)ResultType.成功:

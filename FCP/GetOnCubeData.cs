@@ -82,7 +82,7 @@ namespace FCP
         public List<string> Get_All_Medicine_Code()
         {
             List<string> list = new List<string>();
-            Connect_Sql_Read(@"SELECT
+            Connect_Sql_Read(@"SELEC
                                     A.Mnemonic
                                 , ISNULL(B.MultiMnemonic, '') AS ExtraMnemonic
                                 FROM Item A
@@ -90,7 +90,7 @@ namespace FCP
                                 WHERE A.DeletedYN = 0 AND A.UseYN = 1");
             while (dr.Read())
             {
-                list.Add(dr["Code"].ToString());
+                list.Add(dr["Mnemonic"].ToString());
                 if (dr["ExtraMnemonic"].ToString().Length > 0)
                     list.Add(dr["ExtraMnemonic"].ToString());
             }
