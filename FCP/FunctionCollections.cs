@@ -189,12 +189,12 @@ namespace FCP
                 {
                     while (!cts.IsCancellationRequested)
                     {
+                        await Task.Delay(Settings.Speed);
                         foreach (string IP in IPList)
                         {
                             int Index = IPList.IndexOf(IP);
                             if (IP.Trim() == "")
                                 continue;
-                            await Task.Delay(Settings.Speed);
                             foreach (string Name in Directory.GetFiles(IP, Settings.DeputyFileName))
                             {
                                 bool _Exit = false;
@@ -245,12 +245,12 @@ namespace FCP
                 {
                     while (!cts.IsCancellationRequested)
                     {
+                        await Task.Delay(Settings.Speed);
                         foreach (string IP in IPList)
                         {
                             int Index = IPList.IndexOf(IP);
                             if (IP.Trim() == "")
                                 continue;
-                            await Task.Delay(Settings.Speed);
                             foreach (string Name in Directory.GetFiles(IP, Settings.DeputyFileName))
                             {
                                 string FileName = Path.GetFileNameWithoutExtension(Name);
@@ -307,10 +307,10 @@ namespace FCP
                 {
                     while (!cts.IsCancellationRequested)
                     {
+                        await Task.Delay(Settings.Speed);
                         string IP = WD.IP3;
                         if (IP.Trim() == "")
                             continue;
-                        await Task.Delay(Settings.Speed);
                         foreach (string Name in Directory.GetFiles(IP, Settings.DeputyFileName))
                         {
                             if (Settings.EN_StatOrBatch)

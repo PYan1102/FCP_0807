@@ -183,7 +183,7 @@ namespace FCP
                     var preTemp = pre[pre.Count - 1];
                     string startDateTemp = ecd.GetString(temp, 41, 8).Trim();
                     DateTime.TryParseExact(startDateTemp, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime startDate);
-                    preTemp.StartDay = startDate.AddDays(2);
+                    preTemp.StartDay = startDate.AddDays(location == "住院" ? 2 : 1);  //住院+2天，養護+1天
                     //preTemp.EndDay = startDate.AddDays(2 + Convert.ToInt32(preTemp.Days) - 1).ToString("yyyyMMdd");
                     try
                     {
