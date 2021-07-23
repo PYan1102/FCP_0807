@@ -181,11 +181,11 @@ namespace FCP
 
         public void Judge(bool Auto)
         {
-            switch(Settings.Mode)
+            switch (Settings.Mode)
             {
                 case (int)Settings.ModeEnum.JVS:
                     JVS = new BASE_JVServer(this, Settings);
-                    if(Auto) JVS.AutoStart();
+                    if (Auto) JVS.AutoStart();
                     break;
                 case (int)Settings.ModeEnum.創聖:
                     CS = new BASE_ChuangSheng(this, Settings);
@@ -580,7 +580,7 @@ namespace FCP
             {
                 Msg.Show("沒有勾選任一個轉檔位置", "位置未勾選", "Error", Msg.Color.Error);
                 return;
-            }    
+            }
             switch (Settings.Mode)
             {
                 case (int)Settings.ModeEnum.JVS:
@@ -861,7 +861,7 @@ namespace FCP
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            switch(Settings.Mode)
+            switch (Settings.Mode)
             {
                 case (int)Settings.ModeEnum.小港醫院:
                     XG.Stop();

@@ -19,6 +19,7 @@ namespace FCP
 
         public override string MethodShunt(int? MethodID)
         {
+            Console.WriteLine(MethodID);
             switch (MethodID)
             {
                 case 0:
@@ -85,7 +86,8 @@ namespace FCP
                         PerQty = Convert.ToSingle(ecd.GetString(temp, 167, 10).Trim()).ToString("0.##"),
                         AdminCode = adminCode,
                         Days = ecd.GetString(temp, 197, 3).Trim(),
-                        SumQty = ecd.GetString(temp, 200, 10).Trim()
+                        SumQty = ecd.GetString(temp, 200, 10).Trim(),
+                        Location = string.Empty
                     });
                     try
                     {
@@ -165,6 +167,9 @@ namespace FCP
                         LoseContent = $"{FullFileName_S} 在OnCube中未建置此餐包頻率 {adminCode} 的頻率";
                         return ResultType.沒有頻率;
                     }
+                    string location = "住院";
+                    if (temp.Length > 240)
+                        location = ecd.GetString(temp, 247, temp.Length - 247);
                     int adminCodeTimePerDay = GOD.Get_Admin_Code_For_Multi(adminCode).Count;
                     Single SumQty = Convert.ToSingle(ecd.GetString(temp, 200, 10).Trim());
                     Single PerQty = Convert.ToSingle(ecd.GetString(temp, 167, 10).Trim());
@@ -178,7 +183,8 @@ namespace FCP
                         PerQty = Convert.ToSingle(ecd.GetString(temp, 167, 10).Trim()).ToString("0.##"),
                         AdminCode = adminCode,
                         Days = Math.Ceiling(SumQty / PerQty / adminCodeTimePerDay).ToString(),
-                        SumQty = ecd.GetString(temp, 200, 10).Trim()
+                        SumQty = ecd.GetString(temp, 200, 10).Trim(),
+                        Location = location
                     });
                     var preTemp = pre[pre.Count - 1];
                     string startDateTemp = ecd.GetString(temp, 41, 8).Trim();
@@ -248,10 +254,10 @@ namespace FCP
             public string Days { get; set; }
             public string SumQty { get; set; }
             public DateTime StartDay { get; set; }
-            public string BeginTime { get; set; }
             public DateTime EndDay { get; set; }
             public bool _IsPowder { get; set; }
             public string BedNo { get; set; }
-        } 
+            public string Location { get; set; }
+        }
     }
 }
