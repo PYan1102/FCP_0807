@@ -38,12 +38,12 @@ namespace FCP
 
         public enum ResultType
         {
-            成功=0, 失敗=1, 全數過濾=2, 沒有頻率=3
+            成功 = 0, 失敗 = 1, 全數過濾 = 2, 沒有頻率 = 3
         }
 
         public enum ModeEnum
         {
-            OPD=0, UD=1
+            OPD = 0, UD = 1
         }
 
         //建立MsgBox物件
@@ -65,7 +65,7 @@ namespace FCP
                 cts1 = new CancellationTokenSource();
                 mw.Dispatcher.InvokeAsync(new Action(() => WD.UI_Refresh(cts1)));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Write($"{ex}");
                 MessageBox.Show($"{ex}");
@@ -100,7 +100,7 @@ namespace FCP
 
         private void CreateIcon()
         {
-            CM= new System.Windows.Forms.ContextMenuStrip();
+            CM = new System.Windows.Forms.ContextMenuStrip();
             CM.Items.Add("離開");
             CM.ItemClicked += CMS_ItemClicked;
             NF.Icon = new System.Drawing.Icon(new Uri("FCP.ico", UriKind.Relative).ToString());
@@ -301,7 +301,7 @@ namespace FCP
         {
             if (cts == null)
                 return;
-            Task.Run(async() =>
+            Task.Run(async () =>
             {
                 try
                 {
@@ -358,10 +358,10 @@ namespace FCP
             string[] ResultSplit = Result.Split('|');
             string R = ResultSplit[1];
             string FileName = $"{Path.GetFileName(FilePath)}_{ DateTime.Now:ss_fff}";
-            switch(Convert.ToInt32(ResultSplit[0]))
+            switch (Convert.ToInt32(ResultSplit[0]))
             {
                 case (int)ResultType.成功:
-                    if(NeedMoveFile)
+                    if (NeedMoveFile)
                     {
                         File.Move(FilePath, $@"{SuccessPath}\{FileName}.ok");
                         WD.SuccessCountAdd();
@@ -408,7 +408,7 @@ namespace FCP
         {
             WD.ProgressBoxAdd($"{DateTime.Now:HH:mm:ss:fff} {Result}");
         }
-        
+
         public virtual async void AutoStart()
         {
             await Task.Delay(1000);
@@ -548,7 +548,7 @@ namespace FCP
                 {
                     //string FileVersion = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion.ToString();  //版本
                     SF.SetFormLocation(X, Y);
-                     if (!(bool)mw.btn_Stop.IsEnabled)
+                    if (!(bool)mw.btn_Stop.IsEnabled)
                     {
                         UILayout UI = new UILayout();
                         if (Settings.Mode == (int)Settings.ModeEnum.小港醫院)
