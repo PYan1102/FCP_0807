@@ -80,7 +80,10 @@ namespace FCP
         private string GetFileContent()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append(File.ReadAllText(base.FilePath, Encoding.Default));
+            using (StreamReader sr = new StreamReader(FilePath, Encoding.Default))
+            {
+                sb.Append(sr.ReadToEnd());
+            }
             return sb.ToString();
         }
 

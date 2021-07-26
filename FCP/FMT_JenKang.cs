@@ -216,7 +216,11 @@ namespace FCP
             try
             {
                 bool yn = false;
-                string outputFileName = $@"{OutputPath_S}\{Path.GetFileNameWithoutExtension(FullFileName_S)}_{Time_S}.txt";
+                string outputFileName = string.Empty;
+                if (pre[0].Location.Contains("住院"))
+                    outputFileName = $@"{OutputPath_S}\{Path.GetFileNameWithoutExtension(FullFileName_S)}_{Time_S}.txt";
+                else
+                    outputFileName = $@"{OutputPath_S}\{Path.GetFileNameWithoutExtension(FullFileName_S)}_{pre[0].PatientName}_{Time_S}.txt";
                 oncube = new OnputType_OnCube(log);
                 yn = oncube.JenKang_UD(pre, outputFileName);
                 if (yn)
