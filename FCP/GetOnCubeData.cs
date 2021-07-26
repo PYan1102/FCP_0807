@@ -69,7 +69,7 @@ namespace FCP
                                FROM Item A
                                INNER JOIN InventoryContainer B ON A.DeletedYN = 0 AND A.UseYN = 1 AND B.ContainerID IS NOT NULL AND A.RawID = B.ItemID
                                LEFT OUTER JOIN ItemMultiCode C ON A.RawID = C.ItemID AND C.DeletedYN = 0");
-            while(dr.Read())
+            while (dr.Read())
             {
                 list.Add(dr["Mnemonic"].ToString());
                 if (dr["ExtraMnemonic"].ToString().Length > 0)
@@ -82,7 +82,7 @@ namespace FCP
         public List<string> Get_All_Medicine_Code()
         {
             List<string> list = new List<string>();
-            Connect_Sql_Read(@"SELEC
+            Connect_Sql_Read(@"SELECT
                                     A.Mnemonic
                                 , ISNULL(B.MultiMnemonic, '') AS ExtraMnemonic
                                 FROM Item A
@@ -107,7 +107,7 @@ namespace FCP
                                FROM Medicine A
                                INNER JOIN Item B ON A.RawID=B.RawID AND A.DeletedYN=0 AND A.WeightMedicine=10
                                LEFT OUTER JOIN ItemMultiCode D ON B.RawID=D.ItemID AND D.DeletedYN=0");
-            while(dr.Read())
+            while (dr.Read())
             {
                 list.Add(dr["Mnemonic"].ToString());
                 if (dr["ExtraMnemonic"].ToString().Length > 0)
@@ -119,23 +119,36 @@ namespace FCP
 
         private void Dispose_All_Sql_Object()
         {
-            if (dr != null)
+            if (dr != null && !dr.IsClosed)
+            {
                 dr.Close();
-            com.Dispose();
+            }
             conn.Close();
         }
 
         private void Connect_Sql(string execute)
         {
-            conn = new SqlConnection(_loginInfo);
-            conn.Open();
+            if (conn == null)
+            {
+                conn = new SqlConnection(_loginInfo);
+            }
+            if (conn.State != System.Data.ConnectionState.Open)
+            {
+                conn.Open();
+            }
             com = new SqlCommand(execute, conn);
         }
 
         private void Connect_Sql_Read(string execute)
         {
-            conn = new SqlConnection(_loginInfo);
-            conn.Open();
+            if (conn == null)
+            {
+                conn = new SqlConnection(_loginInfo);
+            }
+            if (conn.State != System.Data.ConnectionState.Open)
+            {
+                conn.Open();
+            }
             com = new SqlCommand(execute, conn);
             dr = com.ExecuteReader();
         }

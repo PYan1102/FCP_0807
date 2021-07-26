@@ -222,7 +222,10 @@ namespace FCP
                 {
                     try
                     {
-                        Content_S = File.ReadAllText(FullFileName_S, Encoding.Default);
+                        using (StreamReader sr = new StreamReader(FullFileName_S, Encoding.Default))
+                        {
+                            Content_S = sr.ReadToEnd();
+                        }
                     }
                     catch (Exception ex)
                     {
