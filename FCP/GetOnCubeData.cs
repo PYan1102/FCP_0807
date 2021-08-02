@@ -82,7 +82,7 @@ namespace FCP
         public List<string> Get_All_Medicine_Code()
         {
             List<string> list = new List<string>();
-            Connect_Sql_Read(@"SELEC
+            Connect_Sql_Read(@"SELECT
                                     A.Mnemonic
                                 , ISNULL(B.MultiMnemonic, '') AS ExtraMnemonic
                                 FROM Item A

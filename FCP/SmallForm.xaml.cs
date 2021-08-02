@@ -94,7 +94,7 @@ namespace FCP
                 Batch_border.Visibility = Visibility.Hidden;
                 OnTime_border.Visibility = Visibility.Hidden;
             }
-            if (Settings.StatOrBatch == "即時")
+            if (Settings.StatOrBatch == "S")
                 OnTime_radiobutton.IsChecked = true;
             else
                 Batch_radiobutton.IsChecked = true;
@@ -109,7 +109,7 @@ namespace FCP
                 Minimum_button.Visibility = Visibility.Hidden;
             }
             StopConverter_button.IsEnabled = false;
-            if (Properties.Settings.Default.DoseType == "Multi")
+            if (Properties.Settings.Default.DoseType == "M")
                 Multi_raduibutton.IsChecked = true;
             else
                 Combi_raduibutton.IsChecked = true;
@@ -161,12 +161,12 @@ namespace FCP
 
         public void UD_button_Click(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.DoseType = Multi_raduibutton.IsChecked == true ? "Multi" : "Combi";
+            Properties.Settings.Default.DoseType = Multi_raduibutton.IsChecked == true ? "M" : "C";
             Properties.Settings.Default.Save();
             if (OnTime_radiobutton.IsChecked == true)
-                mw.ChangeUDFormatType("即時");
+                mw.ChangeUDFormatType("S");
             else
-                mw.ChangeUDFormatType("長期");
+                mw.ChangeUDFormatType("B");
             mw.btn_UD_Click(null, null);
             StartConverter_button.IsEnabled = false;
             UD_button.IsEnabled = false;
@@ -184,9 +184,8 @@ namespace FCP
             StopConverter_button_Click(null, null);
         }
 
-        public void StopConverter_button_Click(object sender, RoutedEventArgs e)
+        public void Stop()
         {
-            mw.btn_Stop_Click(null, null);
             StartConverter_button.IsEnabled = true;
             UD_button.IsEnabled = true;
             StopConverter_button.IsEnabled = false;
@@ -199,6 +198,12 @@ namespace FCP
             StartConverter_button.Opacity = 1;
             UD_button.Opacity = 1;
             //Multi_raduibutton.IsChecked = true;
+        }
+
+        public void StopConverter_button_Click(object sender, RoutedEventArgs e)
+        {
+            mw.btn_Stop_Click(null, null);
+            Stop();
         }
 
         private void Exit_Executed(object sender, ExecutedRoutedEventArgs e)

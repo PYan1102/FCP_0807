@@ -615,6 +615,7 @@ namespace FCP
                     break;
                 case (int)Settings.ModeEnum.長庚醫院:
                     CG.ConvertPrepare(0);
+                    CG.ConvertPrepare(0);
                     break;
                 case (int)Settings.ModeEnum.台北看守所:
                     TPD.ConvertPrepare(0);
@@ -633,6 +634,7 @@ namespace FCP
                     XG.ConvertPrepare(1);
                     break;
                 case (int)Settings.ModeEnum.光田OnCube:
+                    KT.StatOrBatch = UDFormatType;
                     KT.ConvertPrepare(1);
                     break;
                 case (int)Settings.ModeEnum.民生醫院:
@@ -852,7 +854,7 @@ namespace FCP
         public void ChangeUDFormatType(string Type)
         {
             UDFormatType = Type;
-            if (Type == "即時")
+            if (Type == "S")
                 rdo_Stat.IsChecked = true;
             else
                 rdo_Batch.IsChecked = true;

@@ -405,7 +405,7 @@ namespace FCP
                         int r = Int32.Parse(v.Key.Substring(0, v.Key.IndexOf("_")));
                         string DateTemp = v.Key.Substring(v.Key.IndexOf("_") + 1, v.Key.Length - v.Key.IndexOf("_") - 1);
                         DateTime.TryParseExact(DateTemp, "yyMMdd", null, DateTimeStyles.None, out DateTime Date);
-                        if (Type == "即時" & Properties.Settings.Default.DoseType == "Multi")
+                        if (Type == "即時" & Properties.Settings.Default.DoseType == "M")
                         {
                             if (Name == "")
                                 Name = PatientName[r];
@@ -422,7 +422,7 @@ namespace FCP
                             }
                         }
 
-                        if (Properties.Settings.Default.DoseType == "Combi")
+                        if (Properties.Settings.Default.DoseType == "C")
                         {
                             if (Name == "")
                                 Name = PatientName[r];
