@@ -399,7 +399,7 @@ namespace FCP
                     NF.ShowBalloonTip(850, $"缺少頻率", $"{Path.GetFileName(FilePath)} OnCube中缺少該檔案 {R} 的頻率", System.Windows.Forms.ToolTipIcon.Error);
                     break;
             }
-            ////Stop();
+            Stop();
         }
 
         public virtual void ProgressBoxClear()
