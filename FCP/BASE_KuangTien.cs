@@ -104,7 +104,7 @@ namespace FCP
                 _KT = new FMT_KuangTien();
             _KT.StatOrBatch = this.StatOrBatch;
             _KT.Load(base.InputPath, base.OutputPath, base.FilePath, base.NowSecond, Settings, base.Log);
-            Result(_KT.MethodShunt(base.MethodID), true, true);
+            Result(_KT.MethodShunt(base.MethodID), false, true);
         }
 
         public override void Result(string Result, bool NeedMoveFile, bool NeedReminder)

@@ -786,6 +786,7 @@ namespace FCP
                 List<string> AdminTimeList = new List<string>();
                 for (int x = 0; x <= AdminCode_L.Count - 1; x++)
                 {
+                    Console.WriteLine(AdminCode_L[x]);
                     TimesCount = 0;
                     QODTEMP = "";
                     CurrentDate.Add("");
