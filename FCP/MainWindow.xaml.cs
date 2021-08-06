@@ -51,7 +51,7 @@ namespace FCP
         List<string> FilePath = new List<string>();
         StringBuilder logw = new StringBuilder();
         public string CurrentWindow;
-        string UDFormatType = "即時";
+        string StatOrBatch = "S";
         string InputPath1 = "";
         string InputPath2 = "";
         string InputPath3 = "";
@@ -615,6 +615,7 @@ namespace FCP
                     break;
                 case (int)Settings.ModeEnum.長庚醫院:
                     CG.ConvertPrepare(0);
+                    CG.ConvertPrepare(0);
                     break;
                 case (int)Settings.ModeEnum.台北看守所:
                     TPD.ConvertPrepare(0);
@@ -633,6 +634,7 @@ namespace FCP
                     XG.ConvertPrepare(1);
                     break;
                 case (int)Settings.ModeEnum.光田OnCube:
+                    KT.StatOrBatch = StatOrBatch;
                     KT.ConvertPrepare(1);
                     break;
                 case (int)Settings.ModeEnum.民生醫院:
@@ -851,8 +853,8 @@ namespace FCP
 
         public void ChangeUDFormatType(string Type)
         {
-            UDFormatType = Type;
-            if (Type == "即時")
+            StatOrBatch = Type;
+            if (Type == "S")
                 rdo_Stat.IsChecked = true;
             else
                 rdo_Batch.IsChecked = true;

@@ -138,6 +138,9 @@ namespace FCP
         {
             try
             {
+                Properties.Settings.Default.X = WD.X;
+                Properties.Settings.Default.Y = WD.Y;
+                Properties.Settings.Default.Save();
                 Settings.Check();
                 Settings.SaveForm1(WD.IP1, WD.IP2, WD.IP3, WD.OP, WD._AutoStart, WD._isStat ? "S" : "B");
                 ProgressBoxAdd("儲存成功");
@@ -396,7 +399,7 @@ namespace FCP
                     NF.ShowBalloonTip(850, $"缺少頻率", $"{Path.GetFileName(FilePath)} OnCube中缺少該檔案 {R} 的頻率", System.Windows.Forms.ToolTipIcon.Error);
                     break;
             }
-            //Stop();
+            Stop();
         }
 
         public virtual void ProgressBoxClear()
@@ -494,8 +497,8 @@ namespace FCP
         public string IP2 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = mw.txt_InputPath2.Text; })); return A; } }
         public string IP3 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = mw.txt_InputPath3.Text; })); return A; } }
         public string OP { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = mw.txt_OutputPath.Text; })); return A; } }
-        public int X { get { return Properties.Settings.Default.X; } set { Properties.Settings.Default.X = value; } }
-        public int Y { get { return Properties.Settings.Default.Y; } set { Properties.Settings.Default.Y = value; } }
+        public int X { get { int xPoint = 0; Dispatcher.Invoke(new Action(() => { xPoint = Convert.ToInt32(mw.txt_X.Text.Trim()); })); return xPoint; } }
+        public int Y { get { int yPoint = 0; Dispatcher.Invoke(new Action(() => { yPoint = Convert.ToInt32(mw.txt_Y.Text.Trim()); })); return yPoint; } }
         public bool _AutoStart { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)mw.tgl_AutoStart.IsChecked; })); return B; } }
         public bool _isStat { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)mw.rdo_Stat.IsChecked; })); return B; } }  //true > Stat, false > Batch
         public bool _OPD1 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)mw.chk_OPD1.IsChecked; })); return B; } }
@@ -520,8 +523,8 @@ namespace FCP
                 mw.txt_InputPath3.Text = Settings.InputPath3;
                 mw.txt_OutputPath.Text = Settings.OutputPath1;
                 mw.tgl_AutoStart.IsChecked = Settings.EN_AutoStart;
-                mw.txt_X.Text = X.ToString();
-                mw.txt_Y.Text = Y.ToString();
+                mw.txt_X.Text = Properties.Settings.Default.X.ToString();
+                mw.txt_Y.Text = Properties.Settings.Default.Y.ToString();
                 mw.btn_Stop.IsEnabled = false;
                 mw.chk_OPD1.IsChecked = false;
                 mw.chk_OPD2.IsChecked = false;
@@ -547,7 +550,7 @@ namespace FCP
                 try
                 {
                     //string FileVersion = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion.ToString();  //版本
-                    SF.SetFormLocation(X, Y);
+                    SF.SetFormLocation(Properties.Settings.Default.X, Properties.Settings.Default.Y);
                     if (!(bool)mw.btn_Stop.IsEnabled)
                     {
                         UILayout UI = new UILayout();
@@ -883,6 +886,7 @@ namespace FCP
         {
             Dispatcher.Invoke(new Action(() =>
             {
+                SF.Stop();
                 mw.btn_OPD.Opacity = 1;
                 mw.btn_UD.Opacity = 1;
                 mw.btn_OPD.Background = White;

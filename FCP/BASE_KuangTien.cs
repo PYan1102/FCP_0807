@@ -10,7 +10,8 @@ namespace FCP
 {
     class BASE_KuangTien : FunctionCollections
     {
-        FMT_KuangTien KT;
+        public string StatOrBatch { get; set; }
+        private FMT_KuangTien _KT;
         public BASE_KuangTien(MainWindow mw, Settings s)
         {
             Loaded(mw, s);
@@ -54,21 +55,21 @@ namespace FCP
                 if (Settings.DoseMode == "C")
                 {
                     //沙鹿
-                    Query(@"update PrintFormItem set DeletedYN=1 where RawID in (120180,120195)");
+                    //Query(@"update PrintFormItem set DeletedYN=1 where RawID in (120180,120195)");
 
                     //大甲
-                    //Query(@"update PrintFormItem set DeletedYN=1 where RawID in (120156,120172)");
+                    Query(@"update PrintFormItem set DeletedYN=1 where RawID in (120156,120172)");
                 }
                 else
                 {
                     //沙鹿
-                    Query(@"update PrintFormItem set DeletedYN=0 where RawID in (120180,120195)");
+                    //Query(@"update PrintFormItem set DeletedYN=0 where RawID in (120180,120195)");
 
                     //大甲
-                    //Query(@"update PrintFormItem set DeletedYN=0 where RawID in (120156,120172)");
+                    Query(@"update PrintFormItem set DeletedYN=0 where RawID in (120156,120172)");
                 }
             }
-            else if(Settings.Mode==(int)Settings.ModeEnum.光田JVS)  //磨粉
+            else if (Settings.Mode == (int)Settings.ModeEnum.光田JVS)  //磨粉
             {
                 base.ConvertPrepare(Mode);
                 Loop_OPD(0, 0, "");
@@ -99,10 +100,11 @@ namespace FCP
         public override void Converter()
         {
             base.Converter();
-            if (KT == null)
-                KT = new FMT_KuangTien();
-            KT.Load(base.InputPath, base.OutputPath, base.FilePath, base.NowSecond, Settings, base.Log);
-            Result(KT.MethodShunt(base.MethodID), true, true);
+            if (_KT == null)
+                _KT = new FMT_KuangTien();
+            _KT.StatOrBatch = this.StatOrBatch;
+            _KT.Load(base.InputPath, base.OutputPath, base.FilePath, base.NowSecond, Settings, base.Log);
+            Result(_KT.MethodShunt(base.MethodID), true, true);
         }
 
         public override void Result(string Result, bool NeedMoveFile, bool NeedReminder)
