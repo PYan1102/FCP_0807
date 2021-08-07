@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace FCP
 {
-    class InputType_E_DA : FormatCollection
+    class FMT_E_DA : FormatCollection
     {
         ObservableCollection<Data> EDA_UD = new ObservableCollection<Data>();
         public override void Load(string inp, string oup, string filename, string time, Settings settings, Log log)

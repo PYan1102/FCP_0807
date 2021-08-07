@@ -28,7 +28,7 @@ namespace FCP
         Settings Settings;
         MainWindow mw;
         List<string> ConvertFormatList = new List<string>() { "JVServer To OnCube", "創聖 To OnCube", "醫聖 To OnCube", "小港醫院 To OnCube", "光田醫院 To OnCube" ,"光田醫院 To JVServer", "民生醫院 To OnCube",
-        "宏彥診所 To OnCube", "義大醫院 To OnCube", "長庚醫院磨粉 To JVServer", "長庚醫院 To OnCube", "台北看守所 To OnCube", "仁康醫院 To OnCube"};
+        "宏彥診所 To OnCube", "義大醫院 To OnCube", "長庚醫院磨粉 To JVServer", "長庚醫院 To OnCube", "台北看守所 To OnCube", "仁康醫院 To OnCube", "方鼎 To OnCube"};
         List<string> FilterSpecialList = new List<string>();
         List<string> UseSpecialList = new List<string>();
         List<string> FilterMedicineCode = new List<string>();
@@ -104,6 +104,9 @@ namespace FCP
                         break;
                     case (int)Settings.ModeEnum.仁康醫院:
                         ConvertFormat_combobox.SelectedIndex = 12;
+                        break;
+                    case (int)Settings.ModeEnum.方鼎:
+                        ConvertFormat_combobox.SelectedIndex = 13;
                         break;
                 }
                 if (Settings.DoseMode == "M")
@@ -199,7 +202,7 @@ namespace FCP
 
         private void JVServerRandomAdd_Click(object sender, RoutedEventArgs e)
         {
-            if (JVServerRandomSetting_datagrid.Items.Count <=  5)
+            if (JVServerRandomSetting_datagrid.Items.Count <= 5)
             {
                 int Index = JVServerRandomSetting_datagrid.Items.Count;
                 JVSRclass.Add(new JVServerRandomclass
@@ -279,16 +282,16 @@ namespace FCP
                     mw.ClearObject(ModeTemp);
                     mw.Judge(false);
                 }
-                Msg.Show("儲存完成", "成功", "Information",Msg.Color.Information);
+                Msg.Show("儲存完成", "成功", "Information", Msg.Color.Information);
             }
-            catch(Exception a)
+            catch (Exception a)
             {
                 Msg.Show(a.ToString(), "錯誤", "Error", Msg.Color.Error);
                 log.Write(a.ToString());
             }
         }
 
-        private void Save_Executed(object sender,ExecutedRoutedEventArgs e)
+        private void Save_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             Save_button_Click(null, null);
         }

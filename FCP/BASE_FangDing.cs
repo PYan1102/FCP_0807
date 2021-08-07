@@ -3,22 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Diagnostics;
 
 namespace FCP
 {
-    class BASE_E_DA : FunctionCollections
+    class BASE_FangDing : FunctionCollections
     {
-        FMT_E_DA EDA;
+        private FMT_FangDing _FangDing { get; set; }
 
-        public BASE_E_DA(MainWindow mw, Settings s)
+        public BASE_FangDing(MainWindow mainWindow, Settings settings)
         {
-            Loaded(mw, s);
+            Loaded(mainWindow, settings);
         }
 
-        public override void Loaded(MainWindow mw, Settings s)
+        public override void Loaded(MainWindow mw, Settings S)
         {
-            base.Loaded(mw, s);
+            base.Loaded(mw, S);
+            mw.chk_OPD1.IsChecked = true;
         }
 
         public override void AdvancedSettingsShow()
@@ -49,7 +49,7 @@ namespace FCP
         public override void ConvertPrepare(int Mode)
         {
             base.ConvertPrepare(Mode);
-            Loop_UD(0, 0, "");
+            Loop_OPD(0, 0, "");
         }
 
         public override void Loop_OPD(int Start, int Length, string Content)
@@ -65,15 +65,15 @@ namespace FCP
         public override void Converter()
         {
             base.Converter();
-            if (EDA == null)
-                EDA = new FMT_E_DA();
-            EDA.Load(base.InputPath, base.OutputPath, base.FilePath, base.NowSecond, Settings, base.Log);
-            Result(EDA.MethodShunt(null), true, true);
+            if (_FangDing == null)
+                _FangDing = new FMT_FangDing();
+            _FangDing.Load(base.InputPath, base.OutputPath, base.FilePath, base.NowSecond, Settings, base.Log);
+            Result(_FangDing.MethodShunt(base.MethodID), true, true);
         }
 
-        public override void Result(string Result, bool needMoveFile, bool NeedReminder)
+        public override void Result(string Result, bool NeedMoveFile, bool NeedReminder)
         {
-            base.Result(Result, needMoveFile, NeedReminder);
+            base.Result(Result, NeedMoveFile, NeedReminder);
         }
 
         public override void ProgressBoxClear()

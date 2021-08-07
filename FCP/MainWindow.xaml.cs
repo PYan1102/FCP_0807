@@ -38,6 +38,7 @@ namespace FCP
         BASE_ChangGung CG;
         BASE_TaipeiDetention TPD;
         BASE_JenKang JK;
+        BASE_FangDing FD;
         MsgB Msg = new MsgB();
         Settings Settings = new Settings();
         Log log = new Log();
@@ -164,6 +165,9 @@ namespace FCP
                                 case (int)Settings.ModeEnum.仁康醫院:
                                     JK.IconDBClick(null, null);
                                     break;
+                                case (int)Settings.ModeEnum.方鼎:
+                                    FD.IconDBClick(null, null);
+                                    break;
                             }
                             handled = true;
                             break;
@@ -235,6 +239,10 @@ namespace FCP
                     JK = new BASE_JenKang(this, Settings);
                     if (Auto) JK.AutoStart();
                     break;
+                case (int)Settings.ModeEnum.方鼎:
+                    FD = new BASE_FangDing(this, Settings);
+                    if (Auto) FD.AutoStart();
+                    break;
             }
         }
 
@@ -280,6 +288,9 @@ namespace FCP
                     break;
                 case (int)Settings.ModeEnum.仁康醫院:
                     JK.Stop();
+                    break;
+                case (int)Settings.ModeEnum.方鼎:
+                    FD.Stop();
                     break;
             }
         }
@@ -328,6 +339,9 @@ namespace FCP
                 case (int)Settings.ModeEnum.仁康醫院:
                     JK.Save();
                     break;
+                case (int)Settings.ModeEnum.方鼎:
+                    FD.Save();
+                    break;
             }
         }
 
@@ -373,6 +387,9 @@ namespace FCP
                     break;
                 case (int)Settings.ModeEnum.仁康醫院:
                     JK.ChangeWindow();
+                    break;
+                case (int)Settings.ModeEnum.方鼎:
+                    FD.ChangeWindow();
                     break;
             }
         }
@@ -420,6 +437,9 @@ namespace FCP
                 case (int)Settings.ModeEnum.仁康醫院:
                     JK.AdvancedSettingsShow();
                     break;
+                case (int)Settings.ModeEnum.方鼎:
+                    FD.AdvancedSettingsShow();
+                    break;
             }
         }
 
@@ -465,6 +485,9 @@ namespace FCP
                     break;
                 case (int)Settings.ModeEnum.仁康醫院:
                     JK.ProgressBoxClear();
+                    break;
+                case (int)Settings.ModeEnum.方鼎:
+                    FD.ProgressBoxClear();
                     break;
             }
         }
@@ -525,6 +548,10 @@ namespace FCP
                     JK.CloseSelf();
                     JK = null;
                     break;
+                case (int)Settings.ModeEnum.方鼎:
+                    FD.CloseSelf();
+                    FD = null;
+                    break;
             }
         }
 
@@ -570,6 +597,9 @@ namespace FCP
                     break;
                 case (int)Settings.ModeEnum.仁康醫院:
                     JK.AllWindowShowOrHide(false, false, false);
+                    break;
+                case (int)Settings.ModeEnum.方鼎:
+                    FD.AllWindowShowOrHide(false, false, false);
                     break;
             }
         }  //縮小程式
@@ -622,6 +652,9 @@ namespace FCP
                     break;
                 case (int)Settings.ModeEnum.仁康醫院:
                     JK.ConvertPrepare(0);
+                    break;
+                case (int)Settings.ModeEnum.方鼎:
+                    FD.ConvertPrepare(0);
                     break;
             }
         }

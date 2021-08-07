@@ -91,11 +91,14 @@
     <Compile Include="BASE_ChangGung.cs" />
     <Compile Include="BASE_ChangGung_POWDER.cs" />
     <Compile Include="BASE_ChuangSheng.cs" />
+    <Compile Include="BASE_FangDing.cs" />
     <Compile Include="DoJson.cs" />
     <Compile Include="ExtraSettings.cs" />
     <Compile Include="BASE_E_DA.cs" />
+    <Compile Include="FMT_FangDing.cs" />
     <Compile Include="FMT_JenKang.cs" />
     <Compile Include="FormatCollection.cs" />
+    <Compile Include="FormatFactory.cs" />
     <Compile Include="FunctionCollections.cs" />
     <Compile Include="GetOnCubeData.cs" />
     <Compile Include="BASE_HongYen.cs" />
@@ -113,6 +116,9 @@
     <Compile Include="BASE_JenKang.cs" />
     <Compile Include="BASE_JVServer.cs" />
     <Compile Include="MergeFiles.cs" />
+    <Compile Include="ModelsFactory.cs" />
+    <Compile Include="Models\Enum\ConvertResult.cs" />
+    <Compile Include="Models\Settings.cs" />
     <Compile Include="OnputType_JVServer.cs" />
     <Compile Include="BASE_KuangTien.cs" />
     <Compile Include="Log.cs" />

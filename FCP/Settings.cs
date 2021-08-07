@@ -41,7 +41,7 @@ namespace FCP
         public enum ModeEnum
         {
             JVS = 0, 創聖 = 1, 醫聖 = 2, 小港醫院 = 3, 光田OnCube = 4, 光田JVS = 5, 民生醫院 = 6, 宏彥診所 = 7, 義大醫院 = 8, 長庚磨粉 = 9, 長庚醫院 = 10, 台北看守所 = 11,
-            仁康醫院 = 12
+            仁康醫院 = 12, 方鼎 = 13
         }
 
         public enum PackModeEnum

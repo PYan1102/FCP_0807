@@ -798,7 +798,7 @@ namespace FCP
             }
         }
 
-        public bool E_DA_UD(ObservableCollection<InputType_E_DA.Data> EDA_UD, string FileNameOutput)
+        public bool E_DA_UD(ObservableCollection<FMT_E_DA.Data> EDA_UD, string FileNameOutput)
         {
             try
             {
@@ -1142,6 +1142,45 @@ namespace FCP
                         sw.Write(v.PerQty.PadRight(30));
                         sw.Write(ECD(v.PatientName, 30));
                         sw.Write("".PadRight(390));
+                        sw.WriteLine("M");
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                log.Write(ex.ToString());
+                return false;
+            }
+        }
+
+        public bool FangDing(List<DetailItems> list, string fileNameOutput)
+        {
+            try
+            {
+                using (StreamWriter sw = new StreamWriter(fileNameOutput, false, Encoding.Default))
+                {
+                    foreach (var v in list)
+                    {
+                        sw.Write(ECD(v.PatientName, 20));
+                        sw.Write("".PadRight(30));
+                        sw.Write(ECD("門診", 50));
+                        sw.Write("".PadRight(29));
+                        sw.Write(v.PerQty.PadRight(5));
+                        sw.Write(v.MedicineCode.PadRight(20));
+                        sw.Write(ECD(v.MedicineName, 50));
+                        sw.Write(v.AdminCode.PadRight(20));
+                        sw.Write(v.StartDate);
+                        sw.Write(v.EndDate);
+                        sw.Write("".PadRight(58));
+                        sw.Write(v.PrescriptionNo.PadRight(50));
+                        sw.Write("".PadRight(50));
+                        sw.Write("1999-01-01");
+                        sw.Write("男    ");
+                        sw.Write("".PadRight(40));
+                        sw.Write("0");
+                        sw.Write(ECD("艾森曼", 30));
+                        sw.Write(RightSpace("", 450));
                         sw.WriteLine("M");
                     }
                 }
