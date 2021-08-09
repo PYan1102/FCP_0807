@@ -34,20 +34,20 @@ namespace FCP
         {
             this.Visibility = Visibility.Visible;
             MsgBIcon.Kind = (MaterialDesignThemes.Wpf.PackIconKind)Enum.Parse(typeof(MaterialDesignThemes.Wpf.PackIconKind), i);
-            Title_textblock.Text = t;
+            Txtb_Title.Text = t;
             MsgBContent.Text = c;
             MsgBIcon.Foreground = new SolidColorBrush((Color)color);
-            OK_button.Focus();
+            Btn_OK.Focus();
             MessageBeep(1);
             this.ShowDialog();
         }
 
-        private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void Gd_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             this.DragMove();
         }
 
-        private void OK_button_Click(object sender, RoutedEventArgs e)
+        private void Btn_OK_Click(object sender, RoutedEventArgs e)
         {
             this.Visibility = Visibility.Hidden;
         }
@@ -57,14 +57,14 @@ namespace FCP
             this.IsEnabled = false;
         }
 
-        private void Close_button_Click(object sender, RoutedEventArgs e)
+        private void Btn_Close_Click(object sender, RoutedEventArgs e)
         {
             this.Visibility = Visibility.Hidden;
         }
 
         private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            Close_button_Click(null, null);
+            Btn_Close_Click(null, null);
         }
     }
 

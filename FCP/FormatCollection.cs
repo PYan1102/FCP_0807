@@ -7,6 +7,10 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.IO;
+using FCP.MVVM.Factory;
+using FCP.MVVM.Control;
+using FCP.MVVM.Models;
+using FCP.MVVM.Models.Enum;
 
 namespace FCP
 {
@@ -67,33 +71,41 @@ namespace FCP
         List<string> AdminCodeUse = new List<string>();
         public Dictionary<string, List<string>> DataDic = new Dictionary<string, List<string>>();  //切點用
         public string[][] TimesOfAdminTime_L = new string[24][];  //頻率一天次數
-        public Settings Settings;
-        public Log log;
+        public Settings Settings { get; set; }
+        public SettingsModel SettingsModel { get; set; }
+        public Log Log { get; set; }
         public OnputType_OnCube oncube;
         public OnputType_JVServer jvserver;
         public GetOnCubeData GOD = new GetOnCubeData();
         public string ErrorContent { get; set; }
-        public string LoseContent { get; set; }
+        public ConvertFileInformtaionModel ConvertFileInformation { get; set; }
+        public string InputPath { get; set; }
+        public string OutputPath { get; set; }
+        public string FilePath { get; set; }
+        public string CurrentSeconds { get; set; }
+        public DepartmentEnum Department { get; set; }
+        public ReturnsResultFormat ReturnsResult { get; set; }
 
-        public virtual void Load(string inp, string oup, string filename, string time, Settings settings, Log log)
+        public FormatCollection()
         {
-            InputPath_S = inp;
-            OutputPath_S = oup;
-            FullFileName_S = filename;
-            Time_S = time;
-            this.Settings = settings;
-            this.log = log;
-            SetAdminCode();
-            if (settings.Mode != 5 & settings.Mode != 9)  //光田磨粉、長庚磨粉
-                GetMedicineCode();
-            log.Check();
-            Content_S = "";
-            ClearList();
+            Settings = SettingsFactory.GenerateSettingsControl();
+            SettingsModel = SettingsFactory.GenerateSettingsModels();
+            Log = LogFactory.GenerateLog();
+            ConvertFileInformation = ConvertInformationFactory.GenerateConvertFileInformation();
         }
 
-        public enum ResultType
+        public virtual void Init()
         {
-            成功 = 0, 失敗 = 1, 全數過濾 = 2, 沒有頻率 = 3
+            InputPath = ConvertFileInformation.GetInputPath;
+            OutputPath = ConvertFileInformation.GetOutputPath;
+            FilePath = ConvertFileInformation.GetFilePath;
+            CurrentSeconds = ConvertFileInformation.GetCurrentSeconds;
+            Department = ConvertFileInformation.GetDepartment;
+            SetAdminCode();
+            if (SettingsModel.Mode != Format.光田醫院TJVS & SettingsModel.Mode != Format.長庚磨粉TJVS)  //光田磨粉、長庚磨粉
+                GetMedicineCode();
+            Log.Check();
+            ClearList();
         }
 
         private void ClearList()
@@ -129,7 +141,43 @@ namespace FCP
         }
 
         //方法分流
-        abstract public string MethodShunt(int? MethodID);
+        public virtual ReturnsResultFormat MethodShunt()
+        {
+            switch (Department)
+            {
+                case DepartmentEnum.OPD:
+                    if (ProcessOPD())
+                    {
+                        LogicOPD();
+                    }
+                    break;
+                case DepartmentEnum.POWDER:
+                    if (ProcessPOWDER())
+                    {
+                        LogicPOWDER();
+                    }
+                    break;
+                case DepartmentEnum.UDStat:
+                    if (ProcessUDStat())
+                    {
+                        LogicUDStat();
+                    }
+                    break;
+                case DepartmentEnum.UDBatch:
+                    if (ProcessUDBatch())
+                    {
+                        LogicUDBatch();
+                    }
+                    break;
+                default:
+                    if (ProcessOther())
+                    {
+                        LogicOther();
+                    }
+                    break;
+            }
+            return ReturnsResult;
+        }
 
         //特控1
         public int GetID1(string medicinecode)
@@ -229,7 +277,7 @@ namespace FCP
                     }
                     catch (Exception ex)
                     {
-                        log.Write(ex.ToString());
+                        Log.Write(ex.ToString());
                     }
                     System.Threading.Thread.Sleep(50);
                 }
@@ -242,12 +290,12 @@ namespace FCP
         {
             AdminCodeFilter.Clear();
             AdminCodeUse.Clear();
-            foreach (string s in Settings.AdminCodeFilter)
+            foreach (string s in SettingsModel.AdminCodeFilter)
             {
                 if (!string.IsNullOrEmpty(s))
                     AdminCodeFilter.Add(s);
             }
-            foreach (string s in Settings.AdminCodeUse)
+            foreach (string s in SettingsModel.AdminCodeUse)
             {
                 if (!string.IsNullOrEmpty(s))
                     AdminCodeUse.Add(s);
@@ -257,9 +305,9 @@ namespace FCP
         //判斷使用特定頻率及過濾特定頻率
         public bool JudgePackedMode(string AdminCode)
         {
-            if (Settings.PackMode == (int)Settings.PackModeEnum.正常)
+            if (SettingsModel.PackMode == PackMode.正常)
                 return false;
-            if (Settings.PackMode == (int)Settings.PackModeEnum.過濾特殊)
+            if (SettingsModel.PackMode == PackMode.過濾特殊)
             {
                 if (AdminCodeFilter.Contains(AdminCode))
                     return true;
@@ -277,7 +325,7 @@ namespace FCP
 
         public bool NeedFilterMedicineCode(string Code)
         {
-            return Settings.FilterMedicineCode.Contains(Code);
+            return SettingsModel.FilterMedicineCode.Contains(Code);
         }
 
         //計算總量除以ID1的餘數
@@ -323,7 +371,7 @@ namespace FCP
         public void GetMedicineCode()
         {
             MedicineCodeGiven_L.Clear();
-            MedicineCodeGiven_L = Settings.EN_OnlyCanisterIn ? GOD.Get_Medicine_Code_Only_Got_Canister() : GOD.Get_All_Medicine_Code();
+            MedicineCodeGiven_L = SettingsModel.EN_OnlyCanisterIn ? GOD.Get_Medicine_Code_Only_Got_Canister() : GOD.Get_All_Medicine_Code();
         }
 
         public List<string> Get_Medicine_Code_If_Weight_Is_10_Gram()
@@ -331,35 +379,15 @@ namespace FCP
             return GOD.Get_Medicine_Code_If_Weight_Is_10_Gram();
         }
 
-        public string Do(ResultType process, ResultType logic)
-        {
-            string FileName = Path.GetFileName(FullFileName_S);
-            if (process == ResultType.全數過濾)
-                return $"{(int)ResultType.全數過濾}|{FileName} 全數過濾";
-            else if (process==ResultType.失敗)
-                return $"{(int)ResultType.失敗}|{ErrorContent}";
-            else if(process==ResultType.沒有頻率)
-                return $"{(int)ResultType.沒有頻率}|{LoseContent}";
-
-            if (logic == ResultType.全數過濾)
-                return $"{(int)ResultType.全數過濾}|{FileName} 全數過濾";
-            else if (logic == ResultType.失敗)
-                return $"{(int)ResultType.失敗}|{ErrorContent}";
-            else if (logic == ResultType.沒有頻率)
-                return $"{(int)ResultType.沒有頻率}|{LoseContent}";
-            return $"{(int)ResultType.成功}|{FileName} 轉檔成功";
-        }
-
-        public string Do(ResultType type)
-        {
-            string FileName = Path.GetFileName(FullFileName_S);
-            if (type == ResultType.全數過濾)
-                return $"{(int)ResultType.全數過濾}|{FileName} 全數過濾";
-            else if (type == ResultType.失敗)
-                return $"{(int)ResultType.失敗}|{ErrorContent}";
-            else if (type == ResultType.沒有頻率)
-                return $"{(int)ResultType.沒有頻率}|{LoseContent}";
-            return $"{(int)ResultType.成功}|{FileName} 轉檔成功";
-        }
+        public abstract bool ProcessOPD();
+        public abstract bool LogicOPD();
+        public abstract bool ProcessUDBatch();
+        public abstract bool LogicUDBatch();
+        public abstract bool ProcessUDStat();
+        public abstract bool LogicUDStat();
+        public abstract bool ProcessPOWDER();
+        public abstract bool LogicPOWDER();
+        public abstract bool ProcessOther();
+        public abstract bool LogicOther();
     }
 }

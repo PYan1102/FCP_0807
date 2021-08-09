@@ -10,7 +10,13 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.Blue.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Blue.xaml" />
-                <ResourceDictionary Source="/Theme/"
+                <ResourceDictionary Source="Theme/ColorsTheme.xaml"/>
+                <ResourceDictionary Source="Theme/RadioButtonTheme.xaml"/>
+                <ResourceDictionary Source="Theme/WhiteButtonTheme.xaml"/>
+                <ResourceDictionary Source="Theme/ControlButtonTheme.xaml"/>
+                <ResourceDictionary Source="Theme/DataGridHeaderTheme.xaml"/>
+                <ResourceDictionary Source="Theme/PageButtonTheme.xaml"/>
+                <ResourceDictionary Source="Theme/TextBlockTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

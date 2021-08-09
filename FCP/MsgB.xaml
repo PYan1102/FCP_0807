@@ -13,29 +13,41 @@
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"
         FontFamily="{DynamicResource MaterialDesignFont}"
-        Title="MsgB" Height="400" Width="650" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="None" Closed="Window_Closed">
+        Title="MsgB"
+        Height="400"
+        Width="650"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        Closed="Window_Closed">
     <Window.Resources>
         <ResourceDictionary>
-            <SolidColorBrush x:Key="ShallowBlue" Color="#7B97AB"/>
-            <SolidColorBrush x:Key="NormalBlue" Color="#3797E3"/>
-            <SolidColorBrush x:Key="DeepBlue" Color="#1D6FB1"/>
             <RoutedCommand x:Key="Close"/>
-            <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}" x:Key="ChangeButtonColor">
-                <Setter Property="Foreground" Value="{StaticResource DeepBlue}"/>
-                <Setter Property="Background" Value="Transparent"/>
+            <Style TargetType="Button"
+                   BasedOn="{StaticResource MaterialDesignRaisedButton}"
+                   x:Key="ChangeButtonColor">
+                <Setter Property="Foreground"
+                        Value="{StaticResource DeepBlue}"/>
+                <Setter Property="Background"
+                        Value="Transparent"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type Button}">
-                            <Border Background="{TemplateBinding Background}" CornerRadius="5">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="5">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
                             </Border>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
                 <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{StaticResource DeepBlue}"/>
-                        <Setter Property="Foreground" Value="White"/>
+                    <Trigger Property="IsMouseOver"
+                             Value="True">
+                        <Setter Property="Background"
+                                Value="{StaticResource DeepBlue}"/>
+                        <Setter Property="Foreground"
+                                Value="White"/>
                     </Trigger>
                 </Style.Triggers>
             </Style>
@@ -48,39 +60,68 @@
     <Window.CommandBindings>
         <CommandBinding Command="{StaticResource Close}" Executed="CommandBinding_Executed"/>
     </Window.CommandBindings>
-    <Border BorderBrush="{StaticResource DeepBlue}" BorderThickness="1">
+    <Border BorderBrush="{StaticResource DeepBlue}"
+            BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid Background="{StaticResource DeepBlue}" MouseLeftButtonDown="Grid_MouseLeftButtonDown">
+            <Grid Background="{StaticResource DeepBlue}"
+                  MouseLeftButtonDown="Gd_MouseLeftButtonDown">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition Width="5"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="Title_textblock" FontSize="14" Foreground="White" VerticalAlignment="Center" Margin="5 0 0 0"/>
-                <Button x:Name="Close_button" Grid.Column="2" materialDesign:ButtonAssist.CornerRadius="5" Height="auto" Background="Transparent" BorderBrush="Transparent" Foreground="White" Click="Close_button_Click">
-                    <materialDesign:PackIcon Kind="Close" Height="25" Width="25" Margin="-13 -1 -10 0"/>
+                <TextBlock x:Name="Txtb_Title"
+                           FontSize="14"
+                           Foreground="White"
+                           VerticalAlignment="Center" 
+                           Margin="5 0 0 0"/>
+                <Button x:Name="Btn_Close"
+                        Grid.Column="2"
+                        materialDesign:ButtonAssist.CornerRadius="5"
+                        Height="auto"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Foreground="White"
+                        Click="Btn_Close_Click">
+                    <materialDesign:PackIcon Kind="Close"
+                                             Height="25"
+                                             Width="25"
+                                             Margin="-13 -1 -10 0"/>
                 </Button>
             </Grid>
-            <Border Grid.Row="1" Padding="10">
+            <Border Grid.Row="1"
+                    Padding="10">
                 <Grid x:Name="MSG">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="40"/>
                     </Grid.RowDefinitions>
-                    <materialDesign:PackIcon x:Name="MsgBIcon" Width="30" Height="30" Foreground="Red" Margin="0 -5 0 0"/>
+                    <materialDesign:PackIcon x:Name="MsgBIcon"
+                                             Width="30"
+                                             Height="30"
+                                             Foreground="Red"
+                                             Margin="0 -5 0 0"/>
                     <ScrollViewer Grid.Row="1"
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Auto">
-                        <TextBlock x:Name="MsgBContent" FontSize="14" Foreground="{StaticResource DeepBlue}"/>
+                        <TextBlock x:Name="MsgBContent"
+                                   FontSize="14"
+                                   Foreground="{StaticResource DeepBlue}"/>
                     </ScrollViewer>
-                    <Button x:Name="OK_button" Grid.Row="2" Width="150" Height="auto" Click="OK_button_Click" Style="{StaticResource ChangeButtonColor}">
-                        <TextBlock FontSize="20" Text="OK"/>
+                    <Button x:Name="Btn_OK"
+                            Grid.Row="2"
+                            Width="150"
+                            Height="auto"
+                            Click="Btn_OK_Click"
+                            Style="{StaticResource ChangeButtonColor}">
+                        <TextBlock FontSize="20"
+                                   Text="OK"/>
                     </Button>
                 </Grid>
             </Border>

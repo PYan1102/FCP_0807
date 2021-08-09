@@ -10,6 +10,12 @@ using System.Threading;
 using System.Runtime.InteropServices;
 using System.Windows.Media;
 using System.Data.SqlClient;
+using FCP.MVVM.ViewModels.MainWindow;
+using FCP.MVVM.Factory.ViewModels;
+using FCP.MVVM.Control;
+using FCP.MVVM.Models;
+using FCP.MVVM.Factory;
+using FCP.MVVM.Models.Enum;
 
 namespace FCP
 {
@@ -22,7 +28,8 @@ namespace FCP
         System.Windows.Forms.NotifyIcon NF = new System.Windows.Forms.NotifyIcon();
         System.Windows.Forms.ContextMenuStrip CM = new System.Windows.Forms.ContextMenuStrip();
         public Log Log = new Log();
-        public Settings Settings;
+        public SettingsModel SettingsModel { get; set; }
+        private Settings _Settings { get; set; }
         public SmallForm SF;
         public AdvancedSettings AS;
         MsgB Msg;
@@ -31,14 +38,25 @@ namespace FCP
         CancellationTokenSource cts1;
         List<string> IPList = new List<string>();
         public WindowsDo WD;
-        int Mode = 0;
         static string SuccessPath, FailPath;
-        public string FilePath, InputPath, OutputPath, NowSecond;
+        public string FilePath, InputPath, OutputPath, CurrentSeconds;
         public int MethodID;
+        public MainWindow MainWindow { get; set; }
+        private PropertyChange _PropertyChange { get; set; }
+        private ConvertFileInformtaionModel _ConvertFileInformation { get; set; }
+        private int Mode { get; set; }
 
-        public enum ResultType
+        public FunctionCollections()
         {
-            成功 = 0, 失敗 = 1, 全數過濾 = 2, 沒有頻率 = 3
+            _PropertyChange = MainWindowFacotry.GeneratePropertyChange();
+            _Settings = SettingsFactory.GenerateSettingsControl();
+            SettingsModel = SettingsFactory.GenerateSettingsModels();
+            _ConvertFileInformation = ConvertInformationFactory.GenerateConvertFileInformation();
+        }
+
+        public void SetWindow(MainWindow mainWindow)
+        {
+            MainWindow = mainWindow;
         }
 
         public enum ModeEnum
@@ -47,23 +65,22 @@ namespace FCP
         }
 
         //建立MsgBox物件
-        public virtual void Loaded(MainWindow mw, Settings S)
+        public virtual void Loaded()
         {
             try
             {
                 Log.Check();
-                Settings = S;
-                SF = new SmallForm(mw, S) { Owner = mw };
-                AS = new AdvancedSettings(mw, S, Log) { Owner = mw };
-                Msg = new MsgB() { Owner = mw };
-                WD = new WindowsDo() { mw = mw, Msg = Msg, Settings = S, Log = Log, SF = SF, AS = AS };
+                SF = new SmallForm(MainWindow) { Owner = MainWindow };
+                AS = new AdvancedSettings(MainWindow, Log) { Owner = MainWindow };
+                Msg = new MsgB() { Owner = MainWindow };
+                WD = new WindowsDo() { MainWindow = MainWindow, Msg = Msg, Log = Log, SF = SF, AS = AS };
                 CheckProgramStart();
                 CheckFileBackupPath();
                 CreateIcon();
                 WD.ProcessAction();
-                NF.Text = (bool)mw.tgl_AutoStart.IsChecked ? "轉檔程式：轉檔進行中" : "轉檔程式：停止";
+                NF.Text = (bool)MainWindow.Tgl_AutoStart.IsChecked ? "轉檔程式：轉檔進行中" : "轉檔程式：停止";
                 cts1 = new CancellationTokenSource();
-                mw.Dispatcher.InvokeAsync(new Action(() => WD.UI_Refresh(cts1)));
+                MainWindow.Dispatcher.InvokeAsync(new Action(() => WD.UI_Refresh(cts1)));
             }
             catch (Exception ex)
             {
@@ -141,8 +158,8 @@ namespace FCP
                 Properties.Settings.Default.X = WD.X;
                 Properties.Settings.Default.Y = WD.Y;
                 Properties.Settings.Default.Save();
-                Settings.Check();
-                Settings.SaveForm1(WD.IP1, WD.IP2, WD.IP3, WD.OP, WD._AutoStart, WD._isStat ? "S" : "B");
+                
+                _Settings.SaveMainWidow(WD.IP1, WD.IP2, WD.IP3, WD.OP, WD._AutoStart, WD._isStat ? "S" : "B");
                 ProgressBoxAdd("儲存成功");
             }
             catch (Exception ex)
@@ -192,13 +209,13 @@ namespace FCP
                 {
                     while (!cts.IsCancellationRequested)
                     {
-                        await Task.Delay(Settings.Speed);
+                        await Task.Delay(SettingsModel.Speed);
                         foreach (string IP in IPList)
                         {
                             int Index = IPList.IndexOf(IP);
                             if (IP.Trim() == "")
                                 continue;
-                            foreach (string Name in Directory.GetFiles(IP, Settings.DeputyFileName))
+                            foreach (string Name in Directory.GetFiles(IP, SettingsModel.DeputyFileName))
                             {
                                 bool _Exit = false;
                                 if (Content != "")
@@ -211,7 +228,7 @@ namespace FCP
                                         if (Path.GetFileNameWithoutExtension(Name).Substring(Start, Length) == s)
                                         {
                                             SetConvertValue(Index, Path.GetDirectoryName(IP), WD.OP, Name);
-                                            Converter();
+                                            SetConvertInformation();
                                             _Exit = true;
                                             break;
                                         }
@@ -222,7 +239,7 @@ namespace FCP
                                 else
                                 {
                                     SetConvertValue(Index, Path.GetDirectoryName(IP), WD.OP, Name);
-                                    Converter();
+                                    SetConvertInformation();
                                     break;
                                 }
                             }
@@ -248,13 +265,13 @@ namespace FCP
                 {
                     while (!cts.IsCancellationRequested)
                     {
-                        await Task.Delay(Settings.Speed);
+                        await Task.Delay(SettingsModel.Speed);
                         foreach (string IP in IPList)
                         {
                             int Index = IPList.IndexOf(IP);
                             if (IP.Trim() == "")
                                 continue;
-                            foreach (string Name in Directory.GetFiles(IP, Settings.DeputyFileName))
+                            foreach (string Name in Directory.GetFiles(IP, SettingsModel.DeputyFileName))
                             {
                                 string FileName = Path.GetFileNameWithoutExtension(Name);
                                 if (FileName.Contains(" "))  //門診、急診、慢籤
@@ -265,26 +282,26 @@ namespace FCP
                                     if (WD._OPD1 & 1 <= No & No <= 4999)
                                     {
                                         SetConvertValue(Index, Path.GetDirectoryName(IP), WD.OP, Name);
-                                        Converter();
+                                        SetConvertInformation();
                                         break;
                                     }
                                     else if (WD._OPD2 & 6001 <= No & No <= 7999)
                                     {
                                         SetConvertValue(Index, Path.GetDirectoryName(IP), WD.OP, Name);
-                                        Converter();
+                                        SetConvertInformation();
                                         break;
                                     }
                                     else if (WD._OPD3 & 9001 <= No & No < 19999)
                                     {
                                         SetConvertValue(Index, Path.GetDirectoryName(IP), WD.OP, Name);
-                                        Converter();
+                                        SetConvertInformation();
                                         break;
                                     }
                                 }
                                 else if (WD._OPD4) //磨粉
                                 {
                                     SetConvertValue(Index, Path.GetDirectoryName(IP), WD.OP, Name);
-                                    Converter();
+                                    SetConvertInformation();
                                     break;
                                 }
                             }
@@ -310,25 +327,25 @@ namespace FCP
                 {
                     while (!cts.IsCancellationRequested)
                     {
-                        await Task.Delay(Settings.Speed);
+                        await Task.Delay(SettingsModel.Speed);
                         string IP = WD.IP3;
                         if (IP.Trim() == "")
                             continue;
-                        foreach (string Name in Directory.GetFiles(IP, Settings.DeputyFileName))
+                        foreach (string Name in Directory.GetFiles(IP, SettingsModel.DeputyFileName))
                         {
-                            if (Settings.EN_StatOrBatch)
+                            if (SettingsModel.EN_StatOrBatch)
                             {
                                 if (Path.GetFileNameWithoutExtension(Name).Substring(Start, Length) == Content)
                                 {
                                     SetConvertValue(2, Path.GetDirectoryName(IP), WD.OP, Name);
-                                    Converter();
+                                    SetConvertInformation();
                                     break;
                                 };
                             }
                             else
                             {
                                 SetConvertValue(2, Path.GetDirectoryName(IP), WD.OP, Name);
-                                Converter();
+                                SetConvertInformation();
                                 break;
                             }
                         }
@@ -350,53 +367,56 @@ namespace FCP
             FilePath = File;
         }
 
-        public virtual void Converter()
+        public virtual void SetConvertInformation()
         {
-            NowSecond = DateTime.Now.ToString("ss.ffff");
-            //Save();
+            CurrentSeconds = DateTime.Now.ToString("ss.ffff");
+            _ConvertFileInformation.SetInputPath(InputPath)
+                .SetOutputPath(OutputPath)
+                .SetFilePath(FilePath)
+                .SetDepartment(DepartmentEnum.OPD)
+                .SetCurrentSeconds(CurrentSeconds);
         }
 
-        public virtual void Result(string Result, bool NeedMoveFile, bool NeedReminder)
+        public void Result(ReturnsResultFormat returnsResult, bool isMoveFile, bool isReminder)
         {
-            string[] ResultSplit = Result.Split('|');
-            string R = ResultSplit[1];
-            string FileName = $"{Path.GetFileName(FilePath)}_{ DateTime.Now:ss_fff}";
-            switch (Convert.ToInt32(ResultSplit[0]))
+            string message = returnsResult.Message;
+            string fileName = $"{Path.GetFileName(FilePath)}_{ DateTime.Now:ss_fff}";
+            switch (returnsResult.Result)
             {
-                case (int)ResultType.成功:
-                    if (NeedMoveFile)
+                case ConvertResult.成功:
+                    if (isMoveFile)
                     {
-                        File.Move(FilePath, $@"{SuccessPath}\{FileName}.ok");
+                        File.Move(FilePath, $@"{SuccessPath}\{fileName}.ok");
                         WD.SuccessCountAdd();
                     }
-                    ProgressBoxAdd(R);
-                    NF.ShowBalloonTip(850, "轉檔成功", R, System.Windows.Forms.ToolTipIcon.None);
+                    ProgressBoxAdd(message);
+                    NF.ShowBalloonTip(850, "轉檔成功", message, System.Windows.Forms.ToolTipIcon.None);
                     break;
-                case (int)ResultType.全數過濾:
-                    if (NeedMoveFile)
+                case ConvertResult.全數過濾:
+                    if (isMoveFile)
                     {
-                        File.Move(FilePath, $@"{SuccessPath}\{FileName}.ok");
+                        File.Move(FilePath, $@"{SuccessPath}\{fileName}.ok");
                         WD.SuccessCountAdd();
                     }
-                    if (NeedReminder)
+                    if (isReminder)
                     {
-                        ProgressBoxAdd(R);
-                        NF.ShowBalloonTip(850, "全數過濾", R, System.Windows.Forms.ToolTipIcon.None);
+                        ProgressBoxAdd(message);
+                        NF.ShowBalloonTip(850, "全數過濾", message, System.Windows.Forms.ToolTipIcon.None);
                     }
                     break;
-                case (int)ResultType.失敗:
-                    if (NeedMoveFile)
+                case ConvertResult.失敗:
+                    if (isMoveFile)
                     {
-                        File.Move(FilePath, $@"{FailPath}\{FileName}.fail");
+                        File.Move(FilePath, $@"{FailPath}\{fileName}.fail");
                         WD.FailCountAdd();
                     }
-                    ProgressBoxAdd(R);
-                    NF.ShowBalloonTip(850, "轉檔錯誤", R, System.Windows.Forms.ToolTipIcon.Error);
+                    ProgressBoxAdd(message);
+                    NF.ShowBalloonTip(850, "轉檔錯誤", message, System.Windows.Forms.ToolTipIcon.Error);
                     break;
-                case (int)ResultType.沒有頻率:
+                case ConvertResult.沒有頻率:
                     Stop();
-                    ProgressBoxAdd(R);
-                    NF.ShowBalloonTip(850, $"缺少頻率", $"{Path.GetFileName(FilePath)} OnCube中缺少該檔案 {R} 的頻率", System.Windows.Forms.ToolTipIcon.Error);
+                    ProgressBoxAdd(message);
+                    NF.ShowBalloonTip(850, $"缺少頻率", $"{Path.GetFileName(FilePath)} OnCube中缺少該檔案 {message} 的頻率", System.Windows.Forms.ToolTipIcon.Error);
                     break;
             }
             //Stop();
@@ -479,7 +499,7 @@ namespace FCP
                 File.Move(s, $@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\{FolderName}\{Path.GetFileNameWithoutExtension(s)}.{Result}");
             }
             if (SF.Visibility == Visibility.Visible)
-                SF.StopConverter_button_Click(null, null);
+                SF.Btn_StopConverter_Click(null, null);
             else
                 Stop();
         }
@@ -487,52 +507,58 @@ namespace FCP
 
     public class WindowsDo : Window
     {
-        public MainWindow mw { get; set; }
-        public Settings Settings { get; set; }
+        public MainWindow MainWindow { get; set; }
+        private SettingsModel _SettingsModel { get; set; }
+        private Settings _Settings { get; set; }
         public MsgB Msg { get; set; }
         public Log Log { get; set; }
         public AdvancedSettings AS { get; set; }
         public SmallForm SF { get; set; }
-        public string IP1 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = mw.txt_InputPath1.Text; })); return A; } }
-        public string IP2 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = mw.txt_InputPath2.Text; })); return A; } }
-        public string IP3 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = mw.txt_InputPath3.Text; })); return A; } }
-        public string OP { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = mw.txt_OutputPath.Text; })); return A; } }
-        public int X { get { int xPoint = 0; Dispatcher.Invoke(new Action(() => { xPoint = Convert.ToInt32(mw.txt_X.Text.Trim()); })); return xPoint; } }
-        public int Y { get { int yPoint = 0; Dispatcher.Invoke(new Action(() => { yPoint = Convert.ToInt32(mw.txt_Y.Text.Trim()); })); return yPoint; } }
-        public bool _AutoStart { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)mw.tgl_AutoStart.IsChecked; })); return B; } }
-        public bool _isStat { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)mw.rdo_Stat.IsChecked; })); return B; } }  //true > Stat, false > Batch
-        public bool _OPD1 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)mw.chk_OPD1.IsChecked; })); return B; } }
-        public bool _OPD2 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)mw.chk_OPD2.IsChecked; })); return B; } }
-        public bool _OPD3 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)mw.chk_OPD3.IsChecked; })); return B; } }
-        public bool _OPD4 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)mw.chk_OPD4.IsChecked; })); return B; } }
-
+        public string IP1 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = MainWindow.Txt_InputPath1.Text; })); return A; } }
+        public string IP2 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = MainWindow.Txt_InputPath2.Text; })); return A; } }
+        public string IP3 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = MainWindow.Txt_InputPath3.Text; })); return A; } }
+        public string OP { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = MainWindow.Txt_OutputPath.Text; })); return A; } }
+        public int X { get { int xPoint = 0; Dispatcher.Invoke(new Action(() => { xPoint = Convert.ToInt32(MainWindow.Txt_X.Text.Trim()); })); return xPoint; } }
+        public int Y { get { int yPoint = 0; Dispatcher.Invoke(new Action(() => { yPoint = Convert.ToInt32(MainWindow.Txt_Y.Text.Trim()); })); return yPoint; } }
+        public bool _AutoStart { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_AutoStart.IsChecked; })); return B; } }
+        public bool _isStat { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Rdo_Stat.IsChecked; })); return B; } }  //true > Stat, false > Batch
+        public bool _OPD1 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD1.IsChecked; })); return B; } }
+        public bool _OPD2 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD2.IsChecked; })); return B; } }
+        public bool _OPD3 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD3.IsChecked; })); return B; } }
+        public bool _OPD4 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD4.IsChecked; })); return B; } }
         bool isMainWindow = true;  //true > mainwindow, false > smallform
 
         SolidColorBrush Red = new SolidColorBrush((Color)Color.FromRgb(255, 82, 85));
         SolidColorBrush White = new SolidColorBrush((Color)Color.FromRgb(255, 255, 255));
+
+        public WindowsDo()
+        {
+            _Settings = SettingsFactory.GenerateSettingsControl();
+            _SettingsModel = SettingsFactory.GenerateSettingsModels();
+        }
 
         public void ProcessAction()
         {
             try
             {
                 string BackupPath = $@"{FunctionCollections.FileBackupPath}\{DateTime.Now:yyyy-MM-dd}";
-                mw.txtb_Success.Text = $"{Directory.GetFiles($@"{BackupPath}\Success").Length}";
-                mw.txtb_Fail.Text = $"{Directory.GetFiles($@"{BackupPath}\Fail").Length}";
-                mw.txt_InputPath1.Text = Settings.InputPath1;
-                mw.txt_InputPath2.Text = Settings.InputPath2;
-                mw.txt_InputPath3.Text = Settings.InputPath3;
-                mw.txt_OutputPath.Text = Settings.OutputPath1;
-                mw.tgl_AutoStart.IsChecked = Settings.EN_AutoStart;
-                mw.txt_X.Text = Properties.Settings.Default.X.ToString();
-                mw.txt_Y.Text = Properties.Settings.Default.Y.ToString();
-                mw.btn_Stop.IsEnabled = false;
-                mw.chk_OPD1.IsChecked = false;
-                mw.chk_OPD2.IsChecked = false;
-                mw.chk_OPD3.IsChecked = false;
-                mw.chk_OPD4.IsChecked = false;
-                mw.rdo_Stat.IsChecked = false;
-                if (Settings.StatOrBatch == "S") mw.rdo_Stat.IsChecked = true; else mw.rdo_Batch.IsChecked = true;
-                if (Settings.EN_WindowMinimumWhenOpen)
+                MainWindow.Txtb_Success.Text = $"{Directory.GetFiles($@"{BackupPath}\Success").Length}";
+                MainWindow.Txtb_Fail.Text = $"{Directory.GetFiles($@"{BackupPath}\Fail").Length}";
+                MainWindow.Txt_InputPath1.Text = _SettingsModel.InputPath1;
+                MainWindow.Txt_InputPath2.Text = _SettingsModel.InputPath2;
+                MainWindow.Txt_InputPath3.Text = _SettingsModel.InputPath3;
+                MainWindow.Txt_OutputPath.Text = _SettingsModel.OutputPath1;
+                MainWindow.Tgl_AutoStart.IsChecked = _SettingsModel.EN_AutoStart;
+                MainWindow.Txt_X.Text = Properties.Settings.Default.X.ToString();
+                MainWindow.Txt_Y.Text = Properties.Settings.Default.Y.ToString();
+                MainWindow.Btn_Stop.IsEnabled = false;
+                MainWindow.Tgl_OPD1.IsChecked = false;
+                MainWindow.Tgl_OPD2.IsChecked = false;
+                MainWindow.Tgl_OPD3.IsChecked = false;
+                MainWindow.Tgl_OPD4.IsChecked = false;
+                MainWindow.Rdo_Stat.IsChecked = false;
+                if (_SettingsModel.StatOrBatch == "S") MainWindow.Rdo_Stat.IsChecked = true; else MainWindow.Rdo_Batch.IsChecked = true;
+                if (_SettingsModel.EN_WindowMinimumWhenOpen)
                     ChangeWindow();
             }
             catch (Exception a)
@@ -551,36 +577,48 @@ namespace FCP
                 {
                     //string FileVersion = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion.ToString();  //版本
                     SF.SetFormLocation(Properties.Settings.Default.X, Properties.Settings.Default.Y);
-                    if (!(bool)mw.btn_Stop.IsEnabled)
+                    if (!(bool)MainWindow.Btn_Stop.IsEnabled)
                     {
                         UILayout UI = new UILayout();
-                        if (Settings.Mode == (int)Settings.ModeEnum.小港醫院)
-                            小港ToOnCube(UI);
-                        else if (Settings.Mode == (int)Settings.ModeEnum.光田OnCube)
-                            光田ToOnCube(UI);
-                        else if (Settings.Mode == (int)Settings.ModeEnum.光田JVS)
-                            光田ToJVServer(UI);
-                        else if (Settings.Mode == (int)Settings.ModeEnum.民生醫院)
-                            民生ToOnCube(UI);
-                        else if (Settings.Mode == (int)Settings.ModeEnum.義大醫院)
-                            義大ToOnCube(UI);
-                        else if (Settings.Mode == (int)Settings.ModeEnum.長庚磨粉)
-                            長庚磨粉ToJVServer(UI);
-                        else if (Settings.Mode == (int)Settings.ModeEnum.長庚醫院)
-                            長庚醫院ToOnCube(UI);
-                        else if (Settings.Mode == (int)Settings.ModeEnum.仁康醫院)
-                            仁康醫院ToOnCube(UI);
-                        else
-                            JVServerToOnCube(UI);
+                        switch (_SettingsModel.Mode)
+                        {
+                            case Format.小港醫院TOC:
+                                小港ToOnCube(UI);
+                                break;
+                            case Format.光田醫院TOC:
+                                光田ToOnCube(UI);
+                                break;
+                            case Format.光田醫院TJVS:
+                                光田ToJVServer(UI);
+                                break;
+                            case Format.民生醫院TOC:
+                                民生ToOnCube(UI);
+                                break;
+                            case Format.義大醫院TOC:
+                                義大ToOnCube(UI);
+                                break;
+                            case Format.長庚磨粉TJVS:
+                                長庚磨粉ToJVServer(UI);
+                                break;
+                            case Format.長庚醫院TOC:
+                                長庚醫院ToOnCube(UI);
+                                break;
+                            case Format.仁康醫院TOC:
+                                仁康醫院ToOnCube(UI);
+                                break;
+                            default:
+                                JVServerToOnCube(UI);
+                                break;
+                        }
                         UI_LayoutSet(UI);
-                        mw.PackType_textblock.Text = Settings.DoseMode == "M" ? "餐包" : "種包";
+                        MainWindow.Txtb_PackType.Text = _SettingsModel.DoseMode.ToString();
                     }
-                    mw.rdo_Stat.Visibility = Settings.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
-                    mw.rdo_Batch.Visibility = Settings.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
-                    mw.btn_Close.Visibility = Settings.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
-                    mw.btn_Minimum.Visibility = Settings.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
-                    mw.bd_X.Visibility = Settings.EN_ShowXY ? Visibility.Visible : Visibility.Hidden;
-                    mw.bd_Y.Visibility = Settings.EN_ShowXY ? Visibility.Visible : Visibility.Hidden;
+                    MainWindow.Rdo_Stat.Visibility = _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
+                    MainWindow.Rdo_Batch.Visibility = _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
+                    MainWindow.Btn_Close.Visibility = _SettingsModel.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
+                    MainWindow.Btn_Minimum.Visibility = _SettingsModel.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
+                    MainWindow.Bod_X.Visibility = _SettingsModel.EN_ShowXY ? Visibility.Visible : Visibility.Hidden;
+                    MainWindow.Bod_Y.Visibility = _SettingsModel.EN_ShowXY ? Visibility.Visible : Visibility.Hidden;
                     FunctionCollections.CheckFileBackupPath();
                 }
                 catch (Exception a)
@@ -593,22 +631,22 @@ namespace FCP
 
         private void UI_LayoutSet(UILayout UI)
         {
-            mw.txtb_Title.Text = UI.Title;
-            mw.txtb_InputPath1.Text = UI.IP1s;
-            mw.txtb_InputPath2.Text = UI.IP2s;
-            mw.txtb_InputPath3.Text = UI.IP3s;
-            mw.txt_OPD1.Text = UI.OPD1s;
-            mw.txt_OPD2.Text = UI.OPD2s;
-            mw.txt_OPD3.Text = UI.OPD3s;
-            mw.txt_OPD4.Text = UI.OPD4s;
-            mw.btn_InputPath1.IsEnabled = UI.IP1b;
-            mw.btn_InputPath2.IsEnabled = UI.IP2b;
-            mw.btn_InputPath3.IsEnabled = UI.IP3b;
-            mw.btn_UD.Visibility = UI.UDv;
-            mw.chk_OPD1.Visibility = UI.OPD1v;
-            mw.chk_OPD2.Visibility = UI.OPD2v;
-            mw.chk_OPD3.Visibility = UI.OPD3v;
-            mw.chk_OPD4.Visibility = UI.OPD4v;
+            MainWindow.Txtb_Title.Text = UI.Title;
+            MainWindow.Txtb_InputPath1.Text = UI.IP1s;
+            MainWindow.Txtb_InputPath2.Text = UI.IP2s;
+            MainWindow.Txtb_InputPath3.Text = UI.IP3s;
+            MainWindow.Txt_OPD1.Text = UI.OPD1s;
+            MainWindow.Txt_OPD2.Text = UI.OPD2s;
+            MainWindow.Txt_OPD3.Text = UI.OPD3s;
+            MainWindow.Txt_OPD4.Text = UI.OPD4s;
+            MainWindow.Btn_InputPath1.IsEnabled = UI.IP1b;
+            MainWindow.Btn_InputPath2.IsEnabled = UI.IP2b;
+            MainWindow.Btn_InputPath3.IsEnabled = UI.IP3b;
+            MainWindow.Btn_UD.Visibility = UI.UDv;
+            MainWindow.Tgl_OPD1.Visibility = UI.OPD1v;
+            MainWindow.Tgl_OPD2.Visibility = UI.OPD2v;
+            MainWindow.Tgl_OPD3.Visibility = UI.OPD3v;
+            MainWindow.Tgl_OPD4.Visibility = UI.OPD4v;
         }
 
         private void JVServerToOnCube(UILayout UI)
@@ -795,7 +833,7 @@ namespace FCP
         public void AllWindowShowOrHide(bool? b1, bool? b2, bool? b3)
         {
             if (b1 != null)
-                mw.Visibility = (bool)b1 ? Visibility.Visible : Visibility.Hidden;
+                MainWindow.Visibility = (bool)b1 ? Visibility.Visible : Visibility.Hidden;
             if (b2 != null)
                 SF.Visibility = (bool)b2 ? Visibility.Visible : Visibility.Hidden;
             if (b3 != null)
@@ -807,12 +845,12 @@ namespace FCP
         {
             if (isMainWindow)
             {
-                mw.Visibility = Visibility.Visible;
-                mw.Activate();
+                MainWindow.Visibility = Visibility.Visible;
+                MainWindow.Activate();
             }
             else
             {
-                SF = SF ?? new SmallForm(mw, Settings) { Owner = mw };
+                SF = SF ?? new SmallForm(MainWindow) { Owner = MainWindow };
                 SF.Visibility = Visibility.Visible;
                 SF.Visibility = Visibility.Visible;
                 SF.Topmost = true;
@@ -823,20 +861,20 @@ namespace FCP
         {
             if (isMainWindow)
             {
-                SF = SF ?? new SmallForm(mw, Settings) { Owner = mw };
+                SF = SF ?? new SmallForm(MainWindow) { Owner = MainWindow };
                 SF.Initialize();
                 SF.ChangeLayout();
                 SF.Visibility = Visibility.Visible;
                 SF.Topmost = true;
-                mw.Visibility = Visibility.Hidden;
+                MainWindow.Visibility = Visibility.Hidden;
                 isMainWindow = false;
             }
             else
             {
                 SF.Topmost = false;
                 SF.Visibility = Visibility.Hidden;
-                mw.Visibility = Visibility.Visible;
-                mw.Activate();
+                MainWindow.Visibility = Visibility.Visible;
+                MainWindow.Activate();
                 isMainWindow = true;
             }
         }
@@ -846,23 +884,23 @@ namespace FCP
         {
             Dispatcher.Invoke(new Action(() =>
             {
-                mw.btn_InputPath1.IsEnabled = b;
-                mw.btn_InputPath2.IsEnabled = b;
-                mw.btn_InputPath3.IsEnabled = b;
-                mw.btn_OutputPath.IsEnabled = b;
-                mw.tgl_AutoStart.IsEnabled = b;
-                mw.rdo_Stat.IsEnabled = b;
-                mw.rdo_Batch.IsEnabled = b;
-                mw.btn_OPD.IsEnabled = b;
-                mw.btn_UD.IsEnabled = b;
-                mw.btn_Stop.IsEnabled = !b;
-                mw.btn_Save.IsEnabled = b;
-                mw.bd_X.IsEnabled = b;
-                mw.bd_Y.IsEnabled = b;
-                mw.chk_OPD1.IsEnabled = b;
-                mw.chk_OPD2.IsEnabled = b;
-                mw.chk_OPD3.IsEnabled = b;
-                mw.chk_OPD4.IsEnabled = b;
+                MainWindow.Btn_InputPath1.IsEnabled = b;
+                MainWindow.Btn_InputPath2.IsEnabled = b;
+                MainWindow.Btn_InputPath3.IsEnabled = b;
+                MainWindow.Btn_OutputPath.IsEnabled = b;
+                MainWindow.Tgl_AutoStart.IsEnabled = b;
+                MainWindow.Rdo_Stat.IsEnabled = b;
+                MainWindow.Rdo_Batch.IsEnabled = b;
+                MainWindow.Btn_OPD.IsEnabled = b;
+                MainWindow.Btn_UD.IsEnabled = b;
+                MainWindow.Btn_Stop.IsEnabled = !b;
+                MainWindow.Btn_Save.IsEnabled = b;
+                MainWindow.Bod_X.IsEnabled = b;
+                MainWindow.Bod_Y.IsEnabled = b;
+                MainWindow.Tgl_OPD1.IsEnabled = b;
+                MainWindow.Tgl_OPD2.IsEnabled = b;
+                MainWindow.Tgl_OPD3.IsEnabled = b;
+                MainWindow.Tgl_OPD4.IsEnabled = b;
             }));
         }
 
@@ -872,12 +910,12 @@ namespace FCP
             switch (Mode)
             {
                 case (int)FunctionCollections.ModeEnum.OPD:
-                    mw.btn_OPD.Background = Red;
-                    mw.btn_UD.Opacity = 0.2;
+                    MainWindow.Btn_OPD.Background = Red;
+                    MainWindow.Btn_UD.Opacity = 0.2;
                     break;
                 case (int)FunctionCollections.ModeEnum.UD:
-                    mw.btn_UD.Background = Red;
-                    mw.btn_OPD.Opacity = 0.2;
+                    MainWindow.Btn_UD.Background = Red;
+                    MainWindow.Btn_OPD.Opacity = 0.2;
                     break;
             }
         }
@@ -887,10 +925,10 @@ namespace FCP
             Dispatcher.Invoke(new Action(() =>
             {
                 SF.Stop();
-                mw.btn_OPD.Opacity = 1;
-                mw.btn_UD.Opacity = 1;
-                mw.btn_OPD.Background = White;
-                mw.btn_UD.Background = White;
+                MainWindow.Btn_OPD.Opacity = 1;
+                MainWindow.Btn_UD.Opacity = 1;
+                MainWindow.Btn_OPD.Background = White;
+                MainWindow.Btn_UD.Background = White;
             }));
         }
 
@@ -909,7 +947,7 @@ namespace FCP
 
         public void ProgressBoxClear()
         {
-            mw.txt_ProgressBox.Clear();
+            MainWindow.Txt_ProgressBox.Clear();
             SF.ProgressBoxClear();
         }
 
@@ -917,26 +955,26 @@ namespace FCP
         {
             Dispatcher.Invoke(new Action(() =>
             {
-                mw.txt_ProgressBox.AppendText($"{Result}\n");
-                mw.txt_ProgressBox.ScrollToEnd();
+                MainWindow.Txt_ProgressBox.AppendText($"{Result}\n");
+                MainWindow.Txt_ProgressBox.ScrollToEnd();
                 SF.ProgressBoxAdd(Result);
             }));
         }
 
         public void SuccessCountAdd()
         {
-            Dispatcher.InvokeAsync(new Action(() => { mw.txtb_Success.Text = (Convert.ToInt32(mw.txtb_Success.Text) + 1).ToString(); }));
+            Dispatcher.InvokeAsync(new Action(() => { MainWindow.Txtb_Success.Text = (Convert.ToInt32(MainWindow.Txtb_Success.Text) + 1).ToString(); }));
         }
 
         public void FailCountAdd()
         {
-            Dispatcher.InvokeAsync(new Action(() => { mw.txtb_Fail.Text = (Convert.ToInt32(mw.txtb_Fail.Text) + 1).ToString(); }));
+            Dispatcher.InvokeAsync(new Action(() => { MainWindow.Txtb_Fail.Text = (Convert.ToInt32(MainWindow.Txtb_Fail.Text) + 1).ToString(); }));
         }
 
         public void AutoStart()
         {
-            if (Settings.EN_AutoStart)
-                mw.btn_OPD_Click(null, null);
+            if (_SettingsModel.EN_AutoStart)
+                MainWindow.Btn_OPD_Click(null, null);
         }
     }
 

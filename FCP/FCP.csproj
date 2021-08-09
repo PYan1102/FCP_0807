@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\PropertyChanged.Fody.3.4.0\build\PropertyChanged.Fody.props" Condition="Exists('..\packages\PropertyChanged.Fody.3.4.0\build\PropertyChanged.Fody.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -59,6 +60,9 @@
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="PropertyChanged, Version=3.4.0.0, Culture=neutral, PublicKeyToken=ee3ee20bcf148ddd, processorArchitecture=MSIL">
+      <HintPath>..\packages\PropertyChanged.Fody.3.4.0\lib\net40\PropertyChanged.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -88,54 +92,75 @@
     <Compile Include="AdvancedSettings.xaml.cs">
       <DependentUpon>AdvancedSettings.xaml</DependentUpon>
     </Compile>
-    <Compile Include="BASE_ChangGung.cs" />
-    <Compile Include="BASE_ChangGung_POWDER.cs" />
-    <Compile Include="BASE_ChuangSheng.cs" />
-    <Compile Include="BASE_FangDing.cs" />
+    <Compile Include="MVVM\Factory\ConvertInformationFactory.cs" />
+    <Compile Include="MVVM\Factory\LogFactory.cs" />
+    <Compile Include="MVVM\FormatInit\BASE_ChangGung.cs" />
+    <Compile Include="MVVM\FormatInit\BASE_ChangGung_POWDER.cs" />
+    <Compile Include="MVVM\FormatInit\BASE_ChuangSheng.cs" />
+    <Compile Include="MVVM\FormatInit\BASE_FangDing.cs" />
+    <Compile Include="Core\RelayCommand.cs" />
     <Compile Include="DoJson.cs" />
     <Compile Include="ExtraSettings.cs" />
-    <Compile Include="BASE_E_DA.cs" />
-    <Compile Include="FMT_FangDing.cs" />
-    <Compile Include="FMT_JenKang.cs" />
+    <Compile Include="MVVM\FormatInit\BASE_E_DA.cs" />
+    <Compile Include="MVVM\Factory\FormatFactory.cs" />
+    <Compile Include="MVVM\Factory\ViewModels\MainWindowFacotry.cs" />
+    <Compile Include="MVVM\FormatControl\FMT_FangDing.cs" />
+    <Compile Include="MVVM\FormatControl\FMT_JenKang.cs" />
     <Compile Include="FormatCollection.cs" />
     <Compile Include="FormatFactory.cs" />
     <Compile Include="FunctionCollections.cs" />
     <Compile Include="GetOnCubeData.cs" />
-    <Compile Include="BASE_HongYen.cs" />
-    <Compile Include="FMT_ChangGung.cs" />
-    <Compile Include="FMT_ChangGung_POWDER.cs" />
-    <Compile Include="FMT_ChuangSheng.cs" />
-    <Compile Include="FMT_E-DA.cs" />
-    <Compile Include="FMT_HongYen.cs" />
-    <Compile Include="FMT_JVServer.cs" />
-    <Compile Include="FMT_KuangTien.cs" />
-    <Compile Include="FMT_MinSheng.cs" />
-    <Compile Include="FMT_TaipeiDetention.cs" />
-    <Compile Include="FMT_XiaoGang.cs" />
-    <Compile Include="FMT_YiSheng.cs" />
-    <Compile Include="BASE_JenKang.cs" />
-    <Compile Include="BASE_JVServer.cs" />
+    <Compile Include="MVVM\FormatInit\BASE_HongYen.cs" />
+    <Compile Include="MVVM\FormatControl\FMT_ChangGung.cs" />
+    <Compile Include="MVVM\FormatControl\FMT_ChangGung_POWDER.cs" />
+    <Compile Include="MVVM\FormatControl\FMT_ChuangSheng.cs" />
+    <Compile Include="MVVM\FormatControl\FMT_E-DA.cs" />
+    <Compile Include="MVVM\FormatControl\FMT_HongYen.cs" />
+    <Compile Include="MVVM\FormatControl\FMT_JVServer.cs" />
+    <Compile Include="MVVM\FormatControl\FMT_KuangTien.cs" />
+    <Compile Include="MVVM\FormatControl\FMT_MinSheng.cs" />
+    <Compile Include="MVVM\FormatControl\FMT_TaipeiDetention.cs" />
+    <Compile Include="MVVM\FormatControl\FMT_XiaoGang.cs" />
+    <Compile Include="MVVM\FormatControl\FMT_YiSheng.cs" />
+    <Compile Include="MVVM\FormatInit\BASE_JenKang.cs" />
+    <Compile Include="MVVM\FormatInit\BASE_JVServer.cs" />
     <Compile Include="MergeFiles.cs" />
     <Compile Include="ModelsFactory.cs" />
-    <Compile Include="Models\Enum\ConvertResult.cs" />
-    <Compile Include="Models\Settings.cs" />
+    <Compile Include="MVVM\Helper\EnumHelper.cs" />
+    <Compile Include="MVVM\Models\AdvancedSettingsModel.cs" />
+    <Compile Include="MVVM\Models\ConvertFileInformationModel.cs" />
+    <Compile Include="MVVM\Models\Enum\ConvertResult.cs" />
+    <Compile Include="MVVM\Models\Enum\Department.cs" />
+    <Compile Include="MVVM\Models\Enum\Format.cs" />
+    <Compile Include="MVVM\Models\Enum\PackMode.cs" />
+    <Compile Include="MVVM\Models\Enum\DoseMode.cs" />
+    <Compile Include="MVVM\Models\ReturnsResultFormat.cs" />
+    <Compile Include="MVVM\Models\MainWindowModel.cs" />
+    <Compile Include="MVVM\Models\SettingsModel.cs" />
+    <Compile Include="MVVM\Models\SmallFormModel.cs" />
+    <Compile Include="MVVM\Factory\SettingsFactory.cs" />
+    <Compile Include="MVVM\ViewModels\AdvancedSettingsViewModel.cs" />
+    <Compile Include="MVVM\ViewModels\MainWindow\MainWindowViewModel.cs" />
+    <Compile Include="MVVM\ViewModels\MainWindow\PropertyChange.cs" />
+    <Compile Include="MVVM\ViewModels\SmallFormViewModel.cs" />
+    <Compile Include="Core\ViewModelBase.cs" />
     <Compile Include="OnputType_JVServer.cs" />
-    <Compile Include="BASE_KuangTien.cs" />
+    <Compile Include="MVVM\FormatInit\BASE_KuangTien.cs" />
     <Compile Include="Log.cs" />
-    <Compile Include="BASE_MinSheng.cs" />
+    <Compile Include="MVVM\FormatInit\BASE_MinSheng.cs" />
     <Compile Include="MsgB.xaml.cs">
       <DependentUpon>MsgB.xaml</DependentUpon>
     </Compile>
     <Compile Include="OLEDB.cs" />
     <Compile Include="OnputType_OnCube.cs" />
-    <Compile Include="Settings.cs" />
+    <Compile Include="MVVM\Control\Settings.cs" />
     <Compile Include="SmallForm.xaml.cs">
       <DependentUpon>SmallForm.xaml</DependentUpon>
     </Compile>
-    <Compile Include="BASE_TaipeiDetention.cs" />
+    <Compile Include="MVVM\FormatInit\BASE_TaipeiDetention.cs" />
     <Compile Include="WorkSchedule.cs" />
-    <Compile Include="BASE_XiaoGang.cs" />
-    <Compile Include="BASE_YiSheng.cs" />
+    <Compile Include="MVVM\FormatInit\BASE_XiaoGang.cs" />
+    <Compile Include="MVVM\FormatInit\BASE_YiSheng.cs" />
     <Page Include="AdvancedSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -160,6 +185,34 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Theme\ColorsTheme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Theme\ControlButtonTheme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Theme\DataGridHeaderTheme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Theme\PageButtonTheme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Theme\RadioButtonTheme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Theme\TextBlockTheme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Theme\WhiteButtonTheme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -179,6 +232,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <Resource Include="Core\XMLFile1.xml" />
     <Content Include="OLEDB_Index.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -191,7 +245,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="MVVM\View\" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="FCP.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -208,6 +264,9 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\MaterialDesignThemes.3.1.3\build\MaterialDesignThemes.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MaterialDesignThemes.3.1.3\build\MaterialDesignThemes.targets'))" />
     <Error Condition="!Exists('..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets'))" />
+    <Error Condition="!Exists('..\packages\Fody.6.5.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.6.5.1\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\PropertyChanged.Fody.3.4.0\build\PropertyChanged.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PropertyChanged.Fody.3.4.0\build\PropertyChanged.Fody.props'))" />
   </Target>
   <Import Project="..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets" Condition="Exists('..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets')" />
+  <Import Project="..\packages\Fody.6.5.1\build\Fody.targets" Condition="Exists('..\packages\Fody.6.5.1\build\Fody.targets')" />
 </Project>

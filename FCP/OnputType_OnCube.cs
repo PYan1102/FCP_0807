@@ -7,41 +7,46 @@ using System.IO;
 using System.Diagnostics;
 using System.Globalization;
 using System.Collections.ObjectModel;
+using FCP.MVVM.Models;
+using FCP.MVVM.Models.Enum;
+using FCP.MVVM.Factory;
 
 namespace FCP
 {
     class OnputType_OnCube
     {
-        Log log;
+        private SettingsModel _SettingsModel { get; set; }
+        private Log _Log { get; set; }
         public OnputType_OnCube(Log l)
         {
-            log = l;
+            _Log = l;
+            _SettingsModel = SettingsFactory.GenerateSettingsModels();
         }
 
         public bool JVS(List<string> MedicineName, List<string> MedicineCode, List<string> AdminCode, List<string> PerQty, List<string> SumQty,
-            List<string> StartDay, List<string> EndDay, string FileName, Settings Settings, List<string> OnCubeRandom, string PatientName,
+            List<string> StartDay, List<string> EndDay, string FileName, List<string> OnCubeRandom, string PatientName,
             string PatientNo, string HospitalName, string Location, string PrescriptionNo, string BirthDate, string Gender, string Random)
         {
             try
             {
-                List<string> ExtraList = AssignExtraAdminTime(Settings.OppositeAdminCode);
+                List<string> ExtraList = AssignExtraAdminTime(_SettingsModel.OppositeAdminCode);
                 using (StreamWriter sw = new StreamWriter(FileName, false, Encoding.Default))
                 {
                     for (int r = 0; r <= AdminCode.Count - 1; r++)
                     {
-                        string DoseTypeOutput = JudgeDoseType(Settings.DoseMode, ExtraList, AdminCode[r]);  //劑量類型判斷Combi or Multi
+                        DoseMode doseMode = JudgeDoseType(_SettingsModel.DoseMode, ExtraList, AdminCode[r]);  //劑量類型判斷Combi or Multi
                         sw.Write(ECD(PatientName, 20));
                         sw.Write(RightSpace(PatientNo, 30));
                         sw.Write(ECD(Location, 50));
                         sw.Write(RightSpace("", 29));
-                        if (DoseTypeOutput == "M")
+                        if (doseMode == DoseMode.餐包)
                             sw.Write(RightSpace(PerQty[r], 5));
                         else
                             sw.Write(RightSpace(SumQty[r], 5));
                         sw.Write(RightSpace(MedicineCode[r], 20));
                         sw.Write(ECD(MedicineName[r], 50));
                         sw.Write(RightSpace(AdminCode[r], 20));
-                        if (DoseTypeOutput == "M")
+                        if (doseMode == DoseMode.餐包)
                         {
                             sw.Write(StartDay[r]);
                             sw.Write(EndDay[r]);
@@ -68,42 +73,42 @@ namespace FCP
                             else
                                 sw.Write(ECD(OnCubeRandom[ran], 30));
                         }
-                        sw.WriteLine(DoseTypeOutput);
+                        sw.WriteLine(ConvertDoseMode(doseMode));
                     }
                 }
                 return true;
             }
             catch (Exception a)
             {
-                log.Write(a.ToString());
+                _Log.Write(a.ToString());
                 return false;
             }
         }
 
         public bool ChuangSheng(List<string> medicineName, List<string> medicineCode, List<string> adminCode, List<string> perQty, List<string> sumQty,
-            List<string> startDate, List<string> endDate, string fileNameOutput, Settings settings, string patientName, string birthDate, string hospitalName,
+            List<string> startDate, List<string> endDate, string fileNameOutput, string patientName, string birthDate, string hospitalName,
             string _class)
         {
             try
             {
-                List<string> ExtraList = AssignExtraAdminTime(settings.OppositeAdminCode);
+                List<string> ExtraList = AssignExtraAdminTime(_SettingsModel.OppositeAdminCode);
                 using (StreamWriter sw = new StreamWriter(fileNameOutput, false, Encoding.Default))
                 {
                     for (int r = 0; r <= adminCode.Count - 1; r++)
                     {
-                        string DoseTypeOutput = JudgeDoseType(settings.DoseMode, ExtraList, adminCode[r]);  //劑量類型判斷Combi or Multi
+                        DoseMode doseMode = JudgeDoseType(_SettingsModel.DoseMode, ExtraList, adminCode[r]);  //劑量類型判斷Combi or Multi
                         sw.Write(ECD(patientName, 20));  //病患姓名
                         sw.Write("".PadRight(30));  //病例碼
                         sw.Write(ECD("門診", 50));  //醫院名稱
                         sw.Write(RightSpace("", 29));  // 醫師姓名
-                        if (DoseTypeOutput == "M")  //劑量
+                        if (doseMode == DoseMode.餐包)  //劑量
                             sw.Write(RightSpace(perQty[r], 5));
                         else
                             sw.Write(RightSpace(sumQty[r], 5));
                         sw.Write(RightSpace(medicineCode[r], 20));  //健保碼或醫材代碼
                         sw.Write(ECD(medicineName[r], 50));  //藥品名稱
                         sw.Write(RightSpace(adminCode[r], 20));  //頻率
-                        if (DoseTypeOutput == "M")  //C種包，M餐包
+                        if (doseMode == DoseMode.餐包)  //C種包，M餐包
                         {
                             sw.Write(startDate[r]);  //給藥開始日期
                             sw.Write(endDate[r]);  //給藥結束日期
@@ -122,9 +127,9 @@ namespace FCP
                         sw.Write(ECD(_class, 30));
                         sw.Write(RightSpace("", 420));
                         if (r == adminCode.Count - 1)
-                            sw.Write(DoseTypeOutput);
+                            sw.Write(ConvertDoseMode(doseMode));
                         else if (r != adminCode.Count - 1)
-                            sw.WriteLine(DoseTypeOutput);
+                            sw.WriteLine(ConvertDoseMode(doseMode));
                     }
                     sw.Close();
                 }
@@ -132,7 +137,7 @@ namespace FCP
             }
             catch (Exception a)
             {
-                log.Write(a.ToString());
+                _Log.Write(a.ToString());
                 return false;
             }
         }
@@ -140,7 +145,7 @@ namespace FCP
         public bool XiaoGang_UD(List<string> medicinename, List<string> medicinecode, List<string> admintime, List<string> dosage, List<string> totalqunity, string startday,
             List<string> endday, List<string> filenameoutputcount, List<string> format, List<string> unit, List<int> ID1, List<string> patientname, List<string> patientnumber,
             string doctorname, List<string> prescriptionnumber, List<string> birthday, List<string> roomnumber, List<string> bednumber, List<string> Class, List<string> warehouse, bool IsStat,
-            List<string> autonumber, List<string> numberdetail, List<string> nursingstationnumber, string effectivedate, List<string> medicalunit, Settings Settings)
+            List<string> autonumber, List<string> numberdetail, List<string> nursingstationnumber, string effectivedate, List<string> medicalunit)
         {
             try
             {
@@ -167,7 +172,7 @@ namespace FCP
                                 remainder = Convert.ToSingle(dosage[r].ToString());
                             sw.Write(ECD(patientname[r], 20));  //病患姓名
                             sw.Write(RightSpace(patientnumber[r], 30));  //病歷號
-                            if (roomnumber[r] == "8DH" & Settings.StatOrBatch == "B")
+                            if (roomnumber[r] == "8DH" & _SettingsModel.StatOrBatch == "B")
                                 sw.Write(ECD("住院8DH", 50));
                             else
                             {
@@ -177,7 +182,7 @@ namespace FCP
                                     sw.Write(ECD("住院長期", 50));
                             }
                             sw.Write(ECD(doctorname, 29));  // 醫師姓名
-                            if (roomnumber[r] == "8DH" & Settings.StatOrBatch == "B")
+                            if (roomnumber[r] == "8DH" & _SettingsModel.StatOrBatch == "B")
                                 sw.Write(RightSpace($"{Convert.ToSingle($"{totalqunity[r]}")}", 5));  //8DH 幒藥量
                             else
                                 sw.Write($"{Convert.ToSingle($"{remainder}".Trim())}", 5);  //此次幒藥量
@@ -227,7 +232,7 @@ namespace FCP
 
             catch (Exception a)
             {
-                log.Write(a.ToString());
+                _Log.Write(a.ToString());
                 return false;
             }
         }
@@ -307,7 +312,7 @@ namespace FCP
             }
             catch (Exception a)
             {
-                log.Write(a.ToString());
+                _Log.Write(a.ToString());
                 return false;
             }
         }
@@ -384,11 +389,11 @@ namespace FCP
             }
             catch (Exception a)
             {
-                log.Write(a.ToString());
+                _Log.Write(a.ToString());
                 return false;
             }
         }
-        public bool KuangTien_UD(List<string> MedicineName, List<string> MedicineCode, List<string> AdminTime, List<string> Dosage, List<string> TotalQuantity, Settings Settings,
+        public bool KuangTien_UD(List<string> MedicineName, List<string> MedicineCode, List<string> AdminTime, List<string> Dosage, List<string> TotalQuantity,
             List<string> StartDate, List<string> EndDate, List<string> PatientName, List<string> PrescriptionNo, List<string> BedNo, Dictionary<int, string> BarcodeDic,
             string FileNameOutputCount, List<string> Class, List<string> StayDate, Dictionary<string, List<string>> DataDic, List<bool> DoseType, List<bool> CrossAdminTimeType, string FirstDate,
             List<string> QODDescription, List<string> CurrentDate, string Type, List<string> SpecialCode)
@@ -405,7 +410,7 @@ namespace FCP
                         int r = Int32.Parse(v.Key.Substring(0, v.Key.IndexOf("_")));
                         string DateTemp = v.Key.Substring(v.Key.IndexOf("_") + 1, v.Key.Length - v.Key.IndexOf("_") - 1);
                         DateTime.TryParseExact(DateTemp, "yyMMdd", null, DateTimeStyles.None, out DateTime Date);
-                        if (Type == "即時" & Properties.Settings.Default.DoseType == "M")
+                        if (Type == "即時" & _SettingsModel.DoseMode== DoseMode.餐包)
                         {
                             if (Name == "")
                                 Name = PatientName[r];
@@ -422,7 +427,7 @@ namespace FCP
                             }
                         }
 
-                        if (Properties.Settings.Default.DoseType == "C")
+                        if (_SettingsModel.DoseMode == DoseMode.種包)
                         {
                             if (Name == "")
                                 Name = PatientName[r];
@@ -492,7 +497,7 @@ namespace FCP
             }
             catch (Exception a)
             {
-                log.Write(a.ToString());
+                _Log.Write(a.ToString());
                 return false;
             }
         }
@@ -538,33 +543,33 @@ namespace FCP
             }
             catch(Exception a)
             {
-                log.Write(a.ToString());
+                _Log.Write(a.ToString());
                 return false;
             }
         }
         public bool YiSheng(List<string> medicinename, List<string> medicinecode, List<string> admintime, List<string> dosage, List<string> totalquantity,
-                                List<string> startday, List<string> endday, string filenameoutputcount, Settings Settings, string patientname, string birthday, string patientno)
+                                List<string> startday, List<string> endday, string filenameoutputcount, string patientname, string birthday, string patientno)
         {
             try
             {
-                List<string> ExtraList = AssignExtraAdminTime(Settings.OppositeAdminCode);
+                List<string> ExtraList = AssignExtraAdminTime(_SettingsModel.OppositeAdminCode);
                 using (StreamWriter sw = new StreamWriter(filenameoutputcount.ToString(), false, Encoding.Default))
                 {
                     for (int r = 0; r <= admintime.Count - 1; r++)
                     {
-                        string DoseTypeOutput = JudgeDoseType(Settings.DoseMode, ExtraList, admintime[r]);  //劑量類型判斷Combi or Multi
+                        DoseMode doseMode = JudgeDoseType(_SettingsModel.DoseMode, ExtraList, admintime[r]);  //劑量類型判斷Combi or Multi
                         sw.Write(ECD(patientname, 20));  //病患姓名
                         sw.Write(RightSpace(patientno, 30));  //病例碼
                         sw.Write(ECD("三杏藥局", 50));  //醫院名稱
                         sw.Write(RightSpace("", 29));
-                        if (DoseTypeOutput == "M")  //劑量
+                        if (doseMode == DoseMode.餐包)  //劑量
                             sw.Write(RightSpace(dosage[r].Substring(0, 5), 5));
                         else
                             sw.Write(RightSpace(totalquantity[r].Substring(0, 5), 5));
                         sw.Write(RightSpace(medicinecode[r], 20));  //健保碼或醫材代碼
                         sw.Write(ECD(medicinename[r], 50));  //藥品名稱
                         sw.Write(RightSpace(admintime[r], 20));  //頻率
-                        if (DoseTypeOutput == "M")  //C種包，M餐包
+                        if (doseMode == DoseMode.餐包)  //C種包，M餐包
                         {
                             sw.Write(startday[r]);  //給藥開始日期
                             sw.Write(endday[r]);  //給藥結束日期
@@ -582,9 +587,9 @@ namespace FCP
                         sw.Write(ECD("三杏藥局", 30));  //位置or場所
                         sw.Write(RightSpace("", 450));
                         if (r == admintime.Count - 1)
-                            sw.Write(DoseTypeOutput);
+                            sw.Write(ConvertDoseMode(doseMode));
                         else if (r != admintime.Count - 1)
-                            sw.WriteLine(DoseTypeOutput);
+                            sw.WriteLine(ConvertDoseMode(doseMode));
                     }
                     sw.Close();
                 }
@@ -592,12 +597,12 @@ namespace FCP
             }
             catch (Exception a)
             {
-                log.Write(a.ToString());
+                _Log.Write(a.ToString());
                 return false;
             }
         }
         public bool HongYen(List<int> up, List<int> down, List<string>filterDayList, List<string>FilterAdminTime, List<string> medicinename, List<string> medicinecode, List<string> admintime, List<string> dosage, List<string> totalqunity,
-            List<string> startday, List<string> endday, List<string> filenameoutputcount, Settings Settings, List<string> oncuberandom, List<string> days, string patientname,
+            List<string> startday, List<string> endday, List<string> filenameoutputcount, List<string> oncuberandom, List<string> days, string patientname,
             string patientnumber, string hospitalname, string hospitalname0, string doctorname, string prescriptionnumber, string birthday, string sex, string random,
             bool isTwo, int Position)
         {
@@ -605,7 +610,7 @@ namespace FCP
             List<int> A = new List<int>();
             try
             {
-                List<string> ExtraList = AssignExtraAdminTime(Settings.OppositeAdminCode);
+                List<string> ExtraList = AssignExtraAdminTime(_SettingsModel.OppositeAdminCode);
                 foreach (string filenameoutput in filenameoutputcount)
                 {
                     
@@ -630,19 +635,19 @@ namespace FCP
                                 continue;
                             if (filterDayList.Contains(days[r]) & filenameoutputcount.IndexOf(filenameoutput) == 0)
                                 continue;
-                            string DoseTypeOutput = JudgeDoseType(Settings.DoseMode, ExtraList, admintime[r]);  //劑量類型判斷Combi or Multi
+                            DoseMode doseMode = JudgeDoseType(_SettingsModel.DoseMode, ExtraList, admintime[r]);  //劑量類型判斷Combi or Multi
                             sw.Write(ECD($"{patientname}-{admintime[r]}", 20));
                             sw.Write(RightSpace(patientnumber, 30));
                             sw.Write(ECD(hospitalname, 50));  //醫院名稱
                             sw.Write(ECD(doctorname, 29));  // 醫師姓名
-                            if (DoseTypeOutput == "M")  //劑量
+                            if (doseMode == DoseMode.餐包)  //劑量
                                 sw.Write(RightSpace(dosage[r], 5));
                             else
                                 sw.Write(RightSpace(totalqunity[r], 5));
                             sw.Write(RightSpace(medicinecode[r], 20));  //健保碼或醫材代碼
                             sw.Write(ECD(medicinename[r], 50));  //藥品名稱
                             sw.Write(RightSpace(admintime[r], 20));  //頻率
-                            if (DoseTypeOutput == "M")  //C種包，M餐包
+                            if (doseMode == DoseMode.餐包)  //C種包，M餐包
                             {
                                 sw.Write(startday[r]);  //給藥開始日期
                                 sw.Write(endday[r]);  //給藥結束日期
@@ -672,9 +677,9 @@ namespace FCP
                                     sw.Write(ECD(oncuberandom[ran], 30));
                             }
                             if (r == admintime.Count - 1)
-                                sw.Write(DoseTypeOutput);
+                                sw.Write(ConvertDoseMode(doseMode));
                             else if (r != admintime.Count - 1)
-                                sw.WriteLine(DoseTypeOutput);
+                                sw.WriteLine(ConvertDoseMode(doseMode));
                         }
                         continue;
                     }
@@ -683,7 +688,7 @@ namespace FCP
             }
             catch (Exception a)
             {
-                log.Write(a.ToString());
+                _Log.Write(a.ToString());
                 return false;
             }
         }
@@ -747,7 +752,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                log.Write(ex.ToString());
+                _Log.Write(ex.ToString());
                 return false;
             }
         }
@@ -793,7 +798,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                log.Write(ex.ToString());
+                _Log.Write(ex.ToString());
                 return false;
             }
         }
@@ -835,7 +840,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                log.Write(ex.ToString());
+                _Log.Write(ex.ToString());
                 return false;
             }
         }
@@ -877,7 +882,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                log.Write(ex.ToString());
+                _Log.Write(ex.ToString());
                 return false;
             }
         }
@@ -918,7 +923,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                log.Write(ex.ToString());
+                _Log.Write(ex.ToString());
                 return false;
             }
         }
@@ -982,13 +987,13 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                log.Write(ex.ToString());
+                _Log.Write(ex.ToString());
                 return false;
             }
         }
 
         public bool TaipeiDentention(List<string> MedicineName, List<string> MedicineCode, List<string> AdminCode, List<string> Days, List<string> PerQty,
-            List<string> SumQty, string FileName, Settings Settings, string PatientName, string PatientNo, string HospitalName, string Location,
+            List<string> SumQty, string FileName, string PatientName, string PatientNo, string HospitalName, string Location,
             string PrescriptionNo, string BirthDate, string Gender, string Random, List<string> PutBackAdminCode)
         {
             try
@@ -996,17 +1001,17 @@ namespace FCP
                 List<int> DaysInt = new List<int>();
                 Days.ForEach(x => DaysInt.Add(Convert.ToInt32(x)));
                 int MaxDay = DaysInt.Max();
-                List<string> ExtraList = AssignExtraAdminTime(Settings.OppositeAdminCode);
+                List<string> ExtraList = AssignExtraAdminTime(_SettingsModel.OppositeAdminCode);
                 using (StreamWriter sw = new StreamWriter(FileName, false, Encoding.Default))
                 {
                     for (int r = 0; r <= AdminCode.Count - 1; r++)
                     {
-                        string DoseTypeOutput = JudgeDoseType(Settings.DoseMode, ExtraList, AdminCode[r]);  //劑量類型判斷Combi or Multi
+                        DoseMode doseMode = JudgeDoseType(_SettingsModel.DoseMode, ExtraList, AdminCode[r]);  //劑量類型判斷Combi or Multi
                         sw.Write(ECD(PatientName, 20));
                         sw.Write(RightSpace(PatientNo, 30));
                         sw.Write(ECD(Location, 50));
                         sw.Write(RightSpace("", 29));
-                        if (DoseTypeOutput == "M")
+                        if (doseMode == DoseMode.餐包)
                             sw.Write(RightSpace(PerQty[r], 5));
                         else
                             sw.Write(RightSpace(SumQty[r], 5));
@@ -1034,14 +1039,14 @@ namespace FCP
                         sw.Write("0");
                         sw.Write(ECD(HospitalName, 30));
                         sw.Write("".PadRight(450));
-                        sw.WriteLine(DoseTypeOutput);
+                        sw.WriteLine(ConvertDoseMode(doseMode));
                     }
                 }
                 return true;
             }
             catch (Exception ex)
             {
-                log.Write(ex.ToString());
+                _Log.Write(ex.ToString());
                 return false;
             }
         }
@@ -1083,7 +1088,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                log.Write(ex.ToString());
+                _Log.Write(ex.ToString());
                 return false;
             }
         }
@@ -1149,7 +1154,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                log.Write(ex.ToString());
+                _Log.Write(ex.ToString());
                 return false;
             }
         }
@@ -1188,7 +1193,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                log.Write(ex.ToString());
+                _Log.Write(ex.ToString());
                 return false;
             }
         }
@@ -1205,31 +1210,31 @@ namespace FCP
             return Encoding.Default.GetString(Temp, 0, Length);
         }
 
-        private string JudgeDoseType(string DoseMode, List<string> ExtraList, string AdminTime)
+        private DoseMode JudgeDoseType(DoseMode doseMode, List<string> ExtraList, string AdminTime)
         {
-            if (DoseMode == "C")
+            if (doseMode == DoseMode.種包)
             {
                 if (ExtraList.Count >= 1)
                 {
                     if (ExtraList.Contains(AdminTime.Trim()))
-                        return "M";
+                        return DoseMode.餐包;
                     else
-                        return "C";
+                        return DoseMode.種包;
                 }
                 else
-                    return "C";
+                    return DoseMode.種包;
             }
             else
             {
                 if (ExtraList.Count >= 1)
                 {
                     if (ExtraList.Contains(AdminTime.Trim()))
-                        return "C";
+                        return DoseMode.種包;
                     else
-                        return "M";
+                        return DoseMode.餐包;
                 }
                 else
-                    return "M";
+                    return DoseMode.餐包;
             }
         }
 
@@ -1242,6 +1247,12 @@ namespace FCP
                     ExtraList.Add(s.Trim());
             }
             return ExtraList;
+        }
+
+        private string ConvertDoseMode(DoseMode doseMode)
+        {
+            string result = doseMode == DoseMode.餐包 ? "M" : "C";
+            return result;
         }
     }
 }

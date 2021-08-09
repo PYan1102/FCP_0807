@@ -15,6 +15,11 @@ using System.IO;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Collections.ObjectModel;
+using FCP.MVVM.Factory;
+using FCP.MVVM.Models;
+using FCP.MVVM.Control;
+using FCP.MVVM.Models.Enum;
+using FCP.MVVM.Helper;
 
 namespace FCP
 {
@@ -25,7 +30,8 @@ namespace FCP
     {
         MsgB Msg = new MsgB();
         ObservableCollection<JVServerRandomclass> JVSRclass = new ObservableCollection<JVServerRandomclass>();
-        Settings Settings;
+        private Settings _Settings { get; set; }
+        private SettingsModel _SettingsModel { get; set; }
         MainWindow mw;
         List<string> ConvertFormatList = new List<string>() { "JVServer To OnCube", "創聖 To OnCube", "醫聖 To OnCube", "小港醫院 To OnCube", "光田醫院 To OnCube" ,"光田醫院 To JVServer", "民生醫院 To OnCube",
         "宏彥診所 To OnCube", "義大醫院 To OnCube", "長庚醫院磨粉 To JVServer", "長庚醫院 To OnCube", "台北看守所 To OnCube", "仁康醫院 To OnCube", "方鼎 To OnCube"};
@@ -41,18 +47,19 @@ namespace FCP
             正常 = 0, 使用特殊 = 1, 過濾特殊 = 2
         }
 
-        public AdvancedSettings(MainWindow m, Settings s, Log l)
+        public AdvancedSettings(MainWindow m, Log l)
         {
             InitializeComponent();
-            Settings = s;
             log = l;
             mw = m;
+            _Settings = SettingsFactory.GenerateSettingsControl();
+            _SettingsModel = SettingsFactory.GenerateSettingsModels();
         }
 
         [DllImport("User32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
-        private void Title_grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void Gd_Title_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             this.DragMove();
         }
@@ -61,104 +68,106 @@ namespace FCP
         {
             try
             {
-                ConvertFormat_combobox.ItemsSource = ConvertFormatList;
-                Settings.Check();
-                SearchFrequency_textbox.Text = Settings.Speed.ToString();
-                switch (Settings.Mode)
+                Cbo_ConvertFormat.ItemsSource = EnumHelper.ToList<Format>();
+                
+                Txt_SearchFrequency.Text = _SettingsModel.Speed.ToString();
+                switch (_SettingsModel.Mode)
                 {
-                    case (int)Settings.ModeEnum.JVS:
-                        ConvertFormat_combobox.SelectedIndex = 0;
+                    case Format.JVS:
+                        Cbo_ConvertFormat.SelectedIndex = 0;
                         break;
-                    case (int)Settings.ModeEnum.創聖:
-                        ConvertFormat_combobox.SelectedIndex = 1;
+                    case Format.創聖系統TOC:
+                        Cbo_ConvertFormat.SelectedIndex = 1;
                         break;
-                    case (int)Settings.ModeEnum.醫聖:
-                        ConvertFormat_combobox.SelectedIndex = 2;
+                    case Format.醫聖系統TOC:
+                        Cbo_ConvertFormat.SelectedIndex = 2;
                         break;
-                    case (int)Settings.ModeEnum.小港醫院:
-                        ConvertFormat_combobox.SelectedIndex = 3;
+                    case Format.小港醫院TOC:
+                        Cbo_ConvertFormat.SelectedIndex = 3;
                         break;
-                    case (int)Settings.ModeEnum.光田OnCube:
-                        ConvertFormat_combobox.SelectedIndex = 4;
+                    case Format.光田醫院TOC:
+                        Cbo_ConvertFormat.SelectedIndex = 4;
                         break;
-                    case (int)Settings.ModeEnum.光田JVS:
-                        ConvertFormat_combobox.SelectedIndex = 5;
+                    case Format.光田醫院TJVS:
+                        Cbo_ConvertFormat.SelectedIndex = 5;
                         break;
-                    case (int)Settings.ModeEnum.民生醫院:
-                        ConvertFormat_combobox.SelectedIndex = 6;
+                    case Format.民生醫院TOC:
+                        Cbo_ConvertFormat.SelectedIndex = 6;
                         break;
-                    case (int)Settings.ModeEnum.宏彥診所:
-                        ConvertFormat_combobox.SelectedIndex = 7;
+                    case Format.宏彥診所TOC:
+                        Cbo_ConvertFormat.SelectedIndex = 7;
                         break;
-                    case (int)Settings.ModeEnum.義大醫院:
-                        ConvertFormat_combobox.SelectedIndex = 8;
+                    case Format.義大醫院TOC:
+                        Cbo_ConvertFormat.SelectedIndex = 8;
                         break;
-                    case (int)Settings.ModeEnum.長庚磨粉:
-                        ConvertFormat_combobox.SelectedIndex = 9;
+                    case Format.長庚磨粉TJVS:
+                        Cbo_ConvertFormat.SelectedIndex = 9;
                         break;
-                    case (int)Settings.ModeEnum.長庚醫院:
-                        ConvertFormat_combobox.SelectedIndex = 10;
+                    case Format.長庚醫院TOC:
+                        Cbo_ConvertFormat.SelectedIndex = 10;
                         break;
-                    case (int)Settings.ModeEnum.台北看守所:
-                        ConvertFormat_combobox.SelectedIndex = 11;
+                    case Format.台北看守所TOC:
+                        Cbo_ConvertFormat.SelectedIndex = 11;
                         break;
-                    case (int)Settings.ModeEnum.仁康醫院:
-                        ConvertFormat_combobox.SelectedIndex = 12;
+                    case Format.仁康醫院TOC:
+                        Cbo_ConvertFormat.SelectedIndex = 12;
                         break;
-                    case (int)Settings.ModeEnum.方鼎:
-                        ConvertFormat_combobox.SelectedIndex = 13;
+                    case Format.方鼎系統TOC:
+                        Cbo_ConvertFormat.SelectedIndex = 13;
                         break;
+                    default:
+                        throw new Exception($"沒有找到適當的格式 {nameof(_SettingsModel.Mode)}");
                 }
-                if (Settings.DoseMode == "M")
-                    MultiDose_radiobutton.IsChecked = true;
+                if (_SettingsModel.DoseMode == DoseMode.餐包)
+                    Rdo_MultiDose.IsChecked = true;
                 else
-                    CombiDose_radiobutton.IsChecked = true;
-                SpecialAdminTimeOutput_textbox.Text = "";
-                Settings.OppositeAdminCode.ForEach(x => SpecialAdminTimeOutput_textbox.Text += $"{x},");
-                SpecialAdminTimeOutput_textbox.Text = SpecialAdminTimeOutput_textbox.Text.TrimEnd(',');
-                var v = from s in Settings.AdminCodeFilter
+                    Rdo_CombiDose.IsChecked = true;
+                Txt_SpecialAdminTimeOutput.Text = "";
+                _SettingsModel.OppositeAdminCode.ForEach(x => Txt_SpecialAdminTimeOutput.Text += $"{x},");
+                Txt_SpecialAdminTimeOutput.Text = Txt_SpecialAdminTimeOutput.Text.TrimEnd(',');
+                var v = from s in _SettingsModel.AdminCodeFilter
                         where s.Trim() != ""
                         orderby s
                         select s;
-                var v1 = from s in Settings.AdminCodeUse
+                var v1 = from s in _SettingsModel.AdminCodeUse
                          where s.Trim() != ""
                          orderby s
                          select s;
                 FilterSpecialList = v.ToList();
                 UseSpecialList = v1.ToList();
-                if (Settings.PackMode == (int)PackModeEnum.正常)
+                if (_SettingsModel.PackMode == PackMode.正常)
                 {
-                    UseNormalPack_radiobutton.IsChecked = true;
-                    PackFunction_grid.Visibility = Visibility.Hidden;
+                    Rdo_UseNormalPack.IsChecked = true;
+                    Gd_PackFunction.Visibility = Visibility.Hidden;
                 }
-                else if (Settings.PackMode == (int)PackModeEnum.過濾特殊)
+                else if (_SettingsModel.PackMode == PackMode.過濾特殊)
                 {
-                    PackFunction_grid.Visibility = Visibility.Visible;
-                    FilterSpecialAdminTimePack_radiobutton.IsChecked = true;
-                    PackFunctionAdminTime_combobox.ItemsSource = FilterSpecialList;
+                    Gd_PackFunction.Visibility = Visibility.Visible;
+                    Rdo_FilterSpecialAdminTimePack.IsChecked = true;
+                    Cbo_PackFunctionAdminTime.ItemsSource = FilterSpecialList;
                 }
                 else
                 {
-                    PackFunction_grid.Visibility = Visibility.Visible;
-                    UseSpecialAdminTimePack_radiobutton.IsChecked = true;
-                    PackFunctionAdminTime_combobox.ItemsSource = UseSpecialList;
+                    Gd_PackFunction.Visibility = Visibility.Visible;
+                    Rdo_UseSpecialAdminTimePack.IsChecked = true;
+                    Cbo_PackFunctionAdminTime.ItemsSource = UseSpecialList;
                 }
-                PackFunctionAdminTime_combobox.SelectedIndex = 0;
-                CutTime_textbox.Text = Settings.CutTime;
-                CrossAdminTime_textbox.Text = "";
-                Settings.CrossDayAdminCode.ForEach(x => CrossAdminTime_textbox.Text += $"{x},");
-                CrossAdminTime_textbox.Text = CrossAdminTime_textbox.Text.TrimEnd(',');
-                txt_FilterMedicineCode.Text = "";
+                Cbo_PackFunctionAdminTime.SelectedIndex = 0;
+                Txt_CutTime.Text = _SettingsModel.CutTime;
+                Txt_CrossAdminTime.Text = "";
+                _SettingsModel.CrossDayAdminCode.ForEach(x => Txt_CrossAdminTime.Text += $"{x},");
+                Txt_CrossAdminTime.Text = Txt_CrossAdminTime.Text.TrimEnd(',');
+                Txt_FilterMedicineCode.Text = "";
                 FilterMedicineCode.Clear();
-                foreach (string s in Settings.FilterMedicineCode)
+                foreach (string s in _SettingsModel.FilterMedicineCode)
                 {
                     if (s.Trim() == "")
                         continue;
                     FilterMedicineCode.Add(s);
                 }
-                cbo_FilterMedicineCode.ItemsSource = FilterMedicineCode;
+                Cbo_FilterMedicineCode.ItemsSource = FilterMedicineCode;
                 JVSRclass.Clear();
-                string[] ExtraRandom = Settings.ExtraRandom.Split(',');
+                string[] ExtraRandom = _SettingsModel.ExtraRandom.Split(',');
                 if (ExtraRandom.Length >= 1 & ExtraRandom[0].Trim() != "")
                 {
                     foreach (string s in ExtraRandom)
@@ -174,17 +183,17 @@ namespace FCP
                         });
                     }
                 }
-                txt_DeputyFileName.Text = Settings.DeputyFileName.Substring(2);
-                tgl_OnTimeAndBatch.IsChecked = Settings.EN_StatOrBatch;
-                tgl_MinimizeTheWindow.IsChecked = Settings.EN_WindowMinimumWhenOpen;
-                tgl_ShowCloseAndMinimumButton.IsChecked = Settings.EN_ShowControlButton;
-                tgl_ShowXY.IsChecked = Settings.EN_ShowXY;
-                tgl_FilterMedicineCode.IsChecked = Settings.EN_FilterMedicineCode;
-                tgl_OnlyCanisterIn.IsChecked = Settings.EN_OnlyCanisterIn;
-                tgl_OnlyCanisterIn.Visibility = Settings.EN_FilterMedicineCode ? Visibility.Visible : Visibility.Hidden;
-                txt_OnlyCanisterIn.Visibility = Settings.EN_FilterMedicineCode ? Visibility.Visible : Visibility.Hidden;
-                JVServerRandomSetting_datagrid.ItemsSource = JVSRclass;
-                Page1_button_Click(null, null);
+                Txt_DeputyFileName.Text = _SettingsModel.DeputyFileName.Substring(2);
+                Tgl_OnTimeAndBatch.IsChecked = _SettingsModel.EN_StatOrBatch;
+                Tgl_MinimizeTheWindow.IsChecked = _SettingsModel.EN_WindowMinimumWhenOpen;
+                Tgl_ShowCloseAndMinimumButton.IsChecked = _SettingsModel.EN_ShowControlButton;
+                Tgl_ShowXY.IsChecked = _SettingsModel.EN_ShowXY;
+                Tgl_FilterMedicineCode.IsChecked = _SettingsModel.EN_FilterMedicineCode;
+                Tgl_OnlyCanisterIn.IsChecked = _SettingsModel.EN_OnlyCanisterIn;
+                Tgl_OnlyCanisterIn.Visibility = _SettingsModel.EN_FilterMedicineCode ? Visibility.Visible : Visibility.Hidden;
+                Txt_OnlyCanisterIn.Visibility = _SettingsModel.EN_FilterMedicineCode ? Visibility.Visible : Visibility.Hidden;
+                Dg_JVServerRandomSetting.ItemsSource = JVSRclass;
+                Btn_Page1_Click(null, null);
             }
             catch (Exception a)
             {
@@ -193,7 +202,7 @@ namespace FCP
             }
         }
 
-        private void Close_button_Click(object sender, RoutedEventArgs e)
+        private void Btn_Close_Click(object sender, RoutedEventArgs e)
         {
             this.Visibility = Visibility.Hidden;
             Msg.Visibility = Visibility.Hidden;
@@ -202,23 +211,23 @@ namespace FCP
 
         private void JVServerRandomAdd_Click(object sender, RoutedEventArgs e)
         {
-            if (JVServerRandomSetting_datagrid.Items.Count <= 5)
+            if (Dg_JVServerRandomSetting.Items.Count <= 5)
             {
-                int Index = JVServerRandomSetting_datagrid.Items.Count;
+                int Index = Dg_JVServerRandomSetting.Items.Count;
                 JVSRclass.Add(new JVServerRandomclass
                 {
                     No = Index.ToString(),
                     JVServer = "1",
                     OnCube = "1"
                 });
-                JVServerRandomSetting_datagrid.SelectedIndex = Index;
-                JVServerRandomSetting_datagrid.ScrollIntoView(JVSRclass[JVSRclass.Count - 1]);
+                Dg_JVServerRandomSetting.SelectedIndex = Index;
+                Dg_JVServerRandomSetting.ScrollIntoView(JVSRclass[JVSRclass.Count - 1]);
             }
         }
 
         private void JVServerRandomRemove_Click(object sender, RoutedEventArgs e)
         {
-            int Index = JVServerRandomSetting_datagrid.SelectedIndex;
+            int Index = Dg_JVServerRandomSetting.SelectedIndex;
             if (Index >= 0)
             {
                 JVSRclass.RemoveAt(Index);
@@ -227,29 +236,28 @@ namespace FCP
                     JVSRclass[x].No = x.ToString();
                 }
             }
-            JVServerRandomSetting_datagrid.Items.Refresh();
+            Dg_JVServerRandomSetting.Items.Refresh();
         }
 
-        private void Save_button_Click(object sender, RoutedEventArgs e)
+        private void Btn_Save_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                Settings.Check();
-                var ModeTemp = Settings.Mode;
-                string DoseType = "";
+                
+                var ModeTemp = _SettingsModel.Mode;
                 string FilterSpecialAdminTime = "";
                 string UseSpecialAdminTime = "";
                 string Random = "";
-                int PackedFunction;
                 string FilterMedicineCode = "";
-                string Temp = ConvertFormat_combobox.SelectedItem.ToString();
-                DoseType = MultiDose_radiobutton.IsChecked == true ? "M" : "C";
-                if (FilterSpecialAdminTimePack_radiobutton.IsChecked == true)
-                    PackedFunction = (int)PackModeEnum.過濾特殊;
-                else if (UseSpecialAdminTimePack_radiobutton.IsChecked == true)
-                    PackedFunction = (int)PackModeEnum.使用特殊;
+                string Temp = Cbo_ConvertFormat.SelectedItem.ToString();
+                DoseMode doseMode = (bool)Rdo_MultiDose.IsChecked ? DoseMode.餐包 : DoseMode.種包;
+                PackMode packMode;
+                if (Rdo_FilterSpecialAdminTimePack.IsChecked == true)
+                    packMode = PackMode.過濾特殊;
+                else if (Rdo_UseSpecialAdminTimePack.IsChecked == true)
+                    packMode = PackMode.使用特殊;
                 else
-                    PackedFunction = (int)PackModeEnum.正常;
+                    packMode = PackMode.正常;
                 FilterSpecialList.ForEach(x => FilterSpecialAdminTime += x + ",");
                 UseSpecialList.ForEach(x => UseSpecialAdminTime += x + ",");
                 if (FilterSpecialAdminTime.Length >= 1)
@@ -273,13 +281,28 @@ namespace FCP
                     Random = Random.Substring(0, Random.Length - 1);
                 }
                 this.FilterMedicineCode.ForEach(x => FilterMedicineCode += $"{x},");
-                Settings.SaveForm2(txt_DeputyFileName.Text.Trim(), ConvertFormat_combobox.SelectedIndex, Convert.ToInt32(SearchFrequency_textbox.Text.Trim()), PackedFunction, FilterSpecialAdminTime, UseSpecialAdminTime, Random, DoseType,
-                    SpecialAdminTimeOutput_textbox.Text.Trim(), CutTime_textbox.Text.Trim(), CrossAdminTime_textbox.Text.Trim(), FilterMedicineCode.TrimEnd(','), (bool)tgl_OnTimeAndBatch.IsChecked, (bool)tgl_MinimizeTheWindow.IsChecked,
-                    (bool)tgl_ShowCloseAndMinimumButton.IsChecked, (bool)tgl_ShowXY.IsChecked, (bool)tgl_FilterMedicineCode.IsChecked, (bool)tgl_OnlyCanisterIn.IsChecked);
-                Settings.Check();
-                if (ModeTemp != (int)Settings.Mode)
+                _Settings.SaveAdvancedSettings(Txt_DeputyFileName.Text.Trim(),
+                    (Format)Cbo_ConvertFormat.SelectedIndex,
+                    Convert.ToInt32(Txt_SearchFrequency.Text.Trim()),
+                    packMode,
+                    FilterSpecialAdminTime,
+                    UseSpecialAdminTime,
+                    Random,
+                    doseMode,
+                    Txt_SpecialAdminTimeOutput.Text.Trim(),
+                    Txt_CutTime.Text.Trim(),
+                    Txt_CrossAdminTime.Text.Trim(),
+                    FilterMedicineCode.TrimEnd(','),
+                    (bool)Tgl_OnTimeAndBatch.IsChecked,
+                    (bool)Tgl_MinimizeTheWindow.IsChecked,
+                    (bool)Tgl_ShowCloseAndMinimumButton.IsChecked,
+                    (bool)Tgl_ShowXY.IsChecked,
+                    (bool)Tgl_FilterMedicineCode.IsChecked,
+                    (bool)Tgl_OnlyCanisterIn.IsChecked);
+                
+                if (ModeTemp != _SettingsModel.Mode)
                 {
-                    mw.ClearObject(ModeTemp);
+                    mw.ClearObject();
                     mw.Judge(false);
                 }
                 Msg.Show("儲存完成", "成功", "Information", Msg.Color.Information);
@@ -293,63 +316,63 @@ namespace FCP
 
         private void Save_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            Save_button_Click(null, null);
+            Btn_Save_Click(null, null);
         }
 
         private void Exit_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            Close_button_Click(null, null);
+            Btn_Close_Click(null, null);
         }
 
-        private void FilterSpecialAdminTimePack_radiobutton_Checked(object sender, RoutedEventArgs e)
+        private void Rdo_FilterSpecialAdminTimePack_Checked(object sender, RoutedEventArgs e)
         {
-            PackFunction_grid.Visibility = Visibility.Visible;
-            PackFunctionAdminTime_combobox.ItemsSource = FilterSpecialList;
-            PackFunctionAdminTime_combobox.SelectedIndex = 0;
+            Gd_PackFunction.Visibility = Visibility.Visible;
+            Cbo_PackFunctionAdminTime.ItemsSource = FilterSpecialList;
+            Cbo_PackFunctionAdminTime.SelectedIndex = 0;
         }
 
-        private void UseSpecialAdminTimePack_radiobutton_Checked(object sender, RoutedEventArgs e)
+        private void Rdo_UseSpecialAdminTimePack_Checked(object sender, RoutedEventArgs e)
         {
-            PackFunction_grid.Visibility = Visibility.Visible;
-            PackFunctionAdminTime_combobox.ItemsSource = UseSpecialList;
-            PackFunctionAdminTime_combobox.SelectedIndex = 0;
+            Gd_PackFunction.Visibility = Visibility.Visible;
+            Cbo_PackFunctionAdminTime.ItemsSource = UseSpecialList;
+            Cbo_PackFunctionAdminTime.SelectedIndex = 0;
         }
 
-        private void UseNormalPack_radiobutton_Checked(object sender, RoutedEventArgs e)
+        private void Rdo_UseNormalPack_Checked(object sender, RoutedEventArgs e)
         {
-            PackFunction_grid.Visibility = Visibility.Hidden;
+            Gd_PackFunction.Visibility = Visibility.Hidden;
         }
 
-        private void PackFunctionAdd_button_Click(object sender, RoutedEventArgs e)
+        private void Btn_PackFunctionAdd_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                string AdminCode = PackFunctionAdminTime_textbox.Text.Trim();
+                string AdminCode = Txt_PackFunctionAdminTime.Text.Trim();
                 if (AdminCode == "")
                 {
                     Msg.Show("頻率不能為空白", "輸入錯誤", "Error", Msg.Color.Error);
                     return;
                 }
-                if ((bool)FilterSpecialAdminTimePack_radiobutton.IsChecked)
+                if ((bool)Rdo_FilterSpecialAdminTimePack.IsChecked)
                 {
                     if (!FilterSpecialList.Contains(AdminCode))
                         FilterSpecialList.Add(AdminCode);
                     else
                         Msg.Show($"此頻率 {AdminCode} 已添加過，請確認", "重複", "Warning", Msg.Color.Error);
-                    PackFunctionAdminTime_combobox.ItemsSource = FilterSpecialList;
+                    Cbo_PackFunctionAdminTime.ItemsSource = FilterSpecialList;
                 }
-                else if ((bool)UseSpecialAdminTimePack_radiobutton.IsChecked)
+                else if ((bool)Rdo_UseSpecialAdminTimePack.IsChecked)
                 {
                     if (!UseSpecialList.Contains(AdminCode))
                         UseSpecialList.Add(AdminCode);
                     else
                         Msg.Show($"此頻率 {AdminCode} 已添加過，請確認", "重複", "Warning", Msg.Color.Warning);
-                    PackFunctionAdminTime_combobox.ItemsSource = UseSpecialList;
+                    Cbo_PackFunctionAdminTime.ItemsSource = UseSpecialList;
                 }
-                PackFunctionAdminTime_combobox.Items.Refresh();
-                PackFunctionAdminTime_combobox.SelectedIndex = 0;
-                PackFunctionAdminTime_textbox.Text = "";
-                PackFunctionAdminTime_textbox.Focus();
+                Cbo_PackFunctionAdminTime.Items.Refresh();
+                Cbo_PackFunctionAdminTime.SelectedIndex = 0;
+                Txt_PackFunctionAdminTime.Text = "";
+                Txt_PackFunctionAdminTime.Focus();
             }
             catch (Exception a)
             {
@@ -358,31 +381,31 @@ namespace FCP
             }
         }
 
-        private void PackFunctionRemove_button_Click(object sender, RoutedEventArgs e)
+        private void Btn_PackFunctionRemove_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                if (PackFunctionAdminTime_combobox.Items.Count == 0)
+                if (Cbo_PackFunctionAdminTime.Items.Count == 0)
                     return;
-                string AdminCode = PackFunctionAdminTime_combobox.SelectedItem.ToString();
-                if ((bool)FilterSpecialAdminTimePack_radiobutton.IsChecked)
+                string AdminCode = Cbo_PackFunctionAdminTime.SelectedItem.ToString();
+                if ((bool)Rdo_FilterSpecialAdminTimePack.IsChecked)
                 {
                     if (FilterSpecialList.Contains(AdminCode))
                         FilterSpecialList.RemoveAll(x => x == AdminCode);
                     else
                         Msg.Show($"找無此頻率 {AdminCode}，請確認", "", "Error", Msg.Color.Error);
-                    PackFunctionAdminTime_combobox.ItemsSource = FilterSpecialList;
+                    Cbo_PackFunctionAdminTime.ItemsSource = FilterSpecialList;
                 }
-                else if ((bool)UseSpecialAdminTimePack_radiobutton.IsChecked)
+                else if ((bool)Rdo_UseSpecialAdminTimePack.IsChecked)
                 {
                     if (UseSpecialList.Contains(AdminCode))
                         UseSpecialList.RemoveAll(x => x == AdminCode);
                     else
                         Msg.Show($"找無此頻率 {AdminCode}，請確認", "", "Error", Msg.Color.Error);
-                    PackFunctionAdminTime_combobox.ItemsSource = UseSpecialList;
+                    Cbo_PackFunctionAdminTime.ItemsSource = UseSpecialList;
                 }
-                PackFunctionAdminTime_combobox.Items.Refresh();
-                PackFunctionAdminTime_combobox.SelectedIndex = 0;
+                Cbo_PackFunctionAdminTime.Items.Refresh();
+                Cbo_PackFunctionAdminTime.SelectedIndex = 0;
             }
             catch (Exception a)
             {
@@ -391,49 +414,49 @@ namespace FCP
             }
         }
 
-        private void PackFunctionAdminTime_textbox_KeyDown(object sender, KeyEventArgs e)
+        private void Txt_PackFunctionAdminTime_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
-                PackFunctionAdd_button_Click(null, null);
+                Btn_PackFunctionAdd_Click(null, null);
         }
 
-        private void Page1_button_Click(object sender, RoutedEventArgs e)
+        private void Btn_Page1_Click(object sender, RoutedEventArgs e)
         {
-            Page1_border.Visibility = Visibility.Visible;
-            Page2_border.Visibility = Visibility.Hidden;
-            Page3_border.Visibility = Visibility.Hidden;
-            Page1_button.Background = Yellow;
-            Page1_button.Foreground = White;
-            Page2_button.Background = White;
-            Page2_button.Foreground = DeepBlue;
-            Page3_button.Background = White;
-            Page3_button.Foreground = DeepBlue;
+            Bod_Page1.Visibility = Visibility.Visible;
+            Bod_Page2.Visibility = Visibility.Hidden;
+            Bod_Page3.Visibility = Visibility.Hidden;
+            Btn_Page1.Background = Yellow;
+            Btn_Page1.Foreground = White;
+            Btn_Page2.Background = White;
+            Btn_Page2.Foreground = DeepBlue;
+            Btn_Page3.Background = White;
+            Btn_Page3.Foreground = DeepBlue;
         }
 
-        private void Page2_button_Click(object sender, RoutedEventArgs e)
+        private void Btn_Page2_Click(object sender, RoutedEventArgs e)
         {
-            Page1_border.Visibility = Visibility.Hidden;
-            Page2_border.Visibility = Visibility.Visible;
-            Page3_border.Visibility = Visibility.Hidden;
-            Page1_button.Background = White;
-            Page1_button.Foreground = DeepBlue;
-            Page2_button.Background = Yellow;
-            Page2_button.Foreground = White;
-            Page3_button.Background = White;
-            Page3_button.Foreground = DeepBlue;
+            Bod_Page1.Visibility = Visibility.Hidden;
+            Bod_Page2.Visibility = Visibility.Visible;
+            Bod_Page3.Visibility = Visibility.Hidden;
+            Btn_Page1.Background = White;
+            Btn_Page1.Foreground = DeepBlue;
+            Btn_Page2.Background = Yellow;
+            Btn_Page2.Foreground = White;
+            Btn_Page3.Background = White;
+            Btn_Page3.Foreground = DeepBlue;
         }
 
-        private void Page3_button_Click(object sender, RoutedEventArgs e)
+        private void Btn_Page3_Click(object sender, RoutedEventArgs e)
         {
-            Page1_border.Visibility = Visibility.Hidden;
-            Page2_border.Visibility = Visibility.Hidden;
-            Page3_border.Visibility = Visibility.Visible;
-            Page1_button.Background = White;
-            Page1_button.Foreground = DeepBlue;
-            Page2_button.Background = White;
-            Page2_button.Foreground = DeepBlue;
-            Page3_button.Background = Yellow;
-            Page3_button.Foreground = White;
+            Bod_Page1.Visibility = Visibility.Hidden;
+            Bod_Page2.Visibility = Visibility.Hidden;
+            Bod_Page3.Visibility = Visibility.Visible;
+            Btn_Page1.Background = White;
+            Btn_Page1.Foreground = DeepBlue;
+            Btn_Page2.Background = White;
+            Btn_Page2.Foreground = DeepBlue;
+            Btn_Page3.Background = Yellow;
+            Btn_Page3.Foreground = White;
         }
 
         public class JVServerRandomclass
@@ -443,48 +466,48 @@ namespace FCP
             public string OnCube { get; set; }
         }
 
-        private void tgl_FilterMedicineCode_Checked(object sender, RoutedEventArgs e)
+        private void Tgl_FilterMedicineCode_Checked(object sender, RoutedEventArgs e)
         {
-            tgl_OnlyCanisterIn.Visibility = Visibility.Visible;
-            txt_OnlyCanisterIn.Visibility = Visibility.Visible;
+            Tgl_OnlyCanisterIn.Visibility = Visibility.Visible;
+            Txt_OnlyCanisterIn.Visibility = Visibility.Visible;
         }
 
-        private void tgl_FilterMedicineCode_Unchecked(object sender, RoutedEventArgs e)
+        private void Tgl_FilterMedicineCode_Unchecked(object sender, RoutedEventArgs e)
         {
-            tgl_OnlyCanisterIn.Visibility = Visibility.Hidden;
-            txt_OnlyCanisterIn.Visibility = Visibility.Hidden;
+            Tgl_OnlyCanisterIn.Visibility = Visibility.Hidden;
+            Txt_OnlyCanisterIn.Visibility = Visibility.Hidden;
         }
 
-        private void btn_FilterMediicneCodeAdd_Click(object sender, RoutedEventArgs e)
+        private void Btn_FilterMediicneCodeAdd_Click(object sender, RoutedEventArgs e)
         {
-            if (txt_FilterMedicineCode.Text.Trim() == "")
+            if (Txt_FilterMedicineCode.Text.Trim() == "")
                 return;
-            string Code = txt_FilterMedicineCode.Text.Trim();
+            string Code = Txt_FilterMedicineCode.Text.Trim();
             if (!FilterMedicineCode.Contains(Code))
             {
                 FilterMedicineCode.Add(Code);
                 FilterMedicineCode.Sort();
-                cbo_FilterMedicineCode.ItemsSource = FilterMedicineCode;
-                cbo_FilterMedicineCode.Items.Refresh();
-                txt_FilterMedicineCode.Text = "";
-                txt_FilterMedicineCode.Focus();
+                Cbo_FilterMedicineCode.ItemsSource = FilterMedicineCode;
+                Cbo_FilterMedicineCode.Items.Refresh();
+                Txt_FilterMedicineCode.Text = "";
+                Txt_FilterMedicineCode.Focus();
             }
             else
             {
                 Msg.Show($"{Code} 已重複", "重複的藥品代碼", "Error", Msg.Color.Error);
-                txt_FilterMedicineCode.Focus();
-                txt_FilterMedicineCode.SelectAll();
+                Txt_FilterMedicineCode.Focus();
+                Txt_FilterMedicineCode.SelectAll();
             }
         }
 
-        private void btn_FilterMedicineCodeRemove_Click(object sender, RoutedEventArgs e)
+        private void Btn_FilterMedicineCodeRemove_Click(object sender, RoutedEventArgs e)
         {
-            if (cbo_FilterMedicineCode.Items.Count == 0)
+            if (Cbo_FilterMedicineCode.Items.Count == 0)
                 return;
-            FilterMedicineCode.RemoveAt(cbo_FilterMedicineCode.SelectedIndex);
-            cbo_FilterMedicineCode.ItemsSource = FilterMedicineCode;
-            cbo_FilterMedicineCode.Items.Refresh();
-            cbo_FilterMedicineCode.SelectedIndex = 0;
+            FilterMedicineCode.RemoveAt(Cbo_FilterMedicineCode.SelectedIndex);
+            Cbo_FilterMedicineCode.ItemsSource = FilterMedicineCode;
+            Cbo_FilterMedicineCode.Items.Refresh();
+            Cbo_FilterMedicineCode.SelectedIndex = 0;
         }
     }
 }

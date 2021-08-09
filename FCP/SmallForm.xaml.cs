@@ -9,13 +9,10 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Diagnostics;
-using System.IO;
-using System.Data;
-using System.Threading;
-using System.Runtime.InteropServices;
+using FCP.MVVM.Models;
+using FCP.MVVM.Control;
+using FCP.MVVM.Factory;
+using FCP.MVVM.Models.Enum;
 
 namespace FCP
 {
@@ -25,17 +22,19 @@ namespace FCP
     public partial class SmallForm : Window
     {
         MsgB Msg = new MsgB();
-        public Settings Settings;
+        private SettingsModel _SettingsModel { get; set; }
+        private Settings _Settings { get; set; }
         SolidColorBrush DeepBlue = new SolidColorBrush((Color)(Color.FromRgb(17, 68, 109)));
         SolidColorBrush ShinyBlue = new SolidColorBrush((Color)(Color.FromRgb(9, 225, 255)));
         SolidColorBrush White = new SolidColorBrush((Color)(Color.FromRgb(255, 255, 255)));
         SolidColorBrush Red = new SolidColorBrush((Color)Color.FromRgb(255, 82, 85));
         public MainWindow mw;
-        public SmallForm(MainWindow m, Settings s)
+        public SmallForm(MainWindow m)
         {
             InitializeComponent();
             mw = m;
-            Settings = s;
+            _Settings = SettingsFactory.GenerateSettingsControl();
+            _SettingsModel = SettingsFactory.GenerateSettingsModels();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -45,15 +44,15 @@ namespace FCP
 
         public void Initialize()
         {
-            Settings.Check();
+            
         }
 
-        private void Close_button_Click(object sender, RoutedEventArgs e)
+        private void Btn_Close_Click(object sender, RoutedEventArgs e)
         {
             Environment.Exit(0);
         }
 
-        private void Minimum_button_Click(object sender, RoutedEventArgs e)
+        private void Btn_Minimum_Click(object sender, RoutedEventArgs e)
         {
             this.Visibility = Visibility.Hidden;
         }
@@ -72,52 +71,52 @@ namespace FCP
 
         public void ChangeLayout()
         {
-            if (Settings.Mode == (int)Settings.ModeEnum.小港醫院 | Settings.Mode == (int)Settings.ModeEnum.光田OnCube | Settings.Mode == (int)Settings.ModeEnum.民生醫院 | Settings.Mode == (int)Settings.ModeEnum.義大醫院)
+            if (_SettingsModel.Mode == Format.小港醫院TOC || _SettingsModel.Mode == Format.光田醫院TOC || _SettingsModel.Mode == Format.民生醫院TOC || _SettingsModel.Mode == Format.義大醫院TOC)
             {
-                StartConverter_textblock.Text = "門診F5";
-                UD_button.Visibility = Visibility.Visible;
+                Txtb_StartConverter.Text = "門診F5";
+                Btn_UD.Visibility = Visibility.Visible;
             }
-            Combi_raduibutton.Visibility = Settings.Mode == (int)Settings.ModeEnum.光田OnCube ? Visibility.Visible : Visibility.Hidden;
-            Multi_raduibutton.Visibility = Settings.Mode == (int)Settings.ModeEnum.光田OnCube ? Visibility.Visible : Visibility.Hidden;
-            if (Settings.Mode == (int)Settings.ModeEnum.JVS)
+            Rdo_Combi.Visibility = _SettingsModel.Mode == Format.光田醫院TOC ? Visibility.Visible : Visibility.Hidden;
+            Rdo_Multi.Visibility = _SettingsModel.Mode == Format.光田醫院TOC ? Visibility.Visible : Visibility.Hidden;
+            if (_SettingsModel.Mode == Format.JVS)
             {
-                StartConverter_textblock.Text = "磨粉F5";
-                UD_button.Visibility = Visibility.Hidden;
+                Txtb_StartConverter.Text = "磨粉F5";
+                Btn_UD.Visibility = Visibility.Hidden;
             }
-            if (Settings.EN_StatOrBatch)
+            if (_SettingsModel.EN_StatOrBatch)
             {
-                Batch_border.Visibility = Visibility.Visible;
-                OnTime_border.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                Batch_border.Visibility = Visibility.Hidden;
-                OnTime_border.Visibility = Visibility.Hidden;
-            }
-            if (Settings.StatOrBatch == "S")
-                OnTime_radiobutton.IsChecked = true;
-            else
-                Batch_radiobutton.IsChecked = true;
-            if (Settings.EN_ShowControlButton)
-            {
-                Close_button.Visibility = Visibility.Visible;
-                Minimum_button.Visibility = Visibility.Visible;
+                Bod_Batch.Visibility = Visibility.Visible;
+                Bod_OnTime.Visibility = Visibility.Visible;
             }
             else
             {
-                Close_button.Visibility = Visibility.Hidden;
-                Minimum_button.Visibility = Visibility.Hidden;
+                Bod_Batch.Visibility = Visibility.Hidden;
+                Bod_OnTime.Visibility = Visibility.Hidden;
             }
-            StopConverter_button.IsEnabled = false;
+            if (_SettingsModel.StatOrBatch == "S")
+                Rdo_OnTime.IsChecked = true;
+            else
+                Rdo_Batch.IsChecked = true;
+            if (_SettingsModel.EN_ShowControlButton)
+            {
+                Btn_Close.Visibility = Visibility.Visible;
+                Btn_Minimum.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Btn_Close.Visibility = Visibility.Hidden;
+                Btn_Minimum.Visibility = Visibility.Hidden;
+            }
+            Btn_StopConverter.IsEnabled = false;
             if (Properties.Settings.Default.DoseType == "M")
-                Multi_raduibutton.IsChecked = true;
+                Rdo_Multi.IsChecked = true;
             else
-                Combi_raduibutton.IsChecked = true;
+                Rdo_Combi.IsChecked = true;
         }
 
         private void ChangeSize_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = !StopConverter_button.IsEnabled;
+            e.CanExecute = !Btn_StopConverter.IsEnabled;
         }
 
         private void ChangeSize_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -127,114 +126,114 @@ namespace FCP
 
         private void StartConverter_CanExecute(object sender,CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = !StopConverter_button.IsEnabled;
+            e.CanExecute = !Btn_StopConverter.IsEnabled;
         }
 
         private void StartConverter_Executed(object sender,ExecutedRoutedEventArgs e)
         {
-            StartConverter_button_Click(null, null);
+            Btn_StartConverter_Click(null, null);
         }
 
-        public void StartConverter_button_Click(object sender, RoutedEventArgs e)
+        public void Btn_StartConverter_Click(object sender, RoutedEventArgs e)
         {
-            mw.btn_OPD_Click(null, null);
-            StartConverter_button.IsEnabled = false;
-            UD_button.IsEnabled = false;
-            StopConverter_button.IsEnabled = true;
-            OnTime_border.IsEnabled = false;
-            Batch_border.IsEnabled = false;
-            Combi_raduibutton.IsEnabled = false;
-            Multi_raduibutton.IsEnabled = false;
-            StartConverter_button.Background = Red;
-            UD_button.Opacity = 0.2;
+            mw.Btn_OPD_Click(null, null);
+            Btn_StartConverter.IsEnabled = false;
+            Btn_UD.IsEnabled = false;
+            Btn_StopConverter.IsEnabled = true;
+            Bod_OnTime.IsEnabled = false;
+            Bod_Batch.IsEnabled = false;
+            Rdo_Combi.IsEnabled = false;
+            Rdo_Multi.IsEnabled = false;
+            Btn_StartConverter.Background = Red;
+            Btn_UD.Opacity = 0.2;
         }
 
         private void UDConverter_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = !StopConverter_button.IsEnabled;
+            e.CanExecute = !Btn_StopConverter.IsEnabled;
         }
 
         private void UDConverter_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            UD_button_Click(null, null);
+            Btn_UD_Click(null, null);
         }
 
-        public void UD_button_Click(object sender, RoutedEventArgs e)
+        public void Btn_UD_Click(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.DoseType = Multi_raduibutton.IsChecked == true ? "M" : "C";
+            Properties.Settings.Default.DoseType = Rdo_Multi.IsChecked == true ? "M" : "C";
             Properties.Settings.Default.Save();
-            if (OnTime_radiobutton.IsChecked == true)
+            if (Rdo_OnTime.IsChecked == true)
                 mw.ChangeUDFormatType("S");
             else
                 mw.ChangeUDFormatType("B");
-            mw.btn_UD_Click(null, null);
-            StartConverter_button.IsEnabled = false;
-            UD_button.IsEnabled = false;
-            StopConverter_button.IsEnabled = true;
-            OnTime_border.IsEnabled = false;
-            Batch_border.IsEnabled = false;
-            Combi_raduibutton.IsEnabled = false;
-            Multi_raduibutton.IsEnabled = false;
-            UD_button.Background = Red;
-            StartConverter_button.Opacity = 0.2;
+            mw.Btn_UD_Click(null, null);
+            Btn_StartConverter.IsEnabled = false;
+            Btn_UD.IsEnabled = false;
+            Btn_StopConverter.IsEnabled = true;
+            Bod_OnTime.IsEnabled = false;
+            Bod_Batch.IsEnabled = false;
+            Rdo_Combi.IsEnabled = false;
+            Rdo_Multi.IsEnabled = false;
+            Btn_UD.Background = Red;
+            Btn_StartConverter.Opacity = 0.2;
         }
 
         private void StopConverter_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            StopConverter_button_Click(null, null);
+            Btn_StopConverter_Click(null, null);
         }
 
         public void Stop()
         {
-            StartConverter_button.IsEnabled = true;
-            UD_button.IsEnabled = true;
-            StopConverter_button.IsEnabled = false;
-            OnTime_border.IsEnabled = true;
-            Batch_border.IsEnabled = true;
-            Combi_raduibutton.IsEnabled = true;
-            Multi_raduibutton.IsEnabled = true;
-            StartConverter_button.Background = White;
-            UD_button.Background = White;
-            StartConverter_button.Opacity = 1;
-            UD_button.Opacity = 1;
-            //Multi_raduibutton.IsChecked = true;
+            Btn_StartConverter.IsEnabled = true;
+            Btn_UD.IsEnabled = true;
+            Btn_StopConverter.IsEnabled = false;
+            Bod_OnTime.IsEnabled = true;
+            Bod_Batch.IsEnabled = true;
+            Rdo_Combi.IsEnabled = true;
+            Rdo_Multi.IsEnabled = true;
+            Btn_StartConverter.Background = White;
+            Btn_UD.Background = White;
+            Btn_StartConverter.Opacity = 1;
+            Btn_UD.Opacity = 1;
+            //Rdo_Multi.IsChecked = true;
         }
 
-        public void StopConverter_button_Click(object sender, RoutedEventArgs e)
+        public void Btn_StopConverter_Click(object sender, RoutedEventArgs e)
         {
-            mw.btn_Stop_Click(null, null);
+            mw.Btn_Stop_Click(null, null);
             Stop();
         }
 
         private void Exit_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            Close_button_Click(null, null);
+            Btn_Close_Click(null, null);
         }
 
-        private void Open_button_Click(object sender, RoutedEventArgs e)
+        private void Btn_Open_Click(object sender, RoutedEventArgs e)
         {
-            if (ProgressBox_textbox.Visibility == Visibility.Visible)
+            if (Txt_ProgressBox.Visibility == Visibility.Visible)
             {
-                ProgressBox_textbox.Visibility = Visibility.Hidden;
+                Txt_ProgressBox.Visibility = Visibility.Hidden;
                 return;
             }
-            ProgressBox_textbox.Visibility = Visibility.Visible;
+            Txt_ProgressBox.Visibility = Visibility.Visible;
         }
 
-        private void Clear_button_Click(object sender, RoutedEventArgs e)
+        private void Btn_Clear_Click(object sender, RoutedEventArgs e)
         {
             ProgressBoxClear();
         }
 
         public void ProgressBoxClear()
         {
-            ProgressBox_textbox.Clear();
+            Txt_ProgressBox.Clear();
         }
 
         public void ProgressBoxAdd(string Result)
         {
-            ProgressBox_textbox.AppendText(Result);
-            ProgressBox_textbox.ScrollToEnd();
+            Txt_ProgressBox.AppendText(Result);
+            Txt_ProgressBox.ScrollToEnd();
         }
     }
 }

@@ -13,7 +13,15 @@
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"
         FontFamily="{DynamicResource MaterialDesignFont}"
-        Title="FCP" Height="149" Width="450" WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="NoResize" Loaded="Window_Loaded" Background="Transparent" AllowsTransparency="True">
+        Title="FCP"
+        Height="149"
+        Width="450"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        Loaded="Window_Loaded"
+        Background="Transparent"
+        AllowsTransparency="True">
     <Window.Resources>
         <ResourceDictionary>
             <SolidColorBrush x:Key="ShallowBlue" Color="#7B97AB"/>
@@ -24,24 +32,6 @@
             <RoutedCommand x:Key="StopConverter"/>
             <RoutedCommand x:Key="UDConverter"/>
             <RoutedCommand x:Key="Exit"/>
-
-            <Style x:Key="ControlButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
-                <Setter Property="Background" Value="White"/>
-                <Setter Property="Foreground" Value="{StaticResource DeepBlue}"/>
-                <Setter Property="BorderBrush" Value="Transparent"/>
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{StaticResource NormalBlue}"/>
-                        <Setter Property="Foreground" Value="White"/>
-                    </Trigger>
-
-                    <Trigger Property="IsEnabled" Value="False">
-                        <Setter Property="Background" Value="White"/>
-                        <Setter Property="Opacity" Value="1"/>
-                        <Setter Property="Foreground" Value="{StaticResource DeepBlue}"/>
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
         </ResourceDictionary>
     </Window.Resources>
     <Window.InputBindings>
@@ -68,7 +58,8 @@
             </Grid.ColumnDefinitions>
             <Grid>
                 <Grid.Background>
-                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <LinearGradientBrush EndPoint="0.5,1"
+                                         StartPoint="0.5,0">
                         <GradientStop Color="#FF3694E4"/>
                         <GradientStop Color="#FF155385" Offset="1"/>
                     </LinearGradientBrush>
@@ -81,7 +72,8 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                 </Grid.ColumnDefinitions>
-                <Grid Background="Transparent" Grid.ColumnSpan="2">
+                <Grid Background="Transparent"
+                      Grid.ColumnSpan="2">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="35"/>
@@ -89,13 +81,43 @@
                         <ColumnDefinition Width="35"/>
                         <ColumnDefinition Width="10"/>
                     </Grid.ColumnDefinitions>
-                    <RadioButton x:Name="Multi_raduibutton" FontSize="18" Background="White" Foreground="White" IsChecked="True" Content="餐包" Margin="5 0 0 0" GroupName="DoseType" Visibility="Hidden"/>
-                    <RadioButton x:Name="Combi_raduibutton" FontSize="18" Background="White" Foreground="White" Content="總包" Margin="70 0 0 0" GroupName="DoseType" Visibility="Hidden"/>
-                    <Button x:Name="Minimum_button" Grid.Column="1" Background="Transparent" BorderBrush="Transparent" Foreground="White" Click="Minimum_button_Click">
-                        <materialDesign:PackIcon Kind="Minus" Height="30" Width="30" Margin="-12 -5 -10 0"/>
+                    <RadioButton x:Name="Rdo_Multi"
+                                 FontSize="18"
+                                 Background="White"
+                                 Foreground="White"
+                                 IsChecked="True"
+                                 Content="餐包"
+                                 Margin="5 0 0 0"
+                                 GroupName="DoseType"
+                                 Visibility="Hidden"/>
+                    <RadioButton x:Name="Rdo_Combi"
+                                 FontSize="18"
+                                 Background="White"
+                                 Foreground="White"
+                                 Content="總包"
+                                 Margin="70 0 0 0"
+                                 GroupName="DoseType"
+                                 Visibility="Hidden"/>
+                    <Button x:Name="Btn_Minimum" Grid.Column="1"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Foreground="White"
+                            Click="Btn_Minimum_Click">
+                        <materialDesign:PackIcon Kind="Minus"
+                                                 Height="30"
+                                                 Width="30"
+                                                 Margin="-12 -5 -10 0"/>
                     </Button>
-                    <Button x:Name="Close_button" Grid.Column="3" Background="Transparent" BorderBrush="Transparent" Foreground="White" Click="Close_button_Click">
-                        <materialDesign:PackIcon Kind="Close" Height="30" Width="30" Margin="-12 -5 -10 0"/>
+                    <Button x:Name="Btn_Close"
+                            Grid.Column="3"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Foreground="White"
+                            Click="Btn_Close_Click">
+                        <materialDesign:PackIcon Kind="Close"
+                                                 Height="30"
+                                                 Width="30"
+                                                 Margin="-12 -5 -10 0"/>
                     </Button>
                 </Grid>
                 <Border Grid.Row="1">
@@ -108,64 +130,191 @@
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <Button x:Name="StartConverter_button" FontSize="16" Foreground="{StaticResource DeepBlue}" Height="Auto" materialDesign:ButtonAssist.CornerRadius="5" Background="White" BorderBrush="Transparent" Margin="5" Click="StartConverter_button_Click"
-                            Style="{StaticResource ControlButton}">
-                            <Grid Width="150" HorizontalAlignment="Center">
-                                <materialDesign:PackIcon Kind="Play" Height="35" Width="35"/>
-                                <TextBlock x:Name="StartConverter_textblock" FontSize="18" Foreground="{StaticResource DeepBlue}" Text="開始轉檔F5" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 2 0 0"/>
+                        <Button x:Name="Btn_StartConverter"
+                                FontSize="16"
+                                Foreground="{StaticResource DeepBlue}"
+                                Height="Auto"
+                                materialDesign:ButtonAssist.CornerRadius="5"
+                                Background="White"
+                                BorderBrush="Transparent"
+                                Margin="5"
+                                Click="Btn_StartConverter_Click"
+                                Style="{StaticResource ControlButton}">
+                            <Grid Width="150"
+                                  HorizontalAlignment="Center">
+                                <materialDesign:PackIcon Kind="Play"
+                                                         Height="35"
+                                                         Width="35"/>
+                                <TextBlock x:Name="Txtb_StartConverter"
+                                           FontSize="18"
+                                           Foreground="{StaticResource DeepBlue}"
+                                           Text="開始轉檔F5"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Margin="0 2 0 0"/>
                             </Grid>
                         </Button>
-                        <Button x:Name="StopConverter_button" Grid.Column="1" FontSize="16" Foreground="{StaticResource DeepBlue}" Height="Auto" materialDesign:ButtonAssist.CornerRadius="5" Background="White" BorderBrush="Transparent" Margin="5"
-                            Click="StopConverter_button_Click">
-                            <Grid Width="150" HorizontalAlignment="Center">
-                                <materialDesign:PackIcon Kind="Stop" Height="35" Width="35"/>
-                                <TextBlock x:Name="StopConverter_textblock" FontSize="18" Foreground="{StaticResource DeepBlue}" Text="停止轉檔F7" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 2 0 0"/>
+                        <Button x:Name="Btn_StopConverter"
+                                Grid.Column="1"
+                                FontSize="16"
+                                Foreground="{StaticResource DeepBlue}"
+                                Height="Auto"
+                                materialDesign:ButtonAssist.CornerRadius="5"
+                                Background="White"
+                                BorderBrush="Transparent"
+                                Margin="5"
+                                Click=" Btn_StopConverter_Click">
+                            <Grid Width="150"
+                                  HorizontalAlignment="Center">
+                                <materialDesign:PackIcon Kind="Stop"
+                                                         Height="35"
+                                                         Width="35"/>
+                                <TextBlock x:Name="txtb_StopConverter"
+                                           FontSize="18"
+                                           Foreground="{StaticResource DeepBlue}"
+                                           Text="停止轉檔F7"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Margin="0 2 0 0"/>
                             </Grid>
                         </Button>
-                        <Button x:Name="UD_button" Grid.Row="1" FontSize="16" Foreground="{StaticResource DeepBlue}" Height="Auto" materialDesign:ButtonAssist.CornerRadius="5" Background="White" BorderBrush="Transparent" Margin="5"
-                            Click="UD_button_Click" Visibility="Hidden" Style="{StaticResource ControlButton}">
-                            <Grid Width="150" HorizontalAlignment="Center">
-                                <materialDesign:PackIcon Kind="Bed" Height="35" Width="35" Margin="7 0 0 0"/>
-                                <TextBlock x:Name="UD_textblock" FontSize="18" Foreground="{StaticResource DeepBlue}" Text="住 院F6" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 2 0 0"/>
+                        <Button x:Name="Btn_UD"
+                                Grid.Row="1"
+                                FontSize="16"
+                                Foreground="{StaticResource DeepBlue}"
+                                Height="Auto"
+                                materialDesign:ButtonAssist.CornerRadius="5"
+                                Background="White"
+                                BorderBrush="Transparent"
+                                Margin="5"
+                                Click="Btn_UD_Click"
+                                Visibility="Hidden"
+                                Style="{StaticResource ControlButton}">
+                            <Grid Width="150"
+                                  HorizontalAlignment="Center">
+                                <materialDesign:PackIcon Kind="Bed"
+                                                         Height="35"
+                                                         Width="35"
+                                                         Margin="7 0 0 0"/>
+                                <TextBlock x:Name="Txtb_UD"
+                                           FontSize="18"
+                                           Foreground="{StaticResource DeepBlue}"
+                                           Text="住 院F6"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Margin="0 2 0 0"/>
                             </Grid>
                         </Button>
-                        <Border x:Name="OnTime_border" Grid.Row="1" Grid.Column="1" CornerRadius="8 8 8 8" Background="White" Width="80" Height="43" HorizontalAlignment="Left" Margin="5 0 0 0" Visibility="Hidden">
+                        <Border x:Name="Bod_OnTime"
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                CornerRadius="8 8 8 8"
+                                Background="White"
+                                Width="80"
+                                Height="43"
+                                HorizontalAlignment="Left"
+                                Margin="5 0 0 0"
+                                Visibility="Hidden">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="0.5*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <RadioButton x:Name="OnTime_radiobutton" Background="{StaticResource DeepBlue}" HorizontalAlignment="Center" GroupName="UDFormat" IsChecked="True"/>
-                                <Border Grid.Column="1" CornerRadius="0 6 6 0" Background="{StaticResource DeepBlue}" Margin="0 3.2 3 3" HorizontalAlignment="Stretch">
-                                    <TextBlock FontSize="18" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Text="即時"/>
+                                <RadioButton x:Name="Rdo_OnTime"
+                                             Background="{StaticResource DeepBlue}"
+                                             HorizontalAlignment="Center"
+                                             GroupName="UDFormat"
+                                             IsChecked="True"/>
+                                <Border Grid.Column="1"
+                                        CornerRadius="0 6 6 0"
+                                        Background="{StaticResource DeepBlue}"
+                                        Margin="0 3.2 3 3"
+                                        HorizontalAlignment="Stretch">
+                                    <TextBlock FontSize="18"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Text="即時"/>
                                 </Border>
                             </Grid>
                         </Border>
-                        <Border x:Name="Batch_border" Grid.Row="1" Grid.Column="1" CornerRadius="8 8 8 8" Background="White" Width="80" Height="43" HorizontalAlignment="Left" Margin="90 0 0 0" Visibility="Hidden">
+                        <Border x:Name="Bod_Batch"
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                CornerRadius="8 8 8 8"
+                                Background="White"
+                                Width="80"
+                                Height="43"
+                                HorizontalAlignment="Left"
+                                Margin="90 0 0 0"
+                                Visibility="Hidden">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="0.5*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <RadioButton x:Name="Batch_radiobutton" Background="{StaticResource DeepBlue}" HorizontalAlignment="Center" GroupName="UDFormat"/>
-                                <Border Grid.Column="1" CornerRadius="0 6 6 0" Background="{StaticResource DeepBlue}" Margin="0 3.2 3 3" HorizontalAlignment="Stretch">
-                                    <TextBlock FontSize="18" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Text="長期"/>
+                                <RadioButton x:Name="Rdo_Batch"
+                                             Background="{StaticResource DeepBlue}"
+                                             HorizontalAlignment="Center"
+                                             GroupName="UDFormat"/>
+                                <Border Grid.Column="1"
+                                        CornerRadius="0 6 6 0"
+                                        Background="{StaticResource DeepBlue}"
+                                        Margin="0 3.2 3 3"
+                                        HorizontalAlignment="Stretch">
+                                    <TextBlock FontSize="18"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Text="長期"/>
                                 </Border>
                             </Grid>
                         </Border>
                     </Grid>
                 </Border>
-                <Button x:Name="Open_button" Grid.Row="1" Grid.Column="1" Width="10" Height="50" HorizontalAlignment="Right" VerticalAlignment="Center" Background="White" BorderBrush="Transparent"
-                        Click="Open_button_Click">
-                    <materialDesign:PackIcon Kind="Play" Margin="-16 0 0 0" Width="10" Height="10" Foreground="{StaticResource DeepBlue}"/>
+                <Button x:Name="Btn_Open"
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Width="10"
+                        Height="50"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Background="White"
+                        BorderBrush="Transparent"
+                        Click="Btn_Open_Click">
+                    <materialDesign:PackIcon Kind="Play"
+                                             Margin="-16 0 0 0"
+                                             Width="10"
+                                             Height="10"
+                                             Foreground="{StaticResource DeepBlue}"/>
                 </Button>
-                <Button x:Name="Clear_button" Grid.Row="1" Grid.Column="1" Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="White" BorderBrush="Transparent"
-                        Margin="0 0 0 10" Click="Clear_button_Click">
-                    <materialDesign:PackIcon Kind="Eraser" Margin="-16 -4 0 -3" Width="10" Height="10" Foreground="{StaticResource DeepBlue}"/>
+                <Button x:Name="Btn_Clear"
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Width="10"
+                        Height="10"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Background="White"
+                        BorderBrush="Transparent"
+                        Margin="0 0 0 10"
+                        Click="Btn_Clear_Click">
+                    <materialDesign:PackIcon Kind="Eraser"
+                                             Margin="-16 -4 0 -3"
+                                             Width="10"
+                                             Height="10"
+                                             Foreground="{StaticResource DeepBlue}"/>
                 </Button>
             </Grid>
-            <TextBox x:Name="ProgressBox_textbox" FontSize="12" IsReadOnly="True" Grid.Column="1" Background="White" Foreground="{StaticResource DeepBlue}" TextWrapping="Wrap"
-                     ScrollViewer.VerticalScrollBarVisibility="Auto" Visibility="Hidden"/>
+            <TextBox x:Name="Txt_ProgressBox"
+                     FontSize="12"
+                     IsReadOnly="True"
+                     Grid.Column="1"
+                     Background="White"
+                     Foreground="{StaticResource DeepBlue}"
+                     TextWrapping="Wrap"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     Visibility="Hidden"/>
         </Grid>
     </Border>
 </Window>
