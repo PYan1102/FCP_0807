@@ -9,8 +9,11 @@ namespace FCP.MVVM.Models.Enum
     public enum ConvertResult
     {
         成功,
-        失敗,
+        產生OCS失敗,
+        讀取檔案失敗,
+        處理邏輯失敗,
         全數過濾,
-        沒有頻率
+        沒有餐包頻率,
+        沒有種包頻率
     }
 }

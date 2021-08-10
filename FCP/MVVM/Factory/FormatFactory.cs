@@ -16,6 +16,8 @@ namespace FCP.MVVM.Factory
                 _Format = GetFormat(format);
                 _CurrentFormat = format;
             }
+            if (_Format == null)
+                _Format = GetFormat(format);
             return _Format;
         }
 

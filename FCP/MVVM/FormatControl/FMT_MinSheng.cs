@@ -72,8 +72,8 @@ namespace FCP
                     {
                         newCount = 0;
                         Log.Write($"{FullFileName_S} 在OnCube中未建置此餐包頻率 {v.AdminCode}");
-                        FailMessage = $"{FullFileName_S} 在OnCube中未建置此餐包頻率 {v.AdminCode} 的頻率";
-                        return ConvertResult.沒有頻率;
+                        ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, AdminCode_S);
+                        return false;
                     }
                 }
                 for (int x = Remove.Count - 1; x >= 0; x--)
@@ -81,23 +81,25 @@ namespace FCP
                     MS_OPD.RemoveAt(Remove[x]);
                 }
                 if (MS_OPD.Count == 0)
-                    return ConvertResult.全數過濾;
-                return ConvertResult.成功;
+                {
+                    ReturnsResult.Shunt(ConvertResult.全數過濾, null);
+                    return false;
+                }
+                    
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
                 newCount = 0;
-                ErrorContent = $"{FullFileName_S} 讀取處方籤時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
+                return false;
 
             }
         }
 
         public override bool LogicOPD()
-        {
-            if (MS_OPD.Count == 0)
-                return ConvertResult.全數過濾;
+        {      
             try
             {
                 oncube = new OnputType_OnCube(Log);
@@ -108,22 +110,22 @@ namespace FCP
                 yn = oncube.MinSheng_OPD(FileNameOutput_S, MS_OPD, Type);
                 Debug.WriteLine($"總量 {MS_OPD.Count}  耗時 {sw.ElapsedMilliseconds}");
                 if (yn)
-                    return ConvertResult.成功;
+                    return true;
                 else
                 {
                     Log.Prescription(FullFileName_S, MS_OPD.ToList().Select(x => x.PatientName).ToList(), MS_OPD.ToList().Select(x => x.PrescriptionNo).ToList(), MS_OPD.ToList().Select(x => x.MedicineCode).ToList(), MS_OPD.ToList().Select(x => x.MedicineName).ToList(),
                         MS_OPD.ToList().Select(x => x.AdminCode).ToList(), MS_OPD.ToList().Select(x => x.PerQty).ToList(), MS_OPD.ToList().Select(x => x.SumQty).ToList(), MS_OPD.ToList().Select(x => x.StartDay).ToList());
                     newCount = 0;
-                    ErrorContent = $"{FullFileName_S} 產生OCS時發生問題";
-                    return ConvertResult.失敗;
+                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                    return false;
                 }
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
                 newCount = 0;
-                ErrorContent = $"{FullFileName_S} 處理邏輯時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                return false;
             }
         }
 
@@ -173,8 +175,8 @@ namespace FCP
                     {
                         newCount = 0;
                         Log.Write($"{FullFileName_S} 在OnCube中未建置此餐包頻率 {v.AdminCode}");
-                        FailMessage = $"{FullFileName_S} 在OnCube中未建置此餐包頻率 {v.AdminCode} 的頻率";
-                        return ConvertResult.沒有頻率;
+                        ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, AdminCode_S);
+                        return false;
                     }
                 }
                 for (int x = Remove.Count - 1; x >= 0; x--)
@@ -184,26 +186,22 @@ namespace FCP
                 if (MS_UD.Count == 0)
                 {
                     newCount = 0;
-                    return ConvertResult.全數過濾;
+                    ReturnsResult.Shunt(ConvertResult.全數過濾, null);
+                    return false;
                 }
-                return ConvertResult.成功;
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
                 newCount = 0;
-                ErrorContent = $"{FullFileName_S} 讀取處方籤時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
+                return false;
             }
         }
 
         public override bool LogicUDBatch()
         {
-            if (MS_UD.Count == 0)
-            {
-                newCount = 0;
-                return ConvertResult.全數過濾;
-            }
             try
             {
                 //Debug.WriteLine(TotalQuantityDic.First());
@@ -264,23 +262,23 @@ namespace FCP
                 yn = oncube.MinSheng_UD(DataDic, FileNameOutput_S, MS_UD, Type);
                 //Debug.WriteLine($"總量 {MS_UD.Count}  耗時 {sw.ElapsedMilliseconds}");
                 if (yn)
-                    return ConvertResult.成功;
+                    return true;
                 else
                 {
                     List<string> day = new List<string>();
                     StartDay_L.ForEach(x => day.Add(x));
                     Log.Prescription(FullFileName_S, PatientName_L, PrescriptionNo_L, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, SumQty_L, day);
                     newCount = 0;
-                    ErrorContent = $"{FullFileName_S} 產生OCS時發生問題";
-                    return ConvertResult.失敗;
+                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                    return false;
                 }
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
                 newCount = 0;
-                ErrorContent = $"{FullFileName_S} 處理邏輯時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                return false;
             }
         }
 

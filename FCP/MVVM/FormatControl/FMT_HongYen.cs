@@ -16,7 +16,7 @@ namespace FCP
         int Position = 0;
         bool _IsSkip = false;
 
-        private ConvertResult OPD_Process()
+        public override bool ProcessOPD()
         {
             try
             {
@@ -55,7 +55,8 @@ namespace FCP
                     if (ecd.GetString(Medicine, 16, 50).Trim() == "磨粉.")
                     {
                         _IsSkip = true;
-                        return ConvertResult.全數過濾;
+                        ReturnsResult.Shunt(ConvertResult.全數過濾, null);
+                        return false;
                     }
                     if (ecd.GetString(Medicine, 1, 15).Trim() == "")
                     {
@@ -89,21 +90,22 @@ namespace FCP
                     //}
                 }
                 if (_IsSkip || AdminCode_L.Count == 0)
-                    return ConvertResult.全數過濾;
-                return ConvertResult.成功;
+                {
+                    ReturnsResult.Shunt(ConvertResult.全數過濾, null);
+                    return false;
+                }
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
-                ErrorContent = $"{FullFileName_S} 讀取處方籤時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
+                return false;
             }
         }
 
-        private ConvertResult OPD_Logic()
+        public override bool LogicOPD()
         {
-            if (_IsSkip || AdminCode_L.Count == 0)
-                return ConvertResult.全數過濾;
             try
             {
                 bool yn;
@@ -173,8 +175,11 @@ namespace FCP
                 }
                 List<string> filterDaylist = filterDay.Where(x => !x.Contains("*")).Select(x => x).ToList();
                 if (filterAdminCode.Count == 0 & DOWN.Count <= 1)
-                    return ConvertResult.全數過濾;
-                FileNameOutputCount.Add($@"{OutputPath_S}\UP-{PatientName_S}-{FileName}_{Time_S}.txt");
+                {
+                    ReturnsResult.Shunt(ConvertResult.全數過濾, null);
+                    return false;
+                }
+                    FileNameOutputCount.Add($@"{OutputPath_S}\UP-{PatientName_S}-{FileName}_{Time_S}.txt");
                 FileNameOutputCount.Add($@"{OutputPath_S}\DOWN-{PatientName_S}-{FileName}_{Time_S}.txt");
                 DateTime.TryParseExact(BirthDate_S, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime _date);  //生日
                 string Birthdate = _date.ToString("yyyy-MM-dd");
@@ -182,7 +187,7 @@ namespace FCP
                 yn = oncube.HongYen(UP, DOWN, filterDaylist, filterAdminCode, MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L, FileNameOutputCount, OnCubeRandom, Days_L,
                     PatientName_S, PatientNo_S, HospitalName_S, Location_S, DoctorName_S, PrescriptionNo_S, Birthdate, Gender_S, Random, isTwo, Position);
                 if (yn)
-                    return ConvertResult.成功;
+                    return true;
                 else
                 {
                     List<string> day = new List<string>();
@@ -191,26 +196,16 @@ namespace FCP
                         day.Add(StartDay_L[x] + "~" + EndDay_L[x]);
                     }
                     Log.Prescription(FullFileName_S, PatientName_S, PrescriptionNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
-                    ErrorContent = $"{FullFileName_S} 產生OCS時發生問題";
-                    return ConvertResult.失敗;
+                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                    return false;
                 }
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
-                ErrorContent = $"{FullFileName_S} 處理邏輯時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                return false;
             }
-        }
-
-        public override bool ProcessOPD()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool LogicOPD()
-        {
-            throw new NotImplementedException();
         }
 
         public override bool ProcessUDBatch()

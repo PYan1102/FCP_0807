@@ -17,7 +17,8 @@ namespace FCP
             if (!File.Exists(FullFileName_S))
             {
                 Log.Write(FullFileName_S + "忽略");
-                return ConvertResult.全數過濾;
+                ReturnsResult.Shunt(ConvertResult.全數過濾, null);
+                return false;
             }
             try
             {
@@ -25,12 +26,6 @@ namespace FCP
                 string Content = GetContent.Trim();
                 //判斷資料裡是否為JVSERVER的字樣
                 int JVMIndex = Content.IndexOf("|JVPEND||JVMHEAD|");
-                if (JVMIndex == -1)
-                {
-
-                    ErrorContent = $"{FullFileName_S}轉檔格式錯誤，輸入格式不是JVServer";
-                    return ConvertResult.失敗;
-                }
                 Byte[] ATemp = Encoding.Default.GetBytes(Content.Substring(9, JVMIndex - 9));  //病患基本資料
                 Byte[] BTemp = Encoding.Default.GetBytes(Content.Substring(JVMIndex + 17, Content.Length - 17 - JVMIndex));  //病患藥品資料
                 var ecd = Encoding.Default;
@@ -64,8 +59,8 @@ namespace FCP
                     if (!GOD.Is_Admin_Code_For_Multi_Created(AdminCode_S))
                     {
                         Log.Write($"{FullFileName_S} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
-                        FailMessage = $"{FullFileName_S} 在OnCube中未建置此餐包頻率 {AdminCode_S} 的頻率";
-                        return ConvertResult.沒有頻率;
+                        ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, AdminCode_S);
+                        return false;
                     }
                     MedicineCode_L.Add(ecd.GetString(CTemp, 1, 15).Trim());  //藥品代碼
                     MedicineName_L.Add(ecd.GetString(CTemp, 16, 50).Trim());  //藥品名稱
@@ -75,21 +70,28 @@ namespace FCP
                     SumQty_L.Add(ecd.GetString(CTemp, 87, 8).Trim()); //總量
                 }
                 if (AdminCode_L.Count == 0)
-                    return ConvertResult.全數過濾;
-                return ConvertResult.成功;
+                {
+                    ReturnsResult.Shunt(ConvertResult.全數過濾, null);
+                    return false;
+                }
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
-                ErrorContent = $"{FullFileName_S} 讀取處方籤時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
+                return false;
             }
         }
 
         public override bool LogicOPD()
         {
             if (AdminCode_L.Count == 0)
-                return ConvertResult.全數過濾;
+            {
+                ReturnsResult.Shunt(ConvertResult.全數過濾, null);
+                return false;
+            }
+                
             try
             {
                 bool yn;
@@ -99,7 +101,7 @@ namespace FCP
                 yn = oncube.TaipeiDentention(MedicineName_L, MedicineCode_L, AdminCode_L, Days_L, PerQty_L, SumQty_L, FileNameOutputCount,
                         PatientName_S, PatientNo_S, HospitalName_S, Location_S, PrescriptionNo_S, Birthdaynew, Gender_S, Random, PutBackAdminCode);
                 if (yn)
-                    return ConvertResult.成功;
+                    return true;
                 else
                 {
                     List<string> day = new List<string>();
@@ -108,15 +110,15 @@ namespace FCP
                         day.Add(StartDay_L[x] + "~" + EndDay_L[x]);
                     }
                     Log.Prescription(FullFileName_S, PatientName_S, PrescriptionNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
-                    ErrorContent = $"{FullFileName_S} 產生OCS時發生問題";
-                    return ConvertResult.失敗;
+                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                    return false;
                 }
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
-                ErrorContent = $"{FullFileName_S} 處理邏輯時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                return false;
             }
         }
 

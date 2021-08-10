@@ -13,88 +13,6 @@ namespace FCP
         ObservableCollection<POWDER> pow = new ObservableCollection<POWDER>();
         List<string> FilterMedicineCode = new List<string>() { "P2A090M", "P2A091M", "P2A092M", "P2A093M", "P2A094M", "P2A095M", "P2A096M", "P2A097M", "P2A099M", "P2A101M", "P2A102M" };
 
-        private ConvertResult POWDER_Process()
-        {
-            try
-            {
-                string Content = GetContent;
-                List<string> Data = SplitData(Content);
-                pow.Clear();
-                foreach (string s in Data)
-                {
-                    string[] Split = s.Split('|');
-                    if (!FilterMedicineCode.Contains(Split[4].Substring(4).Trim()))
-                        continue;
-                    pow.Add(new POWDER
-                    {
-                        PrescriptionNo = Split[0].Substring(4).Trim(),
-                        PatientNo = Split[1].Substring(3).Trim(),
-                        PatientName = Split[2].Substring(2).Trim(),
-                        MedicineCode = Split[4].Substring(4).Trim(),
-                        MedicineName = Split[5].Substring(2).Trim(),
-                        SumQty = Split[6].Substring(2).Trim(),
-                        Mediciner = Split[9].Substring(4).Trim()
-                    }); ;
-                }
-                if (pow.Count == 0)
-                    return ConvertResult.全數過濾;
-                return ConvertResult.成功;
-            }
-            catch (Exception ex)
-            {
-                Log.Write($"{FullFileName_S} {ex}");
-                ErrorContent = $"{FullFileName_S} 讀取處方籤時發生問題 {ex}";
-                return ConvertResult.失敗;
-            }
-        }
-
-        private ConvertResult POWDER_Logic()
-        {
-            try
-            {
-                if (pow.Count == 0)
-                    return ConvertResult.全數過濾;
-                bool yn = false;
-                FileNameOutput_S = $@"{OutputPath_S}\{Path.GetFileNameWithoutExtension(FullFileName_S)}_{Time_S}.txt";
-                jvserver = new OnputType_JVServer(Log);
-                yn = jvserver.ChangGung_POWDER(pow, FileNameOutput_S);
-                if (yn)
-                    return ConvertResult.成功;
-                else
-                {
-                    ErrorContent = $"{FullFileName_S} 產生OCS時發生問題";
-                    return ConvertResult.失敗;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Write($"{FullFileName_S}  {ex}");
-                ErrorContent = $"{FullFileName_S} 判斷邏輯時發生問題 {ex}";
-                return ConvertResult.失敗;
-            }
-        }
-
-        private List<string> SplitData(string Content)
-        {
-            List<string> List = new List<string>();
-            StringBuilder sb = new StringBuilder();
-            List<string> Split = Content.Split('\n').ToList();
-            int order = 0;
-            foreach (string s in Split)
-            {
-                if (s.Trim() == "")
-                    continue;
-                sb.Append($"{s.Trim()}|");
-                order++;
-                if (order % 10 == 0)
-                {
-                    List.Add(sb.ToString());
-                    sb.Clear();
-                    order = 0;
-                }
-            }
-            return List;
-        }
 
         public override bool ProcessOPD()
         {
@@ -128,12 +46,64 @@ namespace FCP
 
         public override bool ProcessPOWDER()
         {
-            throw new NotImplementedException();
+            try
+            {
+                string Content = GetContent;
+                List<string> Data = SplitData(Content);
+                pow.Clear();
+                foreach (string s in Data)
+                {
+                    string[] Split = s.Split('|');
+                    if (!FilterMedicineCode.Contains(Split[4].Substring(4).Trim()))
+                        continue;
+                    pow.Add(new POWDER
+                    {
+                        PrescriptionNo = Split[0].Substring(4).Trim(),
+                        PatientNo = Split[1].Substring(3).Trim(),
+                        PatientName = Split[2].Substring(2).Trim(),
+                        MedicineCode = Split[4].Substring(4).Trim(),
+                        MedicineName = Split[5].Substring(2).Trim(),
+                        SumQty = Split[6].Substring(2).Trim(),
+                        Mediciner = Split[9].Substring(4).Trim()
+                    }); ;
+                }
+                if (pow.Count == 0)
+                {
+                    ReturnsResult.Shunt(ConvertResult.全數過濾, null);
+                    return false;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Write($"{FullFileName_S} {ex}");
+                ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
+                return false;
+            }
         }
 
         public override bool LogicPOWDER()
         {
-            throw new NotImplementedException();
+            try
+            {
+                bool yn = false;
+                FileNameOutput_S = $@"{OutputPath_S}\{Path.GetFileNameWithoutExtension(FullFileName_S)}_{Time_S}.txt";
+                jvserver = new OnputType_JVServer(Log);
+                yn = jvserver.ChangGung_POWDER(pow, FileNameOutput_S);
+                if (yn)
+                    return true;
+                else
+                {
+                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Write($"{FullFileName_S}  {ex}");
+                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                return false;
+            }
         }
 
         public override bool ProcessOther()
@@ -157,5 +127,26 @@ namespace FCP
             public string Mediciner { get; set; }
         }
 
+        private List<string> SplitData(string Content)
+        {
+            List<string> List = new List<string>();
+            StringBuilder sb = new StringBuilder();
+            List<string> Split = Content.Split('\n').ToList();
+            int order = 0;
+            foreach (string s in Split)
+            {
+                if (s.Trim() == "")
+                    continue;
+                sb.Append($"{s.Trim()}|");
+                order++;
+                if (order % 10 == 0)
+                {
+                    List.Add(sb.ToString());
+                    sb.Clear();
+                    order = 0;
+                }
+            }
+            return List;
+        }
     }
 }

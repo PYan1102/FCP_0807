@@ -18,7 +18,7 @@ namespace FCP
             return base.MethodShunt();
         }
 
-        private ConvertResult OPD_Process()
+        public override bool ProcessOPD()
         {
             try
             {
@@ -36,8 +36,8 @@ namespace FCP
                     if (!GOD.Is_Admin_Code_For_Multi_Created(adminCode))
                     {
                         Log.Write($"{FullFileName_S} 在OnCube中未建置此餐包頻率 {adminCode}");
-                        FailMessage = $"{FullFileName_S} 在OnCube中未建置此餐包頻率 {adminCode} 的頻率";
-                        return ConvertResult.沒有頻率;
+                        ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, adminCode);
+                        return false;
                     }
                     int days = Convert.ToInt32(properties[10]);
                     DateTime.TryParseExact(properties[4], "yyyyMMdd", null, DateTimeStyles.None, out DateTime endDate);
@@ -57,21 +57,22 @@ namespace FCP
                     });
                 }
                 if (_DetailItems.Count == 0)
-                    return ConvertResult.全數過濾;
-                return ConvertResult.成功;
+                {
+                    ReturnsResult.Shunt(ConvertResult.全數過濾, null);
+                    return false;
+                }
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
-                ErrorContent = $"{FullFileName_S} 讀取處方籤時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
+                return false;
             }
         }
 
-        private ConvertResult OPD_Logic()
+        public override bool LogicOPD()
         {
-            if (_DetailItems.Count == 0)
-                return ConvertResult.全數過濾;
             oncube = new OnputType_OnCube(Log);
             string patientName = _DetailItems[0].PatientName;
             string prescriptionNo = _DetailItems[0].PrescriptionNo;
@@ -79,24 +80,14 @@ namespace FCP
             try
             {
                 oncube.FangDing(_DetailItems, fileNameOutput);
-                return ConvertResult.成功;
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
-                ErrorContent = $"{FullFileName_S} 處理邏輯時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                return false;
             }
-        }
-
-        public override bool ProcessOPD()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool LogicOPD()
-        {
-            throw new NotImplementedException();
         }
 
         public override bool ProcessUDBatch()

@@ -107,7 +107,6 @@
     <Compile Include="MVVM\FormatControl\FMT_FangDing.cs" />
     <Compile Include="MVVM\FormatControl\FMT_JenKang.cs" />
     <Compile Include="FormatCollection.cs" />
-    <Compile Include="FormatFactory.cs" />
     <Compile Include="FunctionCollections.cs" />
     <Compile Include="GetOnCubeData.cs" />
     <Compile Include="MVVM\FormatInit\BASE_HongYen.cs" />
@@ -140,8 +139,11 @@
     <Compile Include="MVVM\Models\SmallFormModel.cs" />
     <Compile Include="MVVM\Factory\SettingsFactory.cs" />
     <Compile Include="MVVM\ViewModels\AdvancedSettingsViewModel.cs" />
+    <Compile Include="MVVM\ViewModels\FindFile.cs" />
+    <Compile Include="MVVM\ViewModels\Interface\IRetunrsResult.cs" />
     <Compile Include="MVVM\ViewModels\MainWindow\MainWindowViewModel.cs" />
     <Compile Include="MVVM\ViewModels\MainWindow\PropertyChange.cs" />
+    <Compile Include="MVVM\ViewModels\ReturnsResult.cs" />
     <Compile Include="MVVM\ViewModels\SmallFormViewModel.cs" />
     <Compile Include="Core\ViewModelBase.cs" />
     <Compile Include="OnputType_JVServer.cs" />

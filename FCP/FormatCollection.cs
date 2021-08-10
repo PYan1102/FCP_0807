@@ -11,6 +11,8 @@ using FCP.MVVM.Factory;
 using FCP.MVVM.Control;
 using FCP.MVVM.Models;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.ViewModels;
+using FCP.MVVM.ViewModels.Interface;
 
 namespace FCP
 {
@@ -84,7 +86,8 @@ namespace FCP
         public string FilePath { get; set; }
         public string CurrentSeconds { get; set; }
         public DepartmentEnum Department { get; set; }
-        public ReturnsResultFormat ReturnsResult { get; set; }
+        private ReturnsResultFormat _ReturnsResultFormat { get; set; }
+        public IRetunrsResult ReturnsResult { get; set; }
 
         public FormatCollection()
         {
@@ -96,6 +99,9 @@ namespace FCP
 
         public virtual void Init()
         {
+            _ReturnsResultFormat = new ReturnsResultFormat();
+            ReturnsResult = new ReturnsResult();
+            ReturnsResult.SetReturnsResultFormat(_ReturnsResultFormat);
             InputPath = ConvertFileInformation.GetInputPath;
             OutputPath = ConvertFileInformation.GetOutputPath;
             FilePath = ConvertFileInformation.GetFilePath;
@@ -176,7 +182,7 @@ namespace FCP
                     }
                     break;
             }
-            return ReturnsResult;
+            return _ReturnsResultFormat;
         }
 
         //特控1

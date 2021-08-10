@@ -70,7 +70,7 @@ namespace FCP.MVVM.FormatInit
 
         public override void Loop_UD(int Start, int Length, string Content)
         {
-            base.Loop_UD(Start, Length, Content); 
+            base.Loop_UD(Start, Length, Content);
         }
 
         public override void SetConvertInformation()
@@ -98,7 +98,9 @@ namespace FCP.MVVM.FormatInit
                 case ConvertResult.成功:
                     MoveFilesIncludeResult("ok");
                     break;
-                case ConvertResult.失敗:
+                case ConvertResult.全數過濾 | ConvertResult.沒有種包頻率 | ConvertResult.沒有餐包頻率:
+                    break;
+                default:
                     MoveFilesIncludeResult("fail");
                     break;
             }

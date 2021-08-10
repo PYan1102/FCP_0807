@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using System.Data;
-using System.Diagnostics;
 using System.Globalization;
 using FCP.MVVM.Models.Enum;
 
@@ -41,8 +38,8 @@ namespace FCP
                     if (!GOD.Is_Admin_Code_For_Multi_Created(AdminCode_S))
                     {
                         Log.Write($"{FullFileName_S} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
-                        FailMessage = $"{FullFileName_S} 在OnCube中未建置此餐包頻率 {AdminCode_S} 的頻率";
-                        return ConvertResult.沒有頻率;
+                        ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, AdminCode_S);
+                        return false;
                     }
                     string DateTemp = (Convert.ToInt32(ecd.GetString(ATemp, 56, 7)) + 19110000).ToString();
                     DateTime.TryParseExact(DateTemp, "yyyyMMdd", null, DateTimeStyles.None, out DateTime _StartDate);
@@ -63,46 +60,48 @@ namespace FCP
                     EndDay_L.Add(dt2.AddDays(Int32.Parse(ecd.GetString(ATemp, 147, 3)) - 1).ToString("yyMMdd"));
                 }
                 if (AdminCode_L.Count == 0)
-                    return ConvertResult.全數過濾;
-                return ConvertResult.成功;
+                {
+                    ReturnsResult.Shunt(ConvertResult.全數過濾, null);
+                    return false;
+                }
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
-                ErrorContent = $"{FullFileName_S} 讀取處方籤時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
+                return false;
             }
         }
 
         public override bool LogicOPD()
-        {
-            if (AdminCode_L.Count == 0)
-                return ConvertResult.全數過濾;
+        {  
             try
             {
-                bool yn = false;
                 string FileName = $"{Path.GetFileNameWithoutExtension(FullFileName_S)}_{Time_S}.txt";
                 string FileNameOutputCount = $@"{OutputPath_S}\{PatientName_S.Trim()}-{FileName}_{Time_S}.txt";
                 string Birthdaynew = "1999-01-01";  //生日
-                yn = oncube.YiSheng(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L, FileNameOutputCount,
+                bool result = oncube.YiSheng(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L, FileNameOutputCount,
                     PatientName_S, Birthdaynew, PatientNo_S);
-                if (yn)
-                    return ConvertResult.成功;
+                if (result)
+                {
+                    return true;
+                }
                 else
                 {
                     List<string> day = new List<string>();
                     for (int x = 0; x <= StartDay_L.Count - 1; x++)
                         day.Add(StartDay_L[x] + "~" + EndDay_L[x]);
                     Log.Prescription(FullFileName_S, PatientName_S, PatientNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
-                    ErrorContent = $"{FullFileName_S} 產生OCS時發生問題";
-                    return ConvertResult.失敗;
+                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                    return false;
                 }
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
-                ErrorContent = $"{FullFileName_S} 處理邏輯時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                return false;
             }
         }
 

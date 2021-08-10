@@ -11,7 +11,7 @@ namespace FCP
     {
         OnputType_OnCube on = null;
 
-        private ConvertResult OPD_Process()
+        public override bool ProcessOPD()
         {
             try
             {
@@ -32,8 +32,8 @@ namespace FCP
                     if (!GOD.Is_Admin_Code_For_Multi_Created(AdminCode_S))
                     {
                         Log.Write($"{FullFileName_S} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
-                        FailMessage = $"{FullFileName_S} 在OnCube中未建置此餐包頻率 {AdminCode_S} 的頻率";
-                        return ConvertResult.沒有頻率;
+                        ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, null);
+                        return false;
                     }
                     DateTime startDate = DateTime.Parse(ecd.GetString(temp, 20, 10));
                     StartDay_L.Add(startDate.ToString("yyMMdd"));  //調劑日期
@@ -61,21 +61,22 @@ namespace FCP
                     EndDay_L.Add(startDate.AddDays(Convert.ToInt32(Days_L[Days_L.Count - 1]) - 1).ToString("yyMMdd"));
                 }
                 if (AdminCode_L.Count == 0)
-                    return ConvertResult.全數過濾;
-                return ConvertResult.成功;
+                {
+                    ReturnsResult.Shunt(ConvertResult.全數過濾, null);
+                    return false;
+                }
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
-                ErrorContent = $"{FullFileName_S} 讀取處方籤時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, null);
+                return false;
             }
         }
 
-        private ConvertResult OPD_Logic()
+        public override bool LogicOPD()
         {
-            if (AdminCode_L.Count == 0)
-                return ConvertResult.全數過濾;
             try
             {
                 string fileNameOutput = $@"{OutputPath_S}\{PatientName_S}-{Path.GetFileNameWithoutExtension(FullFileName_S)}_{Time_S}.txt";
@@ -84,33 +85,23 @@ namespace FCP
                 bool yn = on.ChuangSheng(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L, fileNameOutput,
                         PatientName_S, newBirthDate, HospitalName_S, Class_S);
                 if (yn)
-                    return ConvertResult.成功;
+                    return true;
                 else
                 {
                     List<string> day = new List<string>();
                     for (int x = 0; x <= StartDay_L.Count - 1; x++)
                         day.Add(StartDay_L[x] + "~" + EndDay_L[x]);
                     Log.Prescription(FullFileName_S, PatientName_S, PrescriptionNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
-                    ErrorContent = $"{FullFileName_S} 產生OCS時發生問題";
-                    return ConvertResult.失敗;
+                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                    return false;
                 }
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
-                ErrorContent = $"{FullFileName_S} 判斷邏輯時發生問題";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                return false;
             }
-        }
-
-        public override bool ProcessOPD()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool LogicOPD()
-        {
-            throw new NotImplementedException();
         }
 
         public override bool ProcessUDBatch()

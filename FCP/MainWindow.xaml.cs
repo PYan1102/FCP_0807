@@ -33,49 +33,21 @@ namespace FCP
     /// </summary>
     public partial class MainWindow : Window
     {
-        private BASE_E_DA _EDA { get; set; }
-        private BASE_JVServer _JVServer { get; set; }
-        private BASE_YiSheng _YiSheng { get; set; }
-        private BASE_XiaoGang _XiaoGang { get; set; }
-        private BASE_KuangTien _KangTien { get; set; }
-        private BASE_HongYen _HongYen { get; set; }
-        private BASE_ChuangSheng _ChuangSheng { get; set; }
-        private BASE_MinSheng _MinSheng { get; set; }
-        private BASE_ChangGung_POWDER _ChangGungPowder { get; set; }
-        private BASE_ChangGung _ChangGung { get; set; }
-        private BASE_TaipeiDetention _TaipeiDetention { get; set; }
-        private BASE_JenKang _JengKang { get; set; }
-        private BASE_FangDing _FangDing { get; set; }
         private FunctionCollections _Format { get; set; }
-        private MsgB Msg = new MsgB();
-        private PropertyChange _PropertyChange { get; set; }
+        private MsgB _Msg { get; set; }
         private SettingsModel _SettingsModel { get; set; }
         private Settings _Settings { get; set; }
-        Log log = new Log();
-        DoJson doJson = new DoJson();
-        Stopwatch sw = new Stopwatch();
-        Color Warning = Color.FromRgb(225, 219, 96);
-        SolidColorBrush Red = new SolidColorBrush((Color)Color.FromRgb(255, 82, 85));
-        SolidColorBrush White = new SolidColorBrush((Color)Color.FromRgb(255, 255, 255));
-        List<string> SettingsList = new List<string>();
-        List<string> HospitalList = new List<string>() { "小港ToOnCube", "光田ToOnCube", "光田ToJVServer", "民生ToOnCube", "義大ToOnCube" };
-        List<string> FilePath = new List<string>();
-        StringBuilder logw = new StringBuilder();
-        public string CurrentWindow;
-        string StatOrBatch = "S";
-        string InputPath1 = "";
-        string InputPath2 = "";
-        string InputPath3 = "";
-        string OutputPath = "";
-        const int ShowMainWindow_ID = 100;
-        public MainWindow()
-        {
-            InitializeComponent();
-            _PropertyChange = MainWindowFacotry.GeneratePropertyChange();
-            this.DataContext = _PropertyChange;
-            _Settings = SettingsFactory.GenerateSettingsControl();
-            _SettingsModel = SettingsFactory.GenerateSettingsModels();
-        }
+        private Stopwatch _StopWatch = new Stopwatch();
+        private Color _WarningColor = Color.FromRgb(225, 219, 96);
+        private SolidColorBrush _RedColor = new SolidColorBrush((Color)Color.FromRgb(255, 82, 85));
+        private SolidColorBrush _WhiteColor = new SolidColorBrush((Color)Color.FromRgb(255, 255, 255));
+        public string CurrentWindow { get; set; }
+        private string _StatOrBatch = "S";
+        private string _InputPath1 = "";
+        private string _InputPath2 = "";
+        private string _InputPath3 = "";
+        private string _OutputPath = "";
+        private const int _ShowMainWindow_ID = 100;
 
         public enum KeyModifilers
         {
@@ -120,13 +92,13 @@ namespace FCP
         private void RegisterHotKey()
         {
             var helper = new System.Windows.Interop.WindowInteropHelper(this);
-            RegisterHotKey(helper.Handle, ShowMainWindow_ID, KeyModifilers.Alt, System.Windows.Forms.Keys.D);
+            RegisterHotKey(helper.Handle, _ShowMainWindow_ID, KeyModifilers.Alt, System.Windows.Forms.Keys.D);
         }  //註冊全域熱鍵
 
         private void UnregisterHotKey()
         {
             var helper = new System.Windows.Interop.WindowInteropHelper(this);
-            UnregisterHotKey(helper.Handle, ShowMainWindow_ID);
+            UnregisterHotKey(helper.Handle, _ShowMainWindow_ID);
         }  //註銷全域熱鍵
 
         private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -137,7 +109,7 @@ namespace FCP
                 case WM_HOTKEY:
                     switch (wParam.ToInt32())
                     {
-                        case ShowMainWindow_ID:
+                        case _ShowMainWindow_ID:
                             _Format.IconDBClick(null, null);
                             handled = true;
                             break;
@@ -147,9 +119,16 @@ namespace FCP
             return IntPtr.Zero;
         }
 
+        public MainWindow()
+        {
+            InitializeComponent();
+            _Msg = new MsgB();
+            _Settings = SettingsFactory.GenerateSettingsControl();
+            _SettingsModel = SettingsFactory.GenerateSettingsModels();
+        }
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            
             Judge(true);
         }
 
@@ -201,7 +180,7 @@ namespace FCP
         {
             if ((Tgl_OPD1.IsChecked | Tgl_OPD2.IsChecked | Tgl_OPD3.IsChecked | Tgl_OPD4.IsChecked) == false)
             {
-                Msg.Show("沒有勾選任一個轉檔位置", "位置未勾選", "Error", Msg.Color.Error);
+                _Msg.Show("沒有勾選任一個轉檔位置", "位置未勾選", "Error", _Msg.Color.Error);
                 return;
             }
             _Format.ConvertPrepare(0);
@@ -227,7 +206,7 @@ namespace FCP
             if (Btn_Stop.IsEnabled == false)
             {
                 Txt_InputPath1.Text = "";
-                InputPath1 = "";
+                _InputPath1 = "";
             }
         }
 
@@ -236,7 +215,7 @@ namespace FCP
             if (Btn_Stop.IsEnabled == false)
             {
                 Txt_InputPath2.Text = "";
-                InputPath2 = "";
+                _InputPath2 = "";
             }
         }
 
@@ -245,7 +224,7 @@ namespace FCP
             if (Btn_Stop.IsEnabled == false)
             {
                 Txt_InputPath3.Text = "";
-                InputPath3 = "";
+                _InputPath3 = "";
             }
 
         }
@@ -255,7 +234,7 @@ namespace FCP
             if (Btn_Stop.IsEnabled == false)
             {
                 Txt_OutputPath.Text = "";
-                OutputPath = "";
+                _OutputPath = "";
             }
         }
 
@@ -320,7 +299,7 @@ namespace FCP
             if (OFD.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 Txt_InputPath1.Text = OFD.SelectedPath;
-                InputPath1 = OFD.SelectedPath;
+                _InputPath1 = OFD.SelectedPath;
             }
         }
 
@@ -340,7 +319,7 @@ namespace FCP
             if (OFD.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 Txt_InputPath2.Text = OFD.SelectedPath;
-                InputPath2 = OFD.SelectedPath;
+                _InputPath2 = OFD.SelectedPath;
             }
         }
 
@@ -360,7 +339,7 @@ namespace FCP
             if (OFD.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 Txt_InputPath3.Text = OFD.SelectedPath;
-                InputPath3 = OFD.SelectedPath;
+                _InputPath3 = OFD.SelectedPath;
             }
         }
 
@@ -380,7 +359,7 @@ namespace FCP
             if (OFD.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 Txt_OutputPath.Text = OFD.SelectedPath;
-                OutputPath = OFD.SelectedPath;
+                _OutputPath = OFD.SelectedPath;
             }
         }
 
@@ -407,13 +386,13 @@ namespace FCP
             }
             catch (Exception a)
             {
-                Msg.Show(a.ToString(), "錯誤", "Error", Colors.Red);
+                _Msg.Show(a.ToString(), "錯誤", "Error", Colors.Red);
             }
         }  //F1開啟Log
 
         public void ChangeUDFormatType(string Type)
         {
-            StatOrBatch = Type;
+            _StatOrBatch = Type;
             if (Type == "S")
                 Rdo_Stat.IsChecked = true;
             else
@@ -426,7 +405,7 @@ namespace FCP
             switch (_SettingsModel.Mode)
             {
                 case Format.小港醫院TOC:
-                    _XiaoGang.Stop();
+                    _Format.Stop();
                     break;
             }
         }

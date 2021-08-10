@@ -12,7 +12,17 @@ namespace FCP
     {
         ObservableCollection<Data> EDA_UD = new ObservableCollection<Data>();
 
-        private ConvertResult UD_Process()
+        public override bool ProcessOPD()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool LogicOPD()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool ProcessUDBatch()
         {
             try
             {
@@ -38,8 +48,8 @@ namespace FCP
                     if (!CheckCombiCode($"S{A[5]}"))
                     {
                         Log.Write($"{FullFileName_S} 在OnCube中未建置此種包頻率 S{A[5]}");
-                        FailMessage = $"{FullFileName_S} 在OnCube中未建置此種包頻率 S{A[5]} 的頻率";
-                        return ConvertResult.沒有頻率;
+                        ReturnsResult.Shunt(ConvertResult.沒有種包頻率, A[5]);
+                        return false;
                     }
                     DateTime.TryParseExact($"{(int.Parse(A[12]) + 19110000)}", "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime Start);
                     for (int i = EDA_UD.Count - 1; i >= 0; i--)
@@ -70,35 +80,24 @@ namespace FCP
                         });
                     }
                 }
-                //Debug.WriteLine($@"{EDA_UD[600].PatientName}
-                //{EDA_UD[600].MedicineCode}
-                //{EDA_UD[600].MedicineName}
-                //{EDA_UD[600].AdminTime}
-                //{EDA_UD[600].PerQty}
-                //{EDA_UD[600].SumQty}
-                //{EDA_UD[600].BedNo}
-                //{EDA_UD[600].PrescriptionNo}
-                //{EDA_UD[600].StartDate}
-                //{EDA_UD[600].StartTime}
-                //{EDA_UD[600].Days}
-                //{EDA_UD[600].BirthDate}");
 
                 if (EDA_UD.Count == 0)
-                    return ConvertResult.全數過濾;
-                return ConvertResult.成功;
+                {
+                    ReturnsResult.Shunt(ConvertResult.全數過濾, null);
+                    return false;
+                }
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S} {ex}");
-                ErrorContent = $"{FullFileName_S} 讀取處方籤時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
+                return false;
             }
         }
 
-        private ConvertResult UD_Logic()
+        public override bool LogicUDBatch()
         {
-            if (EDA_UD.Count == 0)
-                return ConvertResult.全數過濾;
             try
             {
                 bool yn = false;
@@ -106,7 +105,7 @@ namespace FCP
                 oncube = new OnputType_OnCube(Log);
                 yn = oncube.E_DA_UD(EDA_UD, OutputFileName);
                 if (yn)
-                    return ConvertResult.成功;
+                    return true;
                 else
                 {
                     List<string> day = new List<string>();
@@ -116,36 +115,16 @@ namespace FCP
                     }
                     Log.Prescription(FullFileName_S, EDA_UD.Select(x => x.PatientName).ToList(), EDA_UD.Select(x => x.PrescriptionNo).ToList(), EDA_UD.Select(x => x.MedicineCode).ToList(), EDA_UD.Select(x => x.MedicineName).ToList(),
                         EDA_UD.Select(x => x.AdminTime).ToList(), EDA_UD.Select(x => x.PerQty).ToList(), EDA_UD.Select(x => x.SumQty).ToList(), day);
-                    ErrorContent = $"{FullFileName_S} 產生OCS時發生問題";
-                    return ConvertResult.失敗;
+                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                    return false;
                 }
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S} {ex}");
-                ErrorContent = $"{FullFileName_S} 處理邏輯時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                return false;
             }
-        }
-
-        public override bool ProcessOPD()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool LogicOPD()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool ProcessUDBatch()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool LogicUDBatch()
-        {
-            throw new NotImplementedException();
         }
 
         public override bool ProcessUDStat()

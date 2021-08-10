@@ -16,6 +16,7 @@ using FCP.MVVM.Control;
 using FCP.MVVM.Models;
 using FCP.MVVM.Factory;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.ViewModels;
 
 namespace FCP
 {
@@ -42,16 +43,17 @@ namespace FCP
         public string FilePath, InputPath, OutputPath, CurrentSeconds;
         public int MethodID;
         public MainWindow MainWindow { get; set; }
-        private PropertyChange _PropertyChange { get; set; }
+        public FindFile _FindFile { get; set; }
         private ConvertFileInformtaionModel _ConvertFileInformation { get; set; }
         private int Mode { get; set; }
+        private DepartmentEnum _CurrentDepartment { get; set; }
 
         public FunctionCollections()
         {
-            _PropertyChange = MainWindowFacotry.GeneratePropertyChange();
             _Settings = SettingsFactory.GenerateSettingsControl();
             SettingsModel = SettingsFactory.GenerateSettingsModels();
             _ConvertFileInformation = ConvertInformationFactory.GenerateConvertFileInformation();
+            _FindFile = new FindFile();
         }
 
         public void SetWindow(MainWindow mainWindow)
@@ -158,7 +160,7 @@ namespace FCP
                 Properties.Settings.Default.X = WD.X;
                 Properties.Settings.Default.Y = WD.Y;
                 Properties.Settings.Default.Save();
-                
+
                 _Settings.SaveMainWidow(WD.IP1, WD.IP2, WD.IP3, WD.OP, WD._AutoStart, WD._isStat ? "S" : "B");
                 ProgressBoxAdd("儲存成功");
             }
@@ -205,6 +207,7 @@ namespace FCP
                 return;
             Task.Run(async () =>
             {
+                _FindFile.GetFile();
                 try
                 {
                     while (!cts.IsCancellationRequested)
@@ -377,6 +380,11 @@ namespace FCP
                 .SetCurrentSeconds(CurrentSeconds);
         }
 
+        private DepartmentEnum JudgeCurrentDepartment()
+        {
+            return DepartmentEnum.OPD;
+        }
+
         public void Result(ReturnsResultFormat returnsResult, bool isMoveFile, bool isReminder)
         {
             string message = returnsResult.Message;
@@ -404,7 +412,7 @@ namespace FCP
                         NF.ShowBalloonTip(850, "全數過濾", message, System.Windows.Forms.ToolTipIcon.None);
                     }
                     break;
-                case ConvertResult.失敗:
+                case ConvertResult.產生OCS失敗 | ConvertResult.處理邏輯失敗 | ConvertResult.讀取檔案失敗:
                     if (isMoveFile)
                     {
                         File.Move(FilePath, $@"{FailPath}\{fileName}.fail");
@@ -413,7 +421,7 @@ namespace FCP
                     ProgressBoxAdd(message);
                     NF.ShowBalloonTip(850, "轉檔錯誤", message, System.Windows.Forms.ToolTipIcon.Error);
                     break;
-                case ConvertResult.沒有頻率:
+                case ConvertResult.沒有種包頻率 | ConvertResult.沒有餐包頻率:
                     Stop();
                     ProgressBoxAdd(message);
                     NF.ShowBalloonTip(850, $"缺少頻率", $"{Path.GetFileName(FilePath)} OnCube中缺少該檔案 {message} 的頻率", System.Windows.Forms.ToolTipIcon.Error);

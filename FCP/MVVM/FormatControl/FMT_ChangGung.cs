@@ -31,7 +31,7 @@ namespace FCP
             return base.MethodShunt();
         }
 
-        private ConvertResult OPD_Process()
+        public override bool ProcessOPD()
         {
             try
             {
@@ -57,119 +57,45 @@ namespace FCP
                     });
                 }
                 if (opd.Count == 0)
-                    return ConvertResult.全數過濾;
+                {
+                    ReturnsResult.Shunt(ConvertResult.全數過濾, null);
+                    return false;
+                }
                 _Do = true;
-                return ConvertResult.成功;
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S} {ex}");
-                ErrorContent = $"{FullFileName_S} 讀取處方籤時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
+                return false;
             }
         }
 
-
-        private ConvertResult OPD_Logic()
+        public override bool LogicOPD()
         {
             try
             {
-                if (opd.Count == 0)
-                    return ConvertResult.全數過濾;
                 oncube = new OnputType_OnCube(Log);
                 FileNameOutput_S = $@"{OutputPath_S}\{Path.GetFileNameWithoutExtension(FullFileName_S)}_{Time_S}.txt";
                 bool yn = oncube.ChangGung_OPD(opd, FileNameOutput_S, Type);
                 if (yn)
-                    return ConvertResult.成功;
+                    return true;
                 else
                 {
-                    ErrorContent = $"{FullFileName_S} 產生OCS時發生問題";
-                    return ConvertResult.失敗;
+                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                    return false;
                 }
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
-                ErrorContent = $"{FullFileName_S} 判斷邏輯時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                return false;
             }
         }
 
-        private ConvertResult Other_Process()
-        {
-            try
-            {
-                Type = "藥來速";
-                string Content = GetContent;
-                List<string> Data = SplitData(Content, 9);
-                opd.Clear();
-                foreach (string s in Data)
-                {
-                    string[] Split = s.Split('|');
-                    if (_SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(Split[4].Substring(4)))
-                        continue;
-                    opd.Add(new OPD
-                    {
-                        PrescriptionNo = Split[0].Substring(4),
-                        PatientNo = Split[1].Substring(3),
-                        PatientName = Split[2].Substring(2),
-                        Other = Split[3].Substring(3),  //料位號
-                        MedicineCode = Split[4].Substring(4),
-                        MedicineName = Split[5].Substring(2),
-                        SumQty = Split[6].Substring(2)
-                    }); ;
-                }
-                if (opd.Count == 0)
-                    return ConvertResult.全數過濾;
-                _Do = true;
-                return ConvertResult.成功;
-            }
-            catch (Exception ex)
-            {
-                Log.Write($"{FullFileName_S} {ex}");
-                ErrorContent = $"{FullFileName_S} 讀取處方籤時發生問題 {ex}";
-                return ConvertResult.失敗;
-            }
-        }
-
-        private ConvertResult Other_Logic()
-        {
-            try
-            {
-                if (opd.Count == 0)
-                    return ConvertResult.全數過濾;
-                oncube = new OnputType_OnCube(Log);
-                FileNameOutput_S = $@"{OutputPath_S}\藥來速_{Time_S}.txt";
-                bool yn = oncube.ChangGung_Other(opd, FileNameOutput_S, Type);
-                if (yn)
-                    return ConvertResult.成功;
-                else
-                {
-                    ErrorContent = $"{FullFileName_S} 產生OCS時發生問題";
-                    return ConvertResult.失敗;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Write($"{FullFileName_S}  {ex}");
-                ErrorContent = $"{FullFileName_S} 判斷邏輯時發生問題 {ex}";
-                return ConvertResult.失敗;
-            }
-        }
-
-        private ConvertResult UD_Stat_Process()
-        {
-            return ConvertResult.全數過濾;
-        }
-
-        private ConvertResult UD_Stat_Logic()
-        {
-            oncube = new OnputType_OnCube(Log);
-
-            return ConvertResult.全數過濾;
-        }
-
-        private ConvertResult UD_Batch_Process()
+        public override bool ProcessUDBatch()
         {
             try
             {
@@ -207,39 +133,123 @@ namespace FCP
                     });
                 }
                 if (batch.Count == 0)
-                    return ConvertResult.全數過濾;
-                return ConvertResult.成功;
+                {
+                    ReturnsResult.Shunt(ConvertResult.全數過濾, null);
+                    return false;
+                }
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
-                ErrorContent = $"{FullFileName_S} 讀取處方籤時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
+                return false;
             }
         }
 
-        private ConvertResult UD_Batch_Logic()
+        public override bool LogicUDBatch()
         {
             try
             {
-                if (batch.Count == 0)
-                    return ConvertResult.全數過濾;
                 oncube = new OnputType_OnCube(Log);
                 FileNameOutput_S = $@"{OutputPath_S}\{"住院批次"}_{Time_S}.txt";
                 bool yn = oncube.ChangGung_UD_Batch(batch, FileNameOutput_S, Type);
                 if (yn)
-                    return ConvertResult.成功;
+                    return true;
                 else
                 {
-                    ErrorContent = $"{FullFileName_S} 產生OCS時發生問題";
-                    return ConvertResult.失敗;
+                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                    return false;
                 }
             }
             catch (Exception ex)
             {
                 Log.Write($"{FullFileName_S}  {ex}");
-                ErrorContent = $"{FullFileName_S} 判斷邏輯時發生問題 {ex}";
-                return ConvertResult.失敗;
+                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                return false;
+            }
+        }
+
+        public override bool ProcessUDStat()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool LogicUDStat()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool ProcessPOWDER()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool LogicPOWDER()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool ProcessOther()
+        {
+            try
+            {
+                Type = "藥來速";
+                string Content = GetContent;
+                List<string> Data = SplitData(Content, 9);
+                opd.Clear();
+                foreach (string s in Data)
+                {
+                    string[] Split = s.Split('|');
+                    if (_SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(Split[4].Substring(4)))
+                        continue;
+                    opd.Add(new OPD
+                    {
+                        PrescriptionNo = Split[0].Substring(4),
+                        PatientNo = Split[1].Substring(3),
+                        PatientName = Split[2].Substring(2),
+                        Other = Split[3].Substring(3),  //料位號
+                        MedicineCode = Split[4].Substring(4),
+                        MedicineName = Split[5].Substring(2),
+                        SumQty = Split[6].Substring(2)
+                    }); ;
+                }
+                if (opd.Count == 0)
+                {
+                    ReturnsResult.Shunt(ConvertResult.全數過濾, null);
+                    return false;
+                }
+                _Do = true;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Write($"{FullFileName_S} {ex}");
+                ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
+                return false;
+            }
+        }
+
+        public override bool LogicOther()
+        {
+            try
+            {
+                oncube = new OnputType_OnCube(Log);
+                FileNameOutput_S = $@"{OutputPath_S}\藥來速_{Time_S}.txt";
+                bool yn = oncube.ChangGung_Other(opd, FileNameOutput_S, Type);
+                if (yn)
+                    return true;
+                else
+                {
+                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Write($"{FullFileName_S}  {ex}");
+                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                return false;
             }
         }
 
@@ -299,56 +309,6 @@ namespace FCP
                 }
             }
             return List;
-        }
-
-        public override bool ProcessOPD()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool LogicOPD()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool ProcessUDBatch()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool LogicUDBatch()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool ProcessUDStat()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool LogicUDStat()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool ProcessPOWDER()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool LogicPOWDER()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool ProcessOther()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool LogicOther()
-        {
-            throw new NotImplementedException();
         }
     }
 }
