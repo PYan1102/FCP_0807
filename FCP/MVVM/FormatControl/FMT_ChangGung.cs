@@ -38,8 +38,6 @@ namespace FCP
                 _OPD.Clear();
                 foreach (string s in list)
                 {
-                    ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, "test");
-                    return false;
                     string[] listSplit = s.Split('|');
                     if (_SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(listSplit[4].Substring(4)))
                         continue;
