@@ -23,22 +23,20 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
             _SettingsModel = SettingsFactory.GenerateSettingsModels();
         }
 
-        public void Reset(CancellationTokenSource cts, List<string> list)
+        protected internal void Reset(CancellationTokenSource cts, List<string> list)
         {
             _CTS = cts;
             _InputPathList = list;
             ResetDeparmnentDictionary();
         }
 
-        public string GetFileName()
+        public async Task<FileInformation> GetFileNameTaskAsync()
         {
-            if (_CTS == null)
-                return string.Empty;
             try
             {
                 while (!_CTS.IsCancellationRequested)
                 {
-                    Thread.Sleep(_SettingsModel.Speed);
+                    await Task.Delay(_SettingsModel.Speed);
                     foreach (string path in _InputPathList)
                     {
                         if (path.Trim().Length == 0)
@@ -46,17 +44,28 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
                         int index = _InputPathList.IndexOf(path);
                         foreach (string filePath in Directory.GetFiles(path, _SettingsModel.DeputyFileName))
                         {
-                            DepartmentEnum department = Compare(filePath);
-                            Console.WriteLine(department);
+                            bool isCompareCompleted = IsCompare(filePath);
+                            if (isCompareCompleted)
+                            {
+                                return new FileInformation() { InputPath = path, FilePath = filePath, Department = GetDepartment };
+                            }
+                            continue;
                         }
                     }
                 }
+                return new FileInformation();
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-
+                throw e;
             }
-            return "";
         }
+    }
+
+    public class FileInformation
+    {
+        public string InputPath { get; set; }
+        public string FilePath { get; set; }
+        public DepartmentEnum Department { get; set; }
     }
 }

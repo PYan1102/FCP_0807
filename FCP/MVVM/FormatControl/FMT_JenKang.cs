@@ -39,7 +39,7 @@ namespace FCP
                         continue;
                     if (!CheckCombiCode(adminCode))
                     {
-                        Log.Write($"{FullFileName_S} 在OnCube中未建置種包頻率 {adminCode}");
+                        Log.Write($"{FilePath} 在OnCube中未建置種包頻率 {adminCode}");
                         ReturnsResult.Shunt(ConvertResult.沒有種包頻率, AdminCode_S);
                         return false;
                     }
@@ -74,7 +74,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
             }
@@ -84,9 +84,9 @@ namespace FCP
         {
             try
             {
-                string outputFileName = $@"{OutputPath_S}\{Path.GetFileNameWithoutExtension(FullFileName_S)}_{pre[0].PatientName}_{Time_S}.txt";
-                oncube = new OnputType_OnCube(Log);
-                bool result = oncube.JenKang_OPD(pre, outputFileName);
+                string outputFileName = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{pre[0].PatientName}_{CurrentSeconds}.txt";
+                OnCube = new OnputType_OnCube(Log);
+                bool result = OnCube.JenKang_OPD(pre, outputFileName);
                 if (result)
                     return true;
                 else
@@ -96,7 +96,7 @@ namespace FCP
                     {
                         day.Add(pre[x].StartDay + "~" + pre[x].StartDay);
                     }
-                    Log.Prescription(FullFileName_S, pre.Select(x => x.PatientName).ToList(), pre.Select(x => x.PrescriptionNo).ToList(), pre.Select(x => x.MedicineCode).ToList(), pre.Select(x => x.MedicineName).ToList(),
+                    Log.Prescription(FilePath, pre.Select(x => x.PatientName).ToList(), pre.Select(x => x.PrescriptionNo).ToList(), pre.Select(x => x.MedicineCode).ToList(), pre.Select(x => x.MedicineName).ToList(),
                         pre.Select(x => x.AdminCode).ToList(), pre.Select(x => x.PerQty).ToList(), pre.Select(x => x.SumQty).ToList(), day);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
@@ -104,7 +104,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S} {ex}");
+                Log.Write($"{FilePath} {ex}");
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
             }
@@ -133,7 +133,7 @@ namespace FCP
                         continue;
                     if (!CheckMultiCode(adminCode))
                     {
-                        Log.Write($"{FullFileName_S} 在OnCube中未建置餐包頻率 {adminCode}");
+                        Log.Write($"{FilePath} 在OnCube中未建置餐包頻率 {adminCode}");
                         ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, null);
                         return false;
                     }
@@ -176,7 +176,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, null);
                 return false;
             }
@@ -188,11 +188,11 @@ namespace FCP
             {
                 string outputFileName = string.Empty;
                 if (pre[0].Location.Contains("住院"))
-                    outputFileName = $@"{OutputPath_S}\{Path.GetFileNameWithoutExtension(FullFileName_S)}_{Time_S}.txt";
+                    outputFileName = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
                 else
-                    outputFileName = $@"{OutputPath_S}\{Path.GetFileNameWithoutExtension(FullFileName_S)}_{pre[0].PatientName}_{Time_S}.txt";
-                oncube = new OnputType_OnCube(Log);
-                bool result = oncube.JenKang_UD(pre, outputFileName);
+                    outputFileName = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{pre[0].PatientName}_{CurrentSeconds}.txt";
+                OnCube = new OnputType_OnCube(Log);
+                bool result = OnCube.JenKang_UD(pre, outputFileName);
                 if (result)
                     return true;
                 else
@@ -202,7 +202,7 @@ namespace FCP
                     {
                         day.Add(pre[x].StartDay + "~" + pre[x].StartDay);
                     }
-                    Log.Prescription(FullFileName_S, pre.Select(x => x.PatientName).ToList(), pre.Select(x => x.PrescriptionNo).ToList(), pre.Select(x => x.MedicineCode).ToList(), pre.Select(x => x.MedicineName).ToList(),
+                    Log.Prescription(FilePath, pre.Select(x => x.PatientName).ToList(), pre.Select(x => x.PrescriptionNo).ToList(), pre.Select(x => x.MedicineCode).ToList(), pre.Select(x => x.MedicineName).ToList(),
                         pre.Select(x => x.AdminCode).ToList(), pre.Select(x => x.PerQty).ToList(), pre.Select(x => x.SumQty).ToList(), day);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
@@ -210,7 +210,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S} {ex}");
+                Log.Write($"{FilePath} {ex}");
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
             }

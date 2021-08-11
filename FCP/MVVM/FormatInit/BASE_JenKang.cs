@@ -15,7 +15,7 @@ namespace FCP.MVVM.FormatInit
         public override void Init()
         {
             base.Init();
-            MainWindow.Tgl_OPD1.IsChecked = true;
+            MainWindow.Tgl_OPD3.IsChecked = true;
         }
 
         public override void AdvancedSettingsShow()

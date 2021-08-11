@@ -35,7 +35,7 @@ namespace FCP
                         continue;
                     if (!GOD.Is_Admin_Code_For_Multi_Created(adminCode))
                     {
-                        Log.Write($"{FullFileName_S} 在OnCube中未建置此餐包頻率 {adminCode}");
+                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {adminCode}");
                         ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, adminCode);
                         return false;
                     }
@@ -65,7 +65,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
             }
@@ -73,18 +73,18 @@ namespace FCP
 
         public override bool LogicOPD()
         {
-            oncube = new OnputType_OnCube(Log);
+            OnCube = new OnputType_OnCube(Log);
             string patientName = _DetailItems[0].PatientName;
             string prescriptionNo = _DetailItems[0].PrescriptionNo;
-            string fileNameOutput = $@"{OutputPath_S}\{patientName}-{prescriptionNo}-{Path.GetFileNameWithoutExtension(FullFileName_S)}_{Time_S}.txt";
+            string fileNameOutput = $@"{OutputPath}\{patientName}-{prescriptionNo}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
             try
             {
-                oncube.FangDing(_DetailItems, fileNameOutput);
+                OnCube.FangDing(_DetailItems, fileNameOutput);
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                 return false;
             }

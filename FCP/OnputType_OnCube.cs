@@ -845,7 +845,7 @@ namespace FCP
             }
         }
 
-        public bool ChangGung_OPD(ObservableCollection<FMT_ChangGung.OPD> opd, string FileNameOutput, string Type) 
+        public bool ChangGung_OPD(List<FMT_ChangGung.OPD> opd, string FileNameOutput, string Type) 
         {
             try
             {
@@ -878,6 +878,7 @@ namespace FCP
                         sw.WriteLine("C");
                     }
                 }
+                Console.WriteLine(FileNameOutput);
                 return true;
             }
             catch (Exception ex)
@@ -887,7 +888,7 @@ namespace FCP
             }
         }
 
-        public bool ChangGung_Other(ObservableCollection<FMT_ChangGung.OPD> opd, string FileNameOutput, string Type)
+        public bool ChangGung_Other(List<FMT_ChangGung.OPD> opd, string FileNameOutput, string Type)
         {
             try
             {
@@ -933,7 +934,7 @@ namespace FCP
             return false;
         }
 
-        public bool ChangGung_UD_Batch(ObservableCollection<FMT_ChangGung.Batch> batch, string FileNameOutput, string Type)
+        public bool ChangGung_UD_Batch(List<FMT_ChangGung.Batch> batch, string FileNameOutput, string Type)
         {
             try
             {

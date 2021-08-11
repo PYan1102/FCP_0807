@@ -47,7 +47,7 @@ namespace FCP
                         continue;
                     if (!CheckCombiCode($"S{A[5]}"))
                     {
-                        Log.Write($"{FullFileName_S} 在OnCube中未建置此種包頻率 S{A[5]}");
+                        Log.Write($"{FilePath} 在OnCube中未建置此種包頻率 S{A[5]}");
                         ReturnsResult.Shunt(ConvertResult.沒有種包頻率, A[5]);
                         return false;
                     }
@@ -90,7 +90,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S} {ex}");
+                Log.Write($"{FilePath} {ex}");
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
             }
@@ -101,9 +101,9 @@ namespace FCP
             try
             {
                 bool yn = false;
-                string OutputFileName = $@"{OutputPath_S}\{Path.GetFileNameWithoutExtension(FullFileName_S)}_{Time_S}.txt";
-                oncube = new OnputType_OnCube(Log);
-                yn = oncube.E_DA_UD(EDA_UD, OutputFileName);
+                string OutputFileName = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+                OnCube = new OnputType_OnCube(Log);
+                yn = OnCube.E_DA_UD(EDA_UD, OutputFileName);
                 if (yn)
                     return true;
                 else
@@ -113,7 +113,7 @@ namespace FCP
                     {
                         day.Add(EDA_UD[x].StartDate + "~" + EDA_UD[x].StartDate);
                     }
-                    Log.Prescription(FullFileName_S, EDA_UD.Select(x => x.PatientName).ToList(), EDA_UD.Select(x => x.PrescriptionNo).ToList(), EDA_UD.Select(x => x.MedicineCode).ToList(), EDA_UD.Select(x => x.MedicineName).ToList(),
+                    Log.Prescription(FilePath, EDA_UD.Select(x => x.PatientName).ToList(), EDA_UD.Select(x => x.PrescriptionNo).ToList(), EDA_UD.Select(x => x.MedicineCode).ToList(), EDA_UD.Select(x => x.MedicineName).ToList(),
                         EDA_UD.Select(x => x.AdminTime).ToList(), EDA_UD.Select(x => x.PerQty).ToList(), EDA_UD.Select(x => x.SumQty).ToList(), day);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
@@ -121,7 +121,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S} {ex}");
+                Log.Write($"{FilePath} {ex}");
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
             }

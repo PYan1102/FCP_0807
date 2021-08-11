@@ -8,6 +8,6 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
     {
         void ResetDeparmnentDictionary();
 
-        DepartmentEnum Compare(string fileName);
+        bool IsCompare(string fileName);
     }
 }

@@ -19,7 +19,7 @@ namespace FCP.MVVM.FormatInit
         {
             base.Init();
             MainWindow.Tgl_OPD1.IsChecked = true;
-            MainWindow.Tgl_OPD2.IsChecked = true;
+            MainWindow.Tgl_OPD4.IsChecked = true;
         }
 
         public override void AdvancedSettingsShow()
@@ -49,31 +49,13 @@ namespace FCP.MVVM.FormatInit
 
         public override void ConvertPrepare(bool isOPD)
         {
-            if (isOPD)
-            {
-                if (WD._OPD1)
-                    SetOPD("S");
-                if (WD._OPD2)
-                    SetOther("0");
-            }
-            else
-            {
-                if (WD._isStat)
-                    SetUDStat("6");
-                else
-                    SetUDBatch("udpkg");
-            }
             base.ConvertPrepare(isOPD);
-            if (isOPD)
-            {
-                string Filter = base.WD._OPD1 ? "S|" : "";
-                Filter += base.WD._OPD2 ? "0" : "";
-                Loop_OPD(0, 1, Filter);
-            }
-            else if (base.WD._isStat)
-                Loop_UD(0, 1, "6");
-            else
-                Loop_UD(0, 5, "udpkg");
+            SetOPD("S");
+            SetOther("0");
+            SetUDStat("6");
+            SetUDBatch("udpkg");
+            ReSet(isOPD);
+            GetFileAsync();
         }
 
         public override void Loop_OPD(int Start, int Length, string Content)
@@ -88,15 +70,8 @@ namespace FCP.MVVM.FormatInit
 
         public override void SetConvertInformation()
         {
-            if (base.MethodID == 1)
-            {
-                base.FilePath = MergeFiles(Path.GetDirectoryName(base.FilePath), "藥來速", 0, 1, "0");
-            }
-            else if (!WD._isStat && base.MethodID == 2)
-            {
-                base.FilePath = MergeFiles(Path.GetDirectoryName(base.FilePath), "住院批次", 0, 5, "udpkg");
-                Debug.WriteLine(base.FilePath);
-            }
+            if (!string.IsNullOrEmpty(FilePath))
+                MergeFilesAndSetFilePath();
             base.SetConvertInformation();
             CG = CG ?? new FMT_ChangGung();
             var result = CG.MethodShunt();
@@ -106,15 +81,21 @@ namespace FCP.MVVM.FormatInit
 
         private void MoveFile(ConvertResult result)
         {
+            if (CurrentDepartment != DepartmentEnum.UDBatch | CurrentDepartment != DepartmentEnum.Other)
+                return;
             switch (result)
             {
                 case ConvertResult.成功:
-                    MoveFilesIncludeResult("ok");
+                    MoveFilesIncludeResult(true);
                     break;
-                case ConvertResult.全數過濾 | ConvertResult.沒有種包頻率 | ConvertResult.沒有餐包頻率:
+                case ConvertResult.全數過濾:
+                    break;
+                case ConvertResult.沒有種包頻率:
+                    break;
+                case ConvertResult.沒有餐包頻率:
                     break;
                 default:
-                    MoveFilesIncludeResult("fail");
+                    MoveFilesIncludeResult(false);
                     break;
             }
         }
@@ -122,6 +103,20 @@ namespace FCP.MVVM.FormatInit
         public override void ProgressBoxClear()
         {
             base.ProgressBoxClear();
+        }
+
+        private void MergeFilesAndSetFilePath()
+        {
+            if (FilePath == string.Empty)
+                return;
+            if (CurrentDepartment == DepartmentEnum.Other)
+            {
+                base.FilePath = MergeFiles(Path.GetDirectoryName(base.FilePath), "藥來速", 0, 1, "0");
+            }
+            else if (!WD._isStat && CurrentDepartment == DepartmentEnum.UDBatch)
+            {
+                base.FilePath = MergeFiles(Path.GetDirectoryName(base.FilePath), "住院批次", 0, 5, "udpkg");
+            }
         }
     }
 }

@@ -71,7 +71,7 @@ namespace FCP
                     if (!CheckMultiCode(v.AdminCode))
                     {
                         newCount = 0;
-                        Log.Write($"{FullFileName_S} 在OnCube中未建置此餐包頻率 {v.AdminCode}");
+                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {v.AdminCode}");
                         ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, AdminCode_S);
                         return false;
                     }
@@ -90,7 +90,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 newCount = 0;
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
@@ -102,18 +102,18 @@ namespace FCP
         {      
             try
             {
-                oncube = new OnputType_OnCube(Log);
+                OnCube = new OnputType_OnCube(Log);
                 bool yn;
-                string FileName = Path.GetFileNameWithoutExtension(FullFileName_S);
+                string FileName = Path.GetFileNameWithoutExtension(FilePath);
                 int Count = MS_OPD.Count;
-                FileNameOutput_S = $@"{OutputPath_S}\{FileName}_{Time_S}.txt";
-                yn = oncube.MinSheng_OPD(FileNameOutput_S, MS_OPD, Type);
+                FileNameOutput_S = $@"{OutputPath}\{FileName}_{CurrentSeconds}.txt";
+                yn = OnCube.MinSheng_OPD(FileNameOutput_S, MS_OPD, Type);
                 Debug.WriteLine($"總量 {MS_OPD.Count}  耗時 {sw.ElapsedMilliseconds}");
                 if (yn)
                     return true;
                 else
                 {
-                    Log.Prescription(FullFileName_S, MS_OPD.ToList().Select(x => x.PatientName).ToList(), MS_OPD.ToList().Select(x => x.PrescriptionNo).ToList(), MS_OPD.ToList().Select(x => x.MedicineCode).ToList(), MS_OPD.ToList().Select(x => x.MedicineName).ToList(),
+                    Log.Prescription(FilePath, MS_OPD.ToList().Select(x => x.PatientName).ToList(), MS_OPD.ToList().Select(x => x.PrescriptionNo).ToList(), MS_OPD.ToList().Select(x => x.MedicineCode).ToList(), MS_OPD.ToList().Select(x => x.MedicineName).ToList(),
                         MS_OPD.ToList().Select(x => x.AdminCode).ToList(), MS_OPD.ToList().Select(x => x.PerQty).ToList(), MS_OPD.ToList().Select(x => x.SumQty).ToList(), MS_OPD.ToList().Select(x => x.StartDay).ToList());
                     newCount = 0;
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
@@ -122,7 +122,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 newCount = 0;
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
@@ -174,7 +174,7 @@ namespace FCP
                     if (!GOD.Is_Admin_Code_For_Multi_Created(v.AdminCode))
                     {
                         newCount = 0;
-                        Log.Write($"{FullFileName_S} 在OnCube中未建置此餐包頻率 {v.AdminCode}");
+                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {v.AdminCode}");
                         ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, AdminCode_S);
                         return false;
                     }
@@ -193,7 +193,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 newCount = 0;
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
@@ -206,14 +206,14 @@ namespace FCP
             {
                 //Debug.WriteLine(TotalQuantityDic.First());
                 //Debug.WriteLine($"{MS_UD[0].PrescriptionNo}|{MS_UD[0].MedicineName}{MS_UD[0].StartDay}{MS_UD[0].BeginTime}");
-                oncube = new OnputType_OnCube(Log);
+                OnCube = new OnputType_OnCube(Log);
                 bool yn;
-                string FileName = Path.GetFileNameWithoutExtension(FullFileName_S);
+                string FileName = Path.GetFileNameWithoutExtension(FilePath);
                 int Count = MS_UD.Count;
                 int Times = 0;
                 int CurrentTimes = 0;
                 List<string> AdminTimeList = new List<string>();
-                FileNameOutput_S = $@"{OutputPath_S}\{FileName}_{Time_S}.txt";
+                FileNameOutput_S = $@"{OutputPath}\{FileName}_{CurrentSeconds}.txt";
                 for (int i = 0; i <= Count - 1; i++)
                 {
                     if (SettingsModel.CrossDayAdminCode.Contains(MS_UD[i].AdminCode))
@@ -259,7 +259,7 @@ namespace FCP
                     }
                 }
                 //MS_UD.ToList().ForEach(x => Debug.WriteLine(x.PrescriptionNo));
-                yn = oncube.MinSheng_UD(DataDic, FileNameOutput_S, MS_UD, Type);
+                yn = OnCube.MinSheng_UD(DataDic, FileNameOutput_S, MS_UD, Type);
                 //Debug.WriteLine($"總量 {MS_UD.Count}  耗時 {sw.ElapsedMilliseconds}");
                 if (yn)
                     return true;
@@ -267,7 +267,7 @@ namespace FCP
                 {
                     List<string> day = new List<string>();
                     StartDay_L.ForEach(x => day.Add(x));
-                    Log.Prescription(FullFileName_S, PatientName_L, PrescriptionNo_L, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, SumQty_L, day);
+                    Log.Prescription(FilePath, PatientName_L, PrescriptionNo_L, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, SumQty_L, day);
                     newCount = 0;
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
@@ -275,7 +275,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 newCount = 0;
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
@@ -316,7 +316,7 @@ namespace FCP
         {
             try
             {
-                MS_UD = OLEDB.GetMingSheng_UD(InputPath_S, FullFileName_S, Index);
+                MS_UD = OLEDB.GetMingSheng_UD(InputPath, FilePath, Index);
                 newCount = MS_UD.Count > 0 ? MS_UD[MS_UD.Count - 1].RecNo : 0;
                 //newCount = 0;
             }
@@ -331,7 +331,7 @@ namespace FCP
         {
             try
             {
-                MS_OPD = OLEDB.GetMingSheng_OPD(InputPath_S, FullFileName_S, Index);
+                MS_OPD = OLEDB.GetMingSheng_OPD(InputPath, FilePath, Index);
                 newCount = MS_OPD.Count > 0 ? MS_OPD[MS_OPD.Count - 1].RecNo + 1 : 0;
                 //Debug.WriteLine($"The number of new count is {newCount}");
                 //newCount = 0;

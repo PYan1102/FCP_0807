@@ -10,6 +10,8 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
 {
     public class CompareFileStartWith : SetFileStartWith, ICompareFileStartWith
     {
+        protected internal DepartmentEnum GetDepartment { get => _Department; }
+        private DepartmentEnum _Department { get; set; }
         private Dictionary<Parameter, DepartmentEnum> _DepartmentDictionary { get; set; }
         private MainWindowModel _MainWindowModel { get; set; }
 
@@ -23,7 +25,7 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
             _DepartmentDictionary = DepartmentDictionary;
         }
 
-        public DepartmentEnum Compare(string fullFilePath)
+        public bool IsCompare(string fullFilePath)
         {
             string fileName = Path.GetFileNameWithoutExtension(fullFilePath);
             foreach (var v in _DepartmentDictionary)
@@ -31,9 +33,12 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
                 if (v.Key.StartWith == string.Empty)
                     continue;
                 if (fileName.StartsWith(v.Key.StartWith))
-                    return v.Value;
+                {
+                    _Department = v.Value;
+                    return true;
+                }
             }
-            return _MainWindowModel.IsOPD ? DepartmentEnum.OPD : DepartmentEnum.UDStat;
+            return false;
         }
     }
 }

@@ -16,6 +16,12 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
         private Parameter _UDStat { get; set; } = new Parameter();
         private Parameter _Other { get; set; } = new Parameter();
         private Parameter _Care { get; set; } = new Parameter();
+        private string _OPDTemp { get; set; }
+        private string _PowderTemp { get; set; }
+        private string _UDBatchTemp { get; set; }
+        private string _UDStatTemp { get; set; }
+        private string _OtherTemp { get; set; }
+        private string _CareTemp { get; set; }
 
         public SetFileStartWith()
         {
@@ -27,76 +33,74 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
             DepartmentDictionary.Add(_Care, DepartmentEnum.Care);
         }
 
+        protected internal void ResetDictionary()
+        {
+            _OPD.StartWith = string.Empty;
+            _Powder.StartWith = string.Empty;
+            _UDBatch.StartWith = string.Empty;
+            _UDStat.StartWith = string.Empty;
+            _Other.StartWith = string.Empty;
+            _Care.StartWith = string.Empty;
+        }
+
         protected internal void SetOPD(string startWith)
         {
-            _OPD.StartWith = startWith;
+            _OPDTemp = startWith;
         }
 
         protected internal void SetPowder(string startWith)
         {
-            _Powder.StartWith = startWith;
+            _PowderTemp = startWith;
         }
 
         protected internal void SetUDBatch(string startWith)
         {
-            _UDBatch.StartWith = startWith;
+            _UDBatchTemp = startWith;
         }
 
         protected internal void SetUDStat(string startWith)
         {
-            _UDStat.StartWith = startWith;
+            _UDStatTemp = startWith;
         }
 
         protected internal void SetOther(string startWith)
         {
-            _Other.StartWith = startWith;
+            _OtherTemp = startWith;
         }
 
         protected internal void SetCare(string startWith)
         {
-            _Care.StartWith = startWith;
+            _CareTemp = startWith;
         }
 
-        protected internal Parameter GetOPD()
+        protected internal void SetOPDIntoDictionary()
         {
-            if (_OPD.StartWith == string.Empty)
-                throw new Exception("OPD 為空值");
-            return _OPD;
+            _OPD.StartWith = _OPDTemp;
         }
 
-        protected internal Parameter GetPowder()
+        protected internal void SetPowderIntoDictionary()
         {
-            if (_Powder.StartWith == string.Empty)
-                throw new Exception("Powder 為空值");
-            return _Powder;
+            _Powder.StartWith = _PowderTemp;
         }
 
-        protected internal Parameter GetUDBatch()
+        protected internal void SetUDBatchIntoDictionary()
         {
-            if (_UDBatch.StartWith == string.Empty)
-                throw new Exception("UDBatch 為空值");
-            return _UDBatch;
+            _UDBatch.StartWith = _UDBatchTemp;
         }
 
-        protected internal Parameter GetUDStat()
+        protected internal void SetUDStatIntoDictionary()
         {
-            if (_UDStat.StartWith == string.Empty)
-                throw new Exception("UDStat 為空值");
-            return _UDStat;
+            _UDStat.StartWith = _UDStatTemp;
         }
 
-        protected internal Parameter GetOther()
+        protected internal void SetOtherIntoDictionary()
         {
-            if (_Other.StartWith == string.Empty)
-                throw new Exception("Other 為空值");
-            return _Other;
+            _Other.StartWith = _OtherTemp;
         }
 
-        protected internal Parameter GetCare()
+        protected internal void SetCareIntoDictionary()
         {
-            if (_Care.StartWith == string.Empty)
-                throw new Exception("Care 為空值");
-            return _Care;
+            _Care.StartWith = _CareTemp;
         }
     }
 

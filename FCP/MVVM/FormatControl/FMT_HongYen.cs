@@ -27,7 +27,7 @@ namespace FCP
                 Byte[] Patient = Encoding.Default.GetBytes(Content.Substring(9, LabelPosition - 9));  //病患基本資料
                 Byte[] MedicineData = Encoding.Default.GetBytes(Content.Substring(LabelPosition + 17, Content.Length - 17 - LabelPosition));  //病患藥品資料
                 var ecd = Encoding.Default;
-                string FileName = Path.GetFileNameWithoutExtension(FullFileName_S);
+                string FileName = Path.GetFileNameWithoutExtension(FilePath);
                 PatientName_S = ecd.GetString(Patient, 177, 20).Trim(); //病患姓名
                 PatientName_S = PatientName_S.Replace('?', ' ');
                 //病患基本資料
@@ -98,7 +98,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
             }
@@ -109,7 +109,7 @@ namespace FCP
             try
             {
                 bool yn;
-                string FileName = Path.GetFileNameWithoutExtension(FullFileName_S);
+                string FileName = Path.GetFileNameWithoutExtension(FilePath);
                 List<int> order = new List<int>();
                 List<string> FileNameOutputCount = new List<string>();
                 List<string> OnCubeRandom = new List<string>();
@@ -179,12 +179,12 @@ namespace FCP
                     ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                     return false;
                 }
-                    FileNameOutputCount.Add($@"{OutputPath_S}\UP-{PatientName_S}-{FileName}_{Time_S}.txt");
-                FileNameOutputCount.Add($@"{OutputPath_S}\DOWN-{PatientName_S}-{FileName}_{Time_S}.txt");
+                    FileNameOutputCount.Add($@"{OutputPath}\UP-{PatientName_S}-{FileName}_{CurrentSeconds}.txt");
+                FileNameOutputCount.Add($@"{OutputPath}\DOWN-{PatientName_S}-{FileName}_{CurrentSeconds}.txt");
                 DateTime.TryParseExact(BirthDate_S, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime _date);  //生日
                 string Birthdate = _date.ToString("yyyy-MM-dd");
-                oncube = new OnputType_OnCube(Log);
-                yn = oncube.HongYen(UP, DOWN, filterDaylist, filterAdminCode, MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L, FileNameOutputCount, OnCubeRandom, Days_L,
+                OnCube = new OnputType_OnCube(Log);
+                yn = OnCube.HongYen(UP, DOWN, filterDaylist, filterAdminCode, MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L, FileNameOutputCount, OnCubeRandom, Days_L,
                     PatientName_S, PatientNo_S, HospitalName_S, Location_S, DoctorName_S, PrescriptionNo_S, Birthdate, Gender_S, Random, isTwo, Position);
                 if (yn)
                     return true;
@@ -195,14 +195,14 @@ namespace FCP
                     {
                         day.Add(StartDay_L[x] + "~" + EndDay_L[x]);
                     }
-                    Log.Prescription(FullFileName_S, PatientName_S, PrescriptionNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
+                    Log.Prescription(FilePath, PatientName_S, PrescriptionNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
             }

@@ -31,7 +31,7 @@ namespace FCP
                         continue;
                     if (!GOD.Is_Admin_Code_For_Multi_Created(AdminCode_S))
                     {
-                        Log.Write($"{FullFileName_S} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
+                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
                         ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, null);
                         return false;
                     }
@@ -69,7 +69,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, null);
                 return false;
             }
@@ -79,7 +79,7 @@ namespace FCP
         {
             try
             {
-                string fileNameOutput = $@"{OutputPath_S}\{PatientName_S}-{Path.GetFileNameWithoutExtension(FullFileName_S)}_{Time_S}.txt";
+                string fileNameOutput = $@"{OutputPath}\{PatientName_S}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
                 DateTime.TryParseExact(BirthDate_S, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime _date);  //生日
                 string newBirthDate = _date.ToString("yyyy-MM-dd");
                 bool yn = on.ChuangSheng(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L, fileNameOutput,
@@ -91,14 +91,14 @@ namespace FCP
                     List<string> day = new List<string>();
                     for (int x = 0; x <= StartDay_L.Count - 1; x++)
                         day.Add(StartDay_L[x] + "~" + EndDay_L[x]);
-                    Log.Prescription(FullFileName_S, PatientName_S, PrescriptionNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
+                    Log.Prescription(FilePath, PatientName_S, PrescriptionNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
             }

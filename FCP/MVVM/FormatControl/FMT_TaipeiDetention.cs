@@ -14,15 +14,15 @@ namespace FCP
 
         public override bool ProcessOPD()
         {
-            if (!File.Exists(FullFileName_S))
+            if (!File.Exists(FilePath))
             {
-                Log.Write(FullFileName_S + "忽略");
+                Log.Write(FilePath + "忽略");
                 ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                 return false;
             }
             try
             {
-                oncube = new OnputType_OnCube(Log);
+                OnCube = new OnputType_OnCube(Log);
                 string Content = GetContent.Trim();
                 //判斷資料裡是否為JVSERVER的字樣
                 int JVMIndex = Content.IndexOf("|JVPEND||JVMHEAD|");
@@ -58,7 +58,7 @@ namespace FCP
                         continue;
                     if (!GOD.Is_Admin_Code_For_Multi_Created(AdminCode_S))
                     {
-                        Log.Write($"{FullFileName_S} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
+                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
                         ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, AdminCode_S);
                         return false;
                     }
@@ -78,7 +78,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
             }
@@ -95,10 +95,10 @@ namespace FCP
             try
             {
                 bool yn;
-                string FileNameOutputCount = $@"{OutputPath_S}\{PatientName_S}-{PatientNo_S}-{Random}_{Time_S}.txt";
+                string FileNameOutputCount = $@"{OutputPath}\{PatientName_S}-{PatientNo_S}-{Random}_{CurrentSeconds}.txt";
                 DateTime.TryParseExact(BirthDate_S, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime _date);  //生日
                 string Birthdaynew = _date.ToString("yyyy-MM-dd");
-                yn = oncube.TaipeiDentention(MedicineName_L, MedicineCode_L, AdminCode_L, Days_L, PerQty_L, SumQty_L, FileNameOutputCount,
+                yn = OnCube.TaipeiDentention(MedicineName_L, MedicineCode_L, AdminCode_L, Days_L, PerQty_L, SumQty_L, FileNameOutputCount,
                         PatientName_S, PatientNo_S, HospitalName_S, Location_S, PrescriptionNo_S, Birthdaynew, Gender_S, Random, PutBackAdminCode);
                 if (yn)
                     return true;
@@ -109,14 +109,14 @@ namespace FCP
                     {
                         day.Add(StartDay_L[x] + "~" + EndDay_L[x]);
                     }
-                    Log.Prescription(FullFileName_S, PatientName_S, PrescriptionNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
+                    Log.Prescription(FilePath, PatientName_S, PrescriptionNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
             }

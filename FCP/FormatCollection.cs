@@ -28,12 +28,8 @@ namespace FCP
         public string PatientName_S = "";  //病患姓名
         public string PatientNo_S = ""; //病歷號
         public string PrescriptionNo_S = "";  //處方籤號碼
-        public string InputPath_S = "";  //輸入路徑
-        public string OutputPath_S = ""; //輸出路徑
-        public string FullFileName_S = ""; //檔案完整路徑
-        public string Time_S = "";   //時間
         public string AdminCode_S = "";  //頻率
-        public string Content_S;  //檔案內容
+        public string FileContent { get; set; }  //檔案內容
         public string Class_S;
         public string FileNameOutput_S = ""; //輸出檔案名稱
         public bool IsStat_B = false;  //是否為即時
@@ -76,7 +72,7 @@ namespace FCP
         public Settings Settings { get; set; }
         public SettingsModel SettingsModel { get; set; }
         public Log Log { get; set; }
-        public OnputType_OnCube oncube;
+        public OnputType_OnCube OnCube;
         public OnputType_JVServer jvserver;
         public GetOnCubeData GOD = new GetOnCubeData();
         public string ErrorContent { get; set; }
@@ -149,6 +145,7 @@ namespace FCP
         //方法分流
         public virtual ReturnsResultFormat MethodShunt()
         {
+            Init();
             switch (Department)
             {
                 case DepartmentEnum.OPD:
@@ -272,22 +269,10 @@ namespace FCP
         {
             get
             {
-                while (Content_S.Length == 0)
+                using (StreamReader sr = new StreamReader(FilePath, Encoding.Default))
                 {
-                    try
-                    {
-                        using (StreamReader sr = new StreamReader(FullFileName_S, Encoding.Default))
-                        {
-                            Content_S = sr.ReadToEnd();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Write(ex.ToString());
-                    }
-                    System.Threading.Thread.Sleep(50);
+                    return sr.ReadToEnd();
                 }
-                return Content_S;
             }
         }
 

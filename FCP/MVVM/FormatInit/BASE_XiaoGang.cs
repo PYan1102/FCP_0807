@@ -156,12 +156,12 @@ namespace FCP.MVVM.FormatInit
                 switch (result)
                 {
                     case ConvertResult.成功:
-                        MoveFilesIncludeResult("ok");
+                        MoveFilesIncludeResult(true);
                         break;
                     case ConvertResult.全數過濾 | ConvertResult.沒有種包頻率 | ConvertResult.沒有餐包頻率:
                         break;
                     default:
-                        MoveFilesIncludeResult("fail");
+                        MoveFilesIncludeResult(false);
                         break;
                 }
             }

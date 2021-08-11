@@ -13,12 +13,11 @@ namespace FCP
 {
     class FMT_ChangGung : FormatCollection
     {
-        ObservableCollection<OPD> opd = new ObservableCollection<OPD>();
-        ObservableCollection<Batch> batch = new ObservableCollection<Batch>();
-        ObservableCollection<Stat> stat = new ObservableCollection<Stat>();
+        private List<OPD> _OPD = new List<OPD>();
+        private List<Batch> _Batch = new List<Batch>();
+        private List<Stat> _Stat = new List<Stat>();
         private SettingsModel _SettingsModel { get; set; }
-        bool _Do;
-        string Type;
+        private bool _Do { get; set; }
 
         public FMT_ChangGung()
         {
@@ -35,28 +34,28 @@ namespace FCP
         {
             try
             {
-                Type = "門診ONLINE";
-                string Content = GetContent;
-                List<string> Data = SplitData(Content, 10);
-                opd.Clear();
-                foreach (string s in Data)
+                List<string> list = SplitData(GetContent, 10);
+                _OPD.Clear();
+                foreach (string s in list)
                 {
-                    string[] Split = s.Split('|');
-                    if (_SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(Split[4].Substring(4)))
+                    ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, "test");
+                    return false;
+                    string[] listSplit = s.Split('|');
+                    if (_SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(listSplit[4].Substring(4)))
                         continue;
-                    opd.Add(new OPD
+                    _OPD.Add(new OPD
                     {
-                        PrescriptionNo = Split[0].Substring(4),
-                        PatientNo = Split[1].Substring(3),
-                        PatientName = Split[2].Substring(2),
-                        Other = Split[3].Substring(3),  //料位號
-                        MedicineCode = Split[4].Substring(4),
-                        MedicineName = Split[5].Substring(2),
-                        SumQty = Split[6].Substring(2),
-                        Mediciner = Split[9].Substring(4)
+                        PrescriptionNo = listSplit[0].Substring(4),
+                        PatientNo = listSplit[1].Substring(3),
+                        PatientName = listSplit[2].Substring(2),
+                        Other = listSplit[3].Substring(3),  //料位號
+                        MedicineCode = listSplit[4].Substring(4),
+                        MedicineName = listSplit[5].Substring(2),
+                        SumQty = listSplit[6].Substring(2),
+                        Mediciner = listSplit[9].Substring(4)
                     });
                 }
-                if (opd.Count == 0)
+                if (_OPD.Count == 0)
                 {
                     ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                     return false;
@@ -66,7 +65,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S} {ex}");
+                Log.Write($"{FilePath} {ex}");
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
             }
@@ -76,20 +75,17 @@ namespace FCP
         {
             try
             {
-                oncube = new OnputType_OnCube(Log);
-                FileNameOutput_S = $@"{OutputPath_S}\{Path.GetFileNameWithoutExtension(FullFileName_S)}_{Time_S}.txt";
-                bool yn = oncube.ChangGung_OPD(opd, FileNameOutput_S, Type);
-                if (yn)
+                OnCube = new OnputType_OnCube(Log);
+                string filePathOutput = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+                bool result = OnCube.ChangGung_OPD(_OPD, filePathOutput, "門診ONLINE");
+                if (result)
                     return true;
-                else
-                {
-                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
-                    return false;
-                }
+                ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                return false;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
             }
@@ -99,40 +95,38 @@ namespace FCP
         {
             try
             {
-                Type = "住院批次";
-                string Content = GetContent;
-                string[] Data = Content.Split('\n');
-                batch.Clear();
-                foreach (string s in Data)
+                string[] listSplit = GetContent.Split('\n');
+                _Batch.Clear();
+                foreach (string s in listSplit)
                 {
-                    if (s.Trim() == "")
+                    if (s.Trim().Length == 0)
                         continue;
                     var ecd = Encoding.Default;
-                    byte[] A = ecd.GetBytes(s);
-                    if (_SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(ecd.GetString(A, 131, 7)))
+                    byte[] temp = ecd.GetBytes(s);
+                    if (_SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(ecd.GetString(temp, 131, 7)))
                         continue;
-                    DateTime.TryParseExact((Convert.ToInt32(ecd.GetString(A, 37, 8)) + 19110000).ToString(), "yyyyMMdd", null, DateTimeStyles.None, out DateTime StartDate);
-                    DateTime.TryParseExact(ecd.GetString(A, 239, 8), "yyyyMMdd", null, DateTimeStyles.None, out DateTime BirthDate);
-                    batch.Add(new Batch
+                    DateTime.TryParseExact((Convert.ToInt32(ecd.GetString(temp, 37, 8)) + 19110000).ToString(), "yyyyMMdd", null, DateTimeStyles.None, out DateTime startDate);
+                    DateTime.TryParseExact(ecd.GetString(temp, 239, 8), "yyyyMMdd", null, DateTimeStyles.None, out DateTime birthDate);
+                    _Batch.Add(new Batch
                     {
-                        PatientNo = ecd.GetString(A, 12, 10).Trim(),
-                        BedNo = ecd.GetString(A, 22, 10).Trim(),
-                        Date = StartDate,
-                        PatientName = ecd.GetString(A, 45, 10).Trim(),
-                        Days = ecd.GetString(A, 59, 2).Trim(),
-                        PerQty = ecd.GetString(A, 64, 9).Trim(),
-                        MedicineName = ecd.GetString(A, 79, 40).Trim(),
-                        MaterialNo = ecd.GetString(A, 119, 3).Trim(),
-                        FirstDayQty = ecd.GetString(A, 122, 3).Trim(),
-                        AdminCode = ecd.GetString(A, 127, 4).Trim(),
-                        MedicineCode = ecd.GetString(A, 131, 7).Trim(),
-                        ProductName = ecd.GetString(A, 141, 16).Trim(),
-                        MedicineShape = ecd.GetString(A, 157, 60).Trim(),
-                        NursingStationNo = ecd.GetString(A, 217, 16).Trim(),
-                        BirthDate = BirthDate
+                        PatientNo = ecd.GetString(temp, 12, 10).Trim(),
+                        BedNo = ecd.GetString(temp, 22, 10).Trim(),
+                        Date = startDate,
+                        PatientName = ecd.GetString(temp, 45, 10).Trim(),
+                        Days = ecd.GetString(temp, 59, 2).Trim(),
+                        PerQty = ecd.GetString(temp, 64, 9).Trim(),
+                        MedicineName = ecd.GetString(temp, 79, 40).Trim(),
+                        MaterialNo = ecd.GetString(temp, 119, 3).Trim(),
+                        FirstDayQty = ecd.GetString(temp, 122, 3).Trim(),
+                        AdminCode = ecd.GetString(temp, 127, 4).Trim(),
+                        MedicineCode = ecd.GetString(temp, 131, 7).Trim(),
+                        ProductName = ecd.GetString(temp, 141, 16).Trim(),
+                        MedicineShape = ecd.GetString(temp, 157, 60).Trim(),
+                        NursingStationNo = ecd.GetString(temp, 217, 16).Trim(),
+                        BirthDate = birthDate
                     });
                 }
-                if (batch.Count == 0)
+                if (_Batch.Count == 0)
                 {
                     ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                     return false;
@@ -141,7 +135,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
             }
@@ -151,20 +145,17 @@ namespace FCP
         {
             try
             {
-                oncube = new OnputType_OnCube(Log);
-                FileNameOutput_S = $@"{OutputPath_S}\{"住院批次"}_{Time_S}.txt";
-                bool yn = oncube.ChangGung_UD_Batch(batch, FileNameOutput_S, Type);
-                if (yn)
+                OnCube = new OnputType_OnCube(Log);
+                string filePathOutput = $@"{OutputPath}\{"住院批次"}_{CurrentSeconds}.txt";
+                bool result = OnCube.ChangGung_UD_Batch(_Batch, filePathOutput, "住院批次");
+                if (result)
                     return true;
-                else
-                {
-                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
-                    return false;
-                }
+                ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                return false;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
             }
@@ -194,27 +185,25 @@ namespace FCP
         {
             try
             {
-                Type = "藥來速";
-                string Content = GetContent;
-                List<string> Data = SplitData(Content, 9);
-                opd.Clear();
-                foreach (string s in Data)
+                List<string> list = SplitData(GetContent, 9);
+                _OPD.Clear();
+                foreach (string s in list)
                 {
-                    string[] Split = s.Split('|');
-                    if (_SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(Split[4].Substring(4)))
+                    string[] listSplit = s.Split('|');
+                    if (_SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(listSplit[4].Substring(4)))
                         continue;
-                    opd.Add(new OPD
+                    _OPD.Add(new OPD
                     {
-                        PrescriptionNo = Split[0].Substring(4),
-                        PatientNo = Split[1].Substring(3),
-                        PatientName = Split[2].Substring(2),
-                        Other = Split[3].Substring(3),  //料位號
-                        MedicineCode = Split[4].Substring(4),
-                        MedicineName = Split[5].Substring(2),
-                        SumQty = Split[6].Substring(2)
+                        PrescriptionNo = listSplit[0].Substring(4),
+                        PatientNo = listSplit[1].Substring(3),
+                        PatientName = listSplit[2].Substring(2),
+                        Other = listSplit[3].Substring(3),  //料位號
+                        MedicineCode = listSplit[4].Substring(4),
+                        MedicineName = listSplit[5].Substring(2),
+                        SumQty = listSplit[6].Substring(2)
                     }); ;
                 }
-                if (opd.Count == 0)
+                if (_OPD.Count == 0)
                 {
                     ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                     return false;
@@ -224,7 +213,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S} {ex}");
+                Log.Write($"{FilePath} {ex}");
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
             }
@@ -234,20 +223,17 @@ namespace FCP
         {
             try
             {
-                oncube = new OnputType_OnCube(Log);
-                FileNameOutput_S = $@"{OutputPath_S}\藥來速_{Time_S}.txt";
-                bool yn = oncube.ChangGung_Other(opd, FileNameOutput_S, Type);
-                if (yn)
+                OnCube = new OnputType_OnCube(Log);
+                string filePathOutput = $@"{OutputPath}\藥來速_{CurrentSeconds}.txt";
+                bool result = OnCube.ChangGung_Other(_OPD, filePathOutput, "藥來速");
+                if (result)
                     return true;
-                else
-                {
-                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
-                    return false;
-                }
+                ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                return false;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
             }
@@ -289,26 +275,26 @@ namespace FCP
 
         }
 
-        private List<string> SplitData(string Content, int Count)
+        private List<string> SplitData(string content, int count)
         {
-            List<string> List = new List<string>();
-            StringBuilder sb = new StringBuilder();
-            List<string> Split = Content.Split('\n').ToList();
+            List<string> list = new List<string>();
+            StringBuilder stringBuilder = new StringBuilder();
+            List<string> contentSplit = content.Split('\n').ToList();
             int order = 0;
-            foreach (string s in Split)
+            foreach (string s in contentSplit)
             {
                 if (s.Trim() == "")
                     continue;
-                sb.Append($"{s.Trim()}|");
+                stringBuilder.Append($"{s.Trim()}|");
                 order++;
-                if (order % Count == 0)
+                if (order % count == 0)
                 {
-                    List.Add(sb.ToString());
-                    sb.Clear();
+                    list.Add(stringBuilder.ToString());
+                    stringBuilder.Clear();
                     order = 0;
                 }
             }
-            return List;
+            return list;
         }
 
         public override bool ProcessCare()

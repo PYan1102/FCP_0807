@@ -15,9 +15,9 @@ namespace FCP
             var ecd = Encoding.Default;
             try
             {
-                oncube = new OnputType_OnCube(Log);
+                OnCube = new OnputType_OnCube(Log);
                 List<string> patientinfo = new List<string>();
-                string[] info = Content_S.Split('\n');
+                string[] info = FileContent.Split('\n');
                 info.ToList().ForEach(x => patientinfo.Add(x));
                 Byte[] Temp = Encoding.Default.GetBytes(patientinfo[0]);
                 for (int r = 0; r <= patientinfo.Count - 1; r++)  //將藥品資料放入List<string>
@@ -37,7 +37,7 @@ namespace FCP
                         continue;
                     if (!GOD.Is_Admin_Code_For_Multi_Created(AdminCode_S))
                     {
-                        Log.Write($"{FullFileName_S} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
+                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
                         ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, AdminCode_S);
                         return false;
                     }
@@ -68,7 +68,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
             }
@@ -78,10 +78,10 @@ namespace FCP
         {  
             try
             {
-                string FileName = $"{Path.GetFileNameWithoutExtension(FullFileName_S)}_{Time_S}.txt";
-                string FileNameOutputCount = $@"{OutputPath_S}\{PatientName_S.Trim()}-{FileName}_{Time_S}.txt";
+                string FileName = $"{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+                string FileNameOutputCount = $@"{OutputPath}\{PatientName_S.Trim()}-{FileName}_{CurrentSeconds}.txt";
                 string Birthdaynew = "1999-01-01";  //生日
-                bool result = oncube.YiSheng(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L, FileNameOutputCount,
+                bool result = OnCube.YiSheng(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L, FileNameOutputCount,
                     PatientName_S, Birthdaynew, PatientNo_S);
                 if (result)
                 {
@@ -92,14 +92,14 @@ namespace FCP
                     List<string> day = new List<string>();
                     for (int x = 0; x <= StartDay_L.Count - 1; x++)
                         day.Add(StartDay_L[x] + "~" + EndDay_L[x]);
-                    Log.Prescription(FullFileName_S, PatientName_S, PatientNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
+                    Log.Prescription(FilePath, PatientName_S, PatientNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
             }

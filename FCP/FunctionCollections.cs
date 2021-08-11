@@ -39,12 +39,12 @@ namespace FCP
         CancellationTokenSource cts1;
         List<string> IPList = new List<string>();
         public WindowsDo WD;
-        static string SuccessPath, FailPath;
-        public string FilePath, InputPath, OutputPath, CurrentSeconds;
+        private static string SuccessPath, FailPath;
+        protected internal string FilePath, InputPath, OutputPath, CurrentSeconds;
         public int MethodID;
         public MainWindow MainWindow { get; set; }
         private ConvertFileInformtaionModel _ConvertFileInformation { get; set; }
-        private DepartmentEnum _CurrentDepartment { get; set; }
+        protected internal DepartmentEnum CurrentDepartment { get; set; }
 
         public FunctionCollections()
         {
@@ -195,7 +195,58 @@ namespace FCP
             WD.AllWindowShowOrHide(null, null, false);
             cts = null;
             cts = new CancellationTokenSource();
+            ResetDictionary();
+        }
+
+        public void ReSet(bool isOPD)
+        {
+            if (isOPD)
+            {
+                if (WD._OPD1)
+                    SetOPDIntoDictionary();
+                if (WD._OPD2)
+                    SetPowderIntoDictionary();
+                if (WD._OPD3)
+                    SetCareIntoDictionary();
+                if (WD._OPD4)
+                    SetOtherIntoDictionary();
+            }
+            else
+            {
+                if (WD._isStat)
+                    SetUDStat("6");
+                else
+                    SetUDBatch("udpkg");
+            }
             Reset(cts, IPList);
+        }
+
+        public virtual void GetFileAsync()
+        {
+            Console.WriteLine("開始");
+            Task.Run(() =>
+            {
+                while (!cts.IsCancellationRequested)
+                {
+                    Clear();
+                    Task<FileInformation> fileInformation = Task.Run(() => GetFileNameTaskAsync());
+                    InputPath = fileInformation.Result.InputPath;
+                    FilePath = fileInformation.Result.FilePath;
+                    CurrentDepartment = fileInformation.Result.Department;
+                    if (!string.IsNullOrEmpty(FilePath))
+                        SetConvertInformation();
+                }
+            });
+        }
+
+        private void Clear()
+        {
+
+            InputPath = string.Empty;
+            OutputPath = WD.OP;
+            FilePath = string.Empty;
+            CurrentSeconds = string.Empty;
+            CurrentDepartment = DepartmentEnum.OPD;
         }
 
         public virtual void Loop_OPD(int Start, int Length, string Content)
@@ -204,7 +255,7 @@ namespace FCP
                 return;
             Task.Run(async () =>
             {
-                GetFileName();
+                //GetFileNameTaskAsync();
                 try
                 {
                     while (!cts.IsCancellationRequested)
@@ -373,7 +424,7 @@ namespace FCP
             _ConvertFileInformation.SetInputPath(InputPath)
                 .SetOutputPath(OutputPath)
                 .SetFilePath(FilePath)
-                .SetDepartment(DepartmentEnum.OPD)
+                .SetDepartment(CurrentDepartment)
                 .SetCurrentSeconds(CurrentSeconds);
         }
 
@@ -386,6 +437,8 @@ namespace FCP
         {
             string message = returnsResult.Message;
             string fileName = $"{Path.GetFileName(FilePath)}_{ DateTime.Now:ss_fff}";
+            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(FilePath);
+            string tip;
             switch (returnsResult.Result)
             {
                 case ConvertResult.成功:
@@ -394,8 +447,9 @@ namespace FCP
                         File.Move(FilePath, $@"{SuccessPath}\{fileName}.ok");
                         WD.SuccessCountAdd();
                     }
-                    ProgressBoxAdd(message);
-                    NF.ShowBalloonTip(850, "轉檔成功", message, System.Windows.Forms.ToolTipIcon.None);
+                    tip = $"{fileNameWithoutExtension}  轉檔成功";
+                    ProgressBoxAdd(tip);
+                    NF.ShowBalloonTip(850, "轉檔成功", tip, System.Windows.Forms.ToolTipIcon.None);
                     break;
                 case ConvertResult.全數過濾:
                     if (isMoveFile)
@@ -405,11 +459,22 @@ namespace FCP
                     }
                     if (isReminder)
                     {
-                        ProgressBoxAdd(message);
-                        NF.ShowBalloonTip(850, "全數過濾", message, System.Windows.Forms.ToolTipIcon.None);
+                        tip = $"{fileNameWithoutExtension} 全數過濾";
+                        ProgressBoxAdd(tip);
+                        NF.ShowBalloonTip(850, "全數過濾", tip, System.Windows.Forms.ToolTipIcon.None);
                     }
                     break;
-                case ConvertResult.產生OCS失敗 | ConvertResult.處理邏輯失敗 | ConvertResult.讀取檔案失敗:
+                case ConvertResult.沒有種包頻率:
+                    Stop();
+                    ProgressBoxAdd(message);
+                    NF.ShowBalloonTip(850, $"缺少頻率", $"{Path.GetFileName(FilePath)} OnCube中缺少該檔案 {message} 的種包頻率", System.Windows.Forms.ToolTipIcon.Error);
+                    break;
+                case ConvertResult.沒有餐包頻率:
+                    Stop();
+                    ProgressBoxAdd(message);
+                    NF.ShowBalloonTip(850, $"缺少頻率", $"{Path.GetFileName(FilePath)} OnCube中缺少該檔案 {message} 的餐包頻率", System.Windows.Forms.ToolTipIcon.Error);
+                    break;
+                default:
                     if (isMoveFile)
                     {
                         File.Move(FilePath, $@"{FailPath}\{fileName}.fail");
@@ -418,13 +483,8 @@ namespace FCP
                     ProgressBoxAdd(message);
                     NF.ShowBalloonTip(850, "轉檔錯誤", message, System.Windows.Forms.ToolTipIcon.Error);
                     break;
-                case ConvertResult.沒有種包頻率 | ConvertResult.沒有餐包頻率:
-                    Stop();
-                    ProgressBoxAdd(message);
-                    NF.ShowBalloonTip(850, $"缺少頻率", $"{Path.GetFileName(FilePath)} OnCube中缺少該檔案 {message} 的頻率", System.Windows.Forms.ToolTipIcon.Error);
-                    break;
             }
-            Stop();
+            //Stop();
         }
 
         public virtual void ProgressBoxClear()
@@ -495,13 +555,14 @@ namespace FCP
         }
 
         //移動檔案
-        public void MoveFilesIncludeResult(string Result)
+        public void MoveFilesIncludeResult(bool isSuccess)
         {
-            string FolderName = Result == "ok" ? "Success" : "Fail";
-            string[] Files = Directory.GetFiles($@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\Batch");
-            foreach (string s in Files)
+            string folderName = isSuccess ? "Success" : "Fail";
+            string extension = isSuccess ? "ok" : "fail";
+            string[] files = Directory.GetFiles($@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\Batch");
+            foreach (string s in files)
             {
-                File.Move(s, $@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\{FolderName}\{Path.GetFileNameWithoutExtension(s)}.{Result}");
+                File.Move(s, $@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\{folderName}\{Path.GetFileNameWithoutExtension(s)}.{extension}");
             }
             if (SF.Visibility == Visibility.Visible)
                 SF.Btn_StopConverter_Click(null, null);
@@ -681,9 +742,9 @@ namespace FCP
             UI.IP2s = "磨   粉";
             UI.IP3s = "住   院";
             UI.OPD1s = "門診";
-            UI.OPD2s = "急診";
+            UI.OPD2s = "磨粉";
             UI.OPD3s = "慢籤";
-            UI.OPD4s = "磨粉";
+            UI.OPD4s = "急診";
             UI.IP1b = true;
             UI.IP2b = true;
             UI.IP3b = true;
@@ -720,16 +781,16 @@ namespace FCP
             UI.IP1s = "輸入路徑1";
             UI.IP2s = "磨   粉";
             UI.IP3s = "輸入路徑3";
-            UI.OPD1s = "磨粉";
-            UI.OPD2s = "";
+            UI.OPD1s = "";
+            UI.OPD2s = "磨粉";
             UI.OPD3s = "";
             UI.OPD4s = "";
             UI.IP1b = false;
             UI.IP2b = true;
             UI.IP3b = false;
             UI.UDv = Visibility.Hidden;
-            UI.OPD1v = Visibility.Visible;
-            UI.OPD2v = Visibility.Hidden;
+            UI.OPD1v = Visibility.Hidden;
+            UI.OPD2v = Visibility.Visible;
             UI.OPD3v = Visibility.Hidden;
             UI.OPD4v = Visibility.Hidden;
         }
@@ -741,17 +802,17 @@ namespace FCP
             UI.IP2s = "大寮百合";
             UI.IP3s = "住   院";
             UI.OPD1s = "門診";
-            UI.OPD2s = "養護";
-            UI.OPD3s = "大寮";
-            UI.OPD4s = "";
+            UI.OPD2s = "";
+            UI.OPD3s = "養護";
+            UI.OPD4s = "大寮";
             UI.IP1b = true;
             UI.IP2b = true;
             UI.IP3b = true;
             UI.UDv = Visibility.Visible;
             UI.OPD1v = Visibility.Visible;
-            UI.OPD2v = Visibility.Visible;
+            UI.OPD2v = Visibility.Hidden;
             UI.OPD3v = Visibility.Visible;
-            UI.OPD4v = Visibility.Hidden;
+            UI.OPD4v = Visibility.Visible;
         }
 
         private void 義大ToOnCube(UILayout UI)
@@ -780,16 +841,16 @@ namespace FCP
             UI.IP1s = "磨粉";
             UI.IP2s = "輸入路徑2";
             UI.IP3s = "輸入路徑3";
-            UI.OPD1s = "磨粉";
-            UI.OPD2s = "";
+            UI.OPD1s = "";
+            UI.OPD2s = "磨粉";
             UI.OPD3s = "";
             UI.OPD4s = "";
             UI.IP1b = true;
             UI.IP2b = false;
             UI.IP3b = false;
             UI.UDv = Visibility.Hidden;
-            UI.OPD1v = Visibility.Visible;
-            UI.OPD2v = Visibility.Hidden;
+            UI.OPD1v = Visibility.Hidden;
+            UI.OPD2v = Visibility.Visible;
             UI.OPD3v = Visibility.Hidden;
             UI.OPD4v = Visibility.Hidden;
         }
@@ -801,17 +862,17 @@ namespace FCP
             UI.IP2s = "藥來速";
             UI.IP3s = "住院";
             UI.OPD1s = "門診";
-            UI.OPD2s = "藥來速";
+            UI.OPD2s = "";
             UI.OPD3s = "";
-            UI.OPD4s = "";
+            UI.OPD4s = "藥來速";
             UI.IP1b = true;
             UI.IP2b = true;
             UI.IP3b = true;
             UI.UDv = Visibility.Visible;
             UI.OPD1v = Visibility.Visible;
-            UI.OPD2v = Visibility.Visible;
+            UI.OPD2v = Visibility.Hidden;
             UI.OPD3v = Visibility.Hidden;
-            UI.OPD4v = Visibility.Hidden;
+            UI.OPD4v = Visibility.Visible;
         }
 
         private void 仁康醫院ToOnCube(UILayout UI)
@@ -821,16 +882,16 @@ namespace FCP
             UI.IP2s = "輸入路徑2";
             UI.IP3s = "住院";
             UI.OPD1s = "門診";
-            UI.OPD2s = "養護";
-            UI.OPD3s = "";
+            UI.OPD2s = "";
+            UI.OPD3s = "養護";
             UI.OPD4s = "";
             UI.IP1b = true;
             UI.IP2b = false;
             UI.IP3b = true;
             UI.UDv = Visibility.Visible;
             UI.OPD1v = Visibility.Visible;
-            UI.OPD2v = Visibility.Visible;
-            UI.OPD3v = Visibility.Hidden;
+            UI.OPD2v = Visibility.Hidden;
+            UI.OPD3v = Visibility.Visible;
             UI.OPD4v = Visibility.Hidden;
         }
 

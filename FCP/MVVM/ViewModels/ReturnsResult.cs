@@ -59,6 +59,7 @@ namespace FCP.MVVM.ViewModels
 
         public void Filter(string exception = null)
         {
+            _ReturnsResultFormat.Message = string.Empty;
             _ReturnsResultFormat.Result = ConvertResult.全數過濾;
         }
 
@@ -70,6 +71,7 @@ namespace FCP.MVVM.ViewModels
 
         public void Success()
         {
+            _ReturnsResultFormat.Message = string.Empty;
             _ReturnsResultFormat.Result = ConvertResult.成功;
         }
 

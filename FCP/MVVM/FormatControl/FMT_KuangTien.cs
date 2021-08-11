@@ -39,7 +39,7 @@ namespace FCP
                 ClearList();
                 var ecd = Encoding.Default;
                 string FileContent = DeleteSpace(GetContent);
-                string FileNameTemp = Path.GetFileNameWithoutExtension(FullFileName_S);
+                string FileNameTemp = Path.GetFileNameWithoutExtension(FilePath);
                 string[] FileContentSplit = FileContent.Split('\n');
                 byte[] Temp = ecd.GetBytes(FileContentSplit[0]);
                 WriteDate = ecd.GetString(Temp, 9, 9).Trim();
@@ -91,7 +91,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
             }
@@ -102,10 +102,10 @@ namespace FCP
             try
             {
                 bool yn;
-                oncube = new OnputType_OnCube(Log);
+                OnCube = new OnputType_OnCube(Log);
                 string Year = (Convert.ToInt32(DateTime.Now.ToString("yyyy")) - 1911).ToString();
-                FileNameOutput_S = $@"{OutputPath_S}\{Year}{DateTime.Now:MMdd}_{GetMedicineNumber.Trim()}_{PatientName_S.Trim()}_{Time_S}.txt";
-                yn = oncube.KuangTien_OPD(MedicineCode_L, MedicineName_L, AdminCode_L, Days_L, PerQty_L, TimesPerDay, SumQty_L, PatientName_S, DoctorName_S, GetMedicineNumber, PatientNo_S, Age_S, Gender_S, Class_S, WriteDate, FileNameOutput_S);
+                FileNameOutput_S = $@"{OutputPath}\{Year}{DateTime.Now:MMdd}_{GetMedicineNumber.Trim()}_{PatientName_S.Trim()}_{CurrentSeconds}.txt";
+                yn = OnCube.KuangTien_OPD(MedicineCode_L, MedicineName_L, AdminCode_L, Days_L, PerQty_L, TimesPerDay, SumQty_L, PatientName_S, DoctorName_S, GetMedicineNumber, PatientNo_S, Age_S, Gender_S, Class_S, WriteDate, FileNameOutput_S);
                 if (yn)
                     return true;
                 else
@@ -115,14 +115,14 @@ namespace FCP
                     {
                         DaysList.Add(StartDay_L[x] + "~" + EndDay_L[x]);
                     }
-                    Log.Prescription(FullFileName_S, PatientName_S, "", MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, DaysList);
+                    Log.Prescription(FilePath, PatientName_S, "", MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, DaysList);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
             }
@@ -135,7 +135,7 @@ namespace FCP
                 ClearList();
                 var ecd = Encoding.Default;
                 bool _JudgeMedicinePosition = false;
-                oncube = new OnputType_OnCube(Log);
+                OnCube = new OnputType_OnCube(Log);
                 string[] FileContentSplit = DeleteSpace(GetContent).Split('\n');
                 int Hos = -1;
                 Byte[] Temp = Encoding.Default.GetBytes(FileContentSplit[0]);
@@ -213,12 +213,12 @@ namespace FCP
                         AdminCode_S = "STTS";
                     if (!GOD.Is_Admin_Code_For_Multi_Created($"{AdminCode_S}"))
                     {
-                        Log.Write($"{FullFileName_S} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
+                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
                         continue;
                     }
                     if (!GOD.Is_Admin_Code_For_Combi_Created($"S{AdminCode_S}"))
                     {
-                        Log.Write($"{FullFileName_S} 在OnCube中未建置此種包頻率 S{AdminCode_S}");
+                        Log.Write($"{FilePath} 在OnCube中未建置此種包頻率 S{AdminCode_S}");
                         continue;
                     }
                     CalculationDays.Add($"{GOD.Get_Admin_Code_For_Multi(AdminCode_S).Count}");
@@ -262,7 +262,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S} {ex}");
+                Log.Write($"{FilePath} {ex}");
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
             }
@@ -472,8 +472,8 @@ namespace FCP
                     }
                 }
                 DateTime.TryParseExact(TreatmentDate[0], "yyyy-MM-dd", null, DateTimeStyles.None, out DateTime FirstDate);
-                bool yn; FileNameOutput_S = $@"{OutputPath_S}\{Path.GetFileNameWithoutExtension(FullFileName_S)}_{Time_S}.txt";
-                yn = oncube.KuangTien_UD(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L,
+                bool yn; FileNameOutput_S = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+                yn = OnCube.KuangTien_UD(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L,
                     PatientName_L, PrescriptionNo_L, BedNo_L, BarcodeDic, FileNameOutput_S, Class_L, StayDay_L, DataDic, DoseType, CrossAdminTimeType, FirstDate.ToString("yyMMdd"), QODDescription,
                     CurrentDate, "住院", SpecialCode);
                 if (yn)
@@ -485,14 +485,14 @@ namespace FCP
                     {
                         DaysList.Add(StartDay_L[x] + "~" + EndDay_L[x]);
                     }
-                    Log.Prescription(FullFileName_S, PatientName_L[0], "", MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, DaysList);
+                    Log.Prescription(FilePath, PatientName_L[0], "", MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, DaysList);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S} {ex}");
+                Log.Write($"{FilePath} {ex}");
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
             }
@@ -505,7 +505,7 @@ namespace FCP
                 ClearList();
                 bool _JudgeMedicinePosition = false;
                 var ecd = Encoding.Default;
-                oncube = new OnputType_OnCube(Log);
+                OnCube = new OnputType_OnCube(Log);
                 string[] FileContentSplit = DeleteSpace(GetContent).Split('\n');
                 int Hos = -1;
                 Byte[] Temp = Encoding.Default.GetBytes(FileContentSplit[0]);
@@ -588,7 +588,7 @@ namespace FCP
                         AdminCode_S = "STTS";
                     if (!GOD.Is_Admin_Code_For_Multi_Created(AdminCode_S))
                     {
-                        Log.Write($"{FullFileName_S} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
+                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
                         continue;
                     }
                     else
@@ -596,7 +596,7 @@ namespace FCP
 
                     if (!GOD.Is_Admin_Code_For_Combi_Created($"S{AdminCode_S}"))
                     {
-                        Log.Write($"{FullFileName_S} 在OnCube中未建置此種包頻率 S{AdminCode_S}");
+                        Log.Write($"{FilePath} 在OnCube中未建置此種包頻率 S{AdminCode_S}");
                         continue;
                     }
                     DateTime.TryParseExact(DataSplit[0], "yyyyMMdd", null, DateTimeStyles.None, out DateTime _treatmentdate);
@@ -638,7 +638,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S} {ex}");
+                Log.Write($"{FilePath} {ex}");
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
             }
@@ -789,8 +789,8 @@ namespace FCP
                 }
                 DateTime.TryParseExact(TreatmentDate[0], "yyyy-MM-dd", null, DateTimeStyles.None, out DateTime FirstDate);
                 bool yn;
-                FileNameOutput_S = $@"{OutputPath_S}\{PatientName_L[0]}_{PrescriptionNo_L[0]}_{Time_S}.txt";
-                yn = oncube.KuangTien_UD(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L,
+                FileNameOutput_S = $@"{OutputPath}\{PatientName_L[0]}_{PrescriptionNo_L[0]}_{CurrentSeconds}.txt";
+                yn = OnCube.KuangTien_UD(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L,
                     PatientName_L, PrescriptionNo_L, BedNo_L, BarcodeDic, FileNameOutput_S, Class_L, StayDay_L, DataDic, DoseType, CrossAdminTimeType, FirstDate.ToString("yyMMdd"), QODDescription,
                     CurrentDate, "即時", SpecialCode);
                 if (yn)
@@ -802,14 +802,14 @@ namespace FCP
                     {
                         DaysList.Add(StartDay_L[x] + "~" + EndDay_L[x]);
                     }
-                    Log.Prescription(FullFileName_S, PatientName_L[0].ToString(), "", MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, DaysList);
+                    Log.Prescription(FilePath, PatientName_L[0].ToString(), "", MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, DaysList);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S} {ex}");
+                Log.Write($"{FilePath} {ex}");
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
             }
@@ -823,7 +823,7 @@ namespace FCP
                 var ecd = Encoding.Default;
                 string GrindTable;
                 List<string> TimesPerDay = new List<string>();
-                string FileNameTemp = Path.GetFileNameWithoutExtension(FullFileName_S);
+                string FileNameTemp = Path.GetFileNameWithoutExtension(FilePath);
                 string[] FileContentSplit = DeleteSpace(GetContent).Split('\n');
                 byte[] Temp = ecd.GetBytes(FileContentSplit[0]);
                 WriteDate = ecd.GetString(Temp, 9, 9).Trim();
@@ -846,7 +846,7 @@ namespace FCP
                         continue;
                     if (!GOD.Is_Admin_Code_For_Multi_Created(AdminCode_S))
                     {
-                        Log.Write($"{FullFileName_S} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
+                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
                         ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, AdminCode_S);
                         return false;
                     }
@@ -871,7 +871,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
             }
@@ -889,7 +889,7 @@ namespace FCP
                 bool yn;
                 jvserver = new OnputType_JVServer(Log);
                 string Year = (Convert.ToInt32(DateTime.Now.ToString("yyyy")) - 1911).ToString();
-                FileNameOutput_S = $@"{OutputPath_S}\{Year}{DateTime.Now:MMdd}_{GetMedicineNumber.Trim()}_{PatientName_S}_{Time_S}.txt";
+                FileNameOutput_S = $@"{OutputPath}\{Year}{DateTime.Now:MMdd}_{GetMedicineNumber.Trim()}_{PatientName_S}_{CurrentSeconds}.txt";
                 List<string> DicDistinct = new List<string>();
                 foreach (var v in Dic)
                 {
@@ -906,14 +906,14 @@ namespace FCP
                     {
                         DaysList.Add(StartDay_L[x] + "~" + EndDay_L[x]);
                     }
-                    Log.Prescription(FullFileName_S, PatientName_S, "", MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, DaysList);
+                    Log.Prescription(FilePath, PatientName_S, "", MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, DaysList);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Log.Write($"{FullFileName_S}  {ex}");
+                Log.Write($"{FilePath}  {ex}");
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
             }
