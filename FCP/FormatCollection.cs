@@ -395,5 +395,7 @@ namespace FCP
         public abstract bool LogicPOWDER();
         public abstract bool ProcessOther();
         public abstract bool LogicOther();
+        public abstract bool ProcessCare();
+        public abstract bool LogicCare();
     }
 }

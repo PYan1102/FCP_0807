@@ -36,6 +36,7 @@ namespace FCP
         private FunctionCollections _Format { get; set; }
         private MsgB _Msg { get; set; }
         private SettingsModel _SettingsModel { get; set; }
+        private MainWindowModel _MainWindowModel { get; set; }
         private Settings _Settings { get; set; }
         private Stopwatch _StopWatch = new Stopwatch();
         private Color _WarningColor = Color.FromRgb(225, 219, 96);
@@ -125,6 +126,7 @@ namespace FCP
             _Msg = new MsgB();
             _Settings = SettingsFactory.GenerateSettingsControl();
             _SettingsModel = SettingsFactory.GenerateSettingsModels();
+            _MainWindowModel = MainWindowFacotry.GenerateMainWindowModel();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -136,7 +138,7 @@ namespace FCP
         {
             _Format = FormatFactory.GenerateFormat(_SettingsModel.Mode);
             _Format.SetWindow(this);
-            _Format.Loaded();
+            _Format.Init();
             if (Auto) _Format.AutoStart();
         }
 
@@ -183,12 +185,14 @@ namespace FCP
                 _Msg.Show("沒有勾選任一個轉檔位置", "位置未勾選", "Error", _Msg.Color.Error);
                 return;
             }
-            _Format.ConvertPrepare(0);
+            _MainWindowModel.IsOPD = true;
+            _Format.ConvertPrepare(_MainWindowModel.IsOPD);
         }
 
         public void Btn_UD_Click(object sender, RoutedEventArgs e)
         {
-            _Format.ConvertPrepare(1);
+            _MainWindowModel.IsOPD = false;
+            _Format.ConvertPrepare(_MainWindowModel.IsOPD);
         }
 
         private void Btn_Close_Click(object sender, RoutedEventArgs e)

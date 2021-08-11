@@ -12,9 +12,9 @@ namespace FCP.MVVM.FormatInit
 
         }
 
-        public override void Loaded()
+        public override void Init()
         {
-            base.Loaded();
+            base.Init();
             MainWindow.Tgl_OPD1.IsChecked = true;
         }
 
@@ -43,7 +43,7 @@ namespace FCP.MVVM.FormatInit
             base.CloseSelf();
         }
 
-        public override void ConvertPrepare(int Mode)
+        public override void ConvertPrepare(bool isOPD)
         {
             if (SettingsModel.Mode == Format.光田醫院TOC)
             {
@@ -66,12 +66,12 @@ namespace FCP.MVVM.FormatInit
             }
             else if (SettingsModel.Mode == Format.光田醫院TJVS)  //磨粉
             {
-                base.ConvertPrepare(Mode);
+                base.ConvertPrepare(isOPD);
                 Loop_OPD(0, 0, "");
                 return;
             }
-            base.ConvertPrepare(Mode);
-            if (Mode == (int)ModeEnum.OPD)
+            base.ConvertPrepare(isOPD);
+            if (isOPD)
                 Loop_OPD(0, 0, "");
             else
             {

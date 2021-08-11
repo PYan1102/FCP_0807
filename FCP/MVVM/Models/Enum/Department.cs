@@ -12,6 +12,7 @@ namespace FCP.MVVM.Models.Enum
         POWDER,
         UDBatch,
         UDStat,
-        Other
+        Other,
+        Care
     }
 }

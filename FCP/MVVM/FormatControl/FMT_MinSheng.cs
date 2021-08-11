@@ -348,5 +348,15 @@ namespace FCP
             DataDic.Clear();
             TotalQuantityDic.Clear();
         }
+
+        public override bool ProcessCare()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool LogicCare()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

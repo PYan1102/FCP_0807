@@ -32,5 +32,6 @@ namespace FCP.MVVM.Models
         public bool IsStat { get; set; }
         public bool IsBatch { get; set; }
         public DoseMode PackType { get; set; }
+        public bool IsOPD { get; set; } = false;
     }
 }

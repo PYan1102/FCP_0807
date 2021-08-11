@@ -943,5 +943,15 @@ namespace FCP
             MedicineInformationDic.Clear();
             BarcodeDic.Clear();
         }
+
+        public override bool ProcessCare()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool LogicCare()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

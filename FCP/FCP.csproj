@@ -139,7 +139,10 @@
     <Compile Include="MVVM\Models\SmallFormModel.cs" />
     <Compile Include="MVVM\Factory\SettingsFactory.cs" />
     <Compile Include="MVVM\ViewModels\AdvancedSettingsViewModel.cs" />
-    <Compile Include="MVVM\ViewModels\FindFile.cs" />
+    <Compile Include="MVVM\ViewModels\GetConvertFile\CompareFileStartWith.cs" />
+    <Compile Include="MVVM\ViewModels\GetConvertFile\FindFile.cs" />
+    <Compile Include="MVVM\ViewModels\GetConvertFile\ICompareFileStartWith.cs" />
+    <Compile Include="MVVM\ViewModels\GetConvertFile\SetFileStartWith.cs" />
     <Compile Include="MVVM\ViewModels\Interface\IRetunrsResult.cs" />
     <Compile Include="MVVM\ViewModels\MainWindow\MainWindowViewModel.cs" />
     <Compile Include="MVVM\ViewModels\MainWindow\PropertyChange.cs" />

@@ -16,11 +16,11 @@ using FCP.MVVM.Control;
 using FCP.MVVM.Models;
 using FCP.MVVM.Factory;
 using FCP.MVVM.Models.Enum;
-using FCP.MVVM.ViewModels;
+using FCP.MVVM.ViewModels.GetConvertFile;
 
 namespace FCP
 {
-    public abstract class FunctionCollections
+    public abstract class FunctionCollections : FindFile
     {
         public string SQLInfo = "server=.;database=OnCube;user id=sa;password=jvm5822511";
         public string IP1, IP2, IP3, OP = "";
@@ -43,9 +43,7 @@ namespace FCP
         public string FilePath, InputPath, OutputPath, CurrentSeconds;
         public int MethodID;
         public MainWindow MainWindow { get; set; }
-        public FindFile _FindFile { get; set; }
         private ConvertFileInformtaionModel _ConvertFileInformation { get; set; }
-        private int Mode { get; set; }
         private DepartmentEnum _CurrentDepartment { get; set; }
 
         public FunctionCollections()
@@ -53,7 +51,6 @@ namespace FCP
             _Settings = SettingsFactory.GenerateSettingsControl();
             SettingsModel = SettingsFactory.GenerateSettingsModels();
             _ConvertFileInformation = ConvertInformationFactory.GenerateConvertFileInformation();
-            _FindFile = new FindFile();
         }
 
         public void SetWindow(MainWindow mainWindow)
@@ -67,7 +64,7 @@ namespace FCP
         }
 
         //建立MsgBox物件
-        public virtual void Loaded()
+        public virtual void Init()
         {
             try
             {
@@ -175,7 +172,7 @@ namespace FCP
             WD.ChangeWindow();
         }
 
-        public virtual void ConvertPrepare(int Mode)
+        public virtual void ConvertPrepare(bool isOPD)
         {
             if ((WD.IP1 + WD.IP2 + WD.IP3).Trim() == "")
             {
@@ -189,8 +186,7 @@ namespace FCP
                 Msg.Show("輸出路徑為空白", "路徑空白", "Error", Msg.Color.Error);
                 return;
             }
-            this.Mode = Mode;
-            WD.Start_Control(Mode);
+            WD.Start_Control(isOPD);
             WD.SwitchControlEnabled(false);
             NF.Text = "開始";
             IPList.Clear();
@@ -199,6 +195,7 @@ namespace FCP
             WD.AllWindowShowOrHide(null, null, false);
             cts = null;
             cts = new CancellationTokenSource();
+            Reset(cts, IPList);
         }
 
         public virtual void Loop_OPD(int Start, int Length, string Content)
@@ -207,7 +204,7 @@ namespace FCP
                 return;
             Task.Run(async () =>
             {
-                _FindFile.GetFile();
+                GetFileName();
                 try
                 {
                     while (!cts.IsCancellationRequested)
@@ -427,7 +424,7 @@ namespace FCP
                     NF.ShowBalloonTip(850, $"缺少頻率", $"{Path.GetFileName(FilePath)} OnCube中缺少該檔案 {message} 的頻率", System.Windows.Forms.ToolTipIcon.Error);
                     break;
             }
-            //Stop();
+            Stop();
         }
 
         public virtual void ProgressBoxClear()
@@ -913,18 +910,17 @@ namespace FCP
         }
 
         //OPD或UD切換
-        public void Start_Control(int Mode)
+        public void Start_Control(bool isOPD)
         {
-            switch (Mode)
+            if (isOPD)
             {
-                case (int)FunctionCollections.ModeEnum.OPD:
-                    MainWindow.Btn_OPD.Background = Red;
-                    MainWindow.Btn_UD.Opacity = 0.2;
-                    break;
-                case (int)FunctionCollections.ModeEnum.UD:
-                    MainWindow.Btn_UD.Background = Red;
-                    MainWindow.Btn_OPD.Opacity = 0.2;
-                    break;
+                MainWindow.Btn_OPD.Background = Red;
+                MainWindow.Btn_UD.Opacity = 0.2;
+            }
+            else
+            {
+                MainWindow.Btn_UD.Background = Red;
+                MainWindow.Btn_OPD.Opacity = 0.2;
             }
         }
 

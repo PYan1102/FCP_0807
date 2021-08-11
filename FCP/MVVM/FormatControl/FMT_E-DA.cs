@@ -157,6 +157,16 @@ namespace FCP
             throw new NotImplementedException();
         }
 
+        public override bool ProcessCare()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool LogicCare()
+        {
+            throw new NotImplementedException();
+        }
+
         public class Data
         {
             public string PrescriptionNo { get; set; }

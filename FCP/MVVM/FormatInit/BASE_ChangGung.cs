@@ -15,9 +15,9 @@ namespace FCP.MVVM.FormatInit
 
         }
 
-        public override void Loaded()
+        public override void Init()
         {
-            base.Loaded();
+            base.Init();
             MainWindow.Tgl_OPD1.IsChecked = true;
             MainWindow.Tgl_OPD2.IsChecked = true;
         }
@@ -47,10 +47,24 @@ namespace FCP.MVVM.FormatInit
             base.CloseSelf();
         }
 
-        public override void ConvertPrepare(int Mode)
+        public override void ConvertPrepare(bool isOPD)
         {
-            base.ConvertPrepare(Mode);
-            if (Mode == (int)ModeEnum.OPD)
+            if (isOPD)
+            {
+                if (WD._OPD1)
+                    SetOPD("S");
+                if (WD._OPD2)
+                    SetOther("0");
+            }
+            else
+            {
+                if (WD._isStat)
+                    SetUDStat("6");
+                else
+                    SetUDBatch("udpkg");
+            }
+            base.ConvertPrepare(isOPD);
+            if (isOPD)
             {
                 string Filter = base.WD._OPD1 ? "S|" : "";
                 Filter += base.WD._OPD2 ? "0" : "";
@@ -60,7 +74,6 @@ namespace FCP.MVVM.FormatInit
                 Loop_UD(0, 1, "6");
             else
                 Loop_UD(0, 5, "udpkg");
-
         }
 
         public override void Loop_OPD(int Start, int Length, string Content)
@@ -87,7 +100,7 @@ namespace FCP.MVVM.FormatInit
             base.SetConvertInformation();
             CG = CG ?? new FMT_ChangGung();
             var result = CG.MethodShunt();
-            Result(result, true, true);
+            Result(result, false, true);
             MoveFile(result.Result);
         }
 

@@ -17,7 +17,7 @@ namespace FCP.MVVM.FormatInit
 
         }
 
-        public override void Loaded()
+        public override void Init()
         {
             MainWindow.Tgl_OPD1.IsChecked = true;
             MainWindow.Tgl_OPD2.IsChecked = true;
@@ -49,20 +49,19 @@ namespace FCP.MVVM.FormatInit
             base.CloseSelf();
         }
 
-        public override void ConvertPrepare(int Mode)
+        public override void ConvertPrepare(bool isOPD)
         {
-            base.ConvertPrepare(Mode);
-            switch(Mode)
+            base.ConvertPrepare(isOPD);
+            if (isOPD)
             {
-                case (int)ModeEnum.OPD:
-                    string Filter = WD._OPD1 ? "N|" : "";
-                    Filter += WD._OPD2 ? "E|" : "";
-                    Filter += WD._OPD3 ? "K" : "";
-                    Loop_OPD(0, 1, Filter);
-                    break;
-                case (int)ModeEnum.UD:
-                    Loop_UD(0, 0, "");
-                    break;
+                string Filter = WD._OPD1 ? "N|" : "";
+                Filter += WD._OPD2 ? "E|" : "";
+                Filter += WD._OPD3 ? "K" : "";
+                Loop_OPD(0, 1, Filter);
+            }
+            else
+            {
+                Loop_UD(0, 0, "");
             }
         }
 

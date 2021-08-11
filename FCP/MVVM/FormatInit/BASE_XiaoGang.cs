@@ -32,9 +32,9 @@ namespace FCP.MVVM.FormatInit
 
         }
 
-        public override void Loaded()
+        public override void Init()
         {
-            base.Loaded();
+            base.Init();
             MainWindow.Tgl_OPD1.IsChecked = true;
             MainWindow.Tgl_OPD2.IsChecked = true;
             MainWindow.Tgl_OPD3.IsChecked = true;
@@ -69,9 +69,9 @@ namespace FCP.MVVM.FormatInit
             base.CloseSelf();
         }
 
-        public override void ConvertPrepare(int Mode)
+        public override void ConvertPrepare(bool isOPD)
         {
-            if (Mode == (int)ModeEnum.OPD)
+            if (isOPD)
             {
                 if (base.WD._OPD4)
                     CMD(@"net use P: \\192.168.11.134\Powder_OPD");
@@ -80,8 +80,8 @@ namespace FCP.MVVM.FormatInit
             }
             else
                 CMD(@"net use Z: \\192.168.11.134\udmachine\1");
-            base.ConvertPrepare(Mode);
-            if (Mode == (int)ModeEnum.OPD)
+            base.ConvertPrepare(isOPD);
+            if (isOPD)
                 Loop_OPD_小港();
             else
             {

@@ -10,9 +10,9 @@ namespace FCP.MVVM.FormatInit
 
         }
 
-        public override void Loaded()
+        public override void Init()
         {
-            base.Loaded();
+            base.Init();
             MainWindow.Tgl_OPD1.IsChecked = true;
         }
         public override void AdvancedSettingsShow()
@@ -40,9 +40,9 @@ namespace FCP.MVVM.FormatInit
             base.CloseSelf();
         }
 
-        public override void ConvertPrepare(int Mode)
+        public override void ConvertPrepare(bool isOPD)
         {
-            base.ConvertPrepare(Mode);
+            base.ConvertPrepare(isOPD);
             Loop_OPD(0, 0, "");
         }
 
