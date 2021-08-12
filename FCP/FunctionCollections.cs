@@ -20,7 +20,7 @@ using FCP.MVVM.ViewModels.GetConvertFile;
 
 namespace FCP
 {
-    public abstract class FunctionCollections : FindFile
+    public abstract class FunctionCollections
     {
         public string SQLInfo = "server=.;database=OnCube;user id=sa;password=jvm5822511";
         public string IP1, IP2, IP3, OP = "";
@@ -42,20 +42,43 @@ namespace FCP
         private static string SuccessPath, FailPath;
         protected internal string FilePath, InputPath, OutputPath, CurrentSeconds;
         public int MethodID;
+        public IFindNeedToConvertFile IFindFile { get; set; }
         public MainWindow MainWindow { get; set; }
         private ConvertFileInformtaionModel _ConvertFileInformation { get; set; }
         protected internal DepartmentEnum CurrentDepartment { get; set; }
+        private string _OPD { get; set; }
+        private string _Powder { get; set; }
+        private string _UDBatch { get; set; }
+        private string _UDStat { get; set; }
+        private string _Other { get; set; }
+        private string _Care { get; set; }
 
         public FunctionCollections()
         {
             _Settings = SettingsFactory.GenerateSettingsControl();
             SettingsModel = SettingsFactory.GenerateSettingsModels();
-            _ConvertFileInformation = ConvertInformationFactory.GenerateConvertFileInformation();
+            _ConvertFileInformation = ConvertInfoactory.GenerateConvertFileInformation();
         }
 
         public void SetWindow(MainWindow mainWindow)
         {
             MainWindow = mainWindow;
+        }
+
+        public virtual void SetFindFileMode(FindFileModeEnum mode)
+        {
+            switch(mode)
+            {
+                case FindFileModeEnum.根據檔名開頭:
+                    IFindFile = new FindFileAccordingToStartWith();
+                    break;
+                case FindFileModeEnum.根據輸入路徑:
+                    IFindFile = new FindFileAccordingToInputPath();
+                    break;
+                case FindFileModeEnum.根據檔案內容:
+                    IFindFile = new FindFileAccordingToFileContent();
+                    break;
+            }
         }
 
         public enum ModeEnum
@@ -158,7 +181,7 @@ namespace FCP
                 Properties.Settings.Default.Y = WD.Y;
                 Properties.Settings.Default.Save();
 
-                _Settings.SaveMainWidow(WD.IP1, WD.IP2, WD.IP3, WD.OP, WD._AutoStart, WD._isStat ? "S" : "B");
+                _Settings.SaveMainWidow(WD.IP1, WD.IP2, WD.IP3, WD.OP, WD._AutoStart, WD._IsStat ? "S" : "B");
                 ProgressBoxAdd("儲存成功");
             }
             catch (Exception ex)
@@ -195,7 +218,32 @@ namespace FCP
             WD.AllWindowShowOrHide(null, null, false);
             cts = null;
             cts = new CancellationTokenSource();
-            ResetDictionary();
+            IFindFile.ResetDictionary();
+        }
+
+        public void SetOPDRule(string rule)
+        {
+            _OPD = rule;
+        }
+        public void SetPowderRule(string rule)
+        {
+            _Powder = rule;
+        }
+        public void SetUDBatchRule(string rule)
+        {
+            _UDBatch = rule;
+        }
+        public void SetUDStatRule(string rule)
+        {
+            _UDStat = rule;
+        }
+        public void SetOtherRule(string rule)
+        {
+            _Other = rule;
+        }
+        public void SetCareRule(string rule)
+        {
+            _Care = rule;
         }
 
         public void ReSet(bool isOPD)
@@ -203,33 +251,33 @@ namespace FCP
             if (isOPD)
             {
                 if (WD._OPD1)
-                    SetOPDIntoDictionary();
+                    IFindFile.SetOPD(_OPD);
                 if (WD._OPD2)
-                    SetPowderIntoDictionary();
+                    IFindFile.SetPowder(_Powder);
                 if (WD._OPD3)
-                    SetCareIntoDictionary();
+                    IFindFile.SetOther(_Other);
                 if (WD._OPD4)
-                    SetOtherIntoDictionary();
+                    IFindFile.SetCare(_Care);
             }
             else
             {
-                if (WD._isStat)
-                    SetUDStat("6");
+                if (WD._IsStat)
+                    IFindFile.SetUDStat(_UDStat);
                 else
-                    SetUDBatch("udpkg");
+                    IFindFile.SetUDBatch(_UDBatch);
+
             }
-            Reset(cts, IPList);
+            IFindFile.Reset(cts, IPList);
         }
 
         public virtual void GetFileAsync()
         {
-            Console.WriteLine("開始");
             Task.Run(() =>
             {
                 while (!cts.IsCancellationRequested)
                 {
                     Clear();
-                    Task<FileInformation> fileInformation = Task.Run(() => GetFileNameTaskAsync());
+                    Task<FileInformation> fileInformation = Task.Run(() => IFindFile.GetFilePathTaskAsync());
                     InputPath = fileInformation.Result.InputPath;
                     FilePath = fileInformation.Result.FilePath;
                     CurrentDepartment = fileInformation.Result.Department;
@@ -587,7 +635,7 @@ namespace FCP
         public int X { get { int xPoint = 0; Dispatcher.Invoke(new Action(() => { xPoint = Convert.ToInt32(MainWindow.Txt_X.Text.Trim()); })); return xPoint; } }
         public int Y { get { int yPoint = 0; Dispatcher.Invoke(new Action(() => { yPoint = Convert.ToInt32(MainWindow.Txt_Y.Text.Trim()); })); return yPoint; } }
         public bool _AutoStart { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_AutoStart.IsChecked; })); return B; } }
-        public bool _isStat { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Rdo_Stat.IsChecked; })); return B; } }  //true > Stat, false > Batch
+        public bool _IsStat { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Rdo_Stat.IsChecked; })); return B; } }  //true > Stat, false > Batch
         public bool _OPD1 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD1.IsChecked; })); return B; } }
         public bool _OPD2 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD2.IsChecked; })); return B; } }
         public bool _OPD3 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD3.IsChecked; })); return B; } }

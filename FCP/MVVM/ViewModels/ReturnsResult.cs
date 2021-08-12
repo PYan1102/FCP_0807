@@ -12,7 +12,7 @@ namespace FCP.MVVM.ViewModels
         private ConvertFileInformtaionModel _ConvertFileInformation { get; set; }
         public ReturnsResult()
         {
-            _ConvertFileInformation = ConvertInformationFactory.GenerateConvertFileInformation();
+            _ConvertFileInformation = ConvertInfoactory.GenerateConvertFileInformation();
         }
 
         public void Shunt(ConvertResult result, string message)

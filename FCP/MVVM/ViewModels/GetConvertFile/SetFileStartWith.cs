@@ -7,105 +7,36 @@ using FCP.MVVM.Models.Enum;
 
 namespace FCP.MVVM.ViewModels.GetConvertFile
 {
-    public class SetFileStartWith
+    public class StartWithRules : DefaultRules, ISpecialRules
     {
-        public Dictionary<Parameter, DepartmentEnum> DepartmentDictionary = new Dictionary<Parameter, DepartmentEnum>();
-        private Parameter _OPD { get; set; } = new Parameter();
-        private Parameter _Powder { get; set; } = new Parameter();
-        private Parameter _UDBatch { get; set; } = new Parameter();
-        private Parameter _UDStat { get; set; } = new Parameter();
-        private Parameter _Other { get; set; } = new Parameter();
-        private Parameter _Care { get; set; } = new Parameter();
-        private string _OPDTemp { get; set; }
-        private string _PowderTemp { get; set; }
-        private string _UDBatchTemp { get; set; }
-        private string _UDStatTemp { get; set; }
-        private string _OtherTemp { get; set; }
-        private string _CareTemp { get; set; }
-
-        public SetFileStartWith()
+        public void SetOPD(string rule)
         {
-            DepartmentDictionary.Add(_OPD, DepartmentEnum.OPD);
-            DepartmentDictionary.Add(_Powder, DepartmentEnum.POWDER);
-            DepartmentDictionary.Add(_UDBatch, DepartmentEnum.UDBatch);
-            DepartmentDictionary.Add(_UDStat, DepartmentEnum.UDStat);
-            DepartmentDictionary.Add(_Other, DepartmentEnum.Other);
-            DepartmentDictionary.Add(_Care, DepartmentEnum.Care);
+            OPD = rule;
         }
 
-        protected internal void ResetDictionary()
+        public void SetPowder(string rule)
         {
-            _OPD.StartWith = string.Empty;
-            _Powder.StartWith = string.Empty;
-            _UDBatch.StartWith = string.Empty;
-            _UDStat.StartWith = string.Empty;
-            _Other.StartWith = string.Empty;
-            _Care.StartWith = string.Empty;
+            Powder = rule;
         }
 
-        protected internal void SetOPD(string startWith)
+        public void SetUDBatch(string rule)
         {
-            _OPDTemp = startWith;
+            UDBatch = rule;
         }
 
-        protected internal void SetPowder(string startWith)
+        public void SetUDStat(string rule)
         {
-            _PowderTemp = startWith;
+            UDStat = rule;
         }
 
-        protected internal void SetUDBatch(string startWith)
+        public void SetOther(string rule)
         {
-            _UDBatchTemp = startWith;
+            Other = rule;
         }
 
-        protected internal void SetUDStat(string startWith)
+        public void SetCare(string rule)
         {
-            _UDStatTemp = startWith;
+            Care = rule;
         }
-
-        protected internal void SetOther(string startWith)
-        {
-            _OtherTemp = startWith;
-        }
-
-        protected internal void SetCare(string startWith)
-        {
-            _CareTemp = startWith;
-        }
-
-        protected internal void SetOPDIntoDictionary()
-        {
-            _OPD.StartWith = _OPDTemp;
-        }
-
-        protected internal void SetPowderIntoDictionary()
-        {
-            _Powder.StartWith = _PowderTemp;
-        }
-
-        protected internal void SetUDBatchIntoDictionary()
-        {
-            _UDBatch.StartWith = _UDBatchTemp;
-        }
-
-        protected internal void SetUDStatIntoDictionary()
-        {
-            _UDStat.StartWith = _UDStatTemp;
-        }
-
-        protected internal void SetOtherIntoDictionary()
-        {
-            _Other.StartWith = _OtherTemp;
-        }
-
-        protected internal void SetCareIntoDictionary()
-        {
-            _Care.StartWith = _CareTemp;
-        }
-    }
-
-    public class Parameter
-    {
-        public string StartWith { get; set; } = string.Empty;
     }
 }

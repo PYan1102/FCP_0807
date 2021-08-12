@@ -85,7 +85,7 @@ namespace FCP.MVVM.FormatInit
                 Loop_OPD_小港();
             else
             {
-                if (base.WD._isStat)
+                if (base.WD._IsStat)
                     Loop_UD(0, 1, "O");
                 else
                     Loop_UD(0, 1, "B");
@@ -118,7 +118,7 @@ namespace FCP.MVVM.FormatInit
                                             update PrintFormItem set PrintElementID=743 where printformitem.RawID=120201
                                             update PrintFormItem set PrintFormItemName='PackOrderMedicineRefV - Medicine_ETC14' where printformitem.RawID=120200
                                             update PrintFormItem set PrintElementID=743 where printformitem.RawID=120200");
-            if (base.WD._isStat)
+            if (base.WD._IsStat)
                 Query("update SettingValue set Value='True' where RawID=71");
             else
                 Query("update SettingValue set Value='False' where RawID=71");
@@ -130,7 +130,7 @@ namespace FCP.MVVM.FormatInit
         {
             //MethodID = 2為住院路徑
             //若為住院長期才整合多檔案到一個檔案內，並取得該整合檔案的檔名
-            if (base.MethodID == 2 & !base.WD._isStat)
+            if (base.MethodID == 2 & !base.WD._IsStat)
             {
                 FilesAllInOne();
                 GetBatchFile();
@@ -151,7 +151,7 @@ namespace FCP.MVVM.FormatInit
 
         private void MoveFile(ConvertResult result)
         {
-            if (!WD._isStat)
+            if (!WD._IsStat)
             {
                 switch (result)
                 {

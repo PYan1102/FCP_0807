@@ -92,7 +92,7 @@
     <Compile Include="AdvancedSettings.xaml.cs">
       <DependentUpon>AdvancedSettings.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MVVM\Factory\ConvertInformationFactory.cs" />
+    <Compile Include="MVVM\Factory\ConvertInfoactory.cs" />
     <Compile Include="MVVM\Factory\LogFactory.cs" />
     <Compile Include="MVVM\FormatInit\BASE_ChangGung.cs" />
     <Compile Include="MVVM\FormatInit\BASE_ChangGung_POWDER.cs" />
@@ -130,6 +130,7 @@
     <Compile Include="MVVM\Models\ConvertFileInformationModel.cs" />
     <Compile Include="MVVM\Models\Enum\ConvertResult.cs" />
     <Compile Include="MVVM\Models\Enum\Department.cs" />
+    <Compile Include="MVVM\Models\Enum\FindFileMode.cs" />
     <Compile Include="MVVM\Models\Enum\Format.cs" />
     <Compile Include="MVVM\Models\Enum\PackMode.cs" />
     <Compile Include="MVVM\Models\Enum\DoseMode.cs" />
@@ -139,9 +140,15 @@
     <Compile Include="MVVM\Models\SmallFormModel.cs" />
     <Compile Include="MVVM\Factory\SettingsFactory.cs" />
     <Compile Include="MVVM\ViewModels\AdvancedSettingsViewModel.cs" />
+    <Compile Include="MVVM\ViewModels\GetConvertFile\Compare.cs" />
     <Compile Include="MVVM\ViewModels\GetConvertFile\CompareFileStartWith.cs" />
+    <Compile Include="MVVM\ViewModels\GetConvertFile\DefaultRules.cs" />
     <Compile Include="MVVM\ViewModels\GetConvertFile\FindFile.cs" />
-    <Compile Include="MVVM\ViewModels\GetConvertFile\ICompareFileStartWith.cs" />
+    <Compile Include="MVVM\ViewModels\GetConvertFile\FindFileAccordingToFileContent.cs" />
+    <Compile Include="MVVM\ViewModels\GetConvertFile\FindFileAccordingToInputPath.cs" />
+    <Compile Include="MVVM\ViewModels\GetConvertFile\FindFileAccordingToStartWith.cs" />
+    <Compile Include="MVVM\ViewModels\GetConvertFile\IFindNeedToConvertFile.cs" />
+    <Compile Include="MVVM\ViewModels\GetConvertFile\ISpecialRules.cs" />
     <Compile Include="MVVM\ViewModels\GetConvertFile\SetFileStartWith.cs" />
     <Compile Include="MVVM\ViewModels\Interface\IRetunrsResult.cs" />
     <Compile Include="MVVM\ViewModels\MainWindow\MainWindowViewModel.cs" />

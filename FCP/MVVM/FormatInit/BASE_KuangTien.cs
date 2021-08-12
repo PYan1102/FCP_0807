@@ -75,7 +75,7 @@ namespace FCP.MVVM.FormatInit
                 Loop_OPD(0, 0, "");
             else
             {
-                if (base.WD._isStat)
+                if (base.WD._IsStat)
                     Loop_UD(0, 7, "uds3200");
                 else
                     Loop_UD(0, 7, "uds9100");

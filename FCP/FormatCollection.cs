@@ -90,7 +90,7 @@ namespace FCP
             Settings = SettingsFactory.GenerateSettingsControl();
             SettingsModel = SettingsFactory.GenerateSettingsModels();
             Log = LogFactory.GenerateLog();
-            ConvertFileInformation = ConvertInformationFactory.GenerateConvertFileInformation();
+            ConvertFileInformation = ConvertInfoactory.GenerateConvertFileInformation();
         }
 
         public virtual void Init()

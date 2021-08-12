@@ -20,6 +20,7 @@ namespace FCP.MVVM.FormatInit
             base.Init();
             MainWindow.Tgl_OPD1.IsChecked = true;
             MainWindow.Tgl_OPD4.IsChecked = true;
+            SetFindFileMode(FindFileModeEnum.根據檔名開頭);
         }
 
         public override void AdvancedSettingsShow()
@@ -50,10 +51,7 @@ namespace FCP.MVVM.FormatInit
         public override void ConvertPrepare(bool isOPD)
         {
             base.ConvertPrepare(isOPD);
-            SetOPD("S");
-            SetOther("0");
-            SetUDStat("6");
-            SetUDBatch("udpkg");
+            SetOPDRule("SHKA");
             ReSet(isOPD);
             GetFileAsync();
         }
@@ -74,6 +72,7 @@ namespace FCP.MVVM.FormatInit
                 MergeFilesAndSetFilePath();
             base.SetConvertInformation();
             CG = CG ?? new FMT_ChangGung();
+            Console.WriteLine(CurrentDepartment);
             var result = CG.MethodShunt();
             Result(result, false, true);
             MoveFile(result.Result);
@@ -113,7 +112,7 @@ namespace FCP.MVVM.FormatInit
             {
                 base.FilePath = MergeFiles(Path.GetDirectoryName(base.FilePath), "藥來速", 0, 1, "0");
             }
-            else if (!WD._isStat && CurrentDepartment == DepartmentEnum.UDBatch)
+            else if (!WD._IsStat && CurrentDepartment == DepartmentEnum.UDBatch)
             {
                 base.FilePath = MergeFiles(Path.GetDirectoryName(base.FilePath), "住院批次", 0, 5, "udpkg");
             }

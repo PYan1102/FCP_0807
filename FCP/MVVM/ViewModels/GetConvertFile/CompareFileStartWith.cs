@@ -8,31 +8,28 @@ using FCP.MVVM.Factory.ViewModels;
 
 namespace FCP.MVVM.ViewModels.GetConvertFile
 {
-    public class CompareFileStartWith : SetFileStartWith, ICompareFileStartWith
+    public class CompareFileStartWith : Compare
     {
-        protected internal DepartmentEnum GetDepartment { get => _Department; }
         private DepartmentEnum _Department { get; set; }
-        private Dictionary<Parameter, DepartmentEnum> _DepartmentDictionary { get; set; }
-        private MainWindowModel _MainWindowModel { get; set; }
 
-        public CompareFileStartWith()
+        public override DepartmentEnum GetDepartment()
         {
-            _MainWindowModel = MainWindowFacotry.GenerateMainWindowModel();
+            return _Department;
         }
 
-        public void ResetDeparmnentDictionary()
-        {
-            _DepartmentDictionary = DepartmentDictionary;
-        }
-
-        public bool IsCompare(string fullFilePath)
+        public override bool IsFileCompareSuccess(string fullFilePath)
         {
             string fileName = Path.GetFileNameWithoutExtension(fullFilePath);
-            foreach (var v in _DepartmentDictionary)
+            foreach (var v in DepartmentDictionary)
             {
-                if (v.Key.StartWith == string.Empty)
+                if (v.Key.Rule == nameof(DefaultEnum.Default))
+                {
+                    _Department = v.Value;
+                    return true;
+                }
+                if (v.Key.Rule == string.Empty)
                     continue;
-                if (fileName.StartsWith(v.Key.StartWith))
+                if (fileName.StartsWith(v.Key.Rule))
                 {
                     _Department = v.Value;
                     return true;
