@@ -7,9 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Threading;
-using System.Runtime.InteropServices;
 using System.Windows.Media;
-using System.Data.SqlClient;
 using FCP.MVVM.ViewModels.MainWindow;
 using FCP.MVVM.Factory.ViewModels;
 using FCP.MVVM.Control;
@@ -22,13 +20,11 @@ namespace FCP
 {
     public abstract class FunctionCollections
     {
-        public string SQLInfo = "server=.;database=OnCube;user id=sa;password=jvm5822511";
         public string IP1, IP2, IP3, OP = "";
         public string PackedType;
         public const string FileBackupPath = @"D:\Converter_Backup";
         System.Windows.Forms.NotifyIcon NF = new System.Windows.Forms.NotifyIcon();
         System.Windows.Forms.ContextMenuStrip CM = new System.Windows.Forms.ContextMenuStrip();
-        public Log Log = new Log();
         public SettingsModel SettingsModel { get; set; }
         private Settings _Settings { get; set; }
         public SmallForm SF;
@@ -38,26 +34,30 @@ namespace FCP
         CancellationTokenSource cts;
         CancellationTokenSource cts1;
         List<string> IPList = new List<string>();
-        public WindowsDo WD;
-        private static string SuccessPath, FailPath;
-        protected internal string FilePath, InputPath, OutputPath, CurrentSeconds;
-        public int MethodID;
-        public IFindNeedToConvertFile IFindFile { get; set; }
+        public WindowsDo WD { get; set; }
+        private string SuccessPath { get; set; }
+        private string FailPath { get; set; }
+        public string FilePath { get; set; }
+        public string InputPath { get; set; }
+        public string OutputPath { get; set; }
+        public string CurrentSeconds { get; set; }
+        public FindFile FindFile { get; set; }
         public MainWindow MainWindow { get; set; }
         private ConvertFileInformtaionModel _ConvertFileInformation { get; set; }
         protected internal DepartmentEnum CurrentDepartment { get; set; }
-        private string _OPD { get; set; }
-        private string _Powder { get; set; }
-        private string _UDBatch { get; set; }
-        private string _UDStat { get; set; }
-        private string _Other { get; set; }
-        private string _Care { get; set; }
+        private string _OPD { get; set; } = string.Empty;
+        private string _Powder { get; set; } = string.Empty;
+        private string _UDBatch { get; set; } = string.Empty;
+        private string _UDStat { get; set; } = string.Empty;
+        private string _Care { get; set; } = string.Empty;
+        private string _Other { get; set; } = string.Empty;
 
         public FunctionCollections()
         {
             _Settings = SettingsFactory.GenerateSettingsControl();
             SettingsModel = SettingsFactory.GenerateSettingsModels();
             _ConvertFileInformation = ConvertInfoactory.GenerateConvertFileInformation();
+            FindFile = new FindFile();
         }
 
         public void SetWindow(MainWindow mainWindow)
@@ -65,20 +65,9 @@ namespace FCP
             MainWindow = mainWindow;
         }
 
-        public virtual void SetFindFileMode(FindFileModeEnum mode)
+        public virtual void InitFindFileMode(FindFileModeEnum mode)
         {
-            switch(mode)
-            {
-                case FindFileModeEnum.根據檔名開頭:
-                    IFindFile = new FindFileAccordingToStartWith();
-                    break;
-                case FindFileModeEnum.根據輸入路徑:
-                    IFindFile = new FindFileAccordingToInputPath();
-                    break;
-                case FindFileModeEnum.根據檔案內容:
-                    IFindFile = new FindFileAccordingToFileContent();
-                    break;
-            }
+            FindFile.Init(mode);
         }
 
         public enum ModeEnum
@@ -91,11 +80,10 @@ namespace FCP
         {
             try
             {
-                Log.Check();
                 SF = new SmallForm(MainWindow) { Owner = MainWindow };
-                AS = new AdvancedSettings(MainWindow, Log) { Owner = MainWindow };
+                AS = new AdvancedSettings(MainWindow) { Owner = MainWindow };
                 Msg = new MsgB() { Owner = MainWindow };
-                WD = new WindowsDo() { MainWindow = MainWindow, Msg = Msg, Log = Log, SF = SF, AS = AS };
+                WD = new WindowsDo() { MainWindow = MainWindow, Msg = Msg, SF = SF, AS = AS };
                 CheckProgramStart();
                 CheckFileBackupPath();
                 CreateIcon();
@@ -123,7 +111,7 @@ namespace FCP
         }
 
         //檢查備份資料夾是否存在
-        public static void CheckFileBackupPath()
+        public  void CheckFileBackupPath()
         {
             string BackupPath = $@"{FileBackupPath}\{DateTime.Now:yyyy-MM-dd}";
             if (!Directory.Exists($@"{BackupPath}\Success")) Directory.CreateDirectory($@"{BackupPath}\Success");
@@ -213,71 +201,85 @@ namespace FCP
             WD.SwitchControlEnabled(false);
             NF.Text = "開始";
             IPList.Clear();
-            IPList.Add(WD.IP1);
-            IPList.Add(WD.IP2);
+            if (isOPD)
+            {
+                IPList.Add(WD.IP1);
+                IPList.Add(WD.IP2);
+            }
+            else
+            {
+                IPList.Add(WD.IP3);
+            }
             WD.AllWindowShowOrHide(null, null, false);
             cts = null;
             cts = new CancellationTokenSource();
-            IFindFile.ResetDictionary();
+            FindFile.ResetRuleToEmpty();
         }
 
         public void SetOPDRule(string rule)
         {
             _OPD = rule;
         }
+
         public void SetPowderRule(string rule)
         {
             _Powder = rule;
         }
+
         public void SetUDBatchRule(string rule)
         {
             _UDBatch = rule;
         }
+
         public void SetUDStatRule(string rule)
         {
             _UDStat = rule;
         }
-        public void SetOtherRule(string rule)
-        {
-            _Other = rule;
-        }
+
         public void SetCareRule(string rule)
         {
             _Care = rule;
         }
 
-        public void ReSet(bool isOPD)
+        public void SetOtherRule(string rule)
+        {
+            _Other = rule;
+        }
+
+        public void SetIntoProperty(bool isOPD)
         {
             if (isOPD)
             {
                 if (WD._OPD1)
-                    IFindFile.SetOPD(_OPD);
+                    FindFile.SetOPD(_OPD);
                 if (WD._OPD2)
-                    IFindFile.SetPowder(_Powder);
+                    FindFile.SetPowder(_Powder);
                 if (WD._OPD3)
-                    IFindFile.SetOther(_Other);
+                    FindFile.SetCare(_Care);
                 if (WD._OPD4)
-                    IFindFile.SetCare(_Care);
+                    FindFile.SetOther(_Other);
             }
             else
             {
                 if (WD._IsStat)
-                    IFindFile.SetUDStat(_UDStat);
+                    FindFile.SetUDStat(_UDStat);
                 else
-                    IFindFile.SetUDBatch(_UDBatch);
+                    FindFile.SetUDBatch(_UDBatch);
 
             }
-            IFindFile.Reset(cts, IPList);
+            FindFile.Reset(cts, IPList);
         }
 
         public virtual void GetFileAsync()
         {
+            FindFile.SetDepartmentDictionary();
             Task.Run(() =>
             {
                 while (!cts.IsCancellationRequested)
                 {
                     Clear();
-                    Task<FileInformation> fileInformation = Task.Run(() => IFindFile.GetFilePathTaskAsync());
+                    CheckFileBackupPath();
+                    Task<FileInformation> fileInformation = FindFile.GetFileInfo();
                     InputPath = fileInformation.Result.InputPath;
                     FilePath = fileInformation.Result.FilePath;
                     CurrentDepartment = fileInformation.Result.Department;
@@ -289,7 +291,6 @@ namespace FCP
 
         private void Clear()
         {
-
             InputPath = string.Empty;
             OutputPath = WD.OP;
             FilePath = string.Empty;
@@ -460,7 +461,7 @@ namespace FCP
 
         private void SetConvertValue(int MethodID, string IP, string OP, string File)
         {
-            this.MethodID = MethodID;
+            int MethodID1 = MethodID;
             InputPath = IP;
             OutputPath = OP;
             FilePath = File;
@@ -469,16 +470,11 @@ namespace FCP
         public virtual void SetConvertInformation()
         {
             CurrentSeconds = DateTime.Now.ToString("ss.ffff");
-            _ConvertFileInformation.SetInputPath(InputPath)
+           _ConvertFileInformation.SetInputPath(InputPath)
                 .SetOutputPath(OutputPath)
                 .SetFilePath(FilePath)
                 .SetDepartment(CurrentDepartment)
                 .SetCurrentSeconds(CurrentSeconds);
-        }
-
-        private DepartmentEnum JudgeCurrentDepartment()
-        {
-            return DepartmentEnum.OPD;
         }
 
         public void Result(ReturnsResultFormat returnsResult, bool isMoveFile, bool isReminder)
@@ -532,7 +528,7 @@ namespace FCP
                     NF.ShowBalloonTip(850, "轉檔錯誤", message, System.Windows.Forms.ToolTipIcon.Error);
                     break;
             }
-            //Stop();
+            Stop();
         }
 
         public virtual void ProgressBoxClear()
@@ -576,16 +572,6 @@ namespace FCP
             return p.StandardOutput.ReadToEnd().Split('\n');
         }
 
-        public void Query(string Command)
-        {
-            SqlConnection con = new SqlConnection(SQLInfo);
-            con.Open();
-            SqlCommand com = new SqlCommand(Command, con);
-            com.ExecuteNonQuery();
-            com.Dispose();
-            con.Close();
-        }
-
         public virtual void CloseSelf()
         {
             Stop();
@@ -610,6 +596,7 @@ namespace FCP
             string[] files = Directory.GetFiles($@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\Batch");
             foreach (string s in files)
             {
+                Console.WriteLine(s);
                 File.Move(s, $@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\{folderName}\{Path.GetFileNameWithoutExtension(s)}.{extension}");
             }
             if (SF.Visibility == Visibility.Visible)
@@ -625,7 +612,6 @@ namespace FCP
         private SettingsModel _SettingsModel { get; set; }
         private Settings _Settings { get; set; }
         public MsgB Msg { get; set; }
-        public Log Log { get; set; }
         public AdvancedSettings AS { get; set; }
         public SmallForm SF { get; set; }
         public string IP1 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = MainWindow.Txt_InputPath1.Text; })); return A; } }
@@ -733,7 +719,6 @@ namespace FCP
                     MainWindow.Btn_Minimum.Visibility = _SettingsModel.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
                     MainWindow.Bod_X.Visibility = _SettingsModel.EN_ShowXY ? Visibility.Visible : Visibility.Hidden;
                     MainWindow.Bod_Y.Visibility = _SettingsModel.EN_ShowXY ? Visibility.Visible : Visibility.Hidden;
-                    FunctionCollections.CheckFileBackupPath();
                 }
                 catch (Exception a)
                 {
@@ -931,7 +916,7 @@ namespace FCP
             UI.IP3s = "住院";
             UI.OPD1s = "門診";
             UI.OPD2s = "";
-            UI.OPD3s = "養護";
+            UI.OPD3s = "";
             UI.OPD4s = "";
             UI.IP1b = true;
             UI.IP2b = false;
@@ -939,7 +924,7 @@ namespace FCP
             UI.UDv = Visibility.Visible;
             UI.OPD1v = Visibility.Visible;
             UI.OPD2v = Visibility.Hidden;
-            UI.OPD3v = Visibility.Visible;
+            UI.OPD3v = Visibility.Hidden;
             UI.OPD4v = Visibility.Hidden;
         }
 

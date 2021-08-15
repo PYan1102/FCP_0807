@@ -13,6 +13,7 @@ using FCP.MVVM.Models;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.ViewModels;
 using FCP.MVVM.ViewModels.Interface;
+using FCP.MVVM.SQL;
 
 namespace FCP
 {
@@ -71,10 +72,6 @@ namespace FCP
         public string[][] TimesOfAdminTime_L = new string[24][];  //頻率一天次數
         public Settings Settings { get; set; }
         public SettingsModel SettingsModel { get; set; }
-        public Log Log { get; set; }
-        public OnputType_OnCube OnCube;
-        public OnputType_JVServer jvserver;
-        public GetOnCubeData GOD = new GetOnCubeData();
         public string ErrorContent { get; set; }
         public ConvertFileInformtaionModel ConvertFileInformation { get; set; }
         public string InputPath { get; set; }
@@ -89,7 +86,6 @@ namespace FCP
         {
             Settings = SettingsFactory.GenerateSettingsControl();
             SettingsModel = SettingsFactory.GenerateSettingsModels();
-            Log = LogFactory.GenerateLog();
             ConvertFileInformation = ConvertInfoactory.GenerateConvertFileInformation();
         }
 
@@ -106,7 +102,6 @@ namespace FCP
             SetAdminCode();
             if (SettingsModel.Mode != Format.光田醫院TJVS & SettingsModel.Mode != Format.長庚磨粉TJVS)  //光田磨粉、長庚磨粉
                 GetMedicineCode();
-            Log.Check();
             ClearList();
         }
 
@@ -172,10 +167,16 @@ namespace FCP
                         LogicUDBatch();
                     }
                     break;
-                default:
+                case DepartmentEnum.Other:
                     if (ProcessOther())
                     {
                         LogicOther();
+                    }
+                    break;
+                default:
+                    if (ProcessCare())
+                    {
+                        LogicCare();
                     }
                     break;
             }
@@ -227,7 +228,7 @@ namespace FCP
         }
 
         //計算共有幾筆藥 for JVServer
-        public List<string> JVS_Count(string Info, int Length)
+        public List<string> SeparateString(string Info, int Length)
         {
             List<string> List = new List<string>();
             Byte[] ATemp = Encoding.Default.GetBytes(Info);
@@ -294,24 +295,23 @@ namespace FCP
         }
 
         //判斷使用特定頻率及過濾特定頻率
-        public bool JudgePackedMode(string AdminCode)
+        public bool IsFilterAdminCode(string code)
         {
             if (SettingsModel.PackMode == PackMode.正常)
                 return false;
             if (SettingsModel.PackMode == PackMode.過濾特殊)
             {
-                if (AdminCodeFilter.Contains(AdminCode))
-                    return true;
-                else
-                    return false;
+                return AdminCodeFilter.Contains(code);
             }
             else
             {
-                if (AdminCodeUse.Contains(AdminCode))
-                    return false;
-                else
-                    return true;
+                return !AdminCodeUse.Contains(code);
             }
+        }
+
+        public bool IsFilterMedicine(string code)
+        {
+            return IsExistsMedicineCode(code);
         }
 
         public bool NeedFilterMedicineCode(string Code)
@@ -344,30 +344,109 @@ namespace FCP
             return a;
         }
 
-        public List<string> GetMultiCode(string AdminCode)
+        public List<string> GetMultiAdminCodeTimes(string code)
         {
-            return GOD.Get_Admin_Code_For_Multi(AdminCode);
+            List<string> list = SQLQuery.GetListString($@"SELECT
+	                                                          LEFT(CONVERT(VARCHAR,A.StandardTime,108), 5) AS Time
+                                                          FROM AdminTime A,
+                                                          (
+                                                              SELECT
+	                                                              RawID
+                                                              FROM AdminTime A
+                                                              WHERE A.AdminCode='{code}' AND DeletedYN=0 AND A.UpperAdminTimeID is null
+                                                          ) #tmp
+                                                          WHERE A.UpperAdminTimeID=#tmp.RawID", "Time");
+            var newList = list.Where(x => x.Length != 0).Select(x => x).ToList();
+            return newList;
         }
 
-        public bool CheckMultiCode(string AdminCode)
+        public bool IsExistsMultiAdminCode(string code)
         {
-            return GOD.Is_Admin_Code_For_Multi_Created(AdminCode);
+            int result = SQLQuery.GetFirstOneDataInt($@"SELECT
+	                                                        TOP 1 COUNT(RawID)
+                                                        FROM AdminTime A
+                                                        WHERE A.AdminCode='{code}' AND DeletedYN=0 AND A.UpperAdminTimeID is null");
+
+            return result > 0;
         }
 
-        public bool CheckCombiCode(string AdminCode)
+        public bool IsExistsCombiAdminCode(string code)
         {
-            return GOD.Is_Admin_Code_For_Combi_Created(AdminCode);
+            int result = SQLQuery.GetFirstOneDataInt($@"SELECT
+	                                                        TOP 1 COUNT(RawID)
+                                                        FROM AdminTime A
+                                                        WHERE A.AdminCode='S{code}' AND DeletedYN=0");
+            return result > 0;
         }
 
-        public void GetMedicineCode()
+        public bool IsExistsMultiAndCombiAdminCode(string code)
         {
-            MedicineCodeGiven_L.Clear();
-            MedicineCodeGiven_L = SettingsModel.EN_OnlyCanisterIn ? GOD.Get_Medicine_Code_Only_Got_Canister() : GOD.Get_All_Medicine_Code();
+            return IsExistsMultiAdminCode(code) && IsExistsCombiAdminCode(code);
         }
 
-        public List<string> Get_Medicine_Code_If_Weight_Is_10_Gram()
+        public bool IsExistsMedicineCode(string code)
         {
-            return GOD.Get_Medicine_Code_If_Weight_Is_10_Gram();
+            return SettingsModel.EN_FilterMedicineCode && !GetMedicineCode().Contains(code);
+        }
+
+        private List<string> GetMedicineCode()
+        {
+            List<string> list = SettingsModel.EN_OnlyCanisterIn ? GetMedicineCodeHasCanister() : GetAllMedicineCode();
+            return list;
+        }
+
+        private List<string> GetMedicineCodeHasCanister()
+        {
+            List<string> list = SQLQuery.GetListString(@"SELECT
+                                                             A.Mnemonic + ',' + ISNULL(C.MultiMnemonic, '') AS Mnemonic
+                                                         FROM Item A
+                                                         INNER JOIN InventoryContainer B ON A.DeletedYN = 0 AND A.UseYN = 1 AND B.ContainerID IS NOT NULL AND A.RawID = B.ItemID
+                                                         LEFT OUTER JOIN ItemMultiCode C ON A.RawID = C.ItemID AND C.DeletedYN = 0", "Mnemonic");
+            List<string> newList = new List<string>();
+            foreach (string s in list)
+            {
+                string[] temp = s.Split(',');
+                if (temp[1].Length > 0)
+                    newList.Add(temp[1]);
+                newList.Add(temp[0]);
+            }
+            return newList;
+        }
+
+        private List<string> GetAllMedicineCode()
+        {
+            List<string> list = SQLQuery.GetListString(@"SELECT
+                                                             A.Mnemonic + ',' + ISNULL(B.MultiMnemonic, '') AS Mnemonic
+                                                         FROM Item A
+                                                         LEFT OUTER JOIN ItemMultiCode B ON A.RawID = B.ItemID AND B.DeletedYN = 0
+                                                         WHERE A.DeletedYN = 0 AND A.UseYN = 1", "Mnemonic");
+            List<string> newList = new List<string>();
+            foreach (string s in list)
+            {
+                string[] temp = s.Split(',');
+                if (temp[1].Length > 0)
+                    newList.Add(temp[1]);
+                newList.Add(temp[0]);
+            }
+            return newList;
+        }
+
+        public List<string> GetMedicineCodeWhenWeightIs10g()
+        {
+            List<string> list = SQLQuery.GetListString(@"SELECT
+	                                                         B.Mnemonic + ',' + ISNULL(D.MultiMnemonic, '') AS Mnemonic
+                                                         FROM Medicine A
+                                                         INNER JOIN Item B ON A.RawID=B.RawID AND A.DeletedYN=0 AND A.WeightMedicine=10
+                                                         LEFT OUTER JOIN ItemMultiCode D ON B.RawID=D.ItemID AND D.DeletedYN=0", "Mnemonic");
+            List<string> newList = new List<string>();
+            foreach (string s in list)
+            {
+                string[] temp = s.Split(',');
+                if (temp[1].Length > 0)
+                    newList.Add(temp[1]);
+                newList.Add(temp[0]);
+            }
+            return newList;
         }
 
         public abstract bool ProcessOPD();

@@ -1,5 +1,6 @@
 ﻿using System;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.SQL;
 
 namespace FCP.MVVM.FormatInit
 {
@@ -50,18 +51,18 @@ namespace FCP.MVVM.FormatInit
                 if (SettingsModel.DoseMode == DoseMode.種包)
                 {
                     //沙鹿
-                    //Query(@"update PrintFormItem set DeletedYN=1 where RawID in (120180,120195)");
+                    //SQLQuery.NonQuery(@"update PrintFormItem set DeletedYN=1 where RawID in (120180,120195)");
 
                     //大甲
-                    Query(@"update PrintFormItem set DeletedYN=1 where RawID in (120156,120172)");
+                    SQLQuery.NonQuery(@"update PrintFormItem set DeletedYN=1 where RawID in (120156,120172)");
                 }
                 else
                 {
                     //沙鹿
-                    //Query(@"update PrintFormItem set DeletedYN=0 where RawID in (120180,120195)");
+                    //SQLQuery.NonQuery(@"update PrintFormItem set DeletedYN=0 where RawID in (120180,120195)");
 
                     //大甲
-                    Query(@"update PrintFormItem set DeletedYN=0 where RawID in (120156,120172)");
+                    SQLQuery.NonQuery(@"update PrintFormItem set DeletedYN=0 where RawID in (120156,120172)");
                 }
             }
             else if (SettingsModel.Mode == Format.光田醫院TJVS)  //磨粉

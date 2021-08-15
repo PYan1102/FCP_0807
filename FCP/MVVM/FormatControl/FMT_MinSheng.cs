@@ -48,12 +48,12 @@ namespace FCP
                 List<int> Remove = new List<int>();
                 foreach (var v in MS_OPD)
                 {
-                    if (SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(v.MedicineCode))
+                    if (IsExistsMedicineCode(v.MedicineCode))
                     {
                         Remove.Add(MS_OPD.IndexOf(v));
                         continue;
                     }
-                    if (JudgePackedMode(v.AdminCode))
+                    if (IsFilterAdminCode(v.AdminCode))
                     {
                         Remove.Add(MS_OPD.IndexOf(v));
                         continue;
@@ -68,7 +68,7 @@ namespace FCP
                     //    Remove.Add(MS_OPD.IndexOf(v));
                     //    continue;
                     //}
-                    if (!CheckMultiCode(v.AdminCode))
+                    if (!IsExistsMultiAdminCode(v.AdminCode))
                     {
                         newCount = 0;
                         Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {v.AdminCode}");
@@ -102,19 +102,16 @@ namespace FCP
         {      
             try
             {
-                OnCube = new OnputType_OnCube(Log);
                 bool yn;
                 string FileName = Path.GetFileNameWithoutExtension(FilePath);
                 int Count = MS_OPD.Count;
                 FileNameOutput_S = $@"{OutputPath}\{FileName}_{CurrentSeconds}.txt";
-                yn = OnCube.MinSheng_OPD(FileNameOutput_S, MS_OPD, Type);
+                yn = OP_OnCube.MinSheng_OPD(FileNameOutput_S, MS_OPD, Type);
                 Debug.WriteLine($"總量 {MS_OPD.Count}  耗時 {sw.ElapsedMilliseconds}");
                 if (yn)
                     return true;
                 else
                 {
-                    Log.Prescription(FilePath, MS_OPD.ToList().Select(x => x.PatientName).ToList(), MS_OPD.ToList().Select(x => x.PrescriptionNo).ToList(), MS_OPD.ToList().Select(x => x.MedicineCode).ToList(), MS_OPD.ToList().Select(x => x.MedicineName).ToList(),
-                        MS_OPD.ToList().Select(x => x.AdminCode).ToList(), MS_OPD.ToList().Select(x => x.PerQty).ToList(), MS_OPD.ToList().Select(x => x.SumQty).ToList(), MS_OPD.ToList().Select(x => x.StartDay).ToList());
                     newCount = 0;
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
@@ -138,12 +135,12 @@ namespace FCP
                 List<int> Remove = new List<int>();
                 foreach (var v in MS_UD)
                 {
-                    if (SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(v.MedicineCode))
+                    if (IsExistsMedicineCode(v.MedicineCode))
                     {
                         Remove.Add(MS_UD.IndexOf(v));
                         continue;
                     }
-                    if (JudgePackedMode(v.AdminCode))
+                    if (IsFilterAdminCode(v.AdminCode))
                     {
                         Remove.Add(MS_UD.IndexOf(v));
                         continue;
@@ -171,7 +168,7 @@ namespace FCP
                         Remove.Add(MS_UD.IndexOf(v));
                         continue;
                     }
-                    if (!GOD.Is_Admin_Code_For_Multi_Created(v.AdminCode))
+                    if (!IsExistsMultiAdminCode(v.AdminCode))
                     {
                         newCount = 0;
                         Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {v.AdminCode}");
@@ -204,9 +201,6 @@ namespace FCP
         {
             try
             {
-                //Debug.WriteLine(TotalQuantityDic.First());
-                //Debug.WriteLine($"{MS_UD[0].PrescriptionNo}|{MS_UD[0].MedicineName}{MS_UD[0].StartDay}{MS_UD[0].BeginTime}");
-                OnCube = new OnputType_OnCube(Log);
                 bool yn;
                 string FileName = Path.GetFileNameWithoutExtension(FilePath);
                 int Count = MS_UD.Count;
@@ -224,7 +218,7 @@ namespace FCP
                     CurrentTimes = 0;
                     if (TotalQuantityDic.TryGetValue($"{MS_UD[i].PrescriptionNo}|{MS_UD[i].MedicineName}{MS_UD[i].StartDay}{MS_UD[i].BeginTime}", out decimal TotalQuantity))
                         Times = (int)(TotalQuantity / Convert.ToDecimal(MS_UD[i].PerQty));
-                    AdminTimeList = GOD.Get_Admin_Code_For_Multi(MS_UD[i].AdminCode);
+                    AdminTimeList = GetMultiAdminCodeTimes(MS_UD[i].AdminCode);
                     DateTime.TryParseExact($"{MS_UD[i].StartDay} {MS_UD[i].BeginTime}", "yyMMdd HHmm", null, DateTimeStyles.None, out DateTime StartTime);
                     DateTime DateTemp = StartTime;
                     //Debug.WriteLine($"{MedicineName_L[i]} {AdminTime_L[i]}");
@@ -259,15 +253,12 @@ namespace FCP
                     }
                 }
                 //MS_UD.ToList().ForEach(x => Debug.WriteLine(x.PrescriptionNo));
-                yn = OnCube.MinSheng_UD(DataDic, FileNameOutput_S, MS_UD, Type);
+                yn = OP_OnCube.MinSheng_UD(DataDic, FileNameOutput_S, MS_UD, Type);
                 //Debug.WriteLine($"總量 {MS_UD.Count}  耗時 {sw.ElapsedMilliseconds}");
                 if (yn)
                     return true;
                 else
                 {
-                    List<string> day = new List<string>();
-                    StartDay_L.ForEach(x => day.Add(x));
-                    Log.Prescription(FilePath, PatientName_L, PrescriptionNo_L, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, SumQty_L, day);
                     newCount = 0;
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;

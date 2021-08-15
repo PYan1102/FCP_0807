@@ -9,6 +9,7 @@ using System.Threading;
 using System.Runtime.InteropServices;
 using System.IO;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.SQL;
 
 namespace FCP.MVVM.FormatInit
 {
@@ -94,7 +95,7 @@ namespace FCP.MVVM.FormatInit
 
         public override void Loop_OPD_小港()
         {
-            Query(@"update OCSMapping set ItemStartPosition=1,ItemDataLength=20 where OCSMapping.RawID=20116
+            SQLQuery.NonQuery(@"update OCSMapping set ItemStartPosition=1,ItemDataLength=20 where OCSMapping.RawID=20116
                                             update OCSMapping set ItemDataLength=30 where OCSMapping.RawID=20150
                                             update OCSMapping set ItemStartPosition=872 where OCSMapping.RawID=20150
                                             update OCSMapping set ItemStartPosition=135,ItemDataLength=20 where OCSMapping.RawID=20122
@@ -110,7 +111,7 @@ namespace FCP.MVVM.FormatInit
 
         public override void Loop_UD(int Start, int Length, string Content)
         {
-            Query(@"update OCSMapping set ItemStartPosition=782,ItemDataLength=30 where OCSMapping.RawID=20116
+            SQLQuery.NonQuery(@"update OCSMapping set ItemStartPosition=782,ItemDataLength=30 where OCSMapping.RawID=20116
                                             update OCSMapping set ItemDataLength=20 where OCSMapping.RawID=20150
                                             update OCSMapping set ItemStartPosition=1 where OCSMapping.RawID=20150
                                             update OCSMapping set ItemStartPosition=542,ItemDataLength=20 where OCSMapping.RawID=20122
@@ -119,9 +120,9 @@ namespace FCP.MVVM.FormatInit
                                             update PrintFormItem set PrintFormItemName='PackOrderMedicineRefV - Medicine_ETC14' where printformitem.RawID=120200
                                             update PrintFormItem set PrintElementID=743 where printformitem.RawID=120200");
             if (base.WD._IsStat)
-                Query("update SettingValue set Value='True' where RawID=71");
+                SQLQuery.NonQuery("update SettingValue set Value='True' where RawID=71");
             else
-                Query("update SettingValue set Value='False' where RawID=71");
+                SQLQuery.NonQuery("update SettingValue set Value='False' where RawID=71");
             SwitchOnCubePage();
             base.Loop_UD(Start, Length, Content);
         }
@@ -130,7 +131,7 @@ namespace FCP.MVVM.FormatInit
         {
             //MethodID = 2為住院路徑
             //若為住院長期才整合多檔案到一個檔案內，並取得該整合檔案的檔名
-            if (base.MethodID == 2 & !base.WD._IsStat)
+            if (base.CurrentDepartment == DepartmentEnum.UDBatch & !base.WD._IsStat)
             {
                 FilesAllInOne();
                 GetBatchFile();

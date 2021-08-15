@@ -10,30 +10,21 @@ namespace FCP
 {
     class FMT_FangDing : FormatCollection
     {
-        private List<DetailItems> _DetailItems = new List<DetailItems>();
-
-        public override ReturnsResultFormat MethodShunt()
-        {
-            _DetailItems.Clear();
-            return base.MethodShunt();
-        }
+        private List<FangDingOPD> _OPD = new List<FangDingOPD>();
 
         public override bool ProcessOPD()
         {
             try
             {
-                string fileContent = GetContent;
-                List<string> data = fileContent.Split('\n').Where(x => !string.IsNullOrEmpty(x)).ToList();
-                foreach (string s in data)
+                List<string> list = GetContent.Split('\n').Where(x => !string.IsNullOrEmpty(x)).ToList();
+                foreach (string s in list)
                 {
                     List<string> properties = s.Split('|').Where(x => !string.IsNullOrEmpty(x)).ToList();
                     string adminCode = properties[9];
                     string medicineCode = properties[5];
-                    if (SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(medicineCode))
+                    if (IsExistsMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
                         continue;
-                    if (JudgePackedMode(adminCode))
-                        continue;
-                    if (!GOD.Is_Admin_Code_For_Multi_Created(adminCode))
+                    if (!IsExistsMultiAdminCode(adminCode))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {adminCode}");
                         ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, adminCode);
@@ -42,7 +33,7 @@ namespace FCP
                     int days = Convert.ToInt32(properties[10]);
                     DateTime.TryParseExact(properties[4], "yyyyMMdd", null, DateTimeStyles.None, out DateTime endDate);
                     endDate = endDate.AddDays(days - 1);
-                    _DetailItems.Add(new DetailItems
+                    _OPD.Add(new FangDingOPD
                     {
                         PrescriptionNo = properties[2],
                         PatientName = properties[3],
@@ -56,7 +47,7 @@ namespace FCP
                         SumQty = properties[11],
                     });
                 }
-                if (_DetailItems.Count == 0)
+                if (_OPD.Count == 0)
                 {
                     ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                     return false;
@@ -73,19 +64,18 @@ namespace FCP
 
         public override bool LogicOPD()
         {
-            OnCube = new OnputType_OnCube(Log);
-            string patientName = _DetailItems[0].PatientName;
-            string prescriptionNo = _DetailItems[0].PrescriptionNo;
-            string fileNameOutput = $@"{OutputPath}\{patientName}-{prescriptionNo}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string patientName = _OPD[0].PatientName;
+            string prescriptionNo = _OPD[0].PrescriptionNo;
+            string filePathOutput = $@"{OutputPath}\{patientName}-{prescriptionNo}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
             try
             {
-                OnCube.FangDing(_DetailItems, fileNameOutput);
+                OP_OnCube.FangDing(_OPD, filePathOutput);
                 return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FilePath}  {ex}");
-                ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                ReturnsResult.Shunt(ConvertResult.產生OCS失敗, ex.ToString());
                 return false;
             }
         }
@@ -139,9 +129,15 @@ namespace FCP
         {
             throw new NotImplementedException();
         }
+
+        public override ReturnsResultFormat MethodShunt()
+        {
+            _OPD.Clear();
+            return base.MethodShunt();
+        }
     }
 
-    public class DetailItems
+    internal class FangDingOPD
     {
         public string PrescriptionNo { get; set; }
         public string PatientName { get; set; }
@@ -153,6 +149,5 @@ namespace FCP
         public string AdminCode { get; set; }
         public int Days { get; set; }
         public string SumQty { get; set; }
-
     }
 }

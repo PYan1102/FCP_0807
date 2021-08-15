@@ -88,8 +88,7 @@ namespace FCP
             {
                 bool yn = false;
                 FileNameOutput_S = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
-                jvserver = new OnputType_JVServer(Log);
-                yn = jvserver.ChangGung_POWDER(pow, FileNameOutput_S);
+                yn = OP_JVServer.ChangGung_POWDER(pow, FileNameOutput_S);
                 if (yn)
                     return true;
                 else

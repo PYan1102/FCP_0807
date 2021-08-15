@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.Models;
 
 namespace FCP
 {
     class FMT_JVServer : FormatCollection
     {
-        string Random;
-        List<string> JVServerRandom = new List<string>();
-        List<string> OnCubeRandom = new List<string>();
+        private string _Random { get; set; }
+        private JVServerOPDBasic _Basic { get; set; }
+        private List<JVServerOPD> _OPD = new List<JVServerOPD>();
+        private List<string> _JVServerRandom = new List<string>();
+        private List<string> _OnCubeRandom = new List<string>();
 
         public override bool ProcessOPD()
         {
@@ -23,56 +26,57 @@ namespace FCP
             try
             {
                 ClearList();
-                OnCube = new OnputType_OnCube(Log);
-                string Content = GetContent.Trim();
-                //判斷資料裡是否為JVSERVER的字樣
-                int JVMIndex = Content.IndexOf("|JVPEND||JVMHEAD|");
-                Byte[] ATemp = Encoding.Default.GetBytes(Content.Substring(9, JVMIndex - 9));  //病患基本資料
-                Byte[] BTemp = Encoding.Default.GetBytes(Content.Substring(JVMIndex + 17, Content.Length - 17 - JVMIndex));  //病患藥品資料
+                string content = GetContent.Trim();
+                int jvmPosition = content.IndexOf("|JVPEND||JVMHEAD|");
+                EncodingHelper.SetEncodingBytes(content.Substring(9, jvmPosition - 9));
                 var ecd = Encoding.Default;
-                PatientNo_S = ecd.GetString(ATemp, 1, 15).Trim(); //病歷號
-                PrescriptionNo_S = ecd.GetString(ATemp, 16, 20).Trim(); //處方籤號碼
-                Age_S = ecd.GetString(ATemp, 36, 5).Trim(); //年齡
-                ID_S = ecd.GetString(ATemp, 54, 10).Trim(); //身分證字號
-                BirthDate_S = ecd.GetString(ATemp, 94, 8).Trim(); //生日
-                Random = ecd.GetString(ATemp, 132, 30).Trim(); //額外位置
-                PatientName_S = ecd.GetString(ATemp, 177, 20).Trim(); //病患姓名
+                _Basic.PatientNo = EncodingHelper.GetEncodingString(1, 15);
+                _Basic.PrescriptionNo = EncodingHelper.GetEncodingString(16, 20);
+                _Basic.Age = EncodingHelper.GetEncodingString(36, 5);
+                _Basic.ID = EncodingHelper.GetEncodingString(54, 10);
+                _Basic.BirthDate = EncodingHelper.GetEncodingString(94, 8);
+                _Random = EncodingHelper.GetEncodingString(132, 30);
+                _Basic.PatientName = EncodingHelper.GetEncodingString(177, 20);
+                if (_Basic.PatientName.Contains("?"))
+                    _Basic.PatientName = _Basic.PatientName.Replace("?", " ");
+                _Basic.Gender = EncodingHelper.GetEncodingString(197, 2);
+                _Basic.HospitalName = EncodingHelper.GetEncodingString(229, 40);
+                _Basic.LocationName = EncodingHelper.GetEncodingString(229, 30);
 
-                if (PatientName_S.Contains("?"))
-                    PatientName_S = PatientName_S.Replace("?", " ");
-                Gender_S = ecd.GetString(ATemp, 197, 2).Trim();  //性別
-                HospitalName_S = ecd.GetString(ATemp, 229, 40).Trim();  //醫院名稱
-                Location_S = ecd.GetString(ATemp, 229, 30).Trim(); //醫院位置
-                List<string> Count = JVS_Count(ecd.GetString(BTemp, 0, BTemp.Length), 547);  //計算有多少種藥品資料
-                for (int r = 0; r <= Count.Count - 1; r++)  //將藥品資料放入List<string>
+                EncodingHelper.SetEncodingBytes(content.Substring(jvmPosition + 17, content.Length - 17 - jvmPosition));
+                List<string> list = SeparateString(EncodingHelper.GetEncodingString(0, EncodingHelper.GetBytesLength), 547);  //計算有多少種藥品資料
+                foreach (string s in list)
                 {
-                    Byte[] CTemp = Encoding.Default.GetBytes(Count[r].ToString());
-                    AdminCode_S = ecd.GetString(CTemp, 66, 10).Trim();  //頻率
-                    if (SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(ecd.GetString(CTemp, 1, 15).Trim()))
+                    EncodingHelper.SetEncodingBytes(s);
+                    string adminCode = EncodingHelper.GetEncodingString(66, 10);
+                    string medicineCode = EncodingHelper.GetEncodingString(1, 15);
+                    if (IsExistsMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
                         continue;
-                    if (JudgePackedMode(AdminCode_S))
-                        continue;
-                    if (!GOD.Is_Admin_Code_For_Multi_Created(AdminCode_S))
+                    if (!IsExistsMultiAdminCode(adminCode))
                     {
-                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
-                        ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, AdminCode_S);
+                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {adminCode}");
+                        ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, adminCode);
+                        return false;
                     }
-                    MedicineCode_L.Add(ecd.GetString(CTemp, 1, 15).Trim());  //藥品代碼
-                    MedicineName_L.Add(ecd.GetString(CTemp, 16, 50).Trim());  //藥品名稱
-                    AdminCode_L.Add(ecd.GetString(CTemp, 66, 10).Trim());  //頻率
-                    PerQty_L.Add(ecd.GetString(CTemp, 81, 6).Trim());  //劑量
-                    SumQty_L.Add(ecd.GetString(CTemp, 87, 8).Trim()); //總量
-                    int RandomPosition = 107;  //Random位置
+                    _OPD.Add(new JVServerOPD()
+                    {
+                        MedicineCode = medicineCode,
+                        MedicineName = EncodingHelper.GetEncodingString(16, 50),
+                        AdminCode = adminCode,
+                        PerQty = EncodingHelper.GetEncodingString(81, 6),
+                        SumQty = EncodingHelper.GetEncodingString(87, 8),
+                        StartDay = EncodingHelper.GetEncodingString(509, 6),
+                        EndDay = EncodingHelper.GetEncodingString(529, 6)
+                    });
+                    int randomPosition = 107;  //Random位置
                     for (int x = 0; x <= 9; x++)  //Random
                     {
-                        string randomcache = ecd.GetString(CTemp, RandomPosition, 30).Trim();  //符合OnCube輸出
-                        JVServerRandom.Add(randomcache);
-                        RandomPosition += 40;
+                        string randomTemp = EncodingHelper.GetEncodingString(randomPosition, 30);  //符合OnCube輸出
+                        _JVServerRandom.Add(randomTemp);
+                        randomPosition += 40;
                     }
-                    StartDay_L.Add(ecd.GetString(CTemp, 509, 6).Trim());  //開始日期
-                    EndDay_L.Add(ecd.GetString(CTemp, 529, 6).Trim()); //結束日期
                 }
-                if (AdminCode_L.Count == 0)
+                if (_OPD.Count == 0)
                 {
                     ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                     return false;
@@ -89,49 +93,35 @@ namespace FCP
 
         public override bool LogicOPD()
         {
+            for (int x = 0; x <= 14; x++)
+                _OnCubeRandom.Add("");
+            if (!string.IsNullOrEmpty(SettingsModel.ExtraRandom))  //將JVServer的Random放入OnCube的Radnom
+            {
+                int head;
+                int middle;
+                string[] randomList = SettingsModel.ExtraRandom.Split(',');
+                foreach (string s in randomList)
+                {
+                    if (!string.IsNullOrEmpty(s))
+                    {
+                        head = s.IndexOf(':');
+                        middle = s.IndexOf("&");
+                        _OnCubeRandom[Int32.Parse(s.Substring(middle + 1, s.Length - middle - 1)) - 1] = _JVServerRandom[Int32.Parse(s.Substring(head + 1, middle - head - 1))];
+                    }
+                }
+            }
+            string filePathOutput = $@"{OutputPath}\{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            DateTime.TryParseExact(_Basic.BirthDate, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime date);  //生日
+            _Basic.BirthDate = date.ToString("yyyy-MM-dd");
             try
             {
-                for (int x = 0; x <= 14; x++)
-                    OnCubeRandom.Add("");
-                if (!string.IsNullOrEmpty(SettingsModel.ExtraRandom))  //將JVServer的Random放入OnCube的Radnom
-                {
-                    int head;
-                    int middle;
-                    string[] randomlist = SettingsModel.ExtraRandom.Split(',');
-                    foreach (string s in randomlist)
-                    {
-                        if (!string.IsNullOrEmpty(s))
-                        {
-                            head = s.IndexOf(':');
-                            middle = s.IndexOf("&");
-                            OnCubeRandom[Int32.Parse(s.Substring(middle + 1, s.Length - middle - 1)) - 1] = JVServerRandom[Int32.Parse(s.Substring(head + 1, middle - head - 1))];
-                        }
-                    }
-                }
-                bool yn;
-                string FileNameOutputCount = $@"{OutputPath}\{PatientName_S.Trim()}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
-                DateTime.TryParseExact(BirthDate_S, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime _date);  //生日
-                string Birthdaynew = _date.ToString("yyyy-MM-dd");
-                yn = OnCube.JVS(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L, FileNameOutputCount, OnCubeRandom,
-                        PatientName_S, PatientNo_S, HospitalName_S, Location_S, PrescriptionNo_S, Birthdaynew, Gender_S, Random);
-                if (yn)
-                    return true;
-                else
-                {
-                    List<string> day = new List<string>();
-                    for (int x = 0; x <= StartDay_L.Count - 1; x++)
-                    {
-                        day.Add(StartDay_L[x] + "~" + EndDay_L[x]);
-                    }
-                    Log.Prescription(FilePath, PatientName_S, PrescriptionNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
-                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
-                    return false;
-                }
+                OP_OnCube.JVServer(_OPD, _Basic, _OnCubeRandom, _Random, filePathOutput);
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FilePath}  {ex}");
-                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                ReturnsResult.Shunt(ConvertResult.產生OCS失敗, ex.ToString());
                 return false;
             }
         }
@@ -175,11 +165,6 @@ namespace FCP
         {
             throw new NotImplementedException();
         }
-        private void ClearList()
-        {
-            JVServerRandom.Clear();
-            OnCubeRandom.Clear();
-        }
 
         public override bool ProcessCare()
         {
@@ -190,5 +175,44 @@ namespace FCP
         {
             throw new NotImplementedException();
         }
+        private void ClearList()
+        {
+            _JVServerRandom.Clear();
+            _OnCubeRandom.Clear();
+        }
+
+        public override ReturnsResultFormat MethodShunt()
+        {
+            _Basic = null;
+            _Basic = new JVServerOPDBasic();
+            _OPD.Clear();
+            return base.MethodShunt();
+        }
+    }
+
+    internal class JVServerOPDBasic
+    {
+        public string PatientName { get; set; }
+        public string PatientNo { get; set; }
+        public string PrescriptionNo { get; set; }
+        public string Age { get; set; }
+        public string ID { get; set; }
+        public string Gender { get; set; }
+        public string BirthDate { get; set; }
+        public string LocationName { get; set; }
+        public string HospitalName { get; set; }
+    }
+
+    internal class JVServerOPD
+    {
+        public string MedicineCode { get; set; }
+        public string MedicineName { get; set; }
+        public string PerQty { get; set; }
+        public string AdminCode { get; set; }
+        public string Days { get; set; }
+        public string SumQty { get; set; }
+        public string BedNo { get; set; }
+        public string StartDay { get; set; }
+        public string EndDay { get; set; }
     }
 }

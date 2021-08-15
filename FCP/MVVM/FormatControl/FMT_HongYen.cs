@@ -5,91 +5,63 @@ using System.Text;
 using System.IO;
 using System.Data;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.Models;
 
 namespace FCP
 {
     class FMT_HongYen : FormatCollection
     {
-        string Random;
-        bool isTwo = false;
-        bool isSpace = false;
-        int Position = 0;
-        bool _IsSkip = false;
+        private HongYenOPDBasic _Basic { get; set; }
+        private List<HongYenOPD> _OPD = new List<HongYenOPD>();
 
         public override bool ProcessOPD()
         {
             try
             {
-                _IsSkip = false;
-                string Content = GetContent;
-                //判斷資料裡是否為JVSERVER的字樣
-                int LabelPosition = Content.IndexOf("|JVPEND||JVMHEAD|");
-                Byte[] Patient = Encoding.Default.GetBytes(Content.Substring(9, LabelPosition - 9));  //病患基本資料
-                Byte[] MedicineData = Encoding.Default.GetBytes(Content.Substring(LabelPosition + 17, Content.Length - 17 - LabelPosition));  //病患藥品資料
-                var ecd = Encoding.Default;
+                string content = GetContent;
+                int jvmPosition = content.IndexOf("|JVPEND||JVMHEAD|");
                 string FileName = Path.GetFileNameWithoutExtension(FilePath);
-                PatientName_S = ecd.GetString(Patient, 177, 20).Trim(); //病患姓名
-                PatientName_S = PatientName_S.Replace('?', ' ');
-                //病患基本資料
-                PatientNo_S = ecd.GetString(Patient, 1, 15).Trim(); //病歷號
-                PrescriptionNo_S = ecd.GetString(Patient, 16, 20).Trim(); //處方籤號碼
-                Age_S = ecd.GetString(Patient, 36, 5).Trim(); //年齡
-                ID_S = ecd.GetString(Patient, 54, 10).Trim(); //身分證字號
-                BirthDate_S = ecd.GetString(Patient, 94, 8).Trim(); //生日
-                Random = ecd.GetString(Patient, 132, 30).Trim(); //額外位置
-                Gender_S = ecd.GetString(Patient, 197, 2).Trim();  //性別
-                HospitalName_S = ecd.GetString(Patient, 229, 40).Trim();  //醫院名稱
-                Location_S = ecd.GetString(Patient, 229, 30).Trim(); //醫院位置
-                DoctorName_S = ecd.GetString(Patient, 269, 20).Trim(); //醫生姓名
+                EncodingHelper.SetEncodingBytes(content.Substring(9, jvmPosition - 9));
+                _Basic.PatientNo = EncodingHelper.GetEncodingString(1, 15);
+                _Basic.PrescriptionNo = EncodingHelper.GetEncodingString(16, 20);
+                _Basic.Age = EncodingHelper.GetEncodingString(36, 5);
+                _Basic.ID = EncodingHelper.GetEncodingString(54, 10);
+                _Basic.BirthDate = EncodingHelper.GetEncodingString(94, 8);
+                _Basic.PatientName = EncodingHelper.GetEncodingString(177, 20).Replace("?", " ");
+                _Basic.Gender = EncodingHelper.GetEncodingString(197, 2);
+                _Basic.HospitalName = EncodingHelper.GetEncodingString(229, 40);
+                _Basic.LocationName = EncodingHelper.GetEncodingString(229, 30);
 
-                //計算有多少種藥品資料
-                List<string> MedicineCount = JVS_Count(ecd.GetString(MedicineData, 0, MedicineData.Length), 547);
-                isTwo = false;
-                isSpace = false;
-                Position = 0;
-                int x = 0;
-                for (int r = 0; r <= MedicineCount.Count - 1; r++)
+                EncodingHelper.SetEncodingBytes(content.Substring(jvmPosition + 17, content.Length - 17 - jvmPosition));
+                List<string> list = SeparateString((EncodingHelper.GetEncodingString(0, EncodingHelper.GetBytesLength)), 547);
+                foreach (string s in list)
                 {
-                    Byte[] Medicine = Encoding.Default.GetBytes(MedicineCount[r].ToString());
-                    AdminCode_S = ecd.GetString(Medicine, 66, 10).Trim();  //頻率
-                    if (ecd.GetString(Medicine, 16, 50).Trim() == "磨粉.")
+                    EncodingHelper.SetEncodingBytes(s);
+                    string adminCode = EncodingHelper.GetEncodingString(66, 10);
+                    string medicineCode = EncodingHelper.GetEncodingString(1, 15);
+                    string medicineName = EncodingHelper.GetEncodingString(16, 50);
+                    if (medicineName == "磨粉.")
                     {
-                        _IsSkip = true;
                         ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                         return false;
                     }
-                    if (ecd.GetString(Medicine, 1, 15).Trim() == "")
+                    if (IsExistsMedicineCode(medicineCode))
+                        continue;
+                    if (IsFilterAdminCode(adminCode) & medicineCode.Length == 0)
+                        continue;
+                    _OPD.Add(new HongYenOPD()
                     {
-                        isSpace = true;
-                        continue;
-                    }
-                    if (SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(ecd.GetString(Medicine, 1, 15).Trim()))
-                        continue;
-                    if (JudgePackedMode(AdminCode_S) & ecd.GetString(Medicine, 1, 15).Trim() != "")
-                        continue;
-                    if (isSpace & Position == 0 & !isTwo)
-                    {
-                        isTwo = true;
-                        Position = x;
-                    }
-                    x++;
-                    MedicineCode_L.Add(ecd.GetString(Medicine, 1, 15).Trim());  //藥品代碼
-                    MedicineName_L.Add(ecd.GetString(Medicine, 16, 50).Trim());  //藥品名稱
-                    AdminCode_L.Add(ecd.GetString(Medicine, 66, 10).Trim());  //頻率
-                    Days_L.Add(ecd.GetString(Medicine, 76, 3).Trim());
-                    PerQty_L.Add(ecd.GetString(Medicine, 81, 6).Trim());  //劑量
-                    SumQty_L.Add(ecd.GetString(Medicine, 87, 8).Trim()); //總量
-                    StartDay_L.Add(ecd.GetString(Medicine, 509, 6).Trim());  //開始日期
-                    EndDay_L.Add(ecd.GetString(Medicine, 529, 6).Trim()); //結束日期
-                    //string ChangeDays = ecd.GetString(Medicine, 106, 20).Trim();
-                    //if (ChangeDays != "1" & ChangeDays != "0" & Int32.TryParse(ChangeDays, out int i))
-                    //{
-                    //    DateTime.TryParseExact(ecd.GetString(Medicine, 509, 6), "yyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime A);
-                    //    A = A.AddDays(Convert.ToInt32(ecd.GetString(Medicine, 106, 20).Trim()) - 1);
-                    //    EndDay_L[x - 1] = A.ToString("yyMMdd");
-                    //}
+                        MedicineCode = medicineCode,
+                        MedicineName = medicineName,
+                        AdminCode = adminCode,
+                        Days = EncodingHelper.GetEncodingString(76, 3),
+                        PerQty = EncodingHelper.GetEncodingString(81, 6),
+                        SumQty = EncodingHelper.GetEncodingString(87, 8),
+                        StartDay = EncodingHelper.GetEncodingString(509, 6),
+                        EndDay = EncodingHelper.GetEncodingString(529, 6)
+                    });
                 }
-                if (_IsSkip || AdminCode_L.Count == 0)
+                if (_OPD.Count == 0)
                 {
                     ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                     return false;
@@ -108,95 +80,64 @@ namespace FCP
         {
             try
             {
-                bool yn;
-                string FileName = Path.GetFileNameWithoutExtension(FilePath);
                 List<int> order = new List<int>();
                 List<string> FileNameOutputCount = new List<string>();
                 List<string> OnCubeRandom = new List<string>();
-                List<int> UP = new List<int>();
-                List<int> DOWN = new List<int>();
+                List<int> up = new List<int>();
+                List<int> downList = new List<int>();
+                List<HongYenOPD> OPDUp = new List<HongYenOPD>();
+                List<HongYenOPD> OPDDown = new List<HongYenOPD>();
+                int spaceIndex = _OPD.Where(x => x.MedicineCode.Length == 0).Select(x => _OPD.IndexOf(x)).First();
+                OPDUp = _OPD.Where(x => _OPD.IndexOf(x) < spaceIndex).ToList();
+                OPDDown = _OPD.Where(x => _OPD.IndexOf(x) >= spaceIndex + 1 & x.MedicineCode.Length > 0).ToList();
 
-                if (Position == 0 & !isTwo)
-                {
-                    for (int x = 0; x <= AdminCode_L.Count - 1; x++)
-                    {
-                        UP.Add(x);
-                    }
-                }
-                else if (Position != 0)
-                {
-                    for (int x = 0; x <= AdminCode_L.Count - 1; x++)
-                    {
-                        if (x < Position)
-                        {
-                            UP.Add(x);
-                        }
-                        else
-                            DOWN.Add(x);
-                    }
-                }
-                else if (Position == 0 & isTwo)
-                {
-                    for (int x = 0; x <= AdminCode_L.Count - 1; x++)
-                        DOWN.Add(x);
-                }
-                List<string> adminCodeTemp = new List<string>();
-                List<string> filterAdminCode = new List<string>();
-                List<string> filterDays = new List<string>();
-                foreach (int i in UP)
-                {
-                    adminCodeTemp.Add(AdminCode_L[i]);
-                }
-                var v = from s in adminCodeTemp
-                        group s by s into g
-                        select new
-                        {
-                            g.Key,
-                            Num = g.Count()
-                        };
-                foreach (var vv in v)
-                {
-                    if (vv.Num >= 2)
-                        filterAdminCode.Add(vv.Key);
-                }
-                List<string> filterDay = new List<string>();
-                foreach (int i in UP)
-                {
-                    if (!filterAdminCode.Contains(AdminCode_L[i]))
-                        continue;
-                    if (filterDay.Contains($"{Days_L[i]}*"))
-                        continue;
-                    else if (filterDay.Contains(Days_L[i]))
-                    {
-                        filterDay[filterDay.IndexOf(Days_L[i])] += "*";
-                    }
-                    else
-                        filterDay.Add(Days_L[i]);
-                }
-                List<string> filterDaylist = filterDay.Where(x => !x.Contains("*")).Select(x => x).ToList();
-                if (filterAdminCode.Count == 0 & DOWN.Count <= 1)
+                var adminCodesCount = from s in OPDUp.Select(x => x.AdminCode)
+                                      group s by s into g
+                                      where g.Count() >= 2
+                                      select new
+                                      {
+                                          g.Key,
+                                          Num = g.Count()
+                                      };
+                OPDUp = OPDUp.Where(x => adminCodesCount.Select(y => y.Key).ToList().Contains(x.AdminCode)).ToList();  //排除頻率重複2以下(不含)的
+
+                var daysCount = from days in OPDUp.Select(x => x.Days)
+                                group days by days into g
+                                where g.Count() >= 2
+                                select new
+                                {
+                                    g.Key,
+                                    Num = g.Count()
+                                };
+                OPDUp = OPDUp.Where(x => daysCount.Select(y => y.Key).ToList().Contains(x.Days)).ToList();  //排除天數重複2以下(不含)的
+
+                if (OPDUp.Count == 0 & OPDDown.Count <= 1)
                 {
                     ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                     return false;
                 }
-                    FileNameOutputCount.Add($@"{OutputPath}\UP-{PatientName_S}-{FileName}_{CurrentSeconds}.txt");
-                FileNameOutputCount.Add($@"{OutputPath}\DOWN-{PatientName_S}-{FileName}_{CurrentSeconds}.txt");
-                DateTime.TryParseExact(BirthDate_S, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime _date);  //生日
-                string Birthdate = _date.ToString("yyyy-MM-dd");
-                OnCube = new OnputType_OnCube(Log);
-                yn = OnCube.HongYen(UP, DOWN, filterDaylist, filterAdminCode, MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L, FileNameOutputCount, OnCubeRandom, Days_L,
-                    PatientName_S, PatientNo_S, HospitalName_S, Location_S, DoctorName_S, PrescriptionNo_S, Birthdate, Gender_S, Random, isTwo, Position);
-                if (yn)
-                    return true;
-                else
+                if (OPDUp.Count == 0 & OPDDown.Count >= 2)
                 {
-                    List<string> day = new List<string>();
-                    for (int x = 0; x <= StartDay_L.Count - 1; x++)
-                    {
-                        day.Add(StartDay_L[x] + "~" + EndDay_L[x]);
-                    }
-                    Log.Prescription(FilePath, PatientName_S, PrescriptionNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
-                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
+                    OPDUp.AddRange(OPDDown);
+                    OPDDown.Clear();
+                }
+                List<string> filePathOutput = new List<string>();
+                filePathOutput.Add($@"{OutputPath}\UP-{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt");
+                if (OPDDown.Count > 1)
+                {
+                    filePathOutput.Add($@"{OutputPath}\DOWN-{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt");
+                }
+                DateTime.TryParseExact(_Basic.BirthDate, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime date);  //生日
+                _Basic.BirthDate = date.ToString("yyyy-MM-dd");
+                try
+                {
+                    OP_OnCube.HongYen(OPDUp, OPDDown, _Basic, filePathOutput);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Log.Write($"{FilePath}  {ex}");
+                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, ex.ToString());
                     return false;
                 }
             }
@@ -257,5 +198,38 @@ namespace FCP
         {
             throw new NotImplementedException();
         }
+
+        public override ReturnsResultFormat MethodShunt()
+        {
+            _Basic = null;
+            _Basic = new HongYenOPDBasic();
+            _OPD.Clear();
+            return base.MethodShunt();
+        }
+    }
+    internal class HongYenOPDBasic
+    {
+        public string PatientName { get; set; }
+        public string PatientNo { get; set; }
+        public string PrescriptionNo { get; set; }
+        public string Age { get; set; }
+        public string ID { get; set; }
+        public string Gender { get; set; }
+        public string BirthDate { get; set; }
+        public string LocationName { get; set; }
+        public string HospitalName { get; set; }
+    }
+
+    internal class HongYenOPD
+    {
+        public string MedicineCode { get; set; }
+        public string MedicineName { get; set; }
+        public string PerQty { get; set; }
+        public string AdminCode { get; set; }
+        public string Days { get; set; }
+        public string SumQty { get; set; }
+        public string BedNo { get; set; }
+        public string StartDay { get; set; }
+        public string EndDay { get; set; }
     }
 }

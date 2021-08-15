@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.Models;
 
 namespace FCP
 {
     class FMT_TaipeiDetention : FormatCollection
     {
-        string Random;
-        List<string> PutBackAdminCode = new List<string>() { "Q4H", "Q6H", "Q8H", "Q12H", "QDPRN", "QIDPRN", "PRN", "BIDPRN", "TIDPRN", "HSPRN" };
+        private TaipeiDetentionOPDBasic _Basic { get; set; }
+        private List<TaipeiDetentionOPD> _OPD = new List<TaipeiDetentionOPD>();
 
         public override bool ProcessOPD()
         {
@@ -22,54 +23,49 @@ namespace FCP
             }
             try
             {
-                OnCube = new OnputType_OnCube(Log);
-                string Content = GetContent.Trim();
-                //判斷資料裡是否為JVSERVER的字樣
-                int JVMIndex = Content.IndexOf("|JVPEND||JVMHEAD|");
-                Byte[] ATemp = Encoding.Default.GetBytes(Content.Substring(9, JVMIndex - 9));  //病患基本資料
-                Byte[] BTemp = Encoding.Default.GetBytes(Content.Substring(JVMIndex + 17, Content.Length - 17 - JVMIndex));  //病患藥品資料
+                string content = GetContent.Trim();
+                int jvmPosition = content.IndexOf("|JVPEND||JVMHEAD|");
+                EncodingHelper.SetEncodingBytes(content.Substring(9, jvmPosition - 9));
                 var ecd = Encoding.Default;
-                PatientNo_S = ecd.GetString(ATemp, 1, 15).Trim(); //病歷號
-                PrescriptionNo_S = ecd.GetString(ATemp, 16, 20).Trim(); //處方籤號碼
-                Age_S = ecd.GetString(ATemp, 36, 5).Trim(); //年齡
-                ID_S = ecd.GetString(ATemp, 54, 10).Trim(); //身分證字號
-                BirthDate_S = ecd.GetString(ATemp, 94, 8).Trim(); //生日
-                Random = ecd.GetString(ATemp, 132, 30).Trim(); //額外位置
-                PatientName_S = ecd.GetString(ATemp, 177, 20).Trim(); //病患姓名
+                _Basic.PatientNo = EncodingHelper.GetEncodingString(1, 15);
+                _Basic.PrescriptionNo = EncodingHelper.GetEncodingString(16, 20);
+                _Basic.Age = EncodingHelper.GetEncodingString(36, 5);
+                _Basic.ID = EncodingHelper.GetEncodingString(54, 10);
+                _Basic.BirthDate = EncodingHelper.GetEncodingString(94, 8);
+                _Basic.Class = EncodingHelper.GetEncodingString(132, 30);
+                _Basic.PatientName = EncodingHelper.GetEncodingString(177, 20);
+                if (_Basic.PatientName.Contains("?"))
+                    _Basic.PatientName = _Basic.PatientName.Replace("?", " ");
+                _Basic.Gender = EncodingHelper.GetEncodingString(197, 2);
+                _Basic.HospitalName = EncodingHelper.GetEncodingString(229, 40);
+                _Basic.LocationName = EncodingHelper.GetEncodingString(229, 30);
 
-                if (PatientName_S.Contains("?"))
-                    PatientName_S = PatientName_S.Replace("?", " ");
-                Gender_S = ecd.GetString(ATemp, 197, 2).Trim();  //性別
-                HospitalName_S = ecd.GetString(ATemp, 229, 40).Trim();  //醫院名稱
-                Location_S = ecd.GetString(ATemp, 229, 30).Trim(); //醫院位置
-                List<string> Count = JVS_Count(ecd.GetString(BTemp, 0, BTemp.Length), 106);  //計算有多少種藥品資料
-                for (int r = 0; r <= Count.Count - 1; r++)  //將藥品資料放入List<string>
+                EncodingHelper.SetEncodingBytes(content.Substring(jvmPosition + 17, content.Length - 17 - jvmPosition));
+                List<string> list = SeparateString(EncodingHelper.GetEncodingString(0, EncodingHelper.GetBytesLength), 106);  //計算有多少種藥品資料
+                foreach(string s in list)  //將藥品資料放入List<string>
                 {
-                    Byte[] CTemp = Encoding.Default.GetBytes(Count[r].ToString());
-                    string[] AdminCodeTemp = ecd.GetString(CTemp, 66, 10).Trim().Split(' ');
-                    AdminCode_S = "";
-                    AdminCodeTemp.ToList().ForEach(x => AdminCode_S += x);
-                    AdminCode_S = AdminCode_S.ToUpper();
-                    if (NeedFilterMedicineCode(ecd.GetString(CTemp, 1, 15).Trim()))
+                    EncodingHelper.SetEncodingBytes(s);
+                    string adminCode = EncodingHelper.GetEncodingString(66, 10).Trim().Replace(" ", "").ToUpper();
+                    string medicineCode = EncodingHelper.GetEncodingString(1, 15);
+                    if (NeedFilterMedicineCode(medicineCode) || IsExistsMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
                         continue;
-                    if (SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(ecd.GetString(CTemp, 1, 15).Trim()))
-                        continue;
-                    if (JudgePackedMode(AdminCode_S))
-                        continue;
-                    if (!GOD.Is_Admin_Code_For_Multi_Created(AdminCode_S))
+                    if (!IsExistsMultiAdminCode(adminCode))
                     {
-                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
-                        ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, AdminCode_S);
+                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {adminCode}");
+                        ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, adminCode);
                         return false;
                     }
-                    MedicineCode_L.Add(ecd.GetString(CTemp, 1, 15).Trim());  //藥品代碼
-                    MedicineName_L.Add(ecd.GetString(CTemp, 16, 50).Trim());  //藥品名稱
-                    AdminCode_L.Add(AdminCode_S);  //頻率
-                    Days_L.Add(ecd.GetString(CTemp, 76, 3).Trim());
-                    PerQty_L.Add(ecd.GetString(CTemp, 81, 6).Trim());  //劑量
-                    SumQty_L.Add(ecd.GetString(CTemp, 87, 8).Trim()); //總量
+                    _OPD.Add(new TaipeiDetentionOPD()
+                    {
+                        MedicineCode = medicineCode,
+                        MedicineName = EncodingHelper.GetEncodingString(16, 50),
+                        AdminCode = adminCode,
+                        Days = EncodingHelper.GetEncodingString(76, 3),
+                        PerQty = EncodingHelper.GetEncodingString(81, 6),
+                        SumQty = EncodingHelper.GetEncodingString(87, 8)
+                    });
                 }
-                if (AdminCode_L.Count == 0)
+                if (_OPD.Count == 0)
                 {
                     ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                     return false;
@@ -86,38 +82,19 @@ namespace FCP
 
         public override bool LogicOPD()
         {
-            if (AdminCode_L.Count == 0)
-            {
-                ReturnsResult.Shunt(ConvertResult.全數過濾, null);
-                return false;
-            }
-                
+            string filePathOutput = $@"{OutputPath}\{_Basic.PatientName}-{_Basic.PatientNo}-{_Basic.Class}_{CurrentSeconds}.txt";
+            DateTime.TryParseExact(_Basic.BirthDate, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime date);  //生日
+            _Basic.BirthDate = date.ToString("yyyy-MM-dd");
+            List<string> PutBackAdminCode = new List<string>() { "Q4H", "Q6H", "Q8H", "Q12H", "QDPRN", "QIDPRN", "PRN", "BIDPRN", "TIDPRN", "HSPRN" };
             try
             {
-                bool yn;
-                string FileNameOutputCount = $@"{OutputPath}\{PatientName_S}-{PatientNo_S}-{Random}_{CurrentSeconds}.txt";
-                DateTime.TryParseExact(BirthDate_S, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime _date);  //生日
-                string Birthdaynew = _date.ToString("yyyy-MM-dd");
-                yn = OnCube.TaipeiDentention(MedicineName_L, MedicineCode_L, AdminCode_L, Days_L, PerQty_L, SumQty_L, FileNameOutputCount,
-                        PatientName_S, PatientNo_S, HospitalName_S, Location_S, PrescriptionNo_S, Birthdaynew, Gender_S, Random, PutBackAdminCode);
-                if (yn)
-                    return true;
-                else
-                {
-                    List<string> day = new List<string>();
-                    for (int x = 0; x <= StartDay_L.Count - 1; x++)
-                    {
-                        day.Add(StartDay_L[x] + "~" + EndDay_L[x]);
-                    }
-                    Log.Prescription(FilePath, PatientName_S, PrescriptionNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
-                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
-                    return false;
-                }
+                OP_OnCube.TaipeiDentention(_OPD, _Basic, filePathOutput, PutBackAdminCode);
+                return true;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Log.Write($"{FilePath}  {ex}");
-                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                Log.Write($"{FilePath} {ex}");
+                ReturnsResult.Shunt(ConvertResult.產生OCS失敗, ex.ToString());
                 return false;
             }
         }
@@ -171,5 +148,37 @@ namespace FCP
         {
             throw new NotImplementedException();
         }
+
+        public override ReturnsResultFormat MethodShunt()
+        {
+            _Basic = null;
+            _Basic = new TaipeiDetentionOPDBasic();
+            _OPD.Clear();
+            return base.MethodShunt();
+        }
+    }
+    internal class TaipeiDetentionOPDBasic
+    {
+        public string PatientName { get; set; }
+        public string PatientNo { get; set; }
+        public string PrescriptionNo { get; set; }
+        public string Class { get; set; }
+        public string Age { get; set; }
+        public string ID { get; set; }
+        public string Gender { get; set; }
+        public string BirthDate { get; set; }
+        public string LocationName { get; set; }
+        public string HospitalName { get; set; }
+    }
+
+    internal class TaipeiDetentionOPD
+    {
+        public string MedicineCode { get; set; }
+        public string MedicineName { get; set; }
+        public string PerQty { get; set; }
+        public string AdminCode { get; set; }
+        public string Days { get; set; }
+        public string SumQty { get; set; }
+        public string BedNo { get; set; }
     }
 }

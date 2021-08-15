@@ -107,7 +107,7 @@ namespace FCP
                 olecon.Dispose();
                 return MS_OPD;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //Debug.WriteLine(ex.ToString());
                 return new ObservableCollection<MinSheng_OPD>();

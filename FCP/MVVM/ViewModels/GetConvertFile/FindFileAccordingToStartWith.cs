@@ -24,7 +24,11 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
         {
             _CTS = cts;
             _InputPathList = list;
-            ResetDepartmentDictionary();
+        }
+
+        public void SetDepartmentDictionary(Dictionary<Parameter, DepartmentEnum> department)
+        {
+            DepartmentDictionary = department;
         }
 
         public async Task<FileInformation> GetFilePathTaskAsync()
@@ -56,71 +60,6 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
             {
                 throw e;
             }
-        }
-
-        public void SetOPD(string rule)
-        {
-            OPD = rule;
-        }
-
-        public void SetPowder(string rule)
-        {
-            Powder = rule;
-        }
-
-        public void SetUDBatch(string rule)
-        {
-            UDBatch = rule;
-        }
-
-        public void SetUDStat(string rule)
-        {
-            UDStat = rule;
-        }
-
-        public void SetOther(string rule)
-        {
-            Other = rule;
-        }
-
-        public void SetCare(string rule)
-        {
-            Care = rule;
-        }
-
-        void IFindNeedToConvertFile.ResetDictionary()
-        {
-            ResetDictionary();
-        }
-
-        public void SetOPDDefault()
-        {
-            OPDDefault();
-        }
-
-        public void SetPowderDefault()
-        {
-            PowderDefault();
-        }
-
-        public void SetUDBatchDefault()
-        {
-            UDBatchDefault();
-        }
-
-        public void SetUDStatDefault()
-        {
-            UDStatDefault();
-        }
-
-        public void SetOtherDefault()
-        {
-            OtherDefault();
-        }
-
-        public void SetCareDefault()
-        {
-            CareDefault();
         }
     }
 }

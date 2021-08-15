@@ -11,14 +11,9 @@ using System.Collections.ObjectModel;
 
 namespace FCP
 {
-    class OnputType_JVServer
+    static class OP_JVServer
     {
-        Log log;
-        public OnputType_JVServer(Log l)
-        {
-            log = l;
-        }
-        public bool KuangTien_磨粉(Dictionary<string, List<string>> Dic, List<string> DicDistinct, string PatientName, string DoctorName, string GetMedicineNumber, string PatientNumber, string Age, string Sex, string Class, string WriteDate,
+        public static bool KuangTien_磨粉(Dictionary<string, List<string>> Dic, List<string> DicDistinct, string PatientName, string DoctorName, string GetMedicineNumber, string PatientNumber, string Age, string Sex, string Class, string WriteDate,
             string FileOutputPath, string EffectiveDate)
         {
             try
@@ -38,37 +33,35 @@ namespace FCP
                             SexCode = 2;
                         sw.Write("|JVPHEAD|");
                         sw.Write("1");
-                        sw.Write(RightSpace(PatientNumber, 15));
-                        sw.Write(RightSpace("", 20));
-                        sw.Write(RightSpace(Age, 5));
+                        sw.Write(PatientNumber.PadRight(15));
+                        sw.Write("".PadRight(20));
+                        sw.Write(Age.PadRight(5));
                         sw.Write(PrescriptionDate.ToString("yyyyMMdd"));
                         sw.Write("00:00");
-                        sw.Write(RightSpace("D123456789", 40));
+                        sw.Write("D123456789".PadRight(40));
                         sw.Write("19970101");
-                        sw.Write(RightSpace(GetMedicineNumber, 30));
-                        sw.Write(RightSpace("", 45));
+                        sw.Write(GetMedicineNumber.PadRight(30));
+                        sw.Write("".PadRight(45));
                         sw.Write(ECD(PatientName, 20));
-                        sw.Write(RightSpace(SexCode.ToString(), 2));
-                        sw.Write(RightSpace(EffectiveDate, 30));
+                        sw.Write(SexCode.ToString().PadRight(2));
+                        sw.Write(EffectiveDate.PadRight(30));
                         sw.Write(ECD("光田醫院", 40));
                         sw.Write(ECD(DoctorName, 20));
-                        sw.Write(RightSpace("", 100));
-                        sw.Write(" ");  //帶藥類別，空白為門診用藥
-                        sw.Write(RightSpace("", 20));
+                        sw.Write("".PadRight(121));
                         sw.Write("M  ");
                         sw.Write("|JVPEND|");
                         sw.Write("|JVMHEAD|");
                         for (int x = 0; x <= Dic[s].Count - 1; x+=8)
                         {
                             sw.Write("T");
-                            sw.Write(RightSpace(Dic[s][x], 15));  //MedicineCode
+                            sw.Write(Dic[s][x].PadRight(15));  //MedicineCode
                             sw.Write(ECD(Dic[s][x + 1], 50));  //MedicineName
-                            sw.Write(RightSpace(Dic[s][x + 3], 10));  //AdminTime
-                            sw.Write(RightSpace(Dic[s][x + 4], 3));  //Days
-                            sw.Write(RightSpace(Dic[s][x + 7], 2));  //TimesPerDay
-                            sw.Write(RightSpace(Dic[s][x + 2], 6));  //Dosage
-                            sw.Write(RightSpace(Dic[s][x + 5], 8));  //TotalQuantiy
-                            sw.Write(RightSpace("", 11));
+                            sw.Write(Dic[s][x + 3].PadRight(10));  //AdminTime
+                            sw.Write(Dic[s][x + 4].PadRight(3));  //Days
+                            sw.Write(Dic[s][x + 7].PadRight(2));  //TimesPerDay
+                            sw.Write(Dic[s][x + 2].PadRight(6));  //Dosage
+                            sw.Write(Dic[s][x + 5].PadRight(8));  //TotalQuantiy
+                            sw.Write("".PadRight(11));
                             sw.Write(PrescriptionDate.ToString("yyyy/MM/dd"));
                             sw.Write("00:00     ");
                             sw.Write(PrescriptionDate.AddDays(Int32.Parse(Dic[s][x + 4]) - 1).ToString("yyyy/MM/dd"));
@@ -81,12 +74,12 @@ namespace FCP
             }
             catch (Exception a)
             {
-                log.Write(a.ToString());
+                Log.Write(a.ToString());
                 return false;
             }
         }
 
-        public bool ChangGung_POWDER(ObservableCollection<FMT_ChangGung_POWDER.POWDER> pow, string FileOutputName)
+        public static bool ChangGung_POWDER(ObservableCollection<FMT_ChangGung_POWDER.POWDER> pow, string FileOutputName)
         {
             try
             {
@@ -124,17 +117,12 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                log.Write(ex.ToString());
+                Log.Write(ex.ToString());
                 return false;
             }
         }
 
-        private string RightSpace(string Content, int Length)
-        {
-            return Content.PadRight(Length, ' ');
-        }
-
-        private string ECD(string data, int Length)  //處理byte
+        private static string ECD(string data, int Length)  //處理byte
         {
             data = data.PadRight(Length, ' ');
             Byte[] Temp = Encoding.Default.GetBytes(data);

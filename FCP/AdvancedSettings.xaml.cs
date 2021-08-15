@@ -1,18 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.IO;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Collections.ObjectModel;
 using FCP.MVVM.Factory;
@@ -38,7 +29,6 @@ namespace FCP
         List<string> FilterSpecialList = new List<string>();
         List<string> UseSpecialList = new List<string>();
         List<string> FilterMedicineCode = new List<string>();
-        Log log;
         SolidColorBrush Yellow = new SolidColorBrush((Color)Color.FromRgb(244, 208, 63));
         SolidColorBrush White = new SolidColorBrush((Color)Color.FromRgb(255, 255, 255));
         SolidColorBrush DeepBlue = new SolidColorBrush((Color)Color.FromRgb(29, 111, 177));
@@ -47,10 +37,9 @@ namespace FCP
             正常 = 0, 使用特殊 = 1, 過濾特殊 = 2
         }
 
-        public AdvancedSettings(MainWindow m, Log l)
+        public AdvancedSettings(MainWindow m)
         {
             InitializeComponent();
-            log = l;
             mw = m;
             _Settings = SettingsFactory.GenerateSettingsControl();
             _SettingsModel = SettingsFactory.GenerateSettingsModels();
@@ -195,10 +184,10 @@ namespace FCP
                 Dg_JVServerRandomSetting.ItemsSource = JVSRclass;
                 Btn_Page1_Click(null, null);
             }
-            catch (Exception a)
+            catch (Exception ex)
             {
-                Msg.Show(a.ToString(), "錯誤", "Error", Msg.Color.Error);
-                log.Write(a.ToString());
+                Msg.Show(ex.ToString(), "錯誤", "Error", Msg.Color.Error);
+                Log.Write(ex.ToString());
             }
         }
 
@@ -307,10 +296,10 @@ namespace FCP
                 }
                 Msg.Show("儲存完成", "成功", "Information", Msg.Color.Information);
             }
-            catch (Exception a)
+            catch (Exception ex)
             {
-                Msg.Show(a.ToString(), "錯誤", "Error", Msg.Color.Error);
-                log.Write(a.ToString());
+                Msg.Show(ex.ToString(), "錯誤", "Error", Msg.Color.Error);
+                Log.Write(ex.ToString());
             }
         }
 
@@ -374,10 +363,10 @@ namespace FCP
                 Txt_PackFunctionAdminTime.Text = "";
                 Txt_PackFunctionAdminTime.Focus();
             }
-            catch (Exception a)
+            catch (Exception ex)
             {
-                Msg.Show(a.ToString(), "錯誤", "Error", Msg.Color.Error);
-                log.Write(a.ToString());
+                Msg.Show(ex.ToString(), "錯誤", "Error", Msg.Color.Error);
+                Log.Write(ex.ToString());
             }
         }
 
@@ -407,10 +396,10 @@ namespace FCP
                 Cbo_PackFunctionAdminTime.Items.Refresh();
                 Cbo_PackFunctionAdminTime.SelectedIndex = 0;
             }
-            catch (Exception a)
+            catch (Exception ex)
             {
-                Msg.Show(a.ToString(), "錯誤", "Error", Msg.Color.Error);
-                log.Write(a.ToString());
+                Msg.Show(ex.ToString(), "錯誤", "Error", Msg.Color.Error);
+                Log.Write(ex.ToString());
             }
         }
 

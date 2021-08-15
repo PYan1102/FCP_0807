@@ -4,16 +4,12 @@ namespace FCP.MVVM.FormatInit
 {
     class BASE_E_DA : FunctionCollections
     {
-        FMT_E_DA EDA;
-
-        public BASE_E_DA()
-        {
-
-        }
+        private FMT_E_DA _EDA { get; set; }
 
         public override void Init()
         {
             base.Init();
+            InitFindFileMode(Models.Enum.FindFileModeEnum.根據檔名開頭);
         }
 
         public override void AdvancedSettingsShow()
@@ -44,25 +40,17 @@ namespace FCP.MVVM.FormatInit
         public override void ConvertPrepare(bool isOPD)
         {
             base.ConvertPrepare(isOPD);
-            Loop_UD(0, 0, "");
-        }
-
-        public override void Loop_OPD(int Start, int Length, string Content)
-        {
-            base.Loop_OPD(Start, Length, Content);
-        }
-
-        public override void Loop_UD(int Start, int Length, string Content)
-        {
-            base.Loop_UD(Start, Length, Content);
+            SetIntoProperty(isOPD);
+            FindFile.SetUDBatchDefault();
+            GetFileAsync();
         }
 
         public override void SetConvertInformation()
         {
             base.SetConvertInformation();
-            if (EDA == null)
-                EDA = new FMT_E_DA();
-            var result = EDA.MethodShunt();
+            if (_EDA == null)
+                _EDA = new FMT_E_DA();
+            var result = _EDA.MethodShunt();
             Result(result, true, true);
         }
 

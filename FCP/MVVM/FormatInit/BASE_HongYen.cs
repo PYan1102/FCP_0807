@@ -1,4 +1,7 @@
 ﻿using System;
+using FCP.MVVM.SQL;
+using FCP.MVVM.Models.Enum;
+
 namespace FCP.MVVM.FormatInit
 {
     class BASE_HongYen : FunctionCollections
@@ -13,6 +16,7 @@ namespace FCP.MVVM.FormatInit
         {
             base.Init();
             MainWindow.Tgl_OPD1.IsChecked = true;
+            InitFindFileMode(FindFileModeEnum.根據檔名開頭);
         }
 
         public override void AdvancedSettingsShow()
@@ -43,18 +47,10 @@ namespace FCP.MVVM.FormatInit
         public override void ConvertPrepare(bool isOPD)
         {
             base.ConvertPrepare(isOPD);
-            Loop_OPD(0, 0, "");
-        }
-
-        public override void Loop_OPD(int Start, int Length, string Content)
-        {
-            Query($"UPDATE Job Set DeletedYN=1 WHERE DeletedYN=0 and LastUpdatedDate between '{DateTime.Now.AddDays(-1):yyyy/MM/dd 00:00:00:000}' and '{DateTime.Now.AddDays(-1):yyyy/MM/dd 23:59:59:999}'");
-            base.Loop_OPD(Start, Length, Content);
-        }
-
-        public override void Loop_UD(int Start, int Length, string Content)
-        {
-            base.Loop_UD(Start, Length, Content);
+            SetIntoProperty(isOPD);
+            FindFile.SetOPDDefault();
+            SQLQuery.NonQuery($"UPDATE Job Set DeletedYN=1 WHERE DeletedYN=0 and LastUpdatedDate between '{DateTime.Now.AddDays(-1):yyyy/MM/dd 00:00:00:000}' and '{DateTime.Now.AddDays(-1):yyyy/MM/dd 23:59:59:999}'");
+            GetFileAsync();
         }
 
         public override void SetConvertInformation()

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
+using FCP.MVVM.Models.Enum;
 
 namespace FCP.MVVM.FormatInit
 {
@@ -20,6 +16,7 @@ namespace FCP.MVVM.FormatInit
         {
             base.Init();
             MainWindow.Tgl_OPD1.IsChecked = true;
+            InitFindFileMode(FindFileModeEnum.根據檔名開頭);
         }
 
         public override void AdvancedSettingsShow()
@@ -50,17 +47,9 @@ namespace FCP.MVVM.FormatInit
         public override void ConvertPrepare(bool isOPD)
         {
             base.ConvertPrepare(isOPD);
-            Loop_OPD(0, 0, "");
-        }
-
-        public override void Loop_OPD(int Start, int Length, string Content)
-        {
-            base.Loop_OPD(Start, Length, Content);
-        }
-
-        public override void Loop_UD(int Start, int Length, string Content)
-        {
-            base.Loop_UD(Start, Length, Content);
+            SetIntoProperty(isOPD);
+            FindFile.SetOPDDefault();
+            GetFileAsync();
         }
 
         public override void SetConvertInformation()

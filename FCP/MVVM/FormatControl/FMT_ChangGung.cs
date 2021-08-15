@@ -39,7 +39,7 @@ namespace FCP
                 foreach (string s in list)
                 {
                     string[] listSplit = s.Split('|');
-                    if (_SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(listSplit[4].Substring(4)))
+                    if (IsExistsMedicineCode(listSplit[4].Substring(4)))
                         continue;
                     _OPD.Add(new OPD
                     {
@@ -73,9 +73,8 @@ namespace FCP
         {
             try
             {
-                OnCube = new OnputType_OnCube(Log);
                 string filePathOutput = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
-                bool result = OnCube.ChangGung_OPD(_OPD, filePathOutput, "門診ONLINE");
+                bool result = OP_OnCube.ChangGung_OPD(_OPD, filePathOutput, "門診ONLINE");
                 if (result)
                     return true;
                 ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
@@ -101,7 +100,7 @@ namespace FCP
                         continue;
                     var ecd = Encoding.Default;
                     byte[] temp = ecd.GetBytes(s);
-                    if (_SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(ecd.GetString(temp, 131, 7)))
+                    if (IsExistsMedicineCode(ecd.GetString(temp, 131, 7)))
                         continue;
                     DateTime.TryParseExact((Convert.ToInt32(ecd.GetString(temp, 37, 8)) + 19110000).ToString(), "yyyyMMdd", null, DateTimeStyles.None, out DateTime startDate);
                     DateTime.TryParseExact(ecd.GetString(temp, 239, 8), "yyyyMMdd", null, DateTimeStyles.None, out DateTime birthDate);
@@ -143,9 +142,8 @@ namespace FCP
         {
             try
             {
-                OnCube = new OnputType_OnCube(Log);
-                string filePathOutput = $@"{OutputPath}\{"住院批次"}_{CurrentSeconds}.txt";
-                bool result = OnCube.ChangGung_UD_Batch(_Batch, filePathOutput, "住院批次");
+                string filePathOutput = $@"{OutputPath}\住院批次_{CurrentSeconds}.txt";
+                bool result = OP_OnCube.ChangGung_UD_Batch(_Batch, filePathOutput, "住院批次");
                 if (result)
                     return true;
                 ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
@@ -188,7 +186,7 @@ namespace FCP
                 foreach (string s in list)
                 {
                     string[] listSplit = s.Split('|');
-                    if (_SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(listSplit[4].Substring(4)))
+                    if (IsExistsMedicineCode(listSplit[4].Substring(4)))
                         continue;
                     _OPD.Add(new OPD
                     {
@@ -221,9 +219,8 @@ namespace FCP
         {
             try
             {
-                OnCube = new OnputType_OnCube(Log);
                 string filePathOutput = $@"{OutputPath}\藥來速_{CurrentSeconds}.txt";
-                bool result = OnCube.ChangGung_Other(_OPD, filePathOutput, "藥來速");
+                bool result = OP_OnCube.ChangGung_Other(_OPD, filePathOutput, "藥來速");
                 if (result)
                     return true;
                 ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);

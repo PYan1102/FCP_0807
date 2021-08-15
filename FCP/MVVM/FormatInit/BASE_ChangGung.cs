@@ -7,20 +7,14 @@ namespace FCP.MVVM.FormatInit
 {
     class BASE_ChangGung : FunctionCollections
     {
-        FMT_ChangGung CG = new FMT_ChangGung();
-        string FullFileName = "";
-
-        public BASE_ChangGung()
-        {
-
-        }
+        private FMT_ChangGung _CG = new FMT_ChangGung();
 
         public override void Init()
         {
             base.Init();
             MainWindow.Tgl_OPD1.IsChecked = true;
             MainWindow.Tgl_OPD4.IsChecked = true;
-            SetFindFileMode(FindFileModeEnum.根據檔名開頭);
+            InitFindFileMode(FindFileModeEnum.根據檔名開頭);
         }
 
         public override void AdvancedSettingsShow()
@@ -51,8 +45,11 @@ namespace FCP.MVVM.FormatInit
         public override void ConvertPrepare(bool isOPD)
         {
             base.ConvertPrepare(isOPD);
-            SetOPDRule("SHKA");
-            ReSet(isOPD);
+            SetOPDRule("S");
+            SetOtherRule("0");
+            SetUDBatchRule("udpkg");
+            SetIntoProperty(isOPD);
+            FindFile.SetUDStatDefault();
             GetFileAsync();
         }
 
@@ -71,16 +68,15 @@ namespace FCP.MVVM.FormatInit
             if (!string.IsNullOrEmpty(FilePath))
                 MergeFilesAndSetFilePath();
             base.SetConvertInformation();
-            CG = CG ?? new FMT_ChangGung();
-            Console.WriteLine(CurrentDepartment);
-            var result = CG.MethodShunt();
-            Result(result, false, true);
+            _CG = _CG ?? new FMT_ChangGung();
+            var result = _CG.MethodShunt();
+            Result(result, true, true);
             MoveFile(result.Result);
         }
 
         private void MoveFile(ConvertResult result)
         {
-            if (CurrentDepartment != DepartmentEnum.UDBatch | CurrentDepartment != DepartmentEnum.Other)
+            if (CurrentDepartment != DepartmentEnum.UDBatch & CurrentDepartment != DepartmentEnum.Other)
                 return;
             switch (result)
             {

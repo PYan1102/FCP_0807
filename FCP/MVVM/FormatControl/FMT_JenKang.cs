@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Collections.ObjectModel;
 using System.IO;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.Models;
@@ -11,61 +10,52 @@ namespace FCP
 {
     class FMT_JenKang : FormatCollection
     {
-        ObservableCollection<Prescription> pre = new ObservableCollection<Prescription>();
+        private List<JenKang> _OPD = new List<JenKang>();
+        private List<JenKang> _UDBatch = new List<JenKang>();
 
         public override bool ProcessOPD()
         {
             try
             {
-                pre.Clear();
-                var ecd = Encoding.Default;
-                string content = GetContent;
-                List<string> contentSplit = content.Split('\n').ToList();
-                List<string> medicineList = Get_Medicine_Code_If_Weight_Is_10_Gram();
-                foreach (string s in contentSplit)
+                List<string> list = GetContent.Trim().Split('\n').ToList();
+                List<string> medicineList = GetMedicineCodeWhenWeightIs10g();
+                foreach (string s in list)
                 {
-                    if (s == "")
-                        continue;
-                    byte[] temp = ecd.GetBytes(s.Trim());
+                    EncodingHelper.SetEncodingBytes(s.Trim());
                     //途徑PO轉為PC
-                    string way = ecd.GetString(temp, 193, 4).Trim().Equals("PO") ? "PC" : ecd.GetString(temp, 193, 4).Trim();
-                    string adminCode = $"S{ecd.GetString(temp, 183, 10).Trim() + way}";
-                    string medicineCode = ecd.GetString(temp, 57, 10).Trim();
-                    //if (SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(medicineCode))
-                    //    continue;
-                    if (!medicineList.Contains(medicineCode))
+                    string way = EncodingHelper.GetEncodingString(193, 4).Replace("PO", "PC");
+                    string adminCode = EncodingHelper.GetEncodingString(183, 10) + way;
+                    string medicineCode = EncodingHelper.GetEncodingString(57, 10);
+                    if (!medicineList.Contains(medicineCode) || IsFilterAdminCode(adminCode))
                         continue;
-                    if (JudgePackedMode(adminCode))
-                        continue;
-                    if (!CheckCombiCode(adminCode))
+                    if (!IsExistsCombiAdminCode(adminCode))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置種包頻率 {adminCode}");
-                        ReturnsResult.Shunt(ConvertResult.沒有種包頻率, AdminCode_S);
+                        ReturnsResult.Shunt(ConvertResult.沒有種包頻率, adminCode);
                         return false;
                     }
-                    string startDateTemp = ecd.GetString(temp, 41, 8).Trim();
-                    DateTime.TryParseExact(startDateTemp, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime startDate);
-                    pre.Add(new Prescription
+                    DateTime.TryParseExact(EncodingHelper.GetEncodingString(41, 8), "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime startDate);
+                    _OPD.Add(new JenKang()
                     {
-                        DrugNo = ecd.GetString(temp, 0, 10).Trim(),
-                        PatientName = ecd.GetString(temp, 11, 20).Trim(),
-                        PrescriptionNo = ecd.GetString(temp, 31, 10).Trim(),
+                        DrugNo = EncodingHelper.GetEncodingString(0, 10),
+                        PatientName = EncodingHelper.GetEncodingString(11, 20),
+                        PrescriptionNo = EncodingHelper.GetEncodingString(31, 10),
                         StartDay = startDate,
                         MedicineCode = medicineCode,
-                        MedicineName = ecd.GetString(temp, 67, 50).Trim(),
-                        PerQty = Convert.ToSingle(ecd.GetString(temp, 167, 10).Trim()).ToString("0.##"),
-                        AdminCode = adminCode,
-                        Days = ecd.GetString(temp, 197, 3).Trim(),
-                        SumQty = ecd.GetString(temp, 200, 10).Trim(),
+                        MedicineName = EncodingHelper.GetEncodingString(67, 50),
+                        PerQty = Convert.ToSingle(EncodingHelper.GetEncodingString(167, 10)).ToString("0.##"),
+                        AdminCode = $"S{adminCode}",
+                        Days = EncodingHelper.GetEncodingString(197, 3),
+                        SumQty = EncodingHelper.GetEncodingString(200, 10),
                         Location = string.Empty
                     });
                     try
                     {
-                        pre[pre.Count - 1]._IsPowder = ecd.GetString(temp, 236, 1) != "";
+                        _OPD[_OPD.Count - 1]._IsPowder = EncodingHelper.GetEncodingString(236, 1) != "";
                     }
-                    catch (Exception) { pre[pre.Count - 1]._IsPowder = false; }
+                    catch (Exception) { _OPD[_OPD.Count - 1]._IsPowder = false; }
                 }
-                if (pre.Count == 0)
+                if (_OPD.Count == 0)
                 {
                     ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                     return false;
@@ -82,30 +72,16 @@ namespace FCP
 
         public override bool LogicOPD()
         {
+            string filePathOutput = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{_OPD[0].PatientName}_{CurrentSeconds}.txt";
             try
             {
-                string outputFileName = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{pre[0].PatientName}_{CurrentSeconds}.txt";
-                OnCube = new OnputType_OnCube(Log);
-                bool result = OnCube.JenKang_OPD(pre, outputFileName);
-                if (result)
-                    return true;
-                else
-                {
-                    List<string> day = new List<string>();
-                    for (int x = 0; x <= pre.Count - 1; x++)
-                    {
-                        day.Add(pre[x].StartDay + "~" + pre[x].StartDay);
-                    }
-                    Log.Prescription(FilePath, pre.Select(x => x.PatientName).ToList(), pre.Select(x => x.PrescriptionNo).ToList(), pre.Select(x => x.MedicineCode).ToList(), pre.Select(x => x.MedicineName).ToList(),
-                        pre.Select(x => x.AdminCode).ToList(), pre.Select(x => x.PerQty).ToList(), pre.Select(x => x.SumQty).ToList(), day);
-                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
-                    return false;
-                }
+                OP_OnCube.JenKang_OPD(_OPD, filePathOutput);
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FilePath} {ex}");
-                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                ReturnsResult.Shunt(ConvertResult.產生OCS失敗, ex.ToString());
                 return false;
             }
         }
@@ -114,60 +90,51 @@ namespace FCP
         {
             try
             {
-                pre.Clear();
-                var ecd = Encoding.Default;
-                string content = GetContent;
-                List<string> contentSplit = content.Split('\n').ToList();
-                foreach (string s in contentSplit)
+                List<string> list = GetContent.Trim().Split('\n').ToList();
+                foreach (string s in list)
                 {
-                    if (s == "")
-                        continue;
-                    byte[] temp = ecd.GetBytes(s.Trim());
+                    EncodingHelper.SetEncodingBytes(s.Trim());
                     //途徑PO轉為PC
-                    string way = ecd.GetString(temp, 193, 4).Trim().Equals("PO") ? "PC" : ecd.GetString(temp, 193, 4).Trim();
-                    string adminCode = ecd.GetString(temp, 183, 10).Trim() + way;
-                    string medicineCode = ecd.GetString(temp, 57, 10).Trim();
-                    if (SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(medicineCode))
+                    string way = EncodingHelper.GetEncodingString(193, 4).Replace("PO", "PC");
+                    string adminCode = EncodingHelper.GetEncodingString(183, 10) + way;
+                    string medicineCode = EncodingHelper.GetEncodingString(57, 10);
+                    if (IsExistsMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
                         continue;
-                    if (JudgePackedMode(adminCode))
-                        continue;
-                    if (!CheckMultiCode(adminCode))
+                    if (!IsExistsMultiAdminCode(adminCode))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置餐包頻率 {adminCode}");
-                        ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, null);
+                        ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, adminCode);
                         return false;
                     }
                     string location = "住院";
-                    if (temp.Length > 240)
-                        location = ecd.GetString(temp, 247, temp.Length - 247);
-                    int adminCodeTimePerDay = GOD.Get_Admin_Code_For_Multi(adminCode).Count;
-                    Single SumQty = Convert.ToSingle(ecd.GetString(temp, 200, 10).Trim());
-                    Single PerQty = Convert.ToSingle(ecd.GetString(temp, 167, 10).Trim());
-                    pre.Add(new Prescription
+                    if (EncodingHelper.GetBytesLength > 240)
+                        location = EncodingHelper.GetEncodingString(247, EncodingHelper.GetBytesLength - 247);
+                    int adminCodeTimePerDay = GetMultiAdminCodeTimes(adminCode).Count;
+                    Single sumQty = Convert.ToSingle(EncodingHelper.GetEncodingString(200, 10));
+                    Single perQty = Convert.ToSingle(EncodingHelper.GetEncodingString(167, 10));
+                    _UDBatch.Add(new JenKang()
                     {
-                        BedNo = ecd.GetString(temp, 0, 10).Trim(),
-                        PatientName = ecd.GetString(temp, 11, 20).Trim(),
-                        PrescriptionNo = ecd.GetString(temp, 31, 10).Trim(),
+                        BedNo = EncodingHelper.GetEncodingString(0, 10),
+                        PatientName = EncodingHelper.GetEncodingString(11, 20),
+                        PrescriptionNo = EncodingHelper.GetEncodingString(31, 10),
                         MedicineCode = medicineCode,
-                        MedicineName = ecd.GetString(temp, 67, 50).Trim(),
-                        PerQty = Convert.ToSingle(ecd.GetString(temp, 167, 10).Trim()).ToString("0.##"),
+                        MedicineName = EncodingHelper.GetEncodingString(67, 50),
+                        PerQty = perQty.ToString("0.##"),
                         AdminCode = adminCode,
-                        Days = Math.Ceiling(SumQty / PerQty / adminCodeTimePerDay).ToString(),
-                        SumQty = ecd.GetString(temp, 200, 10).Trim(),
+                        Days = Math.Ceiling(sumQty / perQty / adminCodeTimePerDay).ToString(),
+                        SumQty = sumQty.ToString(),
                         Location = location
                     });
-                    var preTemp = pre[pre.Count - 1];
-                    string startDateTemp = ecd.GetString(temp, 41, 8).Trim();
-                    DateTime.TryParseExact(startDateTemp, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime startDate);
-                    preTemp.StartDay = startDate.AddDays(location == "住院" ? 2 : 1);  //住院+2天，養護+1天
-                    //preTemp.EndDay = startDate.AddDays(2 + Convert.ToInt32(preTemp.Days) - 1).ToString("yyyyMMdd");
+                    var lastUDBatchTemp = _UDBatch[_UDBatch.Count - 1];
+                    DateTime.TryParseExact(EncodingHelper.GetEncodingString(41, 8), "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime startDate);
+                    lastUDBatchTemp.StartDay = startDate.AddDays(location == "住院" ? 2 : 1);  //住院+2天，養護+1天
                     try
                     {
-                        pre[pre.Count - 1]._IsPowder = ecd.GetString(temp, 236, 1) != "";
+                        _UDBatch[_UDBatch.Count - 1]._IsPowder = EncodingHelper.GetEncodingString(236, 1) != "";
                     }
-                    catch (Exception) { pre[pre.Count - 1]._IsPowder = false; }
+                    catch (Exception) { _UDBatch[_UDBatch.Count - 1]._IsPowder = false; }
                 }
-                if (pre.Count == 0)
+                if (_UDBatch.Count == 0)
                 {
                     ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, null);
                     return false;
@@ -177,41 +144,45 @@ namespace FCP
             catch (Exception ex)
             {
                 Log.Write($"{FilePath}  {ex}");
-                ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, null);
+                ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
             }
         }
 
         public override bool LogicUDBatch()
         {
+            DateTime minStartDate = DateTime.Now;
+            foreach (var v in _UDBatch)
+            {
+                DateTime dateTemp = v.StartDay;
+                if (_UDBatch.IndexOf(v) == 0)
+                {
+                    minStartDate = dateTemp;
+                    continue;
+                }
+                if (DateTime.Compare(minStartDate, dateTemp) == 1)
+                {
+                    minStartDate = dateTemp;
+                }
+            }
+            foreach (var v in _UDBatch)
+            {
+                v.EndDay = minStartDate.AddDays(Convert.ToInt32(v.Days) - 1);
+            }
+            string filePathOutput = string.Empty;
+            if (_UDBatch[0].Location.Contains("住院"))
+                filePathOutput = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            else
+                filePathOutput = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{_UDBatch[0].PatientName}_{CurrentSeconds}.txt";
             try
             {
-                string outputFileName = string.Empty;
-                if (pre[0].Location.Contains("住院"))
-                    outputFileName = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
-                else
-                    outputFileName = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{pre[0].PatientName}_{CurrentSeconds}.txt";
-                OnCube = new OnputType_OnCube(Log);
-                bool result = OnCube.JenKang_UD(pre, outputFileName);
-                if (result)
-                    return true;
-                else
-                {
-                    List<string> day = new List<string>();
-                    for (int x = 0; x <= pre.Count - 1; x++)
-                    {
-                        day.Add(pre[x].StartDay + "~" + pre[x].StartDay);
-                    }
-                    Log.Prescription(FilePath, pre.Select(x => x.PatientName).ToList(), pre.Select(x => x.PrescriptionNo).ToList(), pre.Select(x => x.MedicineCode).ToList(), pre.Select(x => x.MedicineName).ToList(),
-                        pre.Select(x => x.AdminCode).ToList(), pre.Select(x => x.PerQty).ToList(), pre.Select(x => x.SumQty).ToList(), day);
-                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
-                    return false;
-                }
+                OP_OnCube.JenKang_UD(_UDBatch, filePathOutput, minStartDate);
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FilePath} {ex}");
-                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                ReturnsResult.Shunt(ConvertResult.產生OCS失敗, ex.ToString());
                 return false;
             }
         }
@@ -256,22 +227,28 @@ namespace FCP
             throw new NotImplementedException();
         }
 
-        public class Prescription
+        public override ReturnsResultFormat MethodShunt()
         {
-            public string PrescriptionNo { get; set; }
-            public string PatientName { get; set; }
-            public string DrugNo { get; set; }
-            public string MedicineCode { get; set; }
-            public string MedicineName { get; set; }
-            public string PerQty { get; set; }
-            public string AdminCode { get; set; }
-            public string Days { get; set; }
-            public string SumQty { get; set; }
-            public DateTime StartDay { get; set; }
-            public DateTime EndDay { get; set; }
-            public bool _IsPowder { get; set; }
-            public string BedNo { get; set; }
-            public string Location { get; set; }
+            _OPD.Clear();
+            _UDBatch.Clear();
+            return base.MethodShunt();
         }
+    }
+    internal class JenKang
+    {
+        public string PrescriptionNo { get; set; }
+        public string PatientName { get; set; }
+        public string DrugNo { get; set; }
+        public string MedicineCode { get; set; }
+        public string MedicineName { get; set; }
+        public string PerQty { get; set; }
+        public string AdminCode { get; set; }
+        public string Days { get; set; }
+        public string SumQty { get; set; }
+        public DateTime StartDay { get; set; }
+        public DateTime EndDay { get; set; }
+        public bool _IsPowder { get; set; }
+        public string BedNo { get; set; }
+        public string Location { get; set; }
     }
 }

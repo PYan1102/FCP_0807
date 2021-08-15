@@ -1,28 +1,15 @@
-﻿using System;
+﻿using FCP.MVVM.Models.Enum;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using FCP.MVVM.Models.Enum;
 
 namespace FCP.MVVM.ViewModels.GetConvertFile
 {
-    public interface IFindNeedToConvertFile : ISpecialRules
+    interface IFindNeedToConvertFile
     {
-        void ResetDictionary();
         void Reset(CancellationTokenSource cts, List<string> list);
+        void SetDepartmentDictionary(Dictionary<Parameter, DepartmentEnum> department);
         Task<FileInformation> GetFilePathTaskAsync();
-        void SetOPDDefault();
-        void SetPowderDefault();
-        void SetUDBatchDefault();
-        void SetUDStatDefault();
-        void SetOtherDefault();
-        void SetCareDefault();
-    }
-
-    public class FileInformation
-    {
-        public string InputPath { get; set; }
-        public string FilePath { get; set; }
-        public DepartmentEnum Department { get; set; }
     }
 }

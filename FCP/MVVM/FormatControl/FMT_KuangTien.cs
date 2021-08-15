@@ -55,9 +55,9 @@ namespace FCP
                 {
                     byte[] ATemp = ecd.GetBytes(FileContentSplit[x]);
                     AdminCode_S = ecd.GetString(ATemp, 57, 11).Trim() + ecd.GetString(ATemp, 68, 9).Trim();
-                    if (JudgePackedMode(AdminCode_S))
+                    if (IsFilterAdminCode(AdminCode_S))
                         continue;
-                    if (SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(ecd.GetString(ATemp, 2, 10).Trim()))
+                    if (IsExistsMedicineCode(ecd.GetString(ATemp, 2, 10).Trim()))
                         continue;
                     if (Convert.ToInt32(ecd.GetString(ATemp, 82, 8).Trim()) >= GetID2(ecd.GetString(ATemp, 2, 10).Trim()) & GetID2(ecd.GetString(ATemp, 2, 10).Trim()) >= 1)  //總量 >= ID2
                         continue;
@@ -69,7 +69,7 @@ namespace FCP
                             continue;
                         }
                     }
-                    if (!GOD.Is_Admin_Code_For_Multi_Created(ecd.GetString(ATemp, 57, 11).Trim() + ecd.GetString(ATemp, 68, 9).Trim()))
+                    if (!IsExistsMultiAdminCode(ecd.GetString(ATemp, 57, 11).Trim() + ecd.GetString(ATemp, 68, 9).Trim()))
                     {
                         ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, AdminCode_S);
                         return false;
@@ -80,7 +80,7 @@ namespace FCP
                     PerQty_L.Add(ecd.GetString(ATemp, 43, 8).Trim());
                     Days_L.Add(ecd.GetString(ATemp, 77, 5).Trim());
                     SumQty_L.Add(ecd.GetString(ATemp, 82, 8).Trim());
-                    TimesPerDay.Add($"{GOD.Get_Admin_Code_For_Multi(AdminCode_S).Count}");
+                    TimesPerDay.Add($"{GetMultiAdminCodeTimes(AdminCode_S).Count}");
                 }
                 if (AdminCode_L.Count == 0)
                 {
@@ -102,20 +102,13 @@ namespace FCP
             try
             {
                 bool yn;
-                OnCube = new OnputType_OnCube(Log);
                 string Year = (Convert.ToInt32(DateTime.Now.ToString("yyyy")) - 1911).ToString();
                 FileNameOutput_S = $@"{OutputPath}\{Year}{DateTime.Now:MMdd}_{GetMedicineNumber.Trim()}_{PatientName_S.Trim()}_{CurrentSeconds}.txt";
-                yn = OnCube.KuangTien_OPD(MedicineCode_L, MedicineName_L, AdminCode_L, Days_L, PerQty_L, TimesPerDay, SumQty_L, PatientName_S, DoctorName_S, GetMedicineNumber, PatientNo_S, Age_S, Gender_S, Class_S, WriteDate, FileNameOutput_S);
+                yn = OP_OnCube.KuangTien_OPD(MedicineCode_L, MedicineName_L, AdminCode_L, Days_L, PerQty_L, TimesPerDay, SumQty_L, PatientName_S, DoctorName_S, GetMedicineNumber, PatientNo_S, Age_S, Gender_S, Class_S, WriteDate, FileNameOutput_S);
                 if (yn)
                     return true;
                 else
                 {
-                    List<string> DaysList = new List<string>();
-                    for (int x = 0; x <= StartDay_L.Count - 1; x++)
-                    {
-                        DaysList.Add(StartDay_L[x] + "~" + EndDay_L[x]);
-                    }
-                    Log.Prescription(FilePath, PatientName_S, "", MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, DaysList);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
                 }
@@ -135,7 +128,6 @@ namespace FCP
                 ClearList();
                 var ecd = Encoding.Default;
                 bool _JudgeMedicinePosition = false;
-                OnCube = new OnputType_OnCube(Log);
                 string[] FileContentSplit = DeleteSpace(GetContent).Split('\n');
                 int Hos = -1;
                 Byte[] Temp = Encoding.Default.GetBytes(FileContentSplit[0]);
@@ -205,23 +197,23 @@ namespace FCP
                         continue;
                     string[] DataSplit = Data[r].Split(';');
                     AdminCode_S = DataSplit[9] + DataSplit[11].Trim();
-                    if (SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(DataSplit[6]))
+                    if (IsExistsMedicineCode(DataSplit[6]))
                         continue;
-                    if (JudgePackedMode(AdminCode_S))
+                    if (IsFilterAdminCode(AdminCode_S))
                         continue;
                     if (AdminCode_S.Contains("TTS"))
                         AdminCode_S = "STTS";
-                    if (!GOD.Is_Admin_Code_For_Multi_Created($"{AdminCode_S}"))
+                    if (!IsExistsMultiAdminCode($"{AdminCode_S}"))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
                         continue;
                     }
-                    if (!GOD.Is_Admin_Code_For_Combi_Created($"S{AdminCode_S}"))
+                    if (!IsExistsCombiAdminCode($"S{AdminCode_S}"))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置此種包頻率 S{AdminCode_S}");
                         continue;
                     }
-                    CalculationDays.Add($"{GOD.Get_Admin_Code_For_Multi(AdminCode_S).Count}");
+                    CalculationDays.Add($"{GetMultiAdminCodeTimes(AdminCode_S).Count}");
                     DateTime.TryParseExact(DataSplit[0], "yyyyMMdd", null, DateTimeStyles.None, out DateTime _treatmentdate);
                     TreatmentDate.Add(_treatmentdate.ToString("yyyy-MM-dd"));
                     StayDay_L.Add(DataSplit[1].Trim());
@@ -289,7 +281,7 @@ namespace FCP
                     TimesCount = 0;
                     QODTEMP = "";
                     AdminTimeTimePointList.Clear();
-                    foreach (string s in GOD.Get_Admin_Code_For_Multi(AdminCode_L[x]))
+                    foreach (string s in GetMultiAdminCodeTimes(AdminCode_L[x]))
                     {
                         AdminTimeTimePointList.Add(Convert.ToInt32(s.Substring(0, 2)));
                     }
@@ -473,19 +465,13 @@ namespace FCP
                 }
                 DateTime.TryParseExact(TreatmentDate[0], "yyyy-MM-dd", null, DateTimeStyles.None, out DateTime FirstDate);
                 bool yn; FileNameOutput_S = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
-                yn = OnCube.KuangTien_UD(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L,
+                yn = OP_OnCube.KuangTien_UD(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L,
                     PatientName_L, PrescriptionNo_L, BedNo_L, BarcodeDic, FileNameOutput_S, Class_L, StayDay_L, DataDic, DoseType, CrossAdminTimeType, FirstDate.ToString("yyMMdd"), QODDescription,
                     CurrentDate, "住院", SpecialCode);
                 if (yn)
                     return true;
                 else
                 {
-                    List<string> DaysList = new List<string>();
-                    for (int x = 0; x <= StartDay_L.Count - 1; x++)
-                    {
-                        DaysList.Add(StartDay_L[x] + "~" + EndDay_L[x]);
-                    }
-                    Log.Prescription(FilePath, PatientName_L[0], "", MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, DaysList);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
                 }
@@ -505,7 +491,6 @@ namespace FCP
                 ClearList();
                 bool _JudgeMedicinePosition = false;
                 var ecd = Encoding.Default;
-                OnCube = new OnputType_OnCube(Log);
                 string[] FileContentSplit = DeleteSpace(GetContent).Split('\n');
                 int Hos = -1;
                 Byte[] Temp = Encoding.Default.GetBytes(FileContentSplit[0]);
@@ -577,24 +562,24 @@ namespace FCP
                     if (string.IsNullOrEmpty(Data[r]))
                         continue;
                     string[] DataSplit = Data[r].Split(';');
-                    if (SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(DataSplit[6]))
+                    if (IsExistsMedicineCode(DataSplit[6]))
                         continue;
                     AdminCode_S = DataSplit[9] + DataSplit[11].Trim();
-                    if (JudgePackedMode(AdminCode_S))
+                    if (IsFilterAdminCode(AdminCode_S))
                     {
                         continue;
                     }
                     if (AdminCode_S.Contains("TTS"))
                         AdminCode_S = "STTS";
-                    if (!GOD.Is_Admin_Code_For_Multi_Created(AdminCode_S))
+                    if (!IsExistsMultiAdminCode(AdminCode_S))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
                         continue;
                     }
                     else
-                        CalculationDays.Add($"{GOD.Get_Admin_Code_For_Multi(AdminCode_S).Count}");
+                        CalculationDays.Add($"{GetMultiAdminCodeTimes(AdminCode_S).Count}");
 
-                    if (!GOD.Is_Admin_Code_For_Combi_Created($"S{AdminCode_S}"))
+                    if (!IsExistsCombiAdminCode($"S{AdminCode_S}"))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置此種包頻率 S{AdminCode_S}");
                         continue;
@@ -651,7 +636,6 @@ namespace FCP
                 ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                 return false;
             }
-            Log.Check();
             try
             {
                 Dictionary<string, List<string>> DataDic = new Dictionary<string, List<string>>();
@@ -713,11 +697,11 @@ namespace FCP
                     QODDescription.Add(QODTEMP);
                     DateTemp = SD;
                     AdminTimeTimePointList.Clear();
-                    foreach (string s in GOD.Get_Admin_Code_For_Multi(AdminCode_L[x]))
+                    foreach (string s in GetMultiAdminCodeTimes(AdminCode_L[x]))
                     {
                         AdminTimeTimePointList.Add(Convert.ToInt32(s.Substring(0, 2)));
                     }
-                    AdminTimeList = GOD.Get_Admin_Code_For_Multi(AdminCode_L[x]);
+                    AdminTimeList = GetMultiAdminCodeTimes(AdminCode_L[x]);
                     foreach (int y in AdminTimeTimePointList)
                     {
                         if (TimesCount == Times)
@@ -790,19 +774,13 @@ namespace FCP
                 DateTime.TryParseExact(TreatmentDate[0], "yyyy-MM-dd", null, DateTimeStyles.None, out DateTime FirstDate);
                 bool yn;
                 FileNameOutput_S = $@"{OutputPath}\{PatientName_L[0]}_{PrescriptionNo_L[0]}_{CurrentSeconds}.txt";
-                yn = OnCube.KuangTien_UD(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L,
+                yn = OP_OnCube.KuangTien_UD(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L,
                     PatientName_L, PrescriptionNo_L, BedNo_L, BarcodeDic, FileNameOutput_S, Class_L, StayDay_L, DataDic, DoseType, CrossAdminTimeType, FirstDate.ToString("yyMMdd"), QODDescription,
                     CurrentDate, "即時", SpecialCode);
                 if (yn)
                     return true;
                 else
                 {
-                    List<string> DaysList = new List<string>();
-                    for (int x = 0; x <= StartDay_L.Count - 1; x++)
-                    {
-                        DaysList.Add(StartDay_L[x] + "~" + EndDay_L[x]);
-                    }
-                    Log.Prescription(FilePath, PatientName_L[0].ToString(), "", MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, DaysList);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
                 }
@@ -842,9 +820,9 @@ namespace FCP
                     GrindTable = ecd.GetString(ATemp, 100, 8).Trim();
                     if (GrindTable.Equals(""))
                         continue;
-                    if (JudgePackedMode(AdminCode_S))
+                    if (IsFilterAdminCode(AdminCode_S))
                         continue;
-                    if (!GOD.Is_Admin_Code_For_Multi_Created(AdminCode_S))
+                    if (!IsExistsMultiAdminCode(AdminCode_S))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
                         ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, AdminCode_S);
@@ -859,7 +837,7 @@ namespace FCP
                     Dic[GrindTable].Add(ecd.GetString(ATemp, 77, 5).Trim());  //Days
                     Dic[GrindTable].Add(ecd.GetString(ATemp, 82, 8).Trim());  //SumQty
                     Dic[GrindTable].Add(ecd.GetString(ATemp, 100, 8).Trim());  //GrindTanle
-                    Dic[GrindTable].Add($"{GOD.Get_Admin_Code_For_Multi(AdminCode_S).Count}");  //TimesPerDay
+                    Dic[GrindTable].Add($"{GetMultiAdminCodeTimes(AdminCode_S).Count}");  //TimesPerDay
                     EffectiveDate = DateTime.Now.AddDays(Convert.ToInt32(ecd.GetString(ATemp, 77, 5).Trim())).ToString("yyyy/MM/dd");
                 }
                 if (Dic.Count == 0)
@@ -887,7 +865,6 @@ namespace FCP
             try
             {
                 bool yn;
-                jvserver = new OnputType_JVServer(Log);
                 string Year = (Convert.ToInt32(DateTime.Now.ToString("yyyy")) - 1911).ToString();
                 FileNameOutput_S = $@"{OutputPath}\{Year}{DateTime.Now:MMdd}_{GetMedicineNumber.Trim()}_{PatientName_S}_{CurrentSeconds}.txt";
                 List<string> DicDistinct = new List<string>();
@@ -896,17 +873,11 @@ namespace FCP
                     if (!DicDistinct.Contains(v.Key))
                         DicDistinct.Add(v.Key);
                 }
-                yn = jvserver.KuangTien_磨粉(Dic, DicDistinct, PatientName_S, DoctorName_S, GetMedicineNumber, PatientNo_S, Age_S, Gender_S, Class_S, WriteDate, FileNameOutput_S, EffectiveDate);
+                yn = OP_JVServer.KuangTien_磨粉(Dic, DicDistinct, PatientName_S, DoctorName_S, GetMedicineNumber, PatientNo_S, Age_S, Gender_S, Class_S, WriteDate, FileNameOutput_S, EffectiveDate);
                 if (yn)
                     return true;
                 else
                 {
-                    List<string> DaysList = new List<string>();
-                    for (int x = 0; x <= StartDay_L.Count - 1; x++)
-                    {
-                        DaysList.Add(StartDay_L[x] + "~" + EndDay_L[x]);
-                    }
-                    Log.Prescription(FilePath, PatientName_S, "", MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, DaysList);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
                 }

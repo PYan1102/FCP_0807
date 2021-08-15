@@ -8,16 +8,17 @@ using FCP.MVVM.Factory.ViewModels;
 
 namespace FCP.MVVM.ViewModels.GetConvertFile
 {
-    public class CompareFileStartWith : Compare
+    public class CompareFileStartWith
     {
+        public Dictionary<Parameter, DepartmentEnum> DepartmentDictionary { get; set; }
         private DepartmentEnum _Department { get; set; }
 
-        public override DepartmentEnum GetDepartment()
+        public DepartmentEnum GetDepartment()
         {
             return _Department;
         }
 
-        public override bool IsFileCompareSuccess(string fullFilePath)
+        public bool IsFileCompareSuccess(string fullFilePath)
         {
             string fileName = Path.GetFileNameWithoutExtension(fullFilePath);
             foreach (var v in DepartmentDictionary)

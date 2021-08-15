@@ -26,7 +26,6 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
         {
             _CTS = cts;
             _InputPathList = list;
-            ResetDepartmentDictionary();
         }
 
         public async Task<FileInformation> GetFilePathTaskAsync()
@@ -60,67 +59,7 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
             }
         }
 
-        void IFindNeedToConvertFile.ResetDictionary()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetOPDDefault()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetPowderDefault()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetUDBatchDefault()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetUDStatDefault()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetOtherDefault()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetCareDefault()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetOPD(string rule)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetPowder(string rule)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetUDBatch(string rule)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetUDStat(string rule)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetOther(string rule)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetCare(string rule)
+        public void SetDepartmentDictionary(Dictionary<Parameter, DepartmentEnum> department)
         {
             throw new NotImplementedException();
         }

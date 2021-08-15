@@ -92,8 +92,8 @@
     <Compile Include="AdvancedSettings.xaml.cs">
       <DependentUpon>AdvancedSettings.xaml</DependentUpon>
     </Compile>
+    <Compile Include="EncodingHelper.cs" />
     <Compile Include="MVVM\Factory\ConvertInfoactory.cs" />
-    <Compile Include="MVVM\Factory\LogFactory.cs" />
     <Compile Include="MVVM\FormatInit\BASE_ChangGung.cs" />
     <Compile Include="MVVM\FormatInit\BASE_ChangGung_POWDER.cs" />
     <Compile Include="MVVM\FormatInit\BASE_ChuangSheng.cs" />
@@ -108,7 +108,6 @@
     <Compile Include="MVVM\FormatControl\FMT_JenKang.cs" />
     <Compile Include="FormatCollection.cs" />
     <Compile Include="FunctionCollections.cs" />
-    <Compile Include="GetOnCubeData.cs" />
     <Compile Include="MVVM\FormatInit\BASE_HongYen.cs" />
     <Compile Include="MVVM\FormatControl\FMT_ChangGung.cs" />
     <Compile Include="MVVM\FormatControl\FMT_ChangGung_POWDER.cs" />
@@ -139,24 +138,23 @@
     <Compile Include="MVVM\Models\SettingsModel.cs" />
     <Compile Include="MVVM\Models\SmallFormModel.cs" />
     <Compile Include="MVVM\Factory\SettingsFactory.cs" />
+    <Compile Include="MVVM\SQL\SQLQuery.cs" />
     <Compile Include="MVVM\ViewModels\AdvancedSettingsViewModel.cs" />
-    <Compile Include="MVVM\ViewModels\GetConvertFile\Compare.cs" />
     <Compile Include="MVVM\ViewModels\GetConvertFile\CompareFileStartWith.cs" />
     <Compile Include="MVVM\ViewModels\GetConvertFile\DefaultRules.cs" />
     <Compile Include="MVVM\ViewModels\GetConvertFile\FindFile.cs" />
     <Compile Include="MVVM\ViewModels\GetConvertFile\FindFileAccordingToFileContent.cs" />
     <Compile Include="MVVM\ViewModels\GetConvertFile\FindFileAccordingToInputPath.cs" />
     <Compile Include="MVVM\ViewModels\GetConvertFile\FindFileAccordingToStartWith.cs" />
+    <Compile Include="MVVM\ViewModels\GetConvertFile\IFindFile.cs" />
     <Compile Include="MVVM\ViewModels\GetConvertFile\IFindNeedToConvertFile.cs" />
-    <Compile Include="MVVM\ViewModels\GetConvertFile\ISpecialRules.cs" />
-    <Compile Include="MVVM\ViewModels\GetConvertFile\SetFileStartWith.cs" />
     <Compile Include="MVVM\ViewModels\Interface\IRetunrsResult.cs" />
     <Compile Include="MVVM\ViewModels\MainWindow\MainWindowViewModel.cs" />
     <Compile Include="MVVM\ViewModels\MainWindow\PropertyChange.cs" />
     <Compile Include="MVVM\ViewModels\ReturnsResult.cs" />
     <Compile Include="MVVM\ViewModels\SmallFormViewModel.cs" />
     <Compile Include="Core\ViewModelBase.cs" />
-    <Compile Include="OnputType_JVServer.cs" />
+    <Compile Include="OP_JVServer.cs" />
     <Compile Include="MVVM\FormatInit\BASE_KuangTien.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="MVVM\FormatInit\BASE_MinSheng.cs" />
@@ -164,7 +162,7 @@
       <DependentUpon>MsgB.xaml</DependentUpon>
     </Compile>
     <Compile Include="OLEDB.cs" />
-    <Compile Include="OnputType_OnCube.cs" />
+    <Compile Include="OP_OnCube.cs" />
     <Compile Include="MVVM\Control\Settings.cs" />
     <Compile Include="SmallForm.xaml.cs">
       <DependentUpon>SmallForm.xaml</DependentUpon>

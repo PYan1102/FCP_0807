@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Text;
 using System.IO;
+using FCP.MVVM.Models.Enum;
+using FCP.MVVM.ViewModels.GetConvertFile;
 
 namespace FCP.MVVM.FormatInit
 {
@@ -15,7 +17,8 @@ namespace FCP.MVVM.FormatInit
         public override void Init()
         {
             base.Init();
-            MainWindow.Tgl_OPD3.IsChecked = true;
+            MainWindow.Tgl_OPD1.IsChecked = true;
+            InitFindFileMode(FindFileModeEnum.根據檔名開頭);
         }
 
         public override void AdvancedSettingsShow()
@@ -46,27 +49,17 @@ namespace FCP.MVVM.FormatInit
         public override void ConvertPrepare(bool isOPD)
         {
             base.ConvertPrepare(isOPD);
-            if (isOPD)
-                Loop_OPD(0, 0, "");
-            else
-                Loop_UD(0, 0, "");
-        }
-
-        public override void Loop_OPD(int Start, int Length, string Content)
-        {
-            base.Loop_OPD(Start, Length, Content);
-        }
-
-        public override void Loop_UD(int Start, int Length, string Content)
-        {
-            base.Loop_UD(Start, Length, Content);
+            SetOPDRule(nameof(DefaultEnum.Default));
+            SetIntoProperty(isOPD);
+            FindFile.SetUDBatchDefault();
+            GetFileAsync();
         }
 
         public override void SetConvertInformation()
         {
             string content = GetFileContent();
             if (content.Contains("護理"))
-                base.MethodID = 2;
+                base.CurrentDepartment = DepartmentEnum.UDBatch;
             base.SetConvertInformation();
             if (JK == null)
                 JK = new FMT_JenKang();

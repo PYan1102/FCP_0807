@@ -28,14 +28,10 @@ namespace FCP
             try
             {
                 var ecd = Encoding.Default;
-                OnCube = new OnputType_OnCube(Log);
-                string FileNameTemp = Path.GetFileNameWithoutExtension(FilePath);
-                string[] info;
                 List<string> PatientInfo = new List<string>();
-                info = GetContent.Split('\n');
-                info.ToList().ForEach(x => PatientInfo.Add(x));
+                List<string> list = GetContent.Split('\n').ToList();
+                list.ToList().ForEach(x => PatientInfo.Add(x));
                 Byte[] Temp = Encoding.Default.GetBytes(PatientInfo[0]);
-
                 int InfoCount = 65;
                 for (int r = 0; r <= PatientInfo.Count - 2; r++)
                 {
@@ -47,17 +43,17 @@ namespace FCP
                             AdminCode_S = AdminCode_S.Substring(0, AdminCode_S.Length - 2);
                     string MedicineCodeJudge = ecd.GetString(ATemp, 71, 6).Trim();
                     float totalqua = Convert.ToSingle(ecd.GetString(ATemp, 138, 9));  //總量
-                    if (SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(MedicineCodeJudge))
+                    if (IsExistsMedicineCode(MedicineCodeJudge))
                         continue;
                     if (MedicineCodeJudge == "1UNIFR")
                         continue;
-                    if (JudgePackedMode(AdminCode_S))
+                    if (IsFilterAdminCode(AdminCode_S))
                         continue;
                     if (Convert.ToSingle(GetID2(MedicineCodeJudge)) <= totalqua)  //總量 >= ID2 不輸出
                         continue;
                     if (totalqua % Convert.ToSingle(GetID1(MedicineCodeJudge)) == 0)  //總量 % ID1 = 0 不輸出
                         continue;
-                    if (!GOD.Is_Admin_Code_For_Combi_Created($"S{AdminCode_S}"))
+                    if (!IsExistsCombiAdminCode($"S{AdminCode_S}"))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置此種包頻率 S{AdminCode_S}");
                         ReturnsResult.Shunt(ConvertResult.沒有種包頻率, AdminCode_S);
@@ -134,7 +130,7 @@ namespace FCP
                     ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                     return false;
                 }
-                bool result = OnCube.XiaoGang_OPD(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, FileNameOutputCount, ID1_L,
+                bool result = OP_OnCube.XiaoGang_OPD(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, FileNameOutputCount, ID1_L,
                         MedicineBagsNumber, MedicineContent_L, MillingMark, ModifyMark, PatientName_L, PatientNo_S, "小港醫院", DoctorName_S, PrescriptionNo_S,
                         Birthdaynew, Class_S, Gender_S, MixingTable, EffectiveDate);
                 if (result)
@@ -144,10 +140,6 @@ namespace FCP
                 }
                 else
                 {
-                    List<string> day = new List<string>();
-                    for (int x = 0; x <= StartDay_L.Count - 1; x++)
-                        day.Add(StartDay_L[x] + "~" + EndDay_L[x]);
-                    Log.Prescription(FilePath, PatientName_L[0], PrescriptionNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
                 }
@@ -166,7 +158,6 @@ namespace FCP
             {
                 ClearList();
                 var ecd = Encoding.Default;
-                OnCube = new OnputType_OnCube(Log);
                 string Identity;
                 string WriteTime;
                 string FileNameTemp = Path.GetFileNameWithoutExtension(FilePath);
@@ -190,19 +181,19 @@ namespace FCP
                     }
                     if (ecd.GetString(ATemp, 13, 4).Trim() == "1")
                         InfoCount = 65;
-                    if (SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(MedicineCodeJudge))
+                    if (IsExistsMedicineCode(MedicineCodeJudge))
                         continue;
-                    if (JudgePackedMode(AdminCode_S))
+                    if (IsFilterAdminCode(AdminCode_S))
                         continue;
                     if (Convert.ToSingle(GetID2(MedicineCodeJudge)) <= totalqua)  //總量>=ID2不輸出
                         continue;
-                    if (!GOD.Is_Admin_Code_For_Multi_Created(AdminCode_S))
+                    if (!IsExistsMultiAdminCode(AdminCode_S))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
                         ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, AdminCode_S);
                         return false;
                     }
-                    if (!GOD.Is_Admin_Code_For_Combi_Created($"S{AdminCode_S}"))
+                    if (!IsExistsCombiAdminCode($"S{AdminCode_S}"))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置此種包頻率 S{AdminCode_S}");
                         ReturnsResult.Shunt(ConvertResult.沒有種包頻率, AdminCode_S);
@@ -328,14 +319,13 @@ namespace FCP
                 Effective = DateTime.Now;
                 EffectiveDate = Effective.AddDays(EffectiveDay).ToString("yyyy-MM-dd");
                 List<string> FileNameOutputCount = new List<string>();
-                Debug.WriteLine(IsStat_B);
                 if (IsStat_B)
                     FileNameOutputCount.Add($@"{InputPath}\{PatientName_L[0].Trim()}-{PrescriptionNo_L[0].Trim()}-{RoomNo_L[0]}-{BedNo_L[0]}_{GetFileInfo(FilePath)}.txt");  //檔名
                 else
                     FileNameOutputCount.Add($@"{InputPath}\住院長期_{CurrentSeconds}.txt");  //檔名
                 //一般方式包藥
                 DateTime dt1 = DateTime.Parse(WriteDate);
-                yn = OnCube.XiaoGang_UD(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, dt1.ToString("yyyyMMdd"), EndDay_L, FileNameOutputCount,
+                yn = OP_OnCube.XiaoGang_UD(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, dt1.ToString("yyyyMMdd"), EndDay_L, FileNameOutputCount,
                 MedicineSpecification_L, Unit_L, ID1_L, PatientName_L, PatientNo_L, DoctorName_S, PrescriptionNo_L, BirthDate_L, RoomNo_L, BedNo_L,
                 Class_L, WareHouse, IsStat_B, AutoNumber, NumberDetail_L, NursingSattionNumber, EffectiveDate, MedicalUnit_L);
                 if (yn)
@@ -350,11 +340,6 @@ namespace FCP
                 }
                 else
                 {
-                    List<string> day = new List<string>();
-                    DateTime dt = DateTime.Parse(WriteDate);
-                    for (int x = 0; x <= StartDay_L.Count - 1; x++)
-                        day.Add(dt.ToString("yyyyMMdd") + "~" + EndDay_L[x]);
-                    Log.Prescription(FilePath, PatientName_L[0], PrescriptionNo_L[0], MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
                 }
@@ -382,7 +367,6 @@ namespace FCP
             try
             {
                 var ecd = Encoding.Default;
-                OnCube = new OnputType_OnCube(Log);
                 string FileNameTemp = Path.GetFileNameWithoutExtension(FilePath);
                 string[] info;
                 Debug.WriteLine($"POWDER_{FileNameTemp}");
@@ -403,7 +387,7 @@ namespace FCP
                         else
                             AdminCode_S = AdminCodeTemp;
                     }
-                    if (!GOD.Is_Admin_Code_For_Combi_Created($"S{AdminCode_S}"))
+                    if (!IsExistsCombiAdminCode($"S{AdminCode_S}"))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置此種包頻率 S{AdminCode_S}");
                         ReturnsResult.Shunt(ConvertResult.沒有種包頻率, AdminCode_S);
@@ -412,9 +396,9 @@ namespace FCP
                     AdminCode_S = "S" + AdminCode_S;
                     string MedicineCodeJudge = ecd.GetString(ATemp, 81, 6).Trim();
                     float totalqua = Convert.ToSingle(ecd.GetString(ATemp, 148, 9).Trim());  //總量
-                    if (SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(MedicineCodeJudge))
+                    if (IsExistsMedicineCode(MedicineCodeJudge))
                         continue;
-                    if (JudgePackedMode(AdminCode_S))
+                    if (IsFilterAdminCode(AdminCode_S))
                         continue;
                     if (Convert.ToSingle(GetID2(MedicineCodeJudge)) <= Math.Ceiling(totalqua))  //總量 >= ID2 不輸出
                         continue;
@@ -484,7 +468,7 @@ namespace FCP
                 string Birthdaynew = string.Format("{0:d}", _date);
                 float a = CalculationID1Remainder();
                 if (a != 0)
-                    yn = OnCube.XiaoGang_POWDER(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, FileNameOutputCount, Unit_L, ID1_L,
+                    yn = OP_OnCube.XiaoGang_POWDER(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, FileNameOutputCount, Unit_L, ID1_L,
                         MedicineBagsNumber, MedicineContent_L, PatientName_L, PatientNo_S, "小港醫院", DoctorName_S, PrescriptionNo_S,
                         Birthdaynew, Class_S, Gender_S, EffectiveDate);
                 else
@@ -499,10 +483,6 @@ namespace FCP
                 }
                 else
                 {
-                    List<string> day = new List<string>();
-                    for (int x = 0; x <= StartDay_L.Count - 1; x++)
-                        day.Add(StartDay_L[x] + "~" + EndDay_L[x]);
-                    Log.Prescription(FilePath, PatientName_L[0], PrescriptionNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
                     return false;
                 }

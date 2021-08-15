@@ -1,66 +1,70 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.Models;
 
 namespace FCP
 {
     class FMT_ChuangSheng : FormatCollection
     {
-        OnputType_OnCube on = null;
+        List<ChuangShengOPD> _OPD = new List<ChuangShengOPD>();
 
         public override bool ProcessOPD()
         {
             try
             {
-                var ecd = Encoding.Default;
-                on = new OnputType_OnCube(Log);
-                List<string> patientInfo = new List<string>();
-                BirthDate_S = "19970101";
-                string fileContent = GetContent;
-                fileContent.Split('\n').ToList().ForEach(x => patientInfo.Add(x.TrimEnd()));
-                for (int r = 0; r <= patientInfo.Count - 2; r++)  //將藥品資料放入List<string>
+                List<string> list = GetContent.Split('\n').ToList();
+                foreach (string s in list)
                 {
-                    var temp = Encoding.Default.GetBytes(patientInfo[r]);
-                    AdminCode_S = ecd.GetString(temp, 74, 8).Trim();
-                    if (SettingsModel.EN_FilterMedicineCode && !MedicineCodeGiven_L.Contains(ecd.GetString(temp, 52, 10).Trim()))
+                    if (s.Trim().Length == 0)
                         continue;
-                    if (JudgePackedMode(AdminCode_S))
+                    EncodingHelper.SetEncodingBytes(s.TrimEnd());
+                    string adminCode = EncodingHelper.GetEncodingString(74, 8);
+                    string medicineCode = EncodingHelper.GetEncodingString(52, 10);
+                    if (IsExistsMedicineCode(medicineCode))
                         continue;
-                    if (!GOD.Is_Admin_Code_For_Multi_Created(AdminCode_S))
+                    if (IsFilterAdminCode(adminCode))
+                        continue;
+                    if (!IsExistsMultiAdminCode(adminCode))
                     {
-                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
-                        ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, null);
+                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {adminCode}");
+                        ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, adminCode);
                         return false;
                     }
-                    DateTime startDate = DateTime.Parse(ecd.GetString(temp, 20, 10));
-                    StartDay_L.Add(startDate.ToString("yyMMdd"));  //調劑日期
-                    Class_S = ecd.GetString(temp, 30, 12).Trim();  //科別
-                    PatientName_S = ecd.GetString(temp, 42, 10).Trim();  //病患姓名
-                    if (PatientName_S.Contains("?"))
-                        PatientName_S = PatientName_S.Replace("?", " ");
-                    MedicineCode_L.Add(ecd.GetString(temp, 52, 10).Trim());  //藥品代碼
-                    PerQty_L.Add(ecd.GetString(temp, 62, 6).Trim());  //劑量
-                    Times_L.Add(ecd.GetString(temp, 68, 6).Trim());  //每日幾次
-                    AdminCode_L.Add(ecd.GetString(temp, 74, 8).Trim());  //頻率
-                    Days_L.Add(ecd.GetString(temp, 82, 3).Trim());  //天數
-                    SumQty_L.Add(ecd.GetString(temp, 85, 10).Trim());  //總量
-                    int totalLength = temp.Length;
+                    string medicineName;
+                    string hospitalName;
+                    int totalLength = EncodingHelper.GetBytesLength;
                     if (totalLength - 95 <= 50)
                     {
-                        MedicineName_L.Add(ecd.GetString(temp, 95, totalLength - 95).Trim());
-                        HospitalName_S = "";
+                        medicineName = EncodingHelper.GetEncodingString(95, totalLength - 95);
+                        hospitalName = "";
                     }
                     else
                     {
-                        MedicineName_L.Add(ecd.GetString(temp, 95, 50).Trim());
-                        HospitalName_S = ecd.GetString(temp, 145, 20).Trim();
+                        medicineName = EncodingHelper.GetEncodingString(95, 50);
+                        hospitalName = EncodingHelper.GetEncodingString(145, 20);
                     }
-                    EndDay_L.Add(startDate.AddDays(Convert.ToInt32(Days_L[Days_L.Count - 1]) - 1).ToString("yyMMdd"));
+                    DateTime startDate = DateTime.Parse(EncodingHelper.GetEncodingString(20, 10));
+                    string days = EncodingHelper.GetEncodingString(82, 3);
+                    _OPD.Add(new ChuangShengOPD
+                    {
+                        StartDate = startDate.ToString("yyMMdd"),
+                        EndDate = startDate.AddDays(Convert.ToInt32(days) - 1).ToString("yyMMdd"),
+                        Class = EncodingHelper.GetEncodingString(30, 12),
+                        PatientName = EncodingHelper.GetEncodingString(42, 10).Replace("?", " "),
+                        MedicineCode = medicineCode,
+                        PerQty = EncodingHelper.GetEncodingString(62, 6),
+                        Times = EncodingHelper.GetEncodingString(68, 6),
+                        AdminCode = adminCode,
+                        Days = days,
+                        SumQty = EncodingHelper.GetEncodingString(85, 10),
+                        MedicineName = medicineName,
+                        HospitalName = hospitalName
+                    }); ;
                 }
-                if (AdminCode_L.Count == 0)
+                if (_OPD.Count == 0)
                 {
                     ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                     return false;
@@ -77,29 +81,16 @@ namespace FCP
 
         public override bool LogicOPD()
         {
+            string filePathOutput = $@"{OutputPath}\{_OPD[0].PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
             try
             {
-                string fileNameOutput = $@"{OutputPath}\{PatientName_S}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
-                DateTime.TryParseExact(BirthDate_S, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime _date);  //生日
-                string newBirthDate = _date.ToString("yyyy-MM-dd");
-                bool yn = on.ChuangSheng(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L, fileNameOutput,
-                        PatientName_S, newBirthDate, HospitalName_S, Class_S);
-                if (yn)
-                    return true;
-                else
-                {
-                    List<string> day = new List<string>();
-                    for (int x = 0; x <= StartDay_L.Count - 1; x++)
-                        day.Add(StartDay_L[x] + "~" + EndDay_L[x]);
-                    Log.Prescription(FilePath, PatientName_S, PrescriptionNo_S, MedicineCode_L, MedicineName_L, AdminCode_L, PerQty_L, day);
-                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
-                    return false;
-                }
+                OP_OnCube.ChuangSheng(_OPD, filePathOutput);
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FilePath}  {ex}");
-                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                ReturnsResult.Shunt(ConvertResult.產生OCS失敗, ex.ToString());
                 return false;
             }
         }
@@ -153,5 +144,27 @@ namespace FCP
         {
             throw new NotImplementedException();
         }
+
+        public override ReturnsResultFormat MethodShunt()
+        {
+            _OPD.Clear();
+            return base.MethodShunt();
+        }
+    }
+
+    internal class ChuangShengOPD
+    {
+        public string PatientName { get; set; }
+        public string StartDate { get; set; }
+        public string EndDate { get; set; }
+        public string MedicineCode { get; set; }
+        public string MedicineName { get; set; }
+        public string PerQty { get; set; }
+        public string AdminCode { get; set; }
+        public string Days { get; set; }
+        public string SumQty { get; set; }
+        public string Class { get; set; }
+        public string Times { get; set; }
+        public string HospitalName { get; set; }
     }
 }
