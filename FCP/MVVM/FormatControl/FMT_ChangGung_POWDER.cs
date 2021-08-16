@@ -5,13 +5,14 @@ using System.Text;
 using System.Collections.ObjectModel;
 using System.IO;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.Models;
 
 namespace FCP
 {
     class FMT_ChangGung_POWDER : FormatCollection
     {
-        ObservableCollection<POWDER> pow = new ObservableCollection<POWDER>();
-        List<string> FilterMedicineCode = new List<string>() { "P2A090M", "P2A091M", "P2A092M", "P2A093M", "P2A094M", "P2A095M", "P2A096M", "P2A097M", "P2A099M", "P2A101M", "P2A102M" };
+        private List<ChangGungPowder> _Powder = new List<ChangGungPowder>();
+        private List<string> _NeedFilterMedicineCode = new List<string>() { "P2A090M", "P2A091M", "P2A092M", "P2A093M", "P2A094M", "P2A095M", "P2A096M", "P2A097M", "P2A099M", "P2A101M", "P2A102M" };
 
 
         public override bool ProcessOPD()
@@ -48,26 +49,25 @@ namespace FCP
         {
             try
             {
-                string Content = GetContent;
-                List<string> Data = SplitData(Content);
-                pow.Clear();
-                foreach (string s in Data)
+                List<string> list = SplitData(GetContent);
+                _Powder.Clear();
+                foreach (string s in list)
                 {
-                    string[] Split = s.Split('|');
-                    if (!FilterMedicineCode.Contains(Split[4].Substring(4).Trim()))
+                    string[] split = s.Split('|');
+                    if (!_NeedFilterMedicineCode.Contains(split[4].Substring(4).Trim()))
                         continue;
-                    pow.Add(new POWDER
+                    _Powder.Add(new ChangGungPowder
                     {
-                        PrescriptionNo = Split[0].Substring(4).Trim(),
-                        PatientNo = Split[1].Substring(3).Trim(),
-                        PatientName = Split[2].Substring(2).Trim(),
-                        MedicineCode = Split[4].Substring(4).Trim(),
-                        MedicineName = Split[5].Substring(2).Trim(),
-                        SumQty = Split[6].Substring(2).Trim(),
-                        Mediciner = Split[9].Substring(4).Trim()
+                        PrescriptionNo = split[0].Substring(4).Trim(),
+                        PatientNo = split[1].Substring(3).Trim(),
+                        PatientName = split[2].Substring(2).Trim(),
+                        MedicineCode = split[4].Substring(4).Trim(),
+                        MedicineName = split[5].Substring(2).Trim(),
+                        SumQty = split[6].Substring(2).Trim(),
+                        Mediciner = split[9].Substring(4).Trim()
                     }); ;
                 }
-                if (pow.Count == 0)
+                if (_Powder.Count == 0)
                 {
                     ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                     return false;
@@ -84,23 +84,16 @@ namespace FCP
 
         public override bool LogicPOWDER()
         {
+            string filePathOutput = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
             try
             {
-                bool yn = false;
-                FileNameOutput_S = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
-                yn = OP_JVServer.ChangGung_POWDER(pow, FileNameOutput_S);
-                if (yn)
-                    return true;
-                else
-                {
-                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
-                    return false;
-                }
+                OP_JVServer.ChangGung_POWDER(_Powder, filePathOutput);
+                return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath}  {ex}");
-                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                Log.Write($"{FilePath} {ex}");
+                ReturnsResult.Shunt(ConvertResult.產生OCS失敗, ex.ToString());
                 return false;
             }
         }
@@ -113,17 +106,6 @@ namespace FCP
         public override bool LogicOther()
         {
             throw new NotImplementedException();
-        }
-
-        public class POWDER
-        {
-            public string PrescriptionNo { get; set; }
-            public string PatientNo { get; set; }
-            public string PatientName { get; set; }
-            public string MedicineCode { get; set; }
-            public string MedicineName { get; set; }
-            public string SumQty { get; set; }
-            public string Mediciner { get; set; }
         }
 
         private List<string> SplitData(string Content)
@@ -157,5 +139,22 @@ namespace FCP
         {
             throw new NotImplementedException();
         }
+
+        public override ReturnsResultFormat MethodShunt()
+        {
+            _Powder.Clear();
+            return base.MethodShunt();
+        }
+    }
+
+    internal class ChangGungPowder
+    {
+        public string PrescriptionNo { get; set; }
+        public string PatientNo { get; set; }
+        public string PatientName { get; set; }
+        public string MedicineCode { get; set; }
+        public string MedicineName { get; set; }
+        public string SumQty { get; set; }
+        public string Mediciner { get; set; }
     }
 }

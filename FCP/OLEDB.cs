@@ -1,63 +1,55 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
 using System.Data.OleDb;
 using System.Collections.ObjectModel;
 using System.Globalization;
 
 namespace FCP
 {
-    class OLEDB
+    static class OLEDB
     {
-        ObservableCollection<MinSheng_UD> MS_UD = new ObservableCollection<MinSheng_UD>();
-        ObservableCollection<MinSheng_OPD> MS_OPD = new ObservableCollection<MinSheng_OPD>();
-
-        public ObservableCollection<MinSheng_UD> GetMingSheng_UD(string FilePath, string FileName, int Index)
+        public static List<MinShengUDBatch> GetMingSheng_UD(string filePath, string fileName, int index)
         {
-            MS_UD.Clear();
-            OleDbConnection olecon = new OleDbConnection($@"Provider=vfpoledb;Data Source={FilePath};Collating Sequence=machine;");
-            olecon.Open();
-            OleDbCommand olecom = new OleDbCommand($"SELECT *, RecNo() AS RowNum FROM {FileName} WHERE RecNo() > {Index}", olecon);
-            OleDbDataReader sr = olecom.ExecuteReader();
-            while (sr.Read())
+            List<MinShengUDBatch> _UDBatch = new List<MinShengUDBatch>();
+            OleDbConnection conn = new OleDbConnection($@"Provider=vfpoledb;Data Source={filePath};Collating Sequence=machine;");
+            conn.Open();
+            OleDbCommand com = new OleDbCommand($"SELECT *, RecNo() AS RowNum FROM {fileName} WHERE RecNo() > {index}", conn);
+            OleDbDataReader dr = com.ExecuteReader();
+            while (dr.Read())
             {
-                DateTime.TryParseExact((Convert.ToInt32($"{sr["BEDATE"]}".Trim()) + 19110000).ToString(), "yyyyMMdd", null, DateTimeStyles.None, out DateTime Start);
+                DateTime.TryParseExact((Convert.ToInt32($"{dr["BEDATE"]}".Trim()) + 19110000).ToString(), "yyyyMMdd", null, DateTimeStyles.None, out DateTime Start);
                 string StartDate = Start.ToString("yyMMdd");
-                MS_UD.Add(new MinSheng_UD
+                _UDBatch.Add(new MinShengUDBatch
                 {
-                    RecNo = int.Parse($"{sr["RowNum"]}".Trim()),
-                    PrescriptionNo = $"{sr["MEDNO"]}".Trim(),
-                    BedNo = $"{sr["BEDNO"]}".Trim(),
-                    PatientName = $"{sr["MHNAME"]}".Trim().Replace('?', ' '),
-                    MedicineCode = $"{sr["DIACODE"]}".Trim(),
-                    MedicineName = $"{sr["DIANAME"]}".Trim(),
-                    PerQty = $"{sr["PER_QTY"]}".Trim(),
-                    AdminCode = $"{sr["USENO"]}".Trim(),
-                    Description = $"{sr["USENONAME"]}".Trim(),
-                    SumQty = $"{sr["SUMQTY"]}".Trim(),
+                    RecNo = int.Parse($"{dr["RowNum"]}".Trim()),
+                    PrescriptionNo = $"{dr["MEDNO"]}".Trim(),
+                    BedNo = $"{dr["BEDNO"]}".Trim(),
+                    PatientName = $"{dr["MHNAME"]}".Trim().Replace('?', ' '),
+                    MedicineCode = $"{dr["DIACODE"]}".Trim(),
+                    MedicineName = $"{dr["DIANAME"]}".Trim(),
+                    PerQty = $"{dr["PER_QTY"]}".Trim(),
+                    AdminCode = $"{dr["USENO"]}".Trim(),
+                    Description = $"{dr["USENONAME"]}".Trim(),
+                    SumQty = $"{dr["SUMQTY"]}".Trim(),
                     StartDay = StartDate,
-                    BeginTime = $"{sr["BETIME"]}".Trim(),
-                    Unit = $"{sr["UNITS"]}".Trim()
+                    BeginTime = $"{dr["BETIME"]}".Trim(),
+                    Unit = $"{dr["UNITS"]}".Trim()
                 });
             }
-            sr.Close();
-            olecom.Dispose();
-            olecon.Dispose();
-            return MS_UD;
+            dr.Close();
+            com.Dispose();
+            conn.Close();
+            return _UDBatch;
         }
 
-        public ObservableCollection<MinSheng_OPD> GetMingSheng_OPD(string FilePath, string FileName, int Index)
+        public static List<MinShengOPD> GetMingSheng_OPD(string filePath, string fileName, int index)
         {
             try
             {
-                //Debug.WriteLine($"The OLEDB currently index is {Index}");
-                MS_OPD.Clear();
-                OleDbConnection olecon = new OleDbConnection($@"Provider=vfpoledb;Data Source={FilePath};Collating Sequence=machine;");
-                olecon.Open();
-                OleDbCommand olecom = new OleDbCommand($@"SELECT
+                List<MinShengOPD> _OPD = new List<MinShengOPD>();
+                OleDbConnection conn = new OleDbConnection($@"Provider=vfpoledb;Data Source={filePath};Collating Sequence=machine;");
+                conn.Open();
+                OleDbCommand com = new OleDbCommand($@"SELECT
                                                           RecNo() AS RowNum
                                                         , MEDNO
                                                         , MHNAME
@@ -72,82 +64,45 @@ namespace FCP
                                                         , FLOAT(SUMQTY) AS SUMQTY
                                                         , PROCDATE
                                                         , PROCTIME
-                                                       FROM {FileName}
-                                                       WHERE RecNo() > {Index}", olecon);
-                OleDbDataReader sr = olecom.ExecuteReader();
-                while (sr.Read())
+                                                       FROM {fileName}
+                                                       WHERE RecNo() > {index}", conn);
+                OleDbDataReader dr = com.ExecuteReader();
+                while (dr.Read())
                 {
-                    if (sr["PROCDATE"].ToString().Trim() == "XXX")
+                    if (dr["PROCDATE"].ToString().Trim() == "XXX")
                         continue;
-                    DateTime.TryParseExact((Convert.ToInt32($"{sr["PROCDATE"]}".Trim()) + 19110000).ToString(), "yyyyMMdd", null, DateTimeStyles.None, out DateTime Start);
+                    DateTime.TryParseExact((Convert.ToInt32($"{dr["PROCDATE"]}".Trim()) + 19110000).ToString(), "yyyyMMdd", null, DateTimeStyles.None, out DateTime Start);
                     string StartDate = Start.ToString("yyMMdd");
-                    MS_OPD.Add(new MinSheng_OPD
+                    _OPD.Add(new MinShengOPD
                     {
-                        RecNo = int.Parse($"{sr["RowNum"]}".Trim()),
-                        PrescriptionNo = $"{sr["MEDNO"]}".Trim(),
-                        PatientName = $"{sr["MHNAME"]}".Trim().Replace('?', ' '),
-                        Age = $"{sr["AGE"]}".Trim(),
-                        DrugNo = $"{sr["DRUGNO"]}".Trim(),
-                        MedicineCode = $"{sr["DIACODE"]}".Trim(),
-                        MedicineName = $"{sr["DIANAME"]}".Trim(),
-                        PerQty = $"{sr["PER_QTY"]}".Trim(),
-                        Unit = $"{sr["Unit"]}".Trim(),
-                        AdminCode = $"{sr["USENO"]}".Trim(),
-                        Days = $"{sr["DAYS"]}".Trim(),
-                        SumQty = $"{sr["SUMQTY"]}".Trim(),
+                        RecNo = int.Parse($"{dr["RowNum"]}".Trim()),
+                        PrescriptionNo = $"{dr["MEDNO"]}".Trim(),
+                        PatientName = $"{dr["MHNAME"]}".Trim().Replace('?', ' '),
+                        Age = $"{dr["AGE"]}".Trim(),
+                        DrugNo = $"{dr["DRUGNO"]}".Trim(),
+                        MedicineCode = $"{dr["DIACODE"]}".Trim(),
+                        MedicineName = $"{dr["DIANAME"]}".Trim(),
+                        PerQty = $"{dr["PER_QTY"]}".Trim(),
+                        Unit = $"{dr["Unit"]}".Trim(),
+                        AdminCode = $"{dr["USENO"]}".Trim(),
+                        Days = $"{dr["DAYS"]}".Trim(),
+                        SumQty = $"{dr["SUMQTY"]}".Trim(),
                         StartDay = StartDate,
-                        BeginTime = $"{sr["PROCTIME"]}".Trim(),
-                        EndDay = Start.AddDays(int.Parse($"{sr["DAYS"]}".Trim()) - 1).ToString("yyMMdd")
+                        BeginTime = $"{dr["PROCTIME"]}".Trim(),
+                        EndDay = Start.AddDays(int.Parse($"{dr["DAYS"]}".Trim()) - 1).ToString("yyMMdd")
                     });
                 }
-                sr.Close();
+                dr.Close();
                 //olecom = new OleDbCommand($"INSERT INTO {FileName} VALUES('00000','1100706','侯名哲','1','024','0000','34','750','OCELE2','(200 mg) Celebrex 200 mg',1,'CAP','PO','QD','28',28,'CAP','N','2','N','1100706','1400')", olecon);
                 //olecom.ExecuteNonQuery();
-                olecom.Dispose();
-                olecon.Dispose();
-                return MS_OPD;
+                com.Dispose();
+                conn.Close();
+                return _OPD;
             }
             catch (Exception)
             {
-                //Debug.WriteLine(ex.ToString());
-                return new ObservableCollection<MinSheng_OPD>();
+                return new List<MinShengOPD>();
             }
-        }
-
-        public class MinSheng_UD
-        {
-            public int RecNo { get; set; }
-            public string PrescriptionNo { get; set; }
-            public string BedNo { get; set; }
-            public string PatientName { get; set; }
-            public string MedicineCode { get; set; }
-            public string MedicineName { get; set; }
-            public string PerQty { get; set; }
-            public string AdminCode { get; set; }
-            public string Description { get; set; }
-            public string SumQty { get; set; }
-            public string StartDay { get; set; }
-            public string BeginTime { get; set; }
-            public string Unit { get; set; }
-        }
-
-        public class MinSheng_OPD
-        {
-            public int RecNo { get; set; }
-            public string PrescriptionNo { get; set; }
-            public string PatientName { get; set; }
-            public string Age { get; set; }
-            public string DrugNo { get; set; }
-            public string MedicineCode { get; set; }
-            public string MedicineName { get; set; }
-            public string PerQty { get; set; }
-            public string Unit { get; set; }
-            public string AdminCode { get; set; }
-            public string Days { get; set; }
-            public string SumQty { get; set; }
-            public string StartDay { get; set; }
-            public string BeginTime { get; set; }
-            public string EndDay { get; set; }
         }
     }
 }

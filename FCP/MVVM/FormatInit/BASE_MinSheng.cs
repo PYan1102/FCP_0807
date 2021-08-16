@@ -1,27 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
 using System.IO;
+using FCP.MVVM.ViewModels.GetConvertFile;
+using FCP.MVVM.Models.Enum;
 
 namespace FCP.MVVM.FormatInit
 {
     class BASE_MinSheng : FunctionCollections
     {
-        FMT_MinSheng MS;
-        DoJson doJson = new DoJson();
-        public BASE_MinSheng()
-        {
-
-        }
+        private FMT_MinSheng _MS { get; set; }
 
         public override void Init()
         {
+            base.Init();
             MainWindow.Tgl_OPD1.IsChecked = true;
             MainWindow.Tgl_OPD3.IsChecked = true;
             MainWindow.Tgl_OPD4.IsChecked = true;
+            InitFindFileMode(Models.Enum.FindFileModeEnum.根據檔名開頭);
         }
 
         public override void AdvancedSettingsShow()
@@ -52,42 +46,25 @@ namespace FCP.MVVM.FormatInit
         public override void ConvertPrepare(bool isOPD)
         {
             base.ConvertPrepare(isOPD);
-            if (isOPD)
-            {
-                string Filter = WD._OPD1 ? "N|" : "";
-                Filter += WD._OPD2 ? "E|" : "";
-                Filter += WD._OPD3 ? "K" : "";
-                Loop_OPD(0, 1, Filter);
-            }
-            else
-            {
-                Loop_UD(0, 0, "");
-            }
-        }
-
-        public override void Loop_OPD(int Start, int Length, string Content)
-        {
-            base.Loop_OPD(Start, Length, Content);
-        }
-
-        public override void Loop_UD(int Start, int Length, string Content)
-        {
-            base.Loop_UD(Start, Length, Content);
+            SetOPDRule("N");
+            SetCareRule("E");
+            SetOtherRule("K");
+            SetUDBatchRule(nameof(DefaultEnum.Default));
+            SetIntoProperty(isOPD);
+            GetFileAsync();
         }
 
         public override void SetConvertInformation()
         {
             base.SetConvertInformation();
-            string Date = Path.GetFileNameWithoutExtension(base.FilePath).Substring(1);
-            string FirstFileName = Path.GetFileNameWithoutExtension(base.FilePath).Substring(0, 1);
-            int Index = FirstFileName == "N" ? 0 : FirstFileName == "E" ? 1 : FirstFileName == "K" ? 2 : 3;
-            doJson.JudgeJson(Date);
-            if (MS == null)
-                MS = new FMT_MinSheng();
-            MS.Index = doJson.GetIndex(Index, Date);
-            var result = MS.MethodShunt();
+            string fileDate = Path.GetFileNameWithoutExtension(base.FilePath).Substring(1);
+            JsonService.JudgeJsonHasBeenCreated(fileDate);
+            if (_MS == null)
+                _MS = new FMT_MinSheng();
+            _MS.Index = JsonService.GetOLEDBIndex(base.CurrentDepartment, fileDate);
+            var result = _MS.MethodShunt();
             Result(result, false, false);
-            doJson.UpdateJson(Date, Index, MS.newCount);
+            JsonService.UpdateJson(fileDate, base.CurrentDepartment, _MS.newCount);
         }
 
         public override void ProgressBoxClear()

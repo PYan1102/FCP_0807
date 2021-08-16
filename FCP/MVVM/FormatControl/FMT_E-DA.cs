@@ -98,6 +98,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
+                Log.Write($"{FilePath} {ex}");
                 ReturnsResult.Shunt(ConvertResult.產生OCS失敗, ex.ToString());
                 return false;
             }

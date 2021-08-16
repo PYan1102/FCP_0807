@@ -491,9 +491,9 @@ namespace FCP
                         File.Move(FilePath, $@"{SuccessPath}\{fileName}.ok");
                         WD.SuccessCountAdd();
                     }
-                    tip = $"{fileNameWithoutExtension}  轉檔成功";
+                    tip = $"{fileNameWithoutExtension} {nameof(ConvertResult.成功)}";
                     ProgressBoxAdd(tip);
-                    NF.ShowBalloonTip(850, "轉檔成功", tip, System.Windows.Forms.ToolTipIcon.None);
+                    NF.ShowBalloonTip(850, nameof(ConvertResult.成功), tip, System.Windows.Forms.ToolTipIcon.None);
                     break;
                 case ConvertResult.全數過濾:
                     if (isMoveFile)
@@ -503,9 +503,9 @@ namespace FCP
                     }
                     if (isReminder)
                     {
-                        tip = $"{fileNameWithoutExtension} 全數過濾";
+                        tip = $"{fileNameWithoutExtension} {nameof(ConvertResult.全數過濾)}";
                         ProgressBoxAdd(tip);
-                        NF.ShowBalloonTip(850, "全數過濾", tip, System.Windows.Forms.ToolTipIcon.None);
+                        NF.ShowBalloonTip(850, nameof(ConvertResult.全數過濾), tip, System.Windows.Forms.ToolTipIcon.None);
                     }
                     break;
                 case ConvertResult.沒有種包頻率:
@@ -524,11 +524,11 @@ namespace FCP
                         File.Move(FilePath, $@"{FailPath}\{fileName}.fail");
                         WD.FailCountAdd();
                     }
-                    ProgressBoxAdd(message);
+                    ProgressBoxAdd($"{returnsResult.Result} {message}");
                     NF.ShowBalloonTip(850, "轉檔錯誤", message, System.Windows.Forms.ToolTipIcon.Error);
                     break;
             }
-            Stop();
+            //Stop();
         }
 
         public virtual void ProgressBoxClear()
@@ -831,8 +831,8 @@ namespace FCP
         private void 民生ToOnCube(UILayout UI)
         {
             UI.Title = "民生醫院 > OnCube";
-            UI.IP1s = "門診養護";
-            UI.IP2s = "大寮百合";
+            UI.IP1s = "輸入路徑1";
+            UI.IP2s = "輸入路徑1";
             UI.IP3s = "住   院";
             UI.OPD1s = "門診";
             UI.OPD2s = "";

@@ -643,88 +643,83 @@ namespace FCP
                 throw ex;
             }
         }
-        public static bool MinSheng_UD(Dictionary<string, List<string>> DataDic, string FileNameOutput, ObservableCollection<OLEDB.MinSheng_UD> MS_UD, string Type)
+        public static void MinSheng_UD(Dictionary<string, List<string>> dataDic, string filePathOutput, List<MinShengUDBatch> UDBatch)
         {
             try
             {
-                string RootDirectory = Path.GetDirectoryName(FileNameOutput);
-                foreach (var v in DataDic)
+                string directoryName = Path.GetDirectoryName(filePathOutput);
+                foreach (var v in dataDic)
                 {
-                    int r = Int32.Parse(v.Key.Substring(0, v.Key.IndexOf("_")));
-                    using (StreamWriter sw = new StreamWriter($@"{RootDirectory}\{MS_UD[r].BedNo}_{MS_UD[r].PatientName}.txt", true, Encoding.Default))
+                    int index = Int32.Parse(v.Key.Substring(0, v.Key.IndexOf("_")));
+                    using (StreamWriter sw = new StreamWriter($@"{directoryName}\{UDBatch[index].BedNo}_{UDBatch[index].PatientName}.txt", true, Encoding.Default))
                     {
-                        string DateTemp = v.Key.Substring(v.Key.IndexOf("_") + 1, v.Key.Length - v.Key.IndexOf("_") - 1);
-                        DateTime.TryParseExact(DateTemp, "yyMMdd", null, DateTimeStyles.None, out DateTime Date);
-                        bool _combi = false;
+                        string dateTemp = v.Key.Substring(v.Key.IndexOf("_") + 1, v.Key.Length - v.Key.IndexOf("_") - 1);
+                        DateTime.TryParseExact(dateTemp, "yyMMdd", null, DateTimeStyles.None, out DateTime date);
+                        bool isCombi = false;
                         foreach (string time in v.Value)
                         {
-                            _combi = time == "Combi";
-                            sw.Write(ECD(MS_UD[r].PatientName, 20));
-                            sw.Write(MS_UD[r].PrescriptionNo.PadRight(30));
-                            sw.Write(ECD(Type, 50));
+                            isCombi = time == nameof(DoseMode.種包);
+                            sw.Write(ECD(UDBatch[index].PatientName, 20));
+                            sw.Write(UDBatch[index].PrescriptionNo.PadRight(30));
+                            sw.Write(ECD("住院", 50));
                             sw.Write("".PadRight(29));
-                            if (_combi)
-                                sw.Write(float.Parse(MS_UD[r].PerQty).ToString("0.###").PadRight(5));
+                            if (isCombi)
+                                sw.Write(float.Parse(UDBatch[index].PerQty).ToString("0.###").PadRight(5));
                             else
-                                sw.Write(float.Parse(MS_UD[r].PerQty).ToString("0.###").PadRight(5));
-                            sw.Write(MS_UD[r].MedicineCode.PadRight(20));
-                            sw.Write(ECD(MS_UD[r].MedicineName, 50));
-                            if (_combi)
+                                sw.Write(float.Parse(UDBatch[index].PerQty).ToString("0.###").PadRight(5));
+                            sw.Write(UDBatch[index].MedicineCode.PadRight(20));
+                            sw.Write(ECD(UDBatch[index].MedicineName, 50));
+                            if (isCombi)
                             {
-                                sw.Write(MS_UD[r].AdminCode.PadRight(20));
+                                sw.Write(UDBatch[index].AdminCode.PadRight(20));
                                 //int Days = (int)(Convert.ToDecimal(MS_UD[r].Dosage) / Convert.ToDecimal(MS_UD[r].Dosage));
-                                sw.Write(Date.ToString("yyMMdd"));
-                                sw.Write(Date.ToString("yyMMdd"));
+                                sw.Write(date.ToString("yyMMdd"));
+                                sw.Write(date.ToString("yyMMdd"));
                             }
                             else
                             {
-                                sw.Write($"{MS_UD[r].AdminCode}{time}".PadRight(20));
-                                sw.Write(Date.ToString("yyMMdd"));
-                                sw.Write(Date.ToString("yyMMdd"));
+                                sw.Write($"{UDBatch[index].AdminCode}{time}".PadRight(20));
+                                sw.Write(date.ToString("yyMMdd"));
+                                sw.Write(date.ToString("yyMMdd"));
                             }
                             sw.Write("".PadRight(58));
-                            sw.Write(MS_UD[r].PrescriptionNo.PadRight(50));
+                            sw.Write(UDBatch[index].PrescriptionNo.PadRight(50));
                             sw.Write("".PadRight(50));
                             sw.Write("1999-01-01");
                             sw.Write("男    ");
-                            sw.Write(MS_UD[r].BedNo.PadRight(20));
+                            sw.Write(UDBatch[index].BedNo.PadRight(20));
                             sw.Write("".PadRight(20));
                             sw.Write("0");
                             sw.Write(ECD("民生醫院", 30));
                             sw.Write("".PadRight(450));
-                            if (_combi)
-                                sw.WriteLine("C");
-                            else
-                                sw.WriteLine("M");
+                            sw.WriteLine(isCombi ? "C" : "M");
                         }
                     }
                 }
-                return true;
             }
             catch (Exception ex)
             {
                 Log.Write(ex.ToString());
-                return false;
+                throw ex;
             }
         }
 
-        public static bool MinSheng_OPD(string FileNameOutput, ObservableCollection<OLEDB.MinSheng_OPD> MS_OPD, string Type)
+        public static void MinSheng_OPD(List<MinShengOPD> MS_OPD, string filePathOutput, string location)
         {
             try
             {
-                string RootDirectory = Path.GetDirectoryName(FileNameOutput);
-                int MaxDays = MS_OPD.Select(x => Convert.ToInt32(x.Days)).ToList().Max();
+                string directoryName = Path.GetDirectoryName(filePathOutput);
+                int maxDays = MS_OPD.Select(x => Convert.ToInt32(x.Days)).ToList().Max();
                 foreach (var v in MS_OPD)
                 {
-                    DateTime.TryParse((Int32.Parse(v.StartDay) + 19110000).ToString(), out DateTime Startdate);
-                    //Debug.WriteLine(Startdate);
-                    using (StreamWriter sw = new StreamWriter($@"{RootDirectory}\{v.DrugNo}_{v.PatientName}.txt", true, Encoding.Default))
+                    DateTime.TryParse((Int32.Parse(v.StartDay) + 19110000).ToString(), out DateTime startdate);
+                    using (StreamWriter sw = new StreamWriter($@"{directoryName}\{v.DrugNo}_{v.PatientName}.txt", true, Encoding.Default))
                     {
                         sw.Write(ECD(v.PatientName, 20));
                         sw.Write(v.PrescriptionNo.PadRight(30));
-                        sw.Write(ECD(Type, 50));
+                        sw.Write(ECD(location, 50));
                         sw.Write("".PadRight(29));
-                        sw.Write(float.Parse(v.PerQty).ToString("0.###"), 5);
+                        sw.Write(float.Parse(v.PerQty).ToString("0.###").PadRight(5));
                         sw.Write(v.MedicineCode.PadRight(20));
                         sw.Write(ECD(v.MedicineName, 50));
                         sw.Write(v.AdminCode.PadRight(20));
@@ -739,18 +734,16 @@ namespace FCP
                         sw.Write("0");
                         sw.Write(ECD("民生醫院", 30));
                         sw.Write(v.DrugNo.PadRight(30));
-                        sw.Write($"{MaxDays}".PadRight(30));
+                        sw.Write($"{maxDays}".PadRight(30));
                         sw.Write("".PadRight(30));
                         sw.WriteLine("M");
                     }
                 }
-
-                return true;
             }
             catch (Exception ex)
             {
                 Log.Write(ex.ToString());
-                return false;
+                throw ex;
             }
         }
 
@@ -951,7 +944,7 @@ namespace FCP
                 List<string> extraList = AssignExtraAdminTime(_SettingsModel.OppositeAdminCode);
                 using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
                 {
-                    foreach(var v in OPD)
+                    foreach (var v in OPD)
                     {
                         DoseMode doseMode = JudgeDoseType(_SettingsModel.DoseMode, extraList, v.AdminCode);  //劑量類型判斷Combi or Multi
                         sw.Write(ECD(basic.PatientName, 20));

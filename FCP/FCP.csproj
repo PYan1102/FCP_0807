@@ -99,7 +99,7 @@
     <Compile Include="MVVM\FormatInit\BASE_ChuangSheng.cs" />
     <Compile Include="MVVM\FormatInit\BASE_FangDing.cs" />
     <Compile Include="Core\RelayCommand.cs" />
-    <Compile Include="DoJson.cs" />
+    <Compile Include="JsonService.cs" />
     <Compile Include="ExtraSettings.cs" />
     <Compile Include="MVVM\FormatInit\BASE_E_DA.cs" />
     <Compile Include="MVVM\Factory\FormatFactory.cs" />

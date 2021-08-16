@@ -79,28 +79,28 @@ namespace FCP
             }
         }
 
-        public static bool ChangGung_POWDER(ObservableCollection<FMT_ChangGung_POWDER.POWDER> pow, string FileOutputName)
+        public static void ChangGung_POWDER(List<ChangGungPowder> Powder, string filePathOutput)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(FileOutputName, false, Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
                 {
                     sw.Write("|JVPHEAD|");
                     sw.Write("1");
-                    sw.Write(pow[0].PatientNo.PadRight(15));
+                    sw.Write(Powder[0].PatientNo.PadRight(15));
                     sw.Write("".PadRight(20));
                     sw.Write("1".PadRight(5));
                     sw.Write($"{DateTime.Now:yyyyMMddHH:mm}");
                     sw.Write("A123456789".PadRight(40));
                     sw.Write("20210101");
-                    sw.Write(pow[0].PrescriptionNo.PadRight(30));
+                    sw.Write(Powder[0].PrescriptionNo.PadRight(30));
                     sw.Write("".PadRight(45));
-                    sw.Write(ECD(pow[0].PatientName, 20));
+                    sw.Write(ECD(Powder[0].PatientName, 20));
                     sw.Write("1 ");
                     sw.Write("".PadRight(191));
-                    sw.Write(ECD(pow[0].Mediciner, 20));
+                    sw.Write(ECD(Powder[0].Mediciner, 20));
                     sw.Write("   |JVPEND||JVMHEAD|");
-                    foreach(var v in pow)
+                    foreach(var v in Powder)
                     {
                         sw.Write("T");
                         sw.Write(v.MedicineCode.PadRight(15));
@@ -113,12 +113,11 @@ namespace FCP
                     }
                     sw.Write("|JVMEND|");
                 }
-                return true;
             }
             catch (Exception ex)
             {
                 Log.Write(ex.ToString());
-                return false;
+                throw ex;
             }
         }
 
