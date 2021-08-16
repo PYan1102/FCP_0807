@@ -7,16 +7,13 @@ namespace FCP.MVVM.FormatInit
     class BASE_KuangTien : FunctionCollections
     {
         public string StatOrBatch { get; set; }
-        private FMT_KuangTien _KT;
-        public BASE_KuangTien()
-        {
-
-        }
+        private FMT_KuangTien _KT { get; set; }
 
         public override void Init()
         {
             base.Init();
             MainWindow.Tgl_OPD2.IsChecked = true;
+            InitFindFileMode(FindFileModeEnum.根據檔名開頭);
         }
 
         public override void AdvancedSettingsShow()
