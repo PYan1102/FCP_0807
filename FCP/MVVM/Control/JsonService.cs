@@ -9,7 +9,7 @@ using System.IO;
 using System.Diagnostics;
 using FCP.MVVM.Models.Enum;
 
-namespace FCP
+namespace FCP.MVVM.Control
 {
     static class JsonService
     {

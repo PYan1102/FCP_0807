@@ -6,8 +6,9 @@ using System.IO;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.Models;
 using System.Globalization;
+using FCP.MVVM.Helper;
 
-namespace FCP
+namespace FCP.MVVM.FormatControl
 {
     class FMT_E_DA : FormatCollection
     {

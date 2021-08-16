@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Data.OleDb;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using FCP.MVVM.FormatControl;
 
-namespace FCP
+namespace FCP.MVVM.SQL
 {
     static class OLEDB
     {

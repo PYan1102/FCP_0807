@@ -2,6 +2,8 @@
 using System.IO;
 using FCP.MVVM.ViewModels.GetConvertFile;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.FormatControl;
+using FCP.MVVM.Control;
 
 namespace FCP.MVVM.FormatInit
 {

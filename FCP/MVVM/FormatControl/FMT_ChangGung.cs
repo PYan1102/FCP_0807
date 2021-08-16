@@ -8,8 +8,9 @@ using System.Globalization;
 using FCP.MVVM.Models;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.Factory;
+using FCP.MVVM.Helper;
 
-namespace FCP
+namespace FCP.MVVM.FormatControl
 {
     class FMT_ChangGung : FormatCollection
     {

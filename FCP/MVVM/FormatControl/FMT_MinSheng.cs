@@ -6,8 +6,10 @@ using System.IO;
 using System.Globalization;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.Models;
+using FCP.MVVM.SQL;
+using FCP.MVVM.Helper;
 
-namespace FCP
+namespace FCP.MVVM.FormatControl
 {
     class FMT_MinSheng : FormatCollection
     {

@@ -6,31 +6,37 @@ using System.IO;
 using System.Data.SqlClient;
 using System.Globalization;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.Helper;
+using FCP.MVVM.SQL;
+using FCP.MVVM.Control;
 
-namespace FCP
+namespace FCP.MVVM.FormatControl
 {
     class FMT_KuangTien : FormatCollection
     {
         public string StatOrBatch { get; set; }
-        string HospitalInformation = "";
-        string PatientInformation = "";
-        string MedicineInformation = "";
-        string GetMedicineNumber = "";
-        string WriteDate = "";
-        string EffectiveDate = "";
-        List<string> TreatmentDate = new List<string>();
-        List<string> PrescriptionCutTime = new List<string>();
-        List<string> CalculationDays = new List<string>();
-        List<string> SpecialCode = new List<string>();
-        List<string> TimesPerDay = new List<string>();
-        Dictionary<string, List<string>> Dic = new Dictionary<string, List<string>>();
-        Dictionary<string, string> JudgeMedicineGivenDic = new Dictionary<string, string>();
-        Dictionary<int, string> HospitalInformationDic = new Dictionary<int, string>();
-        Dictionary<int, string> PatientInformationDic = new Dictionary<int, string>();
-        Dictionary<int, string> MedicineInformationDic = new Dictionary<int, string>();
-        Dictionary<int, string> BarcodeDic = new Dictionary<int, string>();
-        SqlConnection con;
-        SqlCommand com;
+        private string HospitalInformation = "";
+        private string PatientInformation = "";
+        private string MedicineInformation = "";
+        private string GetMedicineNumber = "";
+        private string WriteDate = "";
+        private string EffectiveDate = "";
+        private List<string> TreatmentDate = new List<string>();
+        private List<string> PrescriptionCutTime = new List<string>();
+        private List<string> CalculationDays = new List<string>();
+        private List<string> SpecialCode = new List<string>();
+        private List<string> TimesPerDay = new List<string>();
+        private Dictionary<string, List<KuangTienPowder>> _PowderDic = new Dictionary<string, List<KuangTienPowder>>();
+        private Dictionary<string, string> JudgeMedicineGivenDic = new Dictionary<string, string>();
+        private Dictionary<int, string> HospitalInformationDic = new Dictionary<int, string>();
+        private Dictionary<int, string> PatientInformationDic = new Dictionary<int, string>();
+        private Dictionary<int, string> MedicineInformationDic = new Dictionary<int, string>();
+        private Dictionary<int, string> BarcodeDic = new Dictionary<int, string>();
+
+        private List<KuangTienOPD> _OPD = new List<KuangTienOPD>();
+        private List<KuangTienUDBatch> _UDBatch = new List<KuangTienUDBatch>();
+        private List<KuangTienUDStat> _UDStat = new List<KuangTienUDStat>();
+        private List<KuangTienPowder> _Powder = new List<KuangTienPowder>();
 
         public override bool ProcessOPD()
         {
@@ -39,7 +45,6 @@ namespace FCP
                 ClearList();
                 var ecd = Encoding.Default;
                 string FileContent = DeleteSpace(GetContent);
-                string FileNameTemp = Path.GetFileNameWithoutExtension(FilePath);
                 string[] FileContentSplit = FileContent.Split('\n');
                 byte[] Temp = ecd.GetBytes(FileContentSplit[0]);
                 WriteDate = ecd.GetString(Temp, 9, 9).Trim();
@@ -309,20 +314,11 @@ namespace FCP
                         AdminCode_L[x] = $"S{AdminCode_L[x]}";
                         QODDescription.Add(QODTEMP);
                         PerQty_L[x] = SumQty_L[x];
-                        con = new SqlConnection(SQLInfo_S);
-                        con.Open();
                         //沙鹿
-                        //using (com = new SqlCommand(@"update PrintFormItem set DeletedYN=1 where RawID in (120180,120195)", con))
-                        //{
-                        //    com.ExecuteNonQuery();
-                        //}
+                        //SQLQuery.NonQuery("update PrintFormItem set DeletedYN=1 where RawID in (120180,120195)");
 
                         //大甲
-                        using (com = new SqlCommand(@"update PrintFormItem set DeletedYN=1 where RawID in (120156,120172)", con))
-                        {
-                            com.ExecuteNonQuery();
-                        }
-                        con.Close();
+                        SQLQuery.NonQuery("update PrintFormItem set DeletedYN=1 where RawID in (120156,120172)");
                         continue;
                     }
                     //種包                                                                                                                                      //23521 為大甲需求
@@ -798,49 +794,57 @@ namespace FCP
             try
             {
                 ClearList();
-                var ecd = Encoding.Default;
-                string GrindTable;
-                List<string> TimesPerDay = new List<string>();
-                string FileNameTemp = Path.GetFileNameWithoutExtension(FilePath);
-                string[] FileContentSplit = DeleteSpace(GetContent).Split('\n');
-                byte[] Temp = ecd.GetBytes(FileContentSplit[0]);
-                WriteDate = ecd.GetString(Temp, 9, 9).Trim();
-                GetMedicineNumber = ecd.GetString(Temp, 54, 8).Trim();
-                Age_S = ecd.GetString(Temp, 67, 5).Trim();
-                DoctorName_S = ecd.GetString(Temp, 77, 11).Trim();
-                Temp = ecd.GetBytes(FileContentSplit[1]);
-                PatientNo_S = ecd.GetString(Temp, 9, 11).Trim();
-                PatientName_S = ecd.GetString(Temp, 25, 21).Trim();
-                Gender_S = ecd.GetString(Temp, 47, 2).Trim();
-                Class_S = ecd.GetString(Temp, 67, Temp.Length - 67).Trim();
-                for (int x = 4; x <= FileContentSplit.ToList().Count - 3; x++)
+                List<string> list = DeleteSpace(GetContent).Split('\n').ToList();
+                EncodingHelper.SetEncodingBytes(list[0]);
+                int year = Convert.ToInt32(EncodingHelper.GetEncodingString(9, 3)) + 1911;
+                DateTime startDate = Convert.ToDateTime($"{year}{EncodingHelper.GetEncodingString(12, 6)}");
+                string getMedicineNumber = EncodingHelper.GetEncodingString(54, 8);
+                EncodingHelper.SetEncodingBytes(list[1]);
+                string patientNo = EncodingHelper.GetEncodingString(9, 11);
+                string patientName = EncodingHelper.GetEncodingString(25, 21);
+                string gender = EncodingHelper.GetEncodingString(47, 2);
+                string _class = EncodingHelper.GetEncodingString(67, EncodingHelper.GetBytesLength - 67);
+                list.RemoveRange(0, 4);
+                foreach (string s in list)
                 {
-                    byte[] ATemp = ecd.GetBytes(FileContentSplit[x]);
-                    AdminCode_S = ecd.GetString(ATemp, 57, 11).Trim() + ecd.GetString(ATemp, 68, 9).Trim();
-                    GrindTable = ecd.GetString(ATemp, 100, 8).Trim();
-                    if (GrindTable.Equals(""))
+                    if (s.Contains("=====") || s.Trim().Length == 0)
                         continue;
-                    if (IsFilterAdminCode(AdminCode_S))
+                    EncodingHelper.SetEncodingBytes(s.TrimEnd('\n'));
+                    string adminCode = EncodingHelper.GetEncodingString(57, 11) + EncodingHelper.GetEncodingString(68, 9);
+                    string grindTable = EncodingHelper.GetEncodingString(100, 8);
+                    if (grindTable.Length == 0)
                         continue;
-                    if (!IsExistsMultiAdminCode(AdminCode_S))
+                    if (IsFilterAdminCode(adminCode))
+                        continue;
+                    if (!IsExistsMultiAdminCode(adminCode))
                     {
-                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
-                        ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, AdminCode_S);
+                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {adminCode}");
+                        ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, adminCode);
                         return false;
                     }
-                    if (!Dic.TryGetValue(GrindTable, out List<string> a))
-                        Dic.Add(GrindTable, new List<string>());
-                    Dic[GrindTable].Add(ecd.GetString(ATemp, 2, 10).Trim());  //MedicineCode
-                    Dic[GrindTable].Add(ecd.GetString(ATemp, 12, 31).Trim());  //MedicineName
-                    Dic[GrindTable].Add(ecd.GetString(ATemp, 43, 8).Trim());  //PerQty
-                    Dic[GrindTable].Add(ecd.GetString(ATemp, 57, 11).Trim() + ecd.GetString(ATemp, 68, 9).Trim());  //AdminTime
-                    Dic[GrindTable].Add(ecd.GetString(ATemp, 77, 5).Trim());  //Days
-                    Dic[GrindTable].Add(ecd.GetString(ATemp, 82, 8).Trim());  //SumQty
-                    Dic[GrindTable].Add(ecd.GetString(ATemp, 100, 8).Trim());  //GrindTanle
-                    Dic[GrindTable].Add($"{GetMultiAdminCodeTimes(AdminCode_S).Count}");  //TimesPerDay
-                    EffectiveDate = DateTime.Now.AddDays(Convert.ToInt32(ecd.GetString(ATemp, 77, 5).Trim())).ToString("yyyy/MM/dd");
+                    var powder = new KuangTienPowder()
+                    {
+                        StartDate = startDate,
+                        GetMedicineNo = getMedicineNumber,
+                        PatientNo = patientNo,
+                        PatientName = patientName,
+                        Gender = gender,
+                        Class = _class,
+                        MedicineCode = EncodingHelper.GetEncodingString(2, 10),
+                        MedicineName = EncodingHelper.GetEncodingString(12, 31),
+                        PerQty = EncodingHelper.GetEncodingString(43, 8),
+                        AdminCode = adminCode,
+                        Days = EncodingHelper.GetEncodingString(77, 5),
+                        SumQty = EncodingHelper.GetEncodingString(82, 8),
+                        GrindTable = grindTable,
+                        TimesPerDay = GetMultiAdminCodeTimes(adminCode).Count.ToString(),
+                        EffectiveDate = DateTime.Now.AddDays(Convert.ToInt32(EncodingHelper.GetEncodingString(77, 5)))
+                    };
+                    if (!_PowderDic.ContainsKey(grindTable))
+                        _PowderDic[grindTable] = new List<KuangTienPowder>();
+                    _PowderDic[grindTable].Add(powder);
                 }
-                if (Dic.Count == 0)
+                if (_PowderDic.Count == 0)
                 {
                     ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                     return false;
@@ -857,35 +861,20 @@ namespace FCP
 
         public override bool LogicPOWDER()
         {
-            if (Dic.Count == 0)
-            {
-                ReturnsResult.Shunt(ConvertResult.全數過濾, null);
-                return false;
-            }
+            int year = (Convert.ToInt32(DateTime.Now.ToString("yyyy")) - 1911);
+            var firstPowder = _PowderDic.Select(x => x).First().Value[0];
+            string filePathOutput = $@"{OutputPath}\{year}{DateTime.Now:MMdd}_{firstPowder.GetMedicineNo}_{firstPowder.PatientName}_{CurrentSeconds}.txt";
+            List<string> grindTableList = new List<string>();
+            grindTableList.AddRange(_PowderDic.Where(x => !grindTableList.Contains(x.Key)).Select(x => x.Key));
             try
             {
-                bool yn;
-                string Year = (Convert.ToInt32(DateTime.Now.ToString("yyyy")) - 1911).ToString();
-                FileNameOutput_S = $@"{OutputPath}\{Year}{DateTime.Now:MMdd}_{GetMedicineNumber.Trim()}_{PatientName_S}_{CurrentSeconds}.txt";
-                List<string> DicDistinct = new List<string>();
-                foreach (var v in Dic)
-                {
-                    if (!DicDistinct.Contains(v.Key))
-                        DicDistinct.Add(v.Key);
-                }
-                yn = OP_JVServer.KuangTien_磨粉(Dic, DicDistinct, PatientName_S, DoctorName_S, GetMedicineNumber, PatientNo_S, Age_S, Gender_S, Class_S, WriteDate, FileNameOutput_S, EffectiveDate);
-                if (yn)
-                    return true;
-                else
-                {
-                    ReturnsResult.Shunt(ConvertResult.產生OCS失敗, null);
-                    return false;
-                }
+                OP_JVServer.KuangTien_磨粉(_PowderDic, grindTableList, filePathOutput);
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Write($"{FilePath}  {ex}");
-                ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
+                ReturnsResult.Shunt(ConvertResult.產生OCS失敗, ex.ToString());
                 return false;
             }
         }
@@ -907,7 +896,7 @@ namespace FCP
             CalculationDays.Clear();
             SpecialCode.Clear();
             TimesPerDay.Clear();
-            Dic.Clear();
+            _PowderDic.Clear();
             JudgeMedicineGivenDic.Clear();
             HospitalInformationDic.Clear();
             PatientInformationDic.Clear();
@@ -924,5 +913,39 @@ namespace FCP
         {
             throw new NotImplementedException();
         }
+    }
+
+    internal class KuangTienOPD
+    {
+
+    }
+
+    internal class KuangTienUDBatch
+    {
+
+    }
+
+    internal class KuangTienUDStat
+    {
+
+    }
+
+    internal class KuangTienPowder
+    {
+        public DateTime StartDate { get; set; }
+        public string GetMedicineNo { get; set; }
+        public string PatientNo { get; set; }
+        public string PatientName { get; set; }
+        public string Gender { get; set; }
+        public string Class { get; set; }
+        public string MedicineCode { get; set; }
+        public string MedicineName { get; set; }
+        public string PerQty { get; set; }
+        public string AdminCode { get; set; }
+        public string Days { get; set; }
+        public string SumQty { get; set; }
+        public string GrindTable { get; set; }
+        public string TimesPerDay { get; set; }
+        public DateTime EffectiveDate { get; set; }
     }
 }

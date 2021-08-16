@@ -5,8 +5,9 @@ using System.Text;
 using System.IO;
 using System.Diagnostics;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.Helper;
 
-namespace FCP
+namespace FCP.MVVM.FormatControl
 {
     class FMT_XiaoGang : FormatCollection
     {

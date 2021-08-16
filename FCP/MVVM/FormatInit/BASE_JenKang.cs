@@ -3,16 +3,13 @@ using System.Text;
 using System.IO;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.ViewModels.GetConvertFile;
+using FCP.MVVM.FormatControl;
 
 namespace FCP.MVVM.FormatInit
 {
     class BASE_JenKang : FunctionCollections
     {
-        FMT_JenKang JK;
-        public BASE_JenKang()
-        {
-
-        }
+        private FMT_JenKang _JK { get; set; }
 
         public override void Init()
         {
@@ -61,9 +58,9 @@ namespace FCP.MVVM.FormatInit
             if (content.Contains("護理"))
                 base.CurrentDepartment = DepartmentEnum.UDBatch;
             base.SetConvertInformation();
-            if (JK == null)
-                JK = new FMT_JenKang();
-            var result = JK.MethodShunt();
+            if (_JK == null)
+                _JK = new FMT_JenKang();
+            var result = _JK.MethodShunt();
             Result(result, true, true);
         }
 

@@ -8,74 +8,68 @@ using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Collections.ObjectModel;
+using FCP.MVVM.Helper;
+using FCP.MVVM.FormatControl;
 
 namespace FCP
 {
     static class OP_JVServer
     {
-        public static bool KuangTien_磨粉(Dictionary<string, List<string>> Dic, List<string> DicDistinct, string PatientName, string DoctorName, string GetMedicineNumber, string PatientNumber, string Age, string Sex, string Class, string WriteDate,
-            string FileOutputPath, string EffectiveDate)
+        public static void KuangTien_磨粉(Dictionary<string, List<KuangTienPowder>> powder, List<string> grindTableList, string filePathOutput)
         {
             try
             {
-                foreach(string s in DicDistinct)
+                foreach (string grindTable in grindTableList)
                 {
-                    string OutputPath= FileOutputPath.Insert(FileOutputPath.LastIndexOf("_") + 1, s);
-                    OutputPath = OutputPath.Insert(OutputPath.LastIndexOf(".") - 7, "_");
-                    string Year = (Convert.ToInt32(WriteDate.Substring(0, 3)) + 1911).ToString();
-                    DateTime.TryParseExact(Year + WriteDate.Substring(3, 6), "yyyy/MM/dd", null, DateTimeStyles.None, out DateTime PrescriptionDate);
-                    using (StreamWriter sw = new StreamWriter(OutputPath, false, Encoding.Default))
+                    string newFilePath = filePathOutput.Insert(filePathOutput.LastIndexOf("_") + 1, grindTable);
+                    newFilePath = newFilePath.Insert(newFilePath.LastIndexOf(".") - 7, "_");
+                    using (StreamWriter sw = new StreamWriter(newFilePath, false, Encoding.Default))
                     {
-                        int SexCode;
-                        if (Sex == "男")
-                            SexCode = 1;
-                        else
-                            SexCode = 2;
+                        var firstPowder = powder.Select(x => x).First().Value[0];
                         sw.Write("|JVPHEAD|");
                         sw.Write("1");
-                        sw.Write(PatientNumber.PadRight(15));
+                        sw.Write(firstPowder.PatientNo.PadRight(15));
                         sw.Write("".PadRight(20));
-                        sw.Write(Age.PadRight(5));
-                        sw.Write(PrescriptionDate.ToString("yyyyMMdd"));
+                        sw.Write("20   ");
+                        sw.Write(firstPowder.StartDate.ToString("yyyyMMdd"));
                         sw.Write("00:00");
                         sw.Write("D123456789".PadRight(40));
                         sw.Write("19970101");
-                        sw.Write(GetMedicineNumber.PadRight(30));
+                        sw.Write(firstPowder.GetMedicineNo.PadRight(30));
                         sw.Write("".PadRight(45));
-                        sw.Write(ECD(PatientName, 20));
-                        sw.Write(SexCode.ToString().PadRight(2));
-                        sw.Write(EffectiveDate.PadRight(30));
+                        sw.Write(ECD(firstPowder.PatientName, 20));
+                        sw.Write("1 ");
+                        sw.Write(firstPowder.EffectiveDate.ToString("yyyy/MM/dd").PadRight(30));
                         sw.Write(ECD("光田醫院", 40));
-                        sw.Write(ECD(DoctorName, 20));
+                        sw.Write("".PadRight(20));
                         sw.Write("".PadRight(121));
                         sw.Write("M  ");
                         sw.Write("|JVPEND|");
                         sw.Write("|JVMHEAD|");
-                        for (int x = 0; x <= Dic[s].Count - 1; x+=8)
+                        foreach (var v in powder[grindTable])
                         {
                             sw.Write("T");
-                            sw.Write(Dic[s][x].PadRight(15));  //MedicineCode
-                            sw.Write(ECD(Dic[s][x + 1], 50));  //MedicineName
-                            sw.Write(Dic[s][x + 3].PadRight(10));  //AdminTime
-                            sw.Write(Dic[s][x + 4].PadRight(3));  //Days
-                            sw.Write(Dic[s][x + 7].PadRight(2));  //TimesPerDay
-                            sw.Write(Dic[s][x + 2].PadRight(6));  //Dosage
-                            sw.Write(Dic[s][x + 5].PadRight(8));  //TotalQuantiy
+                            sw.Write(v.MedicineCode.PadRight(15));
+                            sw.Write(ECD(v.MedicineName, 50));
+                            sw.Write(v.AdminCode.PadRight(10));
+                            sw.Write(v.Days.PadRight(3));
+                            sw.Write(v.TimesPerDay.PadRight(2));
+                            sw.Write(v.PerQty.PadRight(6));
+                            sw.Write(v.SumQty.PadRight(8));
                             sw.Write("".PadRight(11));
-                            sw.Write(PrescriptionDate.ToString("yyyy/MM/dd"));
+                            sw.Write(v.StartDate.ToString("yyyy/MM/dd"));
                             sw.Write("00:00     ");
-                            sw.Write(PrescriptionDate.AddDays(Int32.Parse(Dic[s][x + 4]) - 1).ToString("yyyy/MM/dd"));
+                            sw.Write(v.StartDate.AddDays(Convert.ToInt32(v.Days) - 1).ToString("yyyy/MM/dd"));
                             sw.Write("00:00     ");
                         }
                         sw.Write("|JVMEND|");
                     }
                 }
-                return true;
             }
-            catch (Exception a)
+            catch (Exception ex)
             {
-                Log.Write(a.ToString());
-                return false;
+                Log.Write(ex.ToString());
+                throw ex;
             }
         }
 

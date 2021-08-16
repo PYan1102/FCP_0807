@@ -1,14 +1,11 @@
 ﻿using System;
+using FCP.MVVM.FormatControl;
 
 namespace FCP.MVVM.FormatInit
 {
     class BASE_ChuangSheng : FunctionCollections
     {
-        FMT_ChuangSheng CS;
-        public BASE_ChuangSheng()
-        {
-
-        }
+        private FMT_ChuangSheng _CS { get; set; }
 
         public override void Init()
         {
@@ -59,9 +56,9 @@ namespace FCP.MVVM.FormatInit
         public override void SetConvertInformation()
         {
             base.SetConvertInformation();
-            if (CS == null)
-                CS = new FMT_ChuangSheng();
-            var result = CS.MethodShunt();
+            if (_CS == null)
+                _CS = new FMT_ChuangSheng();
+            var result = _CS.MethodShunt();
             Result(result, true, true);
         }
 

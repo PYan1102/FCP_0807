@@ -1,15 +1,11 @@
 ﻿using System;
+using FCP.MVVM.FormatControl;
 
 namespace FCP.MVVM.FormatInit
 {
     class BASE_JVServer : FunctionCollections
     {
-        FMT_JVServer JVS;
-
-        public BASE_JVServer()
-        {
-
-        }
+        private FMT_JVServer _JVS { get; set; }
 
         public override void Init()
         {
@@ -54,9 +50,9 @@ namespace FCP.MVVM.FormatInit
         public override void SetConvertInformation()
         {
             base.SetConvertInformation();
-            if (JVS == null)
-                JVS = new FMT_JVServer();
-            var result = JVS.MethodShunt();
+            if (_JVS == null)
+                _JVS = new FMT_JVServer();
+            var result = _JVS.MethodShunt();
             Result(result, true, true);
         }
 

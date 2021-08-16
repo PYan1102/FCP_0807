@@ -2,12 +2,13 @@
 using System.Diagnostics;
 using System.IO;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.FormatControl;
 
 namespace FCP.MVVM.FormatInit
 {
     class BASE_ChangGung : FunctionCollections
     {
-        private FMT_ChangGung _CG = new FMT_ChangGung();
+        private FMT_ChangGung _CG { get; set; }
 
         public override void Init()
         {
@@ -106,11 +107,11 @@ namespace FCP.MVVM.FormatInit
                 return;
             if (CurrentDepartment == DepartmentEnum.Other)
             {
-                base.FilePath = MergeFiles(Path.GetDirectoryName(base.FilePath), "藥來速", 0, 1, "0");
+                base.FilePath = MergeFilesAndGetNewFilePath(Path.GetDirectoryName(base.FilePath), "藥來速", 0, 1, "0");
             }
             else if (!WD._IsStat && CurrentDepartment == DepartmentEnum.UDBatch)
             {
-                base.FilePath = MergeFiles(Path.GetDirectoryName(base.FilePath), "住院批次", 0, 5, "udpkg");
+                base.FilePath = MergeFilesAndGetNewFilePath(Path.GetDirectoryName(base.FilePath), "住院批次", 0, 5, "udpkg");
             }
         }
     }

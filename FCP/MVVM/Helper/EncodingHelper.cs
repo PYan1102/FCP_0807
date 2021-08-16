@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace FCP
+namespace FCP.MVVM.Helper
 {
     static class EncodingHelper
     {

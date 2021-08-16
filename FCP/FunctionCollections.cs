@@ -15,6 +15,7 @@ using FCP.MVVM.Models;
 using FCP.MVVM.Factory;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.ViewModels.GetConvertFile;
+using FCP.MVVM.Helper;
 
 namespace FCP
 {
@@ -30,7 +31,6 @@ namespace FCP
         public SmallForm SF;
         public AdvancedSettings AS;
         MsgB Msg;
-        MergeFiles Merge = new MergeFiles();
         CancellationTokenSource cts;
         CancellationTokenSource cts1;
         List<string> IPList = new List<string>();
@@ -581,11 +581,13 @@ namespace FCP
             WD = null;
         }
 
-        public string MergeFiles(string In, string FileName, int Start, int Length, string Word)
+        public string MergeFilesAndGetNewFilePath(string inputPath, string fileName, int start, int length, string content)
         {
-            Merge.SetValue(In, FileName);
-            Merge.Merge(Start, Length, Word);
-            return Merge.FileName;
+            MergeFiles mf = new MergeFiles()
+                .SetInputPath(inputPath)
+                .SetFileName(fileName)
+                .Merge(start, length, content);
+            return mf._NewFilePath;
         }
 
         //移動檔案

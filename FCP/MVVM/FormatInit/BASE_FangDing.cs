@@ -1,16 +1,12 @@
 ﻿using System;
 using FCP.MVVM.Models;
+using FCP.MVVM.FormatControl;
 
 namespace FCP.MVVM.FormatInit
 {
     class BASE_FangDing : FunctionCollections
     {
         private FMT_FangDing _FangDing { get; set; }
-
-        public BASE_FangDing()
-        {
-
-        }
 
         public override void Init()
         {

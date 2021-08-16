@@ -1,11 +1,15 @@
 ﻿using System;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.SQL;
+using FCP.MVVM.FormatControl;
+using FCP.MVVM.ViewModels.GetConvertFile;
+using System.Diagnostics;
 
 namespace FCP.MVVM.FormatInit
 {
     class BASE_KuangTien : FunctionCollections
     {
+        private Stopwatch sw = new Stopwatch();
         public string StatOrBatch { get; set; }
         private FMT_KuangTien _KT { get; set; }
 
@@ -65,39 +69,29 @@ namespace FCP.MVVM.FormatInit
             else if (SettingsModel.Mode == Format.光田醫院TJVS)  //磨粉
             {
                 base.ConvertPrepare(isOPD);
-                Loop_OPD(0, 0, "");
+                SetIntoProperty(isOPD);
+                FindFile.SetPowderDefault();
+                GetFileAsync();
                 return;
             }
             base.ConvertPrepare(isOPD);
-            if (isOPD)
-                Loop_OPD(0, 0, "");
-            else
-            {
-                if (base.WD._IsStat)
-                    Loop_UD(0, 7, "uds3200");
-                else
-                    Loop_UD(0, 7, "uds9100");
-            }
-        }
-
-        public override void Loop_OPD(int Start, int Length, string Content)
-        {
-            base.Loop_OPD(Start, Length, Content);
-        }
-
-        public override void Loop_UD(int Start, int Length, string Content)
-        {
-            base.Loop_UD(Start, Length, Content);
+            SetOPDRule(nameof(DefaultEnum.Default));
+            SetUDStatRule("uds3200");
+            SetUDBatchRule("uds9100");
+            SetIntoProperty(isOPD);
+            GetFileAsync();
         }
 
         public override void SetConvertInformation()
         {
+            sw.Restart();
             base.SetConvertInformation();
             if (_KT == null)
                 _KT = new FMT_KuangTien();
             _KT.StatOrBatch = this.StatOrBatch;
             var result = _KT.MethodShunt();
             Result(result, true, true);
+            Console.WriteLine(sw.ElapsedMilliseconds);
         }
 
         public override void ProgressBoxClear()

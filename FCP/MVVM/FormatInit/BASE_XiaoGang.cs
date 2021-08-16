@@ -9,14 +9,15 @@ using System.Threading;
 using System.Runtime.InteropServices;
 using System.IO;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.FormatControl;
 using FCP.MVVM.SQL;
 
 namespace FCP.MVVM.FormatInit
 {
     class BASE_XiaoGang : FunctionCollections
     {
-        FMT_XiaoGang XG;
-        string FullFileName;
+        private FMT_XiaoGang _XG { get; set; }
+        private string _FullFileName { get; set; }
 
         public enum KeyModifilers
         {
@@ -140,12 +141,12 @@ namespace FCP.MVVM.FormatInit
                 //若不加此條，會引發在Result要移檔案時出現找不到一開始取得的檔案
                 //因為程式會先在Loop找到B開頭的檔案才進行上面的整合及取得整合檔案的檔名
                 //參考 GetBatchFile()
-                base.FilePath = FullFileName;
+                base.FilePath = _FullFileName;
             }
             base.SetConvertInformation();
-            if (XG == null)
-                XG = new FMT_XiaoGang();
-            var result = XG.MethodShunt();
+            if (_XG == null)
+                _XG = new FMT_XiaoGang();
+            var result = _XG.MethodShunt();
             Result(result, true, true);
             MoveFile(result.Result);
         }
@@ -212,11 +213,11 @@ namespace FCP.MVVM.FormatInit
                 {
                     if (s.Contains("Batch"))
                     {
-                        FullFileName = $@"{FilePath}\{s.Trim()}";
+                        _FullFileName = $@"{FilePath}\{s.Trim()}";
                         return;
                     }
                 }
-                FullFileName = "NO";
+                _FullFileName = "NO";
             }));
         }
     }

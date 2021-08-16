@@ -1,4 +1,5 @@
 ﻿using System;
+using FCP.MVVM.FormatControl;
 
 namespace FCP.MVVM.FormatInit
 {

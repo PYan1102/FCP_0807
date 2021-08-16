@@ -1,16 +1,13 @@
 ﻿using System;
 using FCP.MVVM.SQL;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.FormatControl;
 
 namespace FCP.MVVM.FormatInit
 {
     class BASE_HongYen : FunctionCollections
     {
-        FMT_HongYen HY;
-        public BASE_HongYen()
-        {
-
-        }
+        private FMT_HongYen _HY { get; set; }
 
         public override void Init()
         {
@@ -56,9 +53,9 @@ namespace FCP.MVVM.FormatInit
         public override void SetConvertInformation()
         {
             base.SetConvertInformation();
-            if (HY == null)
-                HY = new FMT_HongYen();
-            var result = HY.MethodShunt();
+            if (_HY == null)
+                _HY = new FMT_HongYen();
+            var result = _HY.MethodShunt();
             Result(result, true, true);
         }
 

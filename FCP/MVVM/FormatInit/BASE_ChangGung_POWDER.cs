@@ -1,5 +1,7 @@
 ﻿using System;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.FormatControl;
+
 namespace FCP.MVVM.FormatInit
 {
     class BASE_ChangGung_POWDER : FunctionCollections

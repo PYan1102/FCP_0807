@@ -4,17 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using FCP.MVVM.FormatControl;
 
 
 namespace FCP.MVVM.FormatInit
 {
     class BASE_YiSheng : FunctionCollections
     {
-        FMT_YiSheng YS;
-        public BASE_YiSheng()
-        {
-
-        }
+        private FMT_YiSheng _YS { get; set; }
 
         public override void Init()
         {
@@ -59,9 +56,9 @@ namespace FCP.MVVM.FormatInit
         public override void SetConvertInformation()
         {
             base.SetConvertInformation();
-            if (YS == null)
-                YS = new FMT_YiSheng();
-            var result = YS.MethodShunt();
+            if (_YS == null)
+                _YS = new FMT_YiSheng();
+            var result = _YS.MethodShunt();
             Result(result, true, true);
         }
 

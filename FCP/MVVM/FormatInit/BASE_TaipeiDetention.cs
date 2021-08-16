@@ -1,16 +1,12 @@
 ﻿using System;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.FormatControl;
 
 namespace FCP.MVVM.FormatInit
 {
     class BASE_TaipeiDetention : FunctionCollections
     {
-        FMT_TaipeiDetention TPD;
-
-        public BASE_TaipeiDetention()
-        {
-
-        }
+        private FMT_TaipeiDetention _TPD { get; set; }
 
         public override void Init()
         {
@@ -55,9 +51,9 @@ namespace FCP.MVVM.FormatInit
         public override void SetConvertInformation()
         {
             base.SetConvertInformation();
-            if (TPD == null)
-                TPD = new FMT_TaipeiDetention();
-            var result = TPD.MethodShunt();
+            if (_TPD == null)
+                _TPD = new FMT_TaipeiDetention();
+            var result = _TPD.MethodShunt();
             Result(result, true, true);
         }
 
