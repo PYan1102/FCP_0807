@@ -20,7 +20,6 @@ namespace FCP.MVVM.FormatControl
         private string MedicineInformation = "";
         private string GetMedicineNumber = "";
         private string WriteDate = "";
-        private string EffectiveDate = "";
         private List<string> TreatmentDate = new List<string>();
         private List<string> PrescriptionCutTime = new List<string>();
         private List<string> CalculationDays = new List<string>();

@@ -963,8 +963,8 @@ namespace FCP
                         DateTime currentDate = DateTime.Now;
                         if (putBackAdminCode.Contains(v.AdminCode))
                         {
-                            sw.Write($"{currentDate.AddDays(maxDays - 1):yyMMdd}");
-                            sw.Write($"{currentDate.AddDays(maxDays - 1):yyMMdd}");
+                            sw.Write($"{currentDate.AddDays(maxDays):yyMMdd}");
+                            sw.Write($"{currentDate.AddDays(maxDays + Convert.ToInt32(v.Days) - 1):yyMMdd}");
                         }
                         else
                         {

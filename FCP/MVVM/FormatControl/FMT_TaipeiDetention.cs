@@ -43,7 +43,7 @@ namespace FCP.MVVM.FormatControl
 
                 EncodingHelper.SetEncodingBytes(content.Substring(jvmPosition + 17, content.Length - 17 - jvmPosition));
                 List<string> list = SeparateString(EncodingHelper.GetEncodingString(0, EncodingHelper.GetBytesLength), 106);  //計算有多少種藥品資料
-                foreach(string s in list)  //將藥品資料放入List<string>
+                foreach (string s in list)  //將藥品資料放入List<string>
                 {
                     EncodingHelper.SetEncodingBytes(s);
                     string adminCode = EncodingHelper.GetEncodingString(66, 10).Trim().Replace(" ", "").ToUpper();
@@ -92,7 +92,7 @@ namespace FCP.MVVM.FormatControl
                 OP_OnCube.TaipeiDentention(_OPD, _Basic, filePathOutput, PutBackAdminCode);
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Write($"{FilePath} {ex}");
                 ReturnsResult.Shunt(ConvertResult.產生OCS失敗, ex.ToString());

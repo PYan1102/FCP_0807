@@ -279,7 +279,7 @@ namespace FCP
 
         private void UD_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = !(Btn_Stop.IsEnabled & Btn_UD.Visibility == Visibility.Visible);
+            e.CanExecute = !Btn_Stop.IsEnabled & Btn_UD.Visibility == Visibility.Visible;
         }
 
         private void UD_Executed(object sender, ExecutedRoutedEventArgs e)
