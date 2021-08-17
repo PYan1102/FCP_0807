@@ -347,15 +347,16 @@ namespace FCP
         public List<string> GetMultiAdminCodeTimes(string code)
         {
             List<string> list = SQLQuery.GetListString($@"SELECT
-	                                                          LEFT(CONVERT(VARCHAR,A.StandardTime,108), 5) AS Time
-                                                          FROM AdminTime A,
-                                                          (
-                                                              SELECT
-	                                                              RawID
-                                                              FROM AdminTime A
-                                                              WHERE A.AdminCode='{code}' AND DeletedYN=0 AND A.UpperAdminTimeID is null
-                                                          ) #tmp
-                                                          WHERE A.UpperAdminTimeID=#tmp.RawID", "Time");
+	                                                           LEFT(CONVERT(VARCHAR,A.StandardTime,108), 5) AS Time
+                                                           ,	A.RawID
+                                                           FROM AdminTime A,
+                                                           (
+                                                               SELECT
+	                                                               RawID
+                                                               FROM AdminTime A
+                                                               WHERE A.AdminCode='{code}' AND DeletedYN=0 AND A.UpperAdminTimeID is null
+                                                           ) #UpperAdminTime
+                                                           WHERE A.UpperAdminTimeID=#UpperAdminTime.RawID AND A.DeletedYN=0", "Time");
             var newList = list.Where(x => x.Length != 0).Select(x => x).ToList();
             return newList;
         }
