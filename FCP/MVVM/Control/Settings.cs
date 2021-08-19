@@ -98,7 +98,7 @@ namespace FCP.MVVM.Control
             _SettingsModel.AdminCodeFilter = $"{v["AdminCodeFilter"]}".Split(',').ToList();
             _SettingsModel.AdminCodeUse = $"{v["AdminCodeUse"]}".Split(',').ToList();
             _SettingsModel.ExtraRandom = $"{v["ExtraRandom"]}";
-            _SettingsModel.DoseMode = (DoseMode)Enum.Parse(typeof(DoseMode), $"{v["DoseMode"]}");
+            _SettingsModel.DoseType = (DoseType)Enum.Parse(typeof(DoseType), $"{v["DoseMode"]}");
             _SettingsModel.OppositeAdminCode = $"{v["OppositeAdminCode"]}".Split(',').ToList();
             _SettingsModel.StatOrBatch = $"{v["StatOrBatch"]}";
             _SettingsModel.CutTime = $"{v["CutTime"]}";
@@ -134,7 +134,7 @@ namespace FCP.MVVM.Control
                 AdminCodeFilter = ConvertListToString(_SettingsModel.AdminCodeFilter),
                 AdminCodeUse = ConvertListToString(_SettingsModel.AdminCodeUse),
                 _SettingsModel.ExtraRandom,
-                _SettingsModel.DoseMode,
+                _SettingsModel.DoseType,
                 OppositeAdminCode = ConvertListToString(_SettingsModel.OppositeAdminCode),
                 StatOrBatch = isStat,
                 _SettingsModel.CutTime,
@@ -158,7 +158,7 @@ namespace FCP.MVVM.Control
             string adminCodeFilter,
             string adminCodeUse,
             string random,
-            DoseMode doseMode,
+            DoseType doseMode,
             string oppositeAdminCode,
             string cutTime,
             string crossDayAdminCode,

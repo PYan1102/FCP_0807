@@ -61,7 +61,7 @@ namespace FCP.MVVM.FormatControl
                     AdminCode_S = ecd.GetString(ATemp, 57, 11).Trim() + ecd.GetString(ATemp, 68, 9).Trim();
                     if (IsFilterAdminCode(AdminCode_S))
                         continue;
-                    if (IsExistsMedicineCode(ecd.GetString(ATemp, 2, 10).Trim()))
+                    if (IsFilterMedicineCode(ecd.GetString(ATemp, 2, 10).Trim()))
                         continue;
                     if (Convert.ToInt32(ecd.GetString(ATemp, 82, 8).Trim()) >= GetID2(ecd.GetString(ATemp, 2, 10).Trim()) & GetID2(ecd.GetString(ATemp, 2, 10).Trim()) >= 1)  //總量 >= ID2
                         continue;
@@ -201,7 +201,7 @@ namespace FCP.MVVM.FormatControl
                         continue;
                     string[] DataSplit = Data[r].Split(';');
                     AdminCode_S = DataSplit[9] + DataSplit[11].Trim();
-                    if (IsExistsMedicineCode(DataSplit[6]))
+                    if (IsFilterMedicineCode(DataSplit[6]))
                         continue;
                     if (IsFilterAdminCode(AdminCode_S))
                         continue;
@@ -321,7 +321,7 @@ namespace FCP.MVVM.FormatControl
                         continue;
                     }
                     //種包                                                                                                                                      //23521 為大甲需求
-                    if (SettingsModel.DoseMode == DoseMode.種包 || !int.TryParse(PerQty_L[x], out int i) | AdminCode_L[x] == "STTS" | MedicineCode_L[x] == "23521" | BedNo_L[x].Contains("111DAY"))  //劑量為非整數
+                    if (SettingsModel.DoseType == Models.Enum.DoseType.種包 || !int.TryParse(PerQty_L[x], out int i) | AdminCode_L[x] == "STTS" | MedicineCode_L[x] == "23521" | BedNo_L[x].Contains("111DAY"))  //劑量為非整數
                     {
                         DoseType.Add(true);
                         CrossAdminTimeType.Add(false);
@@ -335,7 +335,7 @@ namespace FCP.MVVM.FormatControl
                                 DateTime FullDate = TMD.AddDays(Convert.ToInt32(Days_L[x]));
                                 if (d == 0)
                                 {
-                                    if (SettingsModel.DoseMode == DoseMode.餐包 || !PerQty_LTemp.ToString().Contains("."))
+                                    if (SettingsModel.DoseType == Models.Enum.DoseType.餐包 || !PerQty_LTemp.ToString().Contains("."))
                                         QODTEMP = $"{SD:MM/dd} 劑量 : {PerQty_LTemp}   ";
                                     else
                                         QODTEMP = $"{SD:MM/dd} 劑量 : {PerQty_LTemp} 非整數";
@@ -345,7 +345,7 @@ namespace FCP.MVVM.FormatControl
                                     if (SD.AddDays(2) <= FullDate)
                                     {
                                         SD = SD.AddDays(2);
-                                        if (SettingsModel.DoseMode == DoseMode.餐包 || !PerQty_LTemp.ToString().Contains("."))
+                                        if (SettingsModel.DoseType == Models.Enum.DoseType.餐包 || !PerQty_LTemp.ToString().Contains("."))
                                             QODTEMP += $"{SD:MM/dd} 劑量 : {PerQty_LTemp}   ";
                                         else
                                             QODTEMP += $"{SD:MM/dd} 劑量 : {PerQty_LTemp} 非整數";
@@ -355,7 +355,7 @@ namespace FCP.MVVM.FormatControl
                         }
                         else
                         {
-                            if (SettingsModel.DoseMode == DoseMode.餐包 || !PerQty_LTemp.ToString().Contains("."))
+                            if (SettingsModel.DoseType == Models.Enum.DoseType.餐包 || !PerQty_LTemp.ToString().Contains("."))
                                 QODTEMP = $"每次劑量 : {PerQty_LTemp}   ";
                             else
                                 QODTEMP = $"每次劑量 : {PerQty_LTemp} 非整數";
@@ -557,7 +557,7 @@ namespace FCP.MVVM.FormatControl
                     if (string.IsNullOrEmpty(Data[r]))
                         continue;
                     string[] DataSplit = Data[r].Split(';');
-                    if (IsExistsMedicineCode(DataSplit[6]))
+                    if (IsFilterMedicineCode(DataSplit[6]))
                         continue;
                     AdminCode_S = DataSplit[9] + DataSplit[11].Trim();
                     if (IsFilterAdminCode(AdminCode_S))
@@ -666,7 +666,7 @@ namespace FCP.MVVM.FormatControl
                     {
                         DoseType.Add(true);
                         EndDay_L[x] = SD.ToString("yyMMdd");
-                        if (SettingsModel.DoseMode == DoseMode.餐包 || !PerQtyTemp.ToString().Contains("."))
+                        if (SettingsModel.DoseType == Models.Enum.DoseType.餐包 || !PerQtyTemp.ToString().Contains("."))
                             QODDescription.Add($"每次劑量 : {PerQtyTemp}   ");
                         else
                             QODDescription.Add($"每次劑量 : {PerQtyTemp} 非整數");
@@ -674,12 +674,12 @@ namespace FCP.MVVM.FormatControl
                         PerQty_L[x] = Math.Ceiling(Convert.ToSingle(SumQty_L[x])).ToString();
                         continue;
                     }
-                    if (SettingsModel.DoseMode == DoseMode.種包 || !int.TryParse(PerQty_L[x], out int i) | STAdminTime.Contains(AdminCode_L[x]) | SettingsModel.CrossDayAdminCode.Contains(AdminCode_L[x]))  //劑量為非整數 ，輸出種包
+                    if (SettingsModel.DoseType == Models.Enum.DoseType.種包 || !int.TryParse(PerQty_L[x], out int i) | STAdminTime.Contains(AdminCode_L[x]) | SettingsModel.CrossDayAdminCode.Contains(AdminCode_L[x]))  //劑量為非整數 ，輸出種包
                     {
                         DoseType.Add(true);
                         EndDay_L[x] = SD.ToString("yyMMdd");
                         DataDic.Add($"{x}_{EndDay_L[x]}", new List<string>() { "" });
-                        if (SettingsModel.DoseMode == DoseMode.餐包 || !PerQtyTemp.ToString().Contains("."))
+                        if (SettingsModel.DoseType == Models.Enum.DoseType.餐包 || !PerQtyTemp.ToString().Contains("."))
                             QODDescription.Add($"每次劑量 : {PerQtyTemp}   ");
                         else
                             QODDescription.Add($"每次劑量 : {PerQtyTemp} 非整數");
@@ -794,23 +794,23 @@ namespace FCP.MVVM.FormatControl
             {
                 ClearList();
                 List<string> list = DeleteSpace(GetContent).Split('\n').ToList();
-                EncodingHelper.SetEncodingBytes(list[0]);
-                int year = Convert.ToInt32(EncodingHelper.GetEncodingString(9, 3)) + 1911;
-                DateTime startDate = Convert.ToDateTime($"{year}{EncodingHelper.GetEncodingString(12, 6)}");
-                string getMedicineNumber = EncodingHelper.GetEncodingString(54, 8);
-                EncodingHelper.SetEncodingBytes(list[1]);
-                string patientNo = EncodingHelper.GetEncodingString(9, 11);
-                string patientName = EncodingHelper.GetEncodingString(25, 21);
-                string gender = EncodingHelper.GetEncodingString(47, 2);
-                string _class = EncodingHelper.GetEncodingString(67, EncodingHelper.GetBytesLength - 67);
+                EncodingHelper.SetBytes(list[0]);
+                int year = Convert.ToInt32(EncodingHelper.GetString(9, 3)) + 1911;
+                DateTime startDate = Convert.ToDateTime($"{year}{EncodingHelper.GetString(12, 6)}");
+                string getMedicineNumber = EncodingHelper.GetString(54, 8);
+                EncodingHelper.SetBytes(list[1]);
+                string patientNo = EncodingHelper.GetString(9, 11);
+                string patientName = EncodingHelper.GetString(25, 21);
+                string gender = EncodingHelper.GetString(47, 2);
+                string _class = EncodingHelper.GetString(67, EncodingHelper.Length - 67);
                 list.RemoveRange(0, 4);
                 foreach (string s in list)
                 {
                     if (s.Contains("=====") || s.Trim().Length == 0)
                         continue;
-                    EncodingHelper.SetEncodingBytes(s.TrimEnd('\n'));
-                    string adminCode = EncodingHelper.GetEncodingString(57, 11) + EncodingHelper.GetEncodingString(68, 9);
-                    string grindTable = EncodingHelper.GetEncodingString(100, 8);
+                    EncodingHelper.SetBytes(s.TrimEnd('\n'));
+                    string adminCode = EncodingHelper.GetString(57, 11) + EncodingHelper.GetString(68, 9);
+                    string grindTable = EncodingHelper.GetString(100, 8);
                     if (grindTable.Length == 0)
                         continue;
                     if (IsFilterAdminCode(adminCode))
@@ -829,15 +829,15 @@ namespace FCP.MVVM.FormatControl
                         PatientName = patientName,
                         Gender = gender,
                         Class = _class,
-                        MedicineCode = EncodingHelper.GetEncodingString(2, 10),
-                        MedicineName = EncodingHelper.GetEncodingString(12, 31),
-                        PerQty = EncodingHelper.GetEncodingString(43, 8),
+                        MedicineCode = EncodingHelper.GetString(2, 10),
+                        MedicineName = EncodingHelper.GetString(12, 31),
+                        PerQty = EncodingHelper.GetString(43, 8),
                         AdminCode = adminCode,
-                        Days = EncodingHelper.GetEncodingString(77, 5),
-                        SumQty = EncodingHelper.GetEncodingString(82, 8),
+                        Days = EncodingHelper.GetString(77, 5),
+                        SumQty = EncodingHelper.GetString(82, 8),
                         GrindTable = grindTable,
                         TimesPerDay = GetMultiAdminCodeTimes(adminCode).Count.ToString(),
-                        EffectiveDate = DateTime.Now.AddDays(Convert.ToInt32(EncodingHelper.GetEncodingString(77, 5)))
+                        EffectiveDate = DateTime.Now.AddDays(Convert.ToInt32(EncodingHelper.GetString(77, 5)))
                     };
                     if (!_PowderDic.ContainsKey(grindTable))
                         _PowderDic[grindTable] = new List<KuangTienPowder>();

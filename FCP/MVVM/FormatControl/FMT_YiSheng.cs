@@ -21,10 +21,10 @@ namespace FCP.MVVM.FormatControl
                 List<string> list = GetContent.Split('\n').ToList();
                 foreach (string s in list)  //將藥品資料放入List<string>
                 {
-                    EncodingHelper.SetEncodingBytes(s);
-                    string adminCode = EncodingHelper.GetEncodingString(137, 10).Replace("/", "");
-                    string medicineCode = EncodingHelper.GetEncodingString(63, 10);
-                    if (IsExistsMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
+                    EncodingHelper.SetBytes(s);
+                    string adminCode = EncodingHelper.GetString(137, 10).Replace("/", "");
+                    string medicineCode = EncodingHelper.GetString(63, 10);
+                    if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
                         continue;
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
@@ -32,23 +32,23 @@ namespace FCP.MVVM.FormatControl
                         ReturnsResult.Shunt(ConvertResult.沒有餐包頻率, adminCode);
                         return false;
                     }
-                    string dateTemp = (Convert.ToInt32(EncodingHelper.GetEncodingString(56, 7)) + 19110000).ToString();
+                    string dateTemp = (Convert.ToInt32(EncodingHelper.GetString(56, 7)) + 19110000).ToString();
                     DateTime.TryParseExact(dateTemp, "yyyyMMdd", null, DateTimeStyles.None, out DateTime startDate);
-                    int days = Convert.ToInt32(EncodingHelper.GetEncodingString(147, 3));
+                    int days = Convert.ToInt32(EncodingHelper.GetString(147, 3));
                     _OPD.Add(new YiShengOPD()
                     {
-                        PatientName = EncodingHelper.GetEncodingString(6, 20),
-                        PatientNo = EncodingHelper.GetEncodingString(26, 10),
-                        ID = EncodingHelper.GetEncodingString(36, 10),
-                        Age = EncodingHelper.GetEncodingString(46, 10).Substring(0, EncodingHelper.GetEncodingString(46, 10).IndexOf(".")),
+                        PatientName = EncodingHelper.GetString(6, 20),
+                        PatientNo = EncodingHelper.GetString(26, 10),
+                        ID = EncodingHelper.GetString(36, 10),
+                        Age = EncodingHelper.GetString(46, 10).Substring(0, EncodingHelper.GetString(46, 10).IndexOf(".")),
                         StartDate = startDate.ToString("yyMMdd"),
                         EndDate = startDate.AddDays(days - 1).ToString("yyMMdd"),
                         MedicineCode = medicineCode,
-                        MedicineName = EncodingHelper.GetEncodingString(73, 54),
-                        PerQty = EncodingHelper.GetEncodingString(127, 10),
+                        MedicineName = EncodingHelper.GetString(73, 54),
+                        PerQty = EncodingHelper.GetString(127, 10),
                         AdminCode = adminCode,
                         Days = days.ToString(),
-                        SumQty = EncodingHelper.GetEncodingString(150, 10),
+                        SumQty = EncodingHelper.GetString(150, 10),
                     });
                 }
                 if (_OPD.Count == 0)

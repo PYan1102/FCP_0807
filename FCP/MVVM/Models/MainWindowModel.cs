@@ -31,7 +31,7 @@ namespace FCP.MVVM.Models
         public Visibility OPD4Visibility { get; set; }
         public bool IsStat { get; set; }
         public bool IsBatch { get; set; }
-        public DoseMode PackType { get; set; }
+        public DoseType PackType { get; set; }
         public bool IsOPD { get; set; } = false;
     }
 }

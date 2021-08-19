@@ -18,7 +18,7 @@ namespace FCP.MVVM.Models
         public List<string> AdminCodeFilter { get; set; }
         public List<string> AdminCodeUse { get; set; }
         public string ExtraRandom { get; set; }
-        public DoseMode DoseMode { get; set; }
+        public DoseType DoseType { get; set; }
         public List<string> OppositeAdminCode { get; set; }
         public string StatOrBatch { get; set; }
         public string CutTime { get; set; }

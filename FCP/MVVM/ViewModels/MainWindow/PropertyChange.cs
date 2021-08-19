@@ -42,6 +42,6 @@ namespace FCP.MVVM.ViewModels.MainWindow
         public Visibility OPD4Visibility { get => _MainWindowModel.OPD4Visibility; set => _MainWindowModel.OPD4Visibility = value; }
         public bool IsStat { get => _MainWindowModel.IsStat; set => _MainWindowModel.IsStat = value; }
         public bool IsBatch { get => _MainWindowModel.IsBatch; set => _MainWindowModel.IsBatch = value; }
-        public DoseMode PackType { get => _MainWindowModel.PackType; set => _MainWindowModel.PackType = value; }
+        public DoseType PackType { get => _MainWindowModel.PackType; set => _MainWindowModel.PackType = value; }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FCP.MVVM.Models.Enum
 {
-    public enum DoseMode
+    public enum DoseType
     {
         餐包,
         種包

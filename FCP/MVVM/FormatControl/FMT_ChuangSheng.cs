@@ -21,10 +21,10 @@ namespace FCP.MVVM.FormatControl
                 {
                     if (s.Trim().Length == 0)
                         continue;
-                    EncodingHelper.SetEncodingBytes(s.TrimEnd());
-                    string adminCode = EncodingHelper.GetEncodingString(74, 8);
-                    string medicineCode = EncodingHelper.GetEncodingString(52, 10);
-                    if (IsExistsMedicineCode(medicineCode))
+                    EncodingHelper.SetBytes(s.TrimEnd());
+                    string adminCode = EncodingHelper.GetString(74, 8);
+                    string medicineCode = EncodingHelper.GetString(52, 10);
+                    if (IsFilterMedicineCode(medicineCode))
                         continue;
                     if (IsFilterAdminCode(adminCode))
                         continue;
@@ -36,31 +36,31 @@ namespace FCP.MVVM.FormatControl
                     }
                     string medicineName;
                     string hospitalName;
-                    int totalLength = EncodingHelper.GetBytesLength;
+                    int totalLength = EncodingHelper.Length;
                     if (totalLength - 95 <= 50)
                     {
-                        medicineName = EncodingHelper.GetEncodingString(95, totalLength - 95);
+                        medicineName = EncodingHelper.GetString(95, totalLength - 95);
                         hospitalName = "";
                     }
                     else
                     {
-                        medicineName = EncodingHelper.GetEncodingString(95, 50);
-                        hospitalName = EncodingHelper.GetEncodingString(145, 20);
+                        medicineName = EncodingHelper.GetString(95, 50);
+                        hospitalName = EncodingHelper.GetString(145, 20);
                     }
-                    DateTime startDate = DateTime.Parse(EncodingHelper.GetEncodingString(20, 10));
-                    string days = EncodingHelper.GetEncodingString(82, 3);
+                    DateTime startDate = DateTime.Parse(EncodingHelper.GetString(20, 10));
+                    string days = EncodingHelper.GetString(82, 3);
                     _OPD.Add(new ChuangShengOPD
                     {
                         StartDate = startDate.ToString("yyMMdd"),
                         EndDate = startDate.AddDays(Convert.ToInt32(days) - 1).ToString("yyMMdd"),
-                        Class = EncodingHelper.GetEncodingString(30, 12),
-                        PatientName = EncodingHelper.GetEncodingString(42, 10).Replace("?", " "),
+                        Class = EncodingHelper.GetString(30, 12),
+                        PatientName = EncodingHelper.GetString(42, 10).Replace("?", " "),
                         MedicineCode = medicineCode,
-                        PerQty = EncodingHelper.GetEncodingString(62, 6),
-                        Times = EncodingHelper.GetEncodingString(68, 6),
+                        PerQty = EncodingHelper.GetString(62, 6),
+                        Times = EncodingHelper.GetString(68, 6),
                         AdminCode = adminCode,
                         Days = days,
-                        SumQty = EncodingHelper.GetEncodingString(85, 10),
+                        SumQty = EncodingHelper.GetString(85, 10),
                         MedicineName = medicineName,
                         HospitalName = hospitalName
                     }); ;

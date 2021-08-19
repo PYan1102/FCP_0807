@@ -40,7 +40,7 @@ namespace FCP.MVVM.FormatControl
                 foreach (string s in list)
                 {
                     string[] listSplit = s.Split('|');
-                    if (IsExistsMedicineCode(listSplit[4].Substring(4)))
+                    if (IsFilterMedicineCode(listSplit[4].Substring(4)))
                         continue;
                     _OPD.Add(new OPD
                     {
@@ -101,7 +101,7 @@ namespace FCP.MVVM.FormatControl
                         continue;
                     var ecd = Encoding.Default;
                     byte[] temp = ecd.GetBytes(s);
-                    if (IsExistsMedicineCode(ecd.GetString(temp, 131, 7)))
+                    if (IsFilterMedicineCode(ecd.GetString(temp, 131, 7)))
                         continue;
                     DateTime.TryParseExact((Convert.ToInt32(ecd.GetString(temp, 37, 8)) + 19110000).ToString(), "yyyyMMdd", null, DateTimeStyles.None, out DateTime startDate);
                     DateTime.TryParseExact(ecd.GetString(temp, 239, 8), "yyyyMMdd", null, DateTimeStyles.None, out DateTime birthDate);
@@ -187,7 +187,7 @@ namespace FCP.MVVM.FormatControl
                 foreach (string s in list)
                 {
                     string[] listSplit = s.Split('|');
-                    if (IsExistsMedicineCode(listSplit[4].Substring(4)))
+                    if (IsFilterMedicineCode(listSplit[4].Substring(4)))
                         continue;
                     _OPD.Add(new OPD
                     {

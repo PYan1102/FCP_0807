@@ -20,36 +20,11 @@ namespace FCP.MVVM.FormatInit
             InitFindFileMode(FindFileModeEnum.根據檔名開頭);
         }
 
-        public override void AdvancedSettingsShow()
-        {
-            base.AdvancedSettingsShow();
-        }
-
-        public override void AutoStart()
-        {
-            base.AutoStart();
-        }
-
-        public override void Save()
-        {
-            base.Save();
-        }
-
-        public override void Stop()
-        {
-            base.Stop();
-        }
-
-        public override void CloseSelf()
-        {
-            base.CloseSelf();
-        }
-
         public override void ConvertPrepare(bool isOPD)
         {
             if (SettingsModel.Mode == Format.光田醫院TOC)
             {
-                if (SettingsModel.DoseMode == DoseMode.種包)
+                if (SettingsModel.DoseType == DoseType.種包)
                 {
                     //沙鹿
                     //SQLQuery.NonQuery(@"update PrintFormItem set DeletedYN=1 where RawID in (120180,120195)");
@@ -84,19 +59,12 @@ namespace FCP.MVVM.FormatInit
 
         public override void SetConvertInformation()
         {
-            sw.Restart();
             base.SetConvertInformation();
             if (_KT == null)
                 _KT = new FMT_KuangTien();
             _KT.StatOrBatch = this.StatOrBatch;
             var result = _KT.MethodShunt();
             Result(result, true, true);
-            Console.WriteLine(sw.ElapsedMilliseconds);
-        }
-
-        public override void ProgressBoxClear()
-        {
-            base.ProgressBoxClear();
         }
     }
 }

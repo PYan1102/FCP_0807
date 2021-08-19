@@ -52,7 +52,7 @@ namespace FCP.MVVM.FormatControl
                 List<int> neeedRemoveList = new List<int>();
                 foreach (var v in _OPD)
                 {
-                    if (IsExistsMedicineCode(v.MedicineCode) || IsFilterAdminCode(v.AdminCode) || _FilterUnit.Contains(v.Unit))
+                    if (IsFilterMedicineCode(v.MedicineCode) || IsFilterAdminCode(v.AdminCode) || _FilterUnit.Contains(v.Unit))
                     {
                         neeedRemoveList.Add(_OPD.IndexOf(v));
                         continue;
@@ -117,7 +117,7 @@ namespace FCP.MVVM.FormatControl
                 List<int> needRemoveList = new List<int>();
                 foreach (var v in _UDBatch)
                 {
-                    if (IsExistsMedicineCode(v.MedicineCode) || IsFilterAdminCode(v.AdminCode) || v.Unit == "BAG")
+                    if (IsFilterMedicineCode(v.MedicineCode) || IsFilterAdminCode(v.AdminCode) || v.Unit == "BAG")
                     {
                         needRemoveList.Add(_UDBatch.IndexOf(v));
                         continue;
@@ -182,7 +182,7 @@ namespace FCP.MVVM.FormatControl
                 {
                     if (SettingsModel.CrossDayAdminCode.Contains(_UDBatch[i].AdminCode))
                     {
-                        DataDic[$"{i}_{_UDBatch[i].StartDay}"] = new List<string>() { nameof(DoseMode.種包) };
+                        DataDic[$"{i}_{_UDBatch[i].StartDay}"] = new List<string>() { nameof(DoseType.種包) };
                         continue;
                     }
                     currentTimes = 0;

@@ -22,31 +22,31 @@ namespace FCP.MVVM.FormatControl
                 string content = GetContent;
                 int jvmPosition = content.IndexOf("|JVPEND||JVMHEAD|");
                 string FileName = Path.GetFileNameWithoutExtension(FilePath);
-                EncodingHelper.SetEncodingBytes(content.Substring(9, jvmPosition - 9));
-                _Basic.PatientNo = EncodingHelper.GetEncodingString(1, 15);
-                _Basic.PrescriptionNo = EncodingHelper.GetEncodingString(16, 20);
-                _Basic.Age = EncodingHelper.GetEncodingString(36, 5);
-                _Basic.ID = EncodingHelper.GetEncodingString(54, 10);
-                _Basic.BirthDate = EncodingHelper.GetEncodingString(94, 8);
-                _Basic.PatientName = EncodingHelper.GetEncodingString(177, 20).Replace("?", " ");
-                _Basic.Gender = EncodingHelper.GetEncodingString(197, 2);
-                _Basic.HospitalName = EncodingHelper.GetEncodingString(229, 40);
-                _Basic.LocationName = EncodingHelper.GetEncodingString(229, 30);
+                EncodingHelper.SetBytes(content.Substring(9, jvmPosition - 9));
+                _Basic.PatientNo = EncodingHelper.GetString(1, 15);
+                _Basic.PrescriptionNo = EncodingHelper.GetString(16, 20);
+                _Basic.Age = EncodingHelper.GetString(36, 5);
+                _Basic.ID = EncodingHelper.GetString(54, 10);
+                _Basic.BirthDate = EncodingHelper.GetString(94, 8);
+                _Basic.PatientName = EncodingHelper.GetString(177, 20).Replace("?", " ");
+                _Basic.Gender = EncodingHelper.GetString(197, 2);
+                _Basic.HospitalName = EncodingHelper.GetString(229, 40);
+                _Basic.LocationName = EncodingHelper.GetString(229, 30);
 
-                EncodingHelper.SetEncodingBytes(content.Substring(jvmPosition + 17, content.Length - 17 - jvmPosition));
-                List<string> list = SeparateString((EncodingHelper.GetEncodingString(0, EncodingHelper.GetBytesLength)), 547);
+                EncodingHelper.SetBytes(content.Substring(jvmPosition + 17, content.Length - 17 - jvmPosition));
+                List<string> list = SeparateString((EncodingHelper.GetString(0, EncodingHelper.Length)), 547);
                 foreach (string s in list)
                 {
-                    EncodingHelper.SetEncodingBytes(s);
-                    string adminCode = EncodingHelper.GetEncodingString(66, 10);
-                    string medicineCode = EncodingHelper.GetEncodingString(1, 15);
-                    string medicineName = EncodingHelper.GetEncodingString(16, 50);
+                    EncodingHelper.SetBytes(s);
+                    string adminCode = EncodingHelper.GetString(66, 10);
+                    string medicineCode = EncodingHelper.GetString(1, 15);
+                    string medicineName = EncodingHelper.GetString(16, 50);
                     if (medicineName == "磨粉.")
                     {
                         ReturnsResult.Shunt(ConvertResult.全數過濾, null);
                         return false;
                     }
-                    if (IsExistsMedicineCode(medicineCode))
+                    if (IsFilterMedicineCode(medicineCode))
                         continue;
                     if (IsFilterAdminCode(adminCode) & medicineCode.Length == 0)
                         continue;
@@ -55,11 +55,11 @@ namespace FCP.MVVM.FormatControl
                         MedicineCode = medicineCode,
                         MedicineName = medicineName,
                         AdminCode = adminCode,
-                        Days = EncodingHelper.GetEncodingString(76, 3),
-                        PerQty = EncodingHelper.GetEncodingString(81, 6),
-                        SumQty = EncodingHelper.GetEncodingString(87, 8),
-                        StartDay = EncodingHelper.GetEncodingString(509, 6),
-                        EndDay = EncodingHelper.GetEncodingString(529, 6)
+                        Days = EncodingHelper.GetString(76, 3),
+                        PerQty = EncodingHelper.GetString(81, 6),
+                        SumQty = EncodingHelper.GetString(87, 8),
+                        StartDay = EncodingHelper.GetString(509, 6),
+                        EndDay = EncodingHelper.GetString(529, 6)
                     });
                 }
                 if (_OPD.Count == 0)

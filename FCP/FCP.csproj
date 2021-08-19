@@ -92,6 +92,11 @@
     <Compile Include="AdvancedSettings.xaml.cs">
       <DependentUpon>AdvancedSettings.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MVVM\FormatControl\FMT_ChengYu.cs" />
+    <Compile Include="MVVM\FormatControl\FMT_OnCube.cs" />
+    <Compile Include="MVVM\FormatInit\BASE_ChengYu.cs" />
+    <Compile Include="MVVM\FormatInit\BASE_OnCube.cs" />
+    <Compile Include="MVVM\Helper\DateTimeHelper.cs" />
     <Compile Include="MVVM\Helper\EncodingHelper.cs" />
     <Compile Include="MVVM\Factory\ConvertInfoactory.cs" />
     <Compile Include="MVVM\FormatInit\BASE_ChangGung.cs" />

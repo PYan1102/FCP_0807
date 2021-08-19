@@ -528,7 +528,7 @@ namespace FCP
                     NF.ShowBalloonTip(850, "轉檔錯誤", message, System.Windows.Forms.ToolTipIcon.Error);
                     break;
             }
-            //Stop();
+            Stop();
         }
 
         public virtual void ProgressBoxClear()
@@ -713,7 +713,7 @@ namespace FCP
                                 break;
                         }
                         UI_LayoutSet(UI);
-                        MainWindow.Txtb_PackType.Text = _SettingsModel.DoseMode.ToString();
+                        MainWindow.Txtb_PackType.Text = _SettingsModel.DoseType.ToString();
                     }
                     MainWindow.Rdo_Stat.Visibility = _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
                     MainWindow.Rdo_Batch.Visibility = _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;

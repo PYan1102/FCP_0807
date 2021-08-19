@@ -44,7 +44,7 @@ namespace FCP.MVVM.FormatControl
                             AdminCode_S = AdminCode_S.Substring(0, AdminCode_S.Length - 2);
                     string MedicineCodeJudge = ecd.GetString(ATemp, 71, 6).Trim();
                     float totalqua = Convert.ToSingle(ecd.GetString(ATemp, 138, 9));  //總量
-                    if (IsExistsMedicineCode(MedicineCodeJudge))
+                    if (IsFilterMedicineCode(MedicineCodeJudge))
                         continue;
                     if (MedicineCodeJudge == "1UNIFR")
                         continue;
@@ -182,7 +182,7 @@ namespace FCP.MVVM.FormatControl
                     }
                     if (ecd.GetString(ATemp, 13, 4).Trim() == "1")
                         InfoCount = 65;
-                    if (IsExistsMedicineCode(MedicineCodeJudge))
+                    if (IsFilterMedicineCode(MedicineCodeJudge))
                         continue;
                     if (IsFilterAdminCode(AdminCode_S))
                         continue;
@@ -397,7 +397,7 @@ namespace FCP.MVVM.FormatControl
                     AdminCode_S = "S" + AdminCode_S;
                     string MedicineCodeJudge = ecd.GetString(ATemp, 81, 6).Trim();
                     float totalqua = Convert.ToSingle(ecd.GetString(ATemp, 148, 9).Trim());  //總量
-                    if (IsExistsMedicineCode(MedicineCodeJudge))
+                    if (IsFilterMedicineCode(MedicineCodeJudge))
                         continue;
                     if (IsFilterAdminCode(AdminCode_S))
                         continue;

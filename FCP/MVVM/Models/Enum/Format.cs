@@ -21,6 +21,8 @@ namespace FCP.MVVM.Models.Enum
         長庚醫院TOC,
         台北看守所TOC,
         仁康醫院TOC,
-        方鼎系統TOC
+        方鼎系統TOC,
+        成祐中醫診所TOC,
+        OnCubeTOC
     }
 }

@@ -22,11 +22,11 @@ namespace FCP.MVVM.FormatControl
                 List<string> medicineList = GetMedicineCodeWhenWeightIs10g();
                 foreach (string s in list)
                 {
-                    EncodingHelper.SetEncodingBytes(s.Trim());
+                    EncodingHelper.SetBytes(s.Trim());
                     //途徑PO轉為PC
-                    string way = EncodingHelper.GetEncodingString(193, 4).Replace("PO", "PC");
-                    string adminCode = EncodingHelper.GetEncodingString(183, 10) + way;
-                    string medicineCode = EncodingHelper.GetEncodingString(57, 10);
+                    string way = EncodingHelper.GetString(193, 4).Replace("PO", "PC");
+                    string adminCode = EncodingHelper.GetString(183, 10) + way;
+                    string medicineCode = EncodingHelper.GetString(57, 10);
                     if (!medicineList.Contains(medicineCode) || IsFilterAdminCode(adminCode))
                         continue;
                     if (!IsExistsCombiAdminCode(adminCode))
@@ -35,24 +35,24 @@ namespace FCP.MVVM.FormatControl
                         ReturnsResult.Shunt(ConvertResult.沒有種包頻率, adminCode);
                         return false;
                     }
-                    DateTime.TryParseExact(EncodingHelper.GetEncodingString(41, 8), "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime startDate);
+                    DateTime.TryParseExact(EncodingHelper.GetString(41, 8), "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime startDate);
                     _OPD.Add(new JenKang()
                     {
-                        DrugNo = EncodingHelper.GetEncodingString(0, 10),
-                        PatientName = EncodingHelper.GetEncodingString(11, 20),
-                        PrescriptionNo = EncodingHelper.GetEncodingString(31, 10),
+                        DrugNo = EncodingHelper.GetString(0, 10),
+                        PatientName = EncodingHelper.GetString(11, 20),
+                        PrescriptionNo = EncodingHelper.GetString(31, 10),
                         StartDay = startDate,
                         MedicineCode = medicineCode,
-                        MedicineName = EncodingHelper.GetEncodingString(67, 50),
-                        PerQty = Convert.ToSingle(EncodingHelper.GetEncodingString(167, 10)).ToString("0.##"),
+                        MedicineName = EncodingHelper.GetString(67, 50),
+                        PerQty = Convert.ToSingle(EncodingHelper.GetString(167, 10)).ToString("0.##"),
                         AdminCode = $"S{adminCode}",
-                        Days = EncodingHelper.GetEncodingString(197, 3),
-                        SumQty = EncodingHelper.GetEncodingString(200, 10),
+                        Days = EncodingHelper.GetString(197, 3),
+                        SumQty = EncodingHelper.GetString(200, 10),
                         Location = string.Empty
                     });
                     try
                     {
-                        _OPD[_OPD.Count - 1]._IsPowder = EncodingHelper.GetEncodingString(236, 1) != "";
+                        _OPD[_OPD.Count - 1]._IsPowder = EncodingHelper.GetString(236, 1) != "";
                     }
                     catch (Exception) { _OPD[_OPD.Count - 1]._IsPowder = false; }
                 }
@@ -94,12 +94,12 @@ namespace FCP.MVVM.FormatControl
                 List<string> list = GetContent.Trim().Split('\n').ToList();
                 foreach (string s in list)
                 {
-                    EncodingHelper.SetEncodingBytes(s.Trim());
+                    EncodingHelper.SetBytes(s.Trim());
                     //途徑PO轉為PC
-                    string way = EncodingHelper.GetEncodingString(193, 4).Replace("PO", "PC");
-                    string adminCode = EncodingHelper.GetEncodingString(183, 10) + way;
-                    string medicineCode = EncodingHelper.GetEncodingString(57, 10);
-                    if (IsExistsMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
+                    string way = EncodingHelper.GetString(193, 4).Replace("PO", "PC");
+                    string adminCode = EncodingHelper.GetString(183, 10) + way;
+                    string medicineCode = EncodingHelper.GetString(57, 10);
+                    if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
                         continue;
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
@@ -108,18 +108,18 @@ namespace FCP.MVVM.FormatControl
                         return false;
                     }
                     string location = "住院";
-                    if (EncodingHelper.GetBytesLength > 240)
-                        location = EncodingHelper.GetEncodingString(247, EncodingHelper.GetBytesLength - 247);
+                    if (EncodingHelper.Length > 240)
+                        location = EncodingHelper.GetString(247, EncodingHelper.Length - 247);
                     int adminCodeTimePerDay = GetMultiAdminCodeTimes(adminCode).Count;
-                    Single sumQty = Convert.ToSingle(EncodingHelper.GetEncodingString(200, 10));
-                    Single perQty = Convert.ToSingle(EncodingHelper.GetEncodingString(167, 10));
+                    Single sumQty = Convert.ToSingle(EncodingHelper.GetString(200, 10));
+                    Single perQty = Convert.ToSingle(EncodingHelper.GetString(167, 10));
                     _UDBatch.Add(new JenKang()
                     {
-                        BedNo = EncodingHelper.GetEncodingString(0, 10),
-                        PatientName = EncodingHelper.GetEncodingString(11, 20),
-                        PrescriptionNo = EncodingHelper.GetEncodingString(31, 10),
+                        BedNo = EncodingHelper.GetString(0, 10),
+                        PatientName = EncodingHelper.GetString(11, 20),
+                        PrescriptionNo = EncodingHelper.GetString(31, 10),
                         MedicineCode = medicineCode,
-                        MedicineName = EncodingHelper.GetEncodingString(67, 50),
+                        MedicineName = EncodingHelper.GetString(67, 50),
                         PerQty = perQty.ToString("0.##"),
                         AdminCode = adminCode,
                         Days = Math.Ceiling(sumQty / perQty / adminCodeTimePerDay).ToString(),
@@ -127,11 +127,11 @@ namespace FCP.MVVM.FormatControl
                         Location = location
                     });
                     var lastUDBatchTemp = _UDBatch[_UDBatch.Count - 1];
-                    DateTime.TryParseExact(EncodingHelper.GetEncodingString(41, 8), "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime startDate);
+                    DateTime.TryParseExact(EncodingHelper.GetString(41, 8), "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime startDate);
                     lastUDBatchTemp.StartDay = startDate.AddDays(location == "住院" ? 2 : 1);  //住院+2天，養護+1天
                     try
                     {
-                        _UDBatch[_UDBatch.Count - 1]._IsPowder = EncodingHelper.GetEncodingString(236, 1) != "";
+                        _UDBatch[_UDBatch.Count - 1]._IsPowder = EncodingHelper.GetString(236, 1) != "";
                     }
                     catch (Exception) { _UDBatch[_UDBatch.Count - 1]._IsPowder = false; }
                 }

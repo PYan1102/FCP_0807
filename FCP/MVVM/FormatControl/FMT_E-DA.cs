@@ -37,7 +37,7 @@ namespace FCP.MVVM.FormatControl
                     Console.WriteLine(data.Count);
                     if (data.Count <= 1 || data[5] == "BID+HS")
                         continue;
-                    if (IsExistsMedicineCode(data[4]) || IsFilterAdminCode($"{data[5]}"))
+                    if (IsFilterMedicineCode(data[4]) || IsFilterAdminCode($"{data[5]}"))
                         continue;
                     if (!IsExistsCombiAdminCode($"{data[5]}"))
                     {

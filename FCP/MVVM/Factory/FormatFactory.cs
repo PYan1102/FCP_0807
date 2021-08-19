@@ -53,8 +53,12 @@ namespace FCP.MVVM.Factory
                     return new BASE_JenKang();
                 case Format.方鼎系統TOC:
                     return new BASE_FangDing();
+                case Format.成祐中醫診所TOC:
+                    return new BASE_ChengYu();
+                case Format.OnCubeTOC:
+                    return new BASE_OnCube();
                 default:
-                    throw new Exception("沒有找到");
+                    throw new Exception($"沒有找到適當的格式 {format}");
             }
         }
     }

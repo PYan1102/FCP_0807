@@ -24,8 +24,6 @@ namespace FCP
         private Settings _Settings { get; set; }
         private SettingsModel _SettingsModel { get; set; }
         MainWindow mw;
-        List<string> ConvertFormatList = new List<string>() { "JVServer To OnCube", "創聖 To OnCube", "醫聖 To OnCube", "小港醫院 To OnCube", "光田醫院 To OnCube" ,"光田醫院 To JVServer", "民生醫院 To OnCube",
-        "宏彥診所 To OnCube", "義大醫院 To OnCube", "長庚醫院磨粉 To JVServer", "長庚醫院 To OnCube", "台北看守所 To OnCube", "仁康醫院 To OnCube", "方鼎 To OnCube"};
         List<string> FilterSpecialList = new List<string>();
         List<string> UseSpecialList = new List<string>();
         List<string> FilterMedicineCode = new List<string>();
@@ -58,7 +56,6 @@ namespace FCP
             try
             {
                 Cbo_ConvertFormat.ItemsSource = EnumHelper.ToList<Format>();
-                
                 Txt_SearchFrequency.Text = _SettingsModel.Speed.ToString();
                 switch (_SettingsModel.Mode)
                 {
@@ -104,10 +101,16 @@ namespace FCP
                     case Format.方鼎系統TOC:
                         Cbo_ConvertFormat.SelectedIndex = 13;
                         break;
+                    case Format.成祐中醫診所TOC:
+                        Cbo_ConvertFormat.SelectedIndex = 14;
+                        break;
+                    case Format.OnCubeTOC:
+                        Cbo_ConvertFormat.SelectedIndex = 15;
+                        break;
                     default:
-                        throw new Exception($"沒有找到適當的格式 {nameof(_SettingsModel.Mode)}");
+                        throw new Exception($"沒有找到適當的格式 {_SettingsModel.Mode}");
                 }
-                if (_SettingsModel.DoseMode == DoseMode.餐包)
+                if (_SettingsModel.DoseType == DoseType.餐包)
                     Rdo_MultiDose.IsChecked = true;
                 else
                     Rdo_CombiDose.IsChecked = true;
@@ -239,7 +242,7 @@ namespace FCP
                 string Random = "";
                 string FilterMedicineCode = "";
                 string Temp = Cbo_ConvertFormat.SelectedItem.ToString();
-                DoseMode doseMode = (bool)Rdo_MultiDose.IsChecked ? DoseMode.餐包 : DoseMode.種包;
+                DoseType doseMode = (bool)Rdo_MultiDose.IsChecked ? DoseType.餐包 : DoseType.種包;
                 PackMode packMode;
                 if (Rdo_FilterSpecialAdminTimePack.IsChecked == true)
                     packMode = PackMode.過濾特殊;

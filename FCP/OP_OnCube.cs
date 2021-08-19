@@ -22,24 +22,23 @@ namespace FCP
         {
             try
             {
-                List<string> extraList = AssignExtraAdminTime(_SettingsModel.OppositeAdminCode);
                 using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
                 {
                     foreach (var v in OPD)
                     {
-                        DoseMode doseMode = JudgeDoseType(_SettingsModel.DoseMode, extraList, v.AdminCode);
+                        DoseType doseMode = GetDoseType(v.AdminCode);
                         sw.Write(ECD(basic.PatientName, 20));
                         sw.Write(basic.PatientNo.PadRight(30));
                         sw.Write(ECD(basic.LocationName, 50));
                         sw.Write("".PadRight(29));
-                        if (doseMode == DoseMode.餐包)
+                        if (doseMode == DoseType.餐包)
                             sw.Write(v.PerQty.PadRight(5));
                         else
                             sw.Write(v.SumQty.PadRight(5));
                         sw.Write(v.MedicineCode.PadRight(20));
                         sw.Write(ECD(v.MedicineName, 50));
                         sw.Write(v.AdminCode.PadRight(20));
-                        if (doseMode == DoseMode.餐包)
+                        if (doseMode == DoseType.餐包)
                         {
                             sw.Write(v.StartDay);
                             sw.Write(v.EndDay);
@@ -81,25 +80,23 @@ namespace FCP
         {
             try
             {
-                List<string> extraList = AssignExtraAdminTime(_SettingsModel.OppositeAdminCode);
                 using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
                 {
                     foreach (var v in OPD)
                     {
-                        DoseMode doseMode = JudgeDoseType(_SettingsModel.DoseMode, extraList, v.AdminCode);
+                        DoseType doseMode = GetDoseType(v.AdminCode);
                         sw.Write(ECD(v.PatientName, 20));
                         sw.Write("".PadRight(30));
                         sw.Write(ECD("門診", 50));
                         sw.Write("".PadRight(29));
-                        Console.WriteLine(v.PerQty);
-                        if (doseMode == DoseMode.餐包)
+                        if (doseMode == DoseType.餐包)
                             sw.Write(v.PerQty.PadRight(5));
                         else
                             sw.Write(v.SumQty.PadRight(5));
                         sw.Write(v.MedicineCode.PadRight(20));
                         sw.Write(ECD(v.MedicineName, 50));
                         sw.Write(v.AdminCode.PadRight(20));
-                        if (doseMode == DoseMode.餐包)
+                        if (doseMode == DoseType.餐包)
                         {
                             sw.Write(v.StartDate);
                             sw.Write(v.EndDate);
@@ -397,7 +394,7 @@ namespace FCP
                         int r = Int32.Parse(v.Key.Substring(0, v.Key.IndexOf("_")));
                         string DateTemp = v.Key.Substring(v.Key.IndexOf("_") + 1, v.Key.Length - v.Key.IndexOf("_") - 1);
                         DateTime.TryParseExact(DateTemp, "yyMMdd", null, DateTimeStyles.None, out DateTime Date);
-                        if (Type == "即時" & _SettingsModel.DoseMode == DoseMode.餐包)
+                        if (Type == "即時" & _SettingsModel.DoseType == MVVM.Models.Enum.DoseType.餐包)
                         {
                             if (Name == "")
                                 Name = PatientName[r];
@@ -414,7 +411,7 @@ namespace FCP
                             }
                         }
 
-                        if (_SettingsModel.DoseMode == DoseMode.種包)
+                        if (_SettingsModel.DoseType == MVVM.Models.Enum.DoseType.種包)
                         {
                             if (Name == "")
                                 Name = PatientName[r];
@@ -540,24 +537,23 @@ namespace FCP
         {
             try
             {
-                List<string> extraList = AssignExtraAdminTime(_SettingsModel.OppositeAdminCode);
                 using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
                 {
                     foreach (var v in OPD)
                     {
-                        DoseMode doseMode = JudgeDoseType(_SettingsModel.DoseMode, extraList, v.AdminCode);
+                        DoseType doseMode = GetDoseType(v.AdminCode);
                         sw.Write(ECD(v.PatientName, 20));
                         sw.Write(v.PatientNo.PadRight(30));
                         sw.Write(ECD("三杏藥局", 50));
                         sw.Write("".PadRight(29));
-                        if (doseMode == DoseMode.餐包)
+                        if (doseMode == DoseType.餐包)
                             sw.Write(v.PerQty.PadRight(5));
                         else
                             sw.Write(v.SumQty.PadRight(5));
                         sw.Write(v.MedicineCode.PadRight(20));
                         sw.Write(ECD(v.MedicineName, 50));
                         sw.Write(v.AdminCode.PadRight(20));
-                        if (doseMode == DoseMode.餐包)
+                        if (doseMode == DoseType.餐包)
                         {
                             sw.Write(v.StartDate);
                             sw.Write(v.EndDate);
@@ -591,7 +587,6 @@ namespace FCP
 
             try
             {
-                List<string> extraList = AssignExtraAdminTime(_SettingsModel.OppositeAdminCode);
                 foreach (string filenameoutput in filePathOutput)
                 {
                     List<HongYenOPD> OPD = filePathOutput.IndexOf(filenameoutput) == 0 ? OPDUp.ToList() : OPDDown.ToList();
@@ -599,19 +594,19 @@ namespace FCP
                     {
                         foreach (var v in OPD)
                         {
-                            DoseMode doseMode = JudgeDoseType(_SettingsModel.DoseMode, extraList, v.AdminCode);
+                            DoseType doseMode = GetDoseType(v.AdminCode);
                             sw.Write(ECD($"{basic.PatientName}-{v.AdminCode}", 20));
                             sw.Write(basic.PatientNo.PadRight(30));
                             sw.Write(ECD(basic.LocationName, 50));
                             sw.Write("".PadRight(29));
-                            if (doseMode == DoseMode.餐包)
+                            if (doseMode == DoseType.餐包)
                                 sw.Write(v.PerQty.PadRight(5));
                             else
                                 sw.Write(v.SumQty.PadRight(5));
                             sw.Write(v.MedicineCode.PadRight(20));
                             sw.Write(ECD(v.MedicineName, 50));
                             sw.Write(v.AdminCode.PadRight(20));
-                            if (doseMode == DoseMode.餐包)
+                            if (doseMode == DoseType.餐包)
                             {
                                 sw.Write(v.StartDay);
                                 sw.Write(v.EndDay);
@@ -660,7 +655,7 @@ namespace FCP
                         bool isCombi = false;
                         foreach (string time in v.Value)
                         {
-                            isCombi = time == nameof(DoseMode.種包);
+                            isCombi = time == nameof(DoseType.種包);
                             sw.Write(ECD(UDBatch[index].PatientName, 20));
                             sw.Write(UDBatch[index].PrescriptionNo.PadRight(30));
                             sw.Write(ECD("住院", 50));
@@ -943,17 +938,16 @@ namespace FCP
             try
             {
                 int maxDays = OPD.Select(x => Convert.ToInt32(x.Days)).Max();
-                List<string> extraList = AssignExtraAdminTime(_SettingsModel.OppositeAdminCode);
                 using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
                 {
                     foreach (var v in OPD)
                     {
-                        DoseMode doseMode = JudgeDoseType(_SettingsModel.DoseMode, extraList, v.AdminCode);  //劑量類型判斷Combi or Multi
+                        DoseType doseMode = GetDoseType(v.AdminCode);
                         sw.Write(ECD(basic.PatientName, 20));
                         sw.Write(basic.PatientNo.PadRight(30));
                         sw.Write(ECD(basic.LocationName, 50));
                         sw.Write("".PadRight(29));
-                        if (doseMode == DoseMode.餐包)
+                        if (doseMode == DoseType.餐包)
                             sw.Write(v.PerQty.PadRight(5));
                         else
                             sw.Write(v.SumQty.PadRight(5));
@@ -1082,7 +1076,7 @@ namespace FCP
             }
         }
 
-        public static bool FangDing(List<FangDingOPD> OPD, string filePathOutput)
+        public static void FangDing(List<FangDingOPD> OPD, string filePathOutput)
         {
             try
             {
@@ -1112,12 +1106,53 @@ namespace FCP
                         sw.WriteLine("M");
                     }
                 }
-                return true;
             }
             catch (Exception ex)
             {
                 Log.Write(ex.ToString());
-                return false;
+                throw ex;
+            }
+        }
+
+        public static void ChengYu(List<ChengYuOPD> OPD, string filePathOutput)
+        {
+            try
+            {
+                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                {
+                    foreach (var v in OPD)
+                    {
+                        DoseType doseMode = GetDoseType(v.AdminCode);
+                        sw.Write(ECD(v.PatientName, 20));
+                        sw.Write("".PadRight(30));
+                        sw.Write(ECD("門診", 50));
+                        sw.Write("".PadRight(29));
+                        sw.Write(v.PerQty.PadRight(5));
+                        sw.Write(v.MedicineCode.PadRight(20));
+                        sw.Write(ECD(v.MedicineName, 50));
+                        sw.Write(v.NumOfPackages.PadRight(20));
+                        sw.Write(v.StartDay.ToString("yyMMdd"));
+                        sw.Write(v.EndDay.ToString("yyMMdd"));
+                        sw.Write("".PadRight(8));
+                        sw.Write(ECD(v.AdminCodeDescription, 50));
+                        sw.Write("".PadRight(100));
+                        sw.Write("1999-01-01");
+                        sw.Write("男    ");
+                        sw.Write("".PadRight(40));
+                        sw.Write("0");
+                        sw.Write(ECD(v.HospitalName, 30));
+                        sw.Write(ECD(v.Unit, 30));
+                        sw.Write(v.Days.PadRight(30));
+                        sw.Write(ECD(v.AdminCode, 30));
+                        sw.Write("".PadRight(360));
+                        sw.WriteLine("M");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Write(ex.ToString());
+                throw ex;
             }
         }
 
@@ -1128,32 +1163,17 @@ namespace FCP
             return Encoding.Default.GetString(Temp, 0, Length);
         }
 
-        private static DoseMode JudgeDoseType(DoseMode doseMode, List<string> extraList, string AdminTime)
+        private static string ConvertDoseMode(DoseType doseMode)
         {
-            if (doseMode == DoseMode.種包)
-            {
-                if (extraList.Count >= 1)
-                {
-                    if (extraList.Contains(AdminTime.Trim()))
-                        return DoseMode.餐包;
-                    else
-                        return DoseMode.種包;
-                }
-                else
-                    return DoseMode.種包;
-            }
-            else
-            {
-                if (extraList.Count >= 1)
-                {
-                    if (extraList.Contains(AdminTime.Trim()))
-                        return DoseMode.種包;
-                    else
-                        return DoseMode.餐包;
-                }
-                else
-                    return DoseMode.餐包;
-            }
+            string result = doseMode == DoseType.餐包 ? "M" : "C";
+            return result;
+        }
+
+        private static DoseType GetDoseType(string code)
+        {
+            List<string> list = AssignExtraAdminTime(_SettingsModel.OppositeAdminCode);
+            var type = JudgeDoseType(_SettingsModel.DoseType, list, code);
+            return type;
         }
 
         private static List<string> AssignExtraAdminTime(List<string> OppositeAdminCode)
@@ -1167,10 +1187,32 @@ namespace FCP
             return extraList;
         }
 
-        private static string ConvertDoseMode(DoseMode doseMode)
+        private static DoseType JudgeDoseType(DoseType doseMode, List<string> extraList, string AdminTime)
         {
-            string result = doseMode == DoseMode.餐包 ? "M" : "C";
-            return result;
+            if (doseMode == DoseType.種包)
+            {
+                if (extraList.Count >= 1)
+                {
+                    if (extraList.Contains(AdminTime.Trim()))
+                        return DoseType.餐包;
+                    else
+                        return DoseType.種包;
+                }
+                else
+                    return DoseType.種包;
+            }
+            else
+            {
+                if (extraList.Count >= 1)
+                {
+                    if (extraList.Contains(AdminTime.Trim()))
+                        return DoseType.種包;
+                    else
+                        return DoseType.餐包;
+                }
+                else
+                    return DoseType.餐包;
+            }
         }
     }
 }

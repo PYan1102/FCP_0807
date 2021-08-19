@@ -311,7 +311,7 @@ namespace FCP
 
         public bool IsFilterMedicine(string code)
         {
-            return IsExistsMedicineCode(code);
+            return IsFilterMedicineCode(code);
         }
 
         public bool NeedFilterMedicineCode(string Code)
@@ -354,7 +354,7 @@ namespace FCP
                                                                SELECT
 	                                                               RawID
                                                                FROM AdminTime A
-                                                               WHERE A.AdminCode='{code}' AND DeletedYN=0 AND A.UpperAdminTimeID is null
+                                                               WHERE A.AdminCode=N'{code}' AND DeletedYN=0 AND A.UpperAdminTimeID is null
                                                            ) #UpperAdminTime
                                                            WHERE A.UpperAdminTimeID=#UpperAdminTime.RawID AND A.DeletedYN=0", "Time");
             var newList = list.Where(x => x.Length != 0).Select(x => x).ToList();
@@ -366,7 +366,7 @@ namespace FCP
             int result = SQLQuery.GetFirstOneDataInt($@"SELECT
 	                                                        TOP 1 COUNT(RawID)
                                                         FROM AdminTime A
-                                                        WHERE A.AdminCode='{code}' AND DeletedYN=0 AND A.UpperAdminTimeID is null");
+                                                        WHERE A.AdminCode=N'{code}' AND DeletedYN=0 AND A.UpperAdminTimeID is null");
 
             return result > 0;
         }
@@ -376,7 +376,7 @@ namespace FCP
             int result = SQLQuery.GetFirstOneDataInt($@"SELECT
 	                                                        TOP 1 COUNT(RawID)
                                                         FROM AdminTime A
-                                                        WHERE A.AdminCode='S{code}' AND DeletedYN=0");
+                                                        WHERE A.AdminCode=N'S{code}' AND DeletedYN=0");
             return result > 0;
         }
 
@@ -385,9 +385,11 @@ namespace FCP
             return IsExistsMultiAdminCode(code) && IsExistsCombiAdminCode(code);
         }
 
-        public bool IsExistsMedicineCode(string code)
+        public bool IsFilterMedicineCode(string code)
         {
-            return SettingsModel.EN_FilterMedicineCode && !GetMedicineCode().Contains(code);
+            if (!SettingsModel.EN_FilterMedicineCode)
+                return false;
+            return !GetMedicineCode().Contains(code);
         }
 
         private List<string> GetMedicineCode()

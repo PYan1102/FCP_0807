@@ -23,7 +23,7 @@ namespace FCP.MVVM.FormatControl
                     List<string> properties = s.Split('|').Where(x => !string.IsNullOrEmpty(x)).ToList();
                     string adminCode = properties[9];
                     string medicineCode = properties[5];
-                    if (IsExistsMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
+                    if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
                         continue;
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
