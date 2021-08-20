@@ -71,7 +71,7 @@ namespace FCP.MVVM.FormatControl
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath}  {ex}");
+                Log.Write($"{FilePath} {ex}");
                 ReturnsResult.Shunt(ConvertResult.讀取檔案失敗, ex.ToString());
                 return false;
             }
@@ -137,14 +137,14 @@ namespace FCP.MVVM.FormatControl
                 }
                 catch (Exception ex)
                 {
-                    Log.Write($"{FilePath}  {ex}");
+                    Log.Write($"{FilePath} {ex}");
                     ReturnsResult.Shunt(ConvertResult.產生OCS失敗, ex.ToString());
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath}  {ex}");
+                Log.Write($"{FilePath} {ex}");
                 ReturnsResult.Shunt(ConvertResult.處理邏輯失敗, ex.ToString());
                 return false;
             }

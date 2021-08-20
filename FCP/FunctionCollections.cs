@@ -279,10 +279,17 @@ namespace FCP
                 {
                     Clear();
                     CheckFileBackupPath();
-                    Task<FileInformation> fileInformation = FindFile.GetFileInfo();
-                    InputPath = fileInformation.Result.InputPath;
-                    FilePath = fileInformation.Result.FilePath;
-                    CurrentDepartment = fileInformation.Result.Department;
+                    try
+                    {
+                        Task<FileInformation> fileInformation = FindFile.GetFileInfo();
+                        InputPath = fileInformation.Result.InputPath;
+                        FilePath = fileInformation.Result.FilePath;
+                        CurrentDepartment = fileInformation.Result.Department;
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Write(ex.ToString());
+                    }
                     if (!string.IsNullOrEmpty(FilePath))
                         SetConvertInformation();
                 }
