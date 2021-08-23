@@ -535,7 +535,7 @@ namespace FCP
                     NF.ShowBalloonTip(850, "轉檔錯誤", message, System.Windows.Forms.ToolTipIcon.Error);
                     break;
             }
-            Stop();
+            //Stop();
         }
 
         public virtual void ProgressBoxClear()
