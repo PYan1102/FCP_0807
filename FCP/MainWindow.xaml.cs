@@ -25,6 +25,9 @@ using FCP.MVVM.Models.Enum;
 using FCP.MVVM.Factory;
 using FCP.MVVM.Models;
 using FCP.MVVM.Control;
+using FCP.MVVM.ViewModels;
+using MaterialDesignThemes.Wpf;
+using FCP.MVVM.Dialog;
 
 namespace FCP
 {
@@ -34,9 +37,9 @@ namespace FCP
     public partial class MainWindow : Window
     {
         private FunctionCollections _Format { get; set; }
-        private MsgB _Msg { get; set; }
         private SettingsModel _SettingsModel { get; set; }
         private MainWindowModel _MainWindowModel { get; set; }
+        private MsgBViewModel _MsgBVM { get; set; }
         private Settings _Settings { get; set; }
         private Stopwatch _StopWatch = new Stopwatch();
         private Color _WarningColor = Color.FromRgb(225, 219, 96);
@@ -123,10 +126,12 @@ namespace FCP
         public MainWindow()
         {
             InitializeComponent();
-            _Msg = new MsgB();
             _Settings = SettingsFactory.GenerateSettingsControl();
             _SettingsModel = SettingsFactory.GenerateSettingsModels();
             _MainWindowModel = MainWindowFacotry.GenerateMainWindowModel();
+            _MsgBVM = MsgBFactory.GenerateMsgBViewModel();
+            MsgBFactory.GenerateMsgB();
+            _MsgBVM.Visibility = Visibility.Hidden;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -182,7 +187,7 @@ namespace FCP
         {
             if ((Tgl_OPD1.IsChecked | Tgl_OPD2.IsChecked | Tgl_OPD3.IsChecked | Tgl_OPD4.IsChecked) == false)
             {
-                _Msg.Show("沒有勾選任一個轉檔位置", "位置未勾選", "Error", _Msg.Color.Error);
+                _MsgBVM.Show("沒有勾選任一個轉檔位置", "位置未勾選", PackIconKind.Error, KindColors.Error);
                 return;
             }
             _MainWindowModel.IsOPD = true;
@@ -390,7 +395,7 @@ namespace FCP
             }
             catch (Exception a)
             {
-                _Msg.Show(a.ToString(), "錯誤", "Error", Colors.Red);
+                _MsgBVM.Show(a.ToString(), "錯誤", PackIconKind.Error, KindColors.Error);
             }
         }  //F1開啟Log
 

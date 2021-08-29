@@ -3,7 +3,7 @@ using System.Windows.Input;
 
 namespace FCP.Core
 {
-    class RelayCommand : ICommand
+    class ObjectRelayCommand : ICommand
     {
         private Action<object> _Execute;
         private Func<object, bool> _CanExecute;
@@ -14,7 +14,7 @@ namespace FCP.Core
             remove { CommandManager.RequerySuggested -= value; }
         }
 
-        public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
+        public ObjectRelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
         {
             _Execute = execute;
             _CanExecute = canExecute;
@@ -28,6 +28,34 @@ namespace FCP.Core
         public void Execute(object parameter)
         {
             _Execute(parameter);
+        }
+    }
+
+    class RelayCommand : ICommand
+    {
+        private Action _Execute;
+        private Func<bool> _CanExecute;
+
+        public event EventHandler CanExecuteChanged
+        {
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        public RelayCommand(Action execute, Func<bool> canExecute = null)
+        {
+            _Execute = execute;
+            _CanExecute = canExecute;
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return _CanExecute == null || _CanExecute();
+        }
+
+        public void Execute(object parameter)
+        {
+            _Execute();
         }
     }
 }

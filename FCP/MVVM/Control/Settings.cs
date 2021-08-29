@@ -59,7 +59,7 @@ namespace FCP.MVVM.Control
                 AdminCodeFilter = "",
                 AdminCodeUse = "",
                 ExtraRandom = "",
-                DoseMode = 0,
+                DoseType = 0,
                 OppositeAdminCode = "",
                 StatOrBatch = "S",
                 CutTime = "",
@@ -97,6 +97,7 @@ namespace FCP.MVVM.Control
             _SettingsModel.PackMode = (PackMode)Enum.Parse(typeof(PackMode), $"{v["PackMode"]}");
             _SettingsModel.AdminCodeFilter = $"{v["AdminCodeFilter"]}".Split(',').ToList();
             _SettingsModel.AdminCodeUse = $"{v["AdminCodeUse"]}".Split(',').ToList();
+            _SettingsModel.ExtraRandom = $"{v["ExtraRandom"]}";
             _SettingsModel.ExtraRandom = $"{v["ExtraRandom"]}";
             _SettingsModel.DoseType = (DoseType)Enum.Parse(typeof(DoseType), $"{v["DoseType"]}");
             _SettingsModel.OppositeAdminCode = $"{v["OppositeAdminCode"]}".Split(',').ToList();

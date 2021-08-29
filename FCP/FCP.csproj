@@ -57,6 +57,9 @@
     <Reference Include="MaterialDesignThemes.Wpf, Version=3.1.3.1513, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialDesignThemes.3.1.3\lib\net45\MaterialDesignThemes.Wpf.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.31\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -89,6 +92,8 @@
     <Compile Include="AdvancedSettings.xaml.cs">
       <DependentUpon>AdvancedSettings.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MVVM\Dialog\MsgBService.cs" />
+    <Compile Include="MVVM\Factory\ViewModels\MsgBFactory.cs" />
     <Compile Include="MVVM\FormatControl\FMT_ChengYu.cs" />
     <Compile Include="MVVM\FormatControl\FMT_OnCube.cs" />
     <Compile Include="MVVM\FormatInit\BASE_ChengYu.cs" />
@@ -135,9 +140,12 @@
     <Compile Include="MVVM\Models\Enum\Format.cs" />
     <Compile Include="MVVM\Models\Enum\PackMode.cs" />
     <Compile Include="MVVM\Models\Enum\DoseMode.cs" />
+    <Compile Include="MVVM\Models\MsgBModel.cs" />
     <Compile Include="MVVM\Models\ReturnsResultFormat.cs" />
     <Compile Include="MVVM\Models\MainWindowModel.cs" />
     <Compile Include="MVVM\Models\SettingsModel.cs" />
+    <Compile Include="MVVM\Models\SettingsPage1Model.cs" />
+    <Compile Include="MVVM\Models\SettingsPage2Model.cs" />
     <Compile Include="MVVM\Models\SmallFormModel.cs" />
     <Compile Include="MVVM\Factory\SettingsFactory.cs" />
     <Compile Include="MVVM\SQL\SQLQuery.cs" />
@@ -153,9 +161,18 @@
     <Compile Include="MVVM\ViewModels\Interface\IRetunrsResult.cs" />
     <Compile Include="MVVM\ViewModels\MainWindow\MainWindowViewModel.cs" />
     <Compile Include="MVVM\ViewModels\MainWindow\PropertyChange.cs" />
+    <Compile Include="MVVM\ViewModels\SettingsPage1ViewModel.cs" />
+    <Compile Include="MVVM\ViewModels\MsgBViewModel.cs" />
     <Compile Include="MVVM\ViewModels\ReturnsResult.cs" />
+    <Compile Include="MVVM\ViewModels\SettingsPage2ViewModel.cs" />
     <Compile Include="MVVM\ViewModels\SmallFormViewModel.cs" />
     <Compile Include="Core\ViewModelBase.cs" />
+    <Compile Include="MVVM\View\SettingsPage1View.xaml.cs">
+      <DependentUpon>SettingsPage1View.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MVVM\View\SettingsPage2View.xaml.cs">
+      <DependentUpon>SettingsPage2View.xaml</DependentUpon>
+    </Compile>
     <Compile Include="OP_JVServer.cs" />
     <Compile Include="MVVM\FormatInit\BASE_KuangTien.cs" />
     <Compile Include="MVVM\Helper\Log.cs" />
@@ -192,6 +209,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="MVVM\View\SettingsPage1View.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MVVM\View\SettingsPage2View.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="SmallForm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -200,15 +225,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Theme\ControlButtonTheme.xaml">
+    <Page Include="Theme\ButtonTheme.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Theme\DataGridHeaderTheme.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Theme\PageButtonTheme.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -217,10 +238,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Theme\TextBlockTheme.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Theme\WhiteButtonTheme.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -256,9 +273,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="MVVM\View\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="FCP.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

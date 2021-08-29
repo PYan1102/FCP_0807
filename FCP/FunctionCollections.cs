@@ -16,6 +16,8 @@ using FCP.MVVM.Factory;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.ViewModels.GetConvertFile;
 using FCP.MVVM.Helper;
+using FCP.MVVM.ViewModels;
+using MaterialDesignThemes.Wpf;
 
 namespace FCP
 {
@@ -30,9 +32,6 @@ namespace FCP
         private Settings _Settings { get; set; }
         public SmallForm SF;
         public AdvancedSettings AS;
-        MsgB Msg;
-        CancellationTokenSource cts;
-        CancellationTokenSource cts1;
         List<string> IPList = new List<string>();
         public WindowsDo WD { get; set; }
         private string SuccessPath { get; set; }
@@ -51,6 +50,9 @@ namespace FCP
         private string _UDStat { get; set; } = string.Empty;
         private string _Care { get; set; } = string.Empty;
         private string _Other { get; set; } = string.Empty;
+        private MsgBViewModel _MsgBVM { get; set; }
+        private CancellationTokenSource _CTS;
+        private CancellationTokenSource _CTS1;
 
         public FunctionCollections()
         {
@@ -58,6 +60,7 @@ namespace FCP
             SettingsModel = SettingsFactory.GenerateSettingsModels();
             _ConvertFileInformation = ConvertInfoactory.GenerateConvertFileInformation();
             FindFile = new FindFile();
+            _MsgBVM = MsgBFactory.GenerateMsgBViewModel();
         }
 
         public void SetWindow(MainWindow mainWindow)
@@ -81,16 +84,14 @@ namespace FCP
             try
             {
                 SF = new SmallForm(MainWindow) { Owner = MainWindow };
-                AS = new AdvancedSettings(MainWindow) { Owner = MainWindow };
-                Msg = new MsgB() { Owner = MainWindow };
-                WD = new WindowsDo() { MainWindow = MainWindow, Msg = Msg, SF = SF, AS = AS };
+                WD = new WindowsDo() { MainWindow = MainWindow, SF = SF, AS = AS };
                 CheckProgramStart();
                 CheckFileBackupPath();
                 CreateIcon();
                 WD.ProcessAction();
                 NF.Text = (bool)MainWindow.Tgl_AutoStart.IsChecked ? "轉檔程式：轉檔進行中" : "轉檔程式：停止";
-                cts1 = new CancellationTokenSource();
-                MainWindow.Dispatcher.InvokeAsync(new Action(() => WD.UI_Refresh(cts1)));
+                _CTS1 = new CancellationTokenSource();
+                MainWindow.Dispatcher.InvokeAsync(new Action(() => WD.UI_Refresh(_CTS1)));
             }
             catch (Exception ex)
             {
@@ -104,7 +105,7 @@ namespace FCP
         {
             if (Process.GetProcessesByName("FCP").Length >= 2)
             {
-                Msg.Show("程式已開啟，請確認工具列", "重複開啟", "Error", Msg.Color.Error);
+                _MsgBVM.Show("程式已開啟，請確認工具列", "重複開啟", PackIconKind.Error, KindColors.Error);
                 Log.Write("程式已開啟，請確認工具列");
                 Environment.Exit(0);
             }
@@ -155,10 +156,11 @@ namespace FCP
 
         public virtual void Stop()
         {
-            if (cts != null) cts.Cancel();
+            if (_CTS != null) _CTS.Cancel();
             WD.Stop_Control();
             WD.SwitchControlEnabled(true);
             NF.Text = "停止";
+            _CTS = null;
         }
 
         public virtual void Save()
@@ -187,14 +189,14 @@ namespace FCP
         {
             if ((WD.IP1 + WD.IP2 + WD.IP3).Trim() == "")
             {
-                if (cts != null) Stop();
-                Msg.Show("來源路徑為空白", "路徑空白", "Error", Msg.Color.Error);
+                if (_CTS != null) Stop();
+                _MsgBVM.Show("來源路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
                 return;
             }
             if (WD.OP.Trim() == "")
             {
-                if (cts != null) Stop();
-                Msg.Show("輸出路徑為空白", "路徑空白", "Error", Msg.Color.Error);
+                if (_CTS != null) Stop();
+                _MsgBVM.Show("輸出路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
                 return;
             }
             WD.Start_Control(isOPD);
@@ -211,8 +213,8 @@ namespace FCP
                 IPList.Add(WD.IP3);
             }
             WD.AllWindowShowOrHide(null, null, false);
-            cts = null;
-            cts = new CancellationTokenSource();
+            _CTS = null;
+            _CTS = new CancellationTokenSource();
             FindFile.ResetRuleToEmpty();
         }
 
@@ -267,15 +269,17 @@ namespace FCP
                     FindFile.SetUDBatch(_UDBatch);
 
             }
-            FindFile.Reset(cts, IPList);
+            FindFile.Reset(_CTS, IPList);
         }
 
         public virtual void GetFileAsync()
         {
+            if (_CTS == null)
+                return;
             FindFile.SetDepartmentDictionary();
             Task.Run(() =>
             {
-                while (!cts.IsCancellationRequested)
+                while (!_CTS.IsCancellationRequested)
                 {
                     Clear();
                     CheckFileBackupPath();
@@ -307,14 +311,14 @@ namespace FCP
 
         public virtual void Loop_OPD(int Start, int Length, string Content)
         {
-            if (cts == null)
+            if (_CTS == null)
                 return;
             Task.Run(async () =>
             {
                 //GetFileNameTaskAsync();
                 try
                 {
-                    while (!cts.IsCancellationRequested)
+                    while (!_CTS.IsCancellationRequested)
                     {
                         await Task.Delay(SettingsModel.Speed);
                         foreach (string IP in IPList)
@@ -364,13 +368,13 @@ namespace FCP
 
         public virtual void Loop_OPD_小港()
         {
-            if (cts == null)
+            if (_CTS == null)
                 return;
             Task.Run(async () =>
             {
                 try
                 {
-                    while (!cts.IsCancellationRequested)
+                    while (!_CTS.IsCancellationRequested)
                     {
                         await Task.Delay(SettingsModel.Speed);
                         foreach (string IP in IPList)
@@ -426,13 +430,13 @@ namespace FCP
 
         public virtual void Loop_UD(int Start, int Length, string Content)
         {
-            if (cts == null)
+            if (_CTS == null)
                 return;
             Task.Run(async () =>
             {
                 try
                 {
-                    while (!cts.IsCancellationRequested)
+                    while (!_CTS.IsCancellationRequested)
                     {
                         await Task.Delay(SettingsModel.Speed);
                         string IP = WD.IP3;
@@ -582,7 +586,7 @@ namespace FCP
         public virtual void CloseSelf()
         {
             Stop();
-            cts1.Cancel();
+            _CTS1.Cancel();
             NF.Dispose();
             CM.Dispose();
             WD = null;
@@ -620,7 +624,7 @@ namespace FCP
         public MainWindow MainWindow { get; set; }
         private SettingsModel _SettingsModel { get; set; }
         private Settings _Settings { get; set; }
-        public MsgB Msg { get; set; }
+        private MsgBViewModel _MsgBVM { get; set; }
         public AdvancedSettings AS { get; set; }
         public SmallForm SF { get; set; }
         public string IP1 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = MainWindow.Txt_InputPath1.Text; })); return A; } }
@@ -644,6 +648,7 @@ namespace FCP
         {
             _Settings = SettingsFactory.GenerateSettingsControl();
             _SettingsModel = SettingsFactory.GenerateSettingsModels();
+            _MsgBVM = MsgBFactory.GenerateMsgBViewModel();
         }
 
         public void ProcessAction()
@@ -672,7 +677,7 @@ namespace FCP
             }
             catch (Exception a)
             {
-                Msg.Show(a.ToString(), "錯誤", "Error", Msg.Color.Error);
+                _MsgBVM.Show(a.ToString(), "錯誤", PackIconKind.Error, KindColors.Error);
                 Log.Write(a.ToString());
             }
         }  //佈署控鍵
@@ -731,7 +736,7 @@ namespace FCP
                 }
                 catch (Exception a)
                 {
-                    Msg.Show(a.ToString(), "錯誤", "Error", Msg.Color.Error);
+                    _MsgBVM.Show(a.ToString(), "錯誤", PackIconKind.Error, KindColors.Error);
                     Log.Write(a.ToString());
                 }
             }
@@ -1043,12 +1048,15 @@ namespace FCP
         {
             try
             {
+                AS = SettingsFactory.GenerateAdvancesSettings();
+                AS.SetMainWindow(MainWindow);
                 AS.Window_Loaded(null, null);
-                AS.Visibility = Visibility.Visible;
+                AS.ShowDialog();
+                AS = null;
             }
             catch (Exception ex)
             {
-                Msg.Show(ex.ToString(), "錯誤", "Error", Msg.Color.Error);
+                _MsgBVM.Show(ex.ToString(), "錯誤", PackIconKind.Error, KindColors.Error);
             }
         }
 

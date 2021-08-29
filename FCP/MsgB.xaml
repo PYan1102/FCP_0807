@@ -4,7 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FCP"
+        xmlns:vm="clr-namespace:FCP.MVVM.ViewModels"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
@@ -19,46 +21,38 @@
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         WindowStyle="None"
-        Closed="Window_Closed">
+        Visibility="{Binding Visibility}">
+    <Window.Style>
+        <Style>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding OKButtonFocus}" Value="True">
+                    <Setter Property="FocusManager.FocusedElement" Value="{Binding ElementName=Btn_OK}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Style>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closed">
+            <i:InvokeCommandAction Command="{Binding WindowClosed}"
+                                   CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Window.DataContext>
+        <vm:MsgBViewModel/>
+    </Window.DataContext>
     <Window.Resources>
         <ResourceDictionary>
-            <RoutedCommand x:Key="Close"/>
-            <Style TargetType="Button"
-                   BasedOn="{StaticResource MaterialDesignRaisedButton}"
-                   x:Key="ChangeButtonColor">
-                <Setter Property="Foreground"
-                        Value="{StaticResource DeepBlue}"/>
-                <Setter Property="Background"
-                        Value="Transparent"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type Button}">
-                            <Border Background="{TemplateBinding Background}"
-                                    CornerRadius="5">
-                                <ContentPresenter HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"/>
-                            </Border>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver"
-                             Value="True">
-                        <Setter Property="Background"
-                                Value="{StaticResource DeepBlue}"/>
-                        <Setter Property="Foreground"
-                                Value="White"/>
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-            
+            <RoutedCommand x:Key="Close" />
         </ResourceDictionary>
     </Window.Resources>
     <Window.InputBindings>
-        <KeyBinding Gesture="Escape" Command="{StaticResource Close}"/>
+        <KeyBinding Gesture="Escape"
+                    Command="{Binding Close}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,
+                    AncestorType={x:Type Window}}}"/>
     </Window.InputBindings>
     <Window.CommandBindings>
-        <CommandBinding Command="{StaticResource Close}" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{StaticResource Close}"/>
     </Window.CommandBindings>
     <Border BorderBrush="{StaticResource DeepBlue}"
             BorderThickness="1">
@@ -67,8 +61,13 @@
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid Background="{StaticResource DeepBlue}"
-                  MouseLeftButtonDown="Gd_MouseLeftButtonDown">
+            <Grid Background="{StaticResource DeepBlue}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseLeftButtonDown">
+                        <i:InvokeCommandAction Command="{Binding DragMove}"
+                                               CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
@@ -78,7 +77,8 @@
                 <TextBlock x:Name="Txtb_Title"
                            FontSize="14"
                            Foreground="White"
-                           VerticalAlignment="Center" 
+                           VerticalAlignment="Center"
+                           Text="{Binding Title}"
                            Margin="5 0 0 0"/>
                 <Button x:Name="Btn_Close"
                         Grid.Column="2"
@@ -87,7 +87,9 @@
                         Background="Transparent"
                         BorderBrush="Transparent"
                         Foreground="White"
-                        Click="Btn_Close_Click">
+                        Command="{Binding Close}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,
+                        AncestorType={x:Type Window}}}">
                     <materialDesign:PackIcon Kind="Close"
                                              Height="25"
                                              Width="25"
@@ -106,20 +108,24 @@
                                              Width="30"
                                              Height="30"
                                              Foreground="Red"
+                                             Kind="{Binding Kind}"
                                              Margin="0 -5 0 0"/>
                     <ScrollViewer Grid.Row="1"
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Auto">
                         <TextBlock x:Name="MsgBContent"
                                    FontSize="14"
+                                   Text="{Binding Content}"
                                    Foreground="{StaticResource DeepBlue}"/>
                     </ScrollViewer>
                     <Button x:Name="Btn_OK"
                             Grid.Row="2"
                             Width="150"
                             Height="auto"
-                            Click="Btn_OK_Click"
-                            Style="{StaticResource ChangeButtonColor}">
+                            Command="{Binding Close}"
+                            CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, 
+                           AncestorType={x:Type Window}}}"
+                            Style="{StaticResource MsgBOKButton}">
                         <TextBlock FontSize="20"
                                    Text="OK"/>
                     </Button>
