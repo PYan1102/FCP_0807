@@ -28,7 +28,7 @@ namespace FCP.MVVM.FormatInit
             if (_CY == null)
                 _CY = new FMT_ChengYu();
             var result = _CY.MethodShunt();
-            Result(result, false, true);
+            Result(result, true, true);
         }
     }
 }

@@ -818,7 +818,6 @@ namespace FCP
                         sw.WriteLine("C");
                     }
                 }
-                Console.WriteLine(filePathOutput);
                 return true;
             }
             catch (Exception ex)
