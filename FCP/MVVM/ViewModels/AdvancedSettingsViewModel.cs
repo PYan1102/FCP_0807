@@ -29,10 +29,40 @@ namespace FCP.MVVM.ViewModels
         public AdvancedSettingsViewModel()
         {
             _Model = new AdvancedSettingsModel();
-            Page1 = new RelayCommand(() =>Page1Func());
-            Page2 = new RelayCommand(() =>Page2Func());
+            Page1 = new RelayCommand(() => Page1Func());
+            Page2 = new RelayCommand(() => Page2Func());
             Save = new RelayCommand(() => SaveFunc());
             Close = new ObjectRelayCommand(o => ((Window)o).DialogResult = true);
+        }
+
+        public object CurrentView
+        {
+            get => _CurrentView;
+            set => _CurrentView = value;
+        }
+
+        public SolidColorBrush Page1Backround
+        {
+            get => _Model.Page1Background;
+            set => _Model.Page1Background = value;
+        }
+
+        public SolidColorBrush Page1Foreground
+        {
+            get => _Model.Page1Foreground;
+            set => _Model.Page1Foreground = value;
+        }
+
+        public SolidColorBrush Page2Backround
+        {
+            get => _Model.Page2Background;
+            set => _Model.Page2Background = value;
+        }
+
+        public SolidColorBrush Page2Foreground
+        {
+            get => _Model.Page2Foreground;
+            set => _Model.Page2Foreground = value;
         }
 
         public void Page1Func()
@@ -55,56 +85,6 @@ namespace FCP.MVVM.ViewModels
             if (_SettingsPage2VM == null)
                 _SettingsPage2VM = new SettingsPage2ViewModel();
             CurrentView = _SettingsPage2VM;
-        }
-
-        public object CurrentView
-        {
-            get => _CurrentView;
-            set
-            {
-                _CurrentView = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public SolidColorBrush Page1Backround
-        {
-            get => _Model.Page1Background;
-            set
-            {
-                _Model.Page1Background = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public SolidColorBrush Page1Foreground
-        {
-            get => _Model.Page1Foreground;
-            set
-            {
-                _Model.Page1Foreground = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public SolidColorBrush Page2Backround
-        {
-            get => _Model.Page2Background;
-            set
-            {
-                _Model.Page2Background = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public SolidColorBrush Page2Foreground
-        {
-            get => _Model.Page2Foreground;
-            set
-            {
-                _Model.Page2Foreground = value;
-                OnPropertyChanged();
-            }
         }
 
         public void SaveFunc()

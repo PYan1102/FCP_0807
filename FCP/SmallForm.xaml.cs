@@ -21,7 +21,6 @@ namespace FCP
     /// </summary>
     public partial class SmallForm : Window
     {
-        MsgB Msg = new MsgB();
         private SettingsModel _SettingsModel { get; set; }
         private Settings _Settings { get; set; }
         SolidColorBrush DeepBlue = new SolidColorBrush((Color)(Color.FromRgb(17, 68, 109)));

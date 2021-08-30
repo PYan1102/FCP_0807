@@ -159,8 +159,7 @@
     <Compile Include="MVVM\ViewModels\GetConvertFile\IFindFile.cs" />
     <Compile Include="MVVM\ViewModels\GetConvertFile\IFindNeedToConvertFile.cs" />
     <Compile Include="MVVM\ViewModels\Interface\IRetunrsResult.cs" />
-    <Compile Include="MVVM\ViewModels\MainWindow\MainWindowViewModel.cs" />
-    <Compile Include="MVVM\ViewModels\MainWindow\PropertyChange.cs" />
+    <Compile Include="MVVM\ViewModels\MainWindowViewModel.cs" />
     <Compile Include="MVVM\ViewModels\SettingsPage1ViewModel.cs" />
     <Compile Include="MVVM\ViewModels\MsgBViewModel.cs" />
     <Compile Include="MVVM\ViewModels\ReturnsResult.cs" />
@@ -260,7 +259,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Resource Include="Core\XMLFile1.xml" />
+    <Resource Include="Core\XMLFile.xml" />
     <Content Include="OLEDB_Index.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

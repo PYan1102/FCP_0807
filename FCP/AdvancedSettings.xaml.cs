@@ -204,7 +204,7 @@ namespace FCP
 
         private void Btn_Close_Click(object sender, RoutedEventArgs e)
         {
-            _MainWindow.Activate();
+            //_MainWindow.Activate();
             DialogResult = true;
         }
 

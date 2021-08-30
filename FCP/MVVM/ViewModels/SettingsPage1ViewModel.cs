@@ -47,7 +47,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.SearchFrequency = value;
-                OnPropertyChanged();
             }
         }
 
@@ -57,7 +56,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.Mode = value;
-                OnPropertyChanged();
             }
         }
 
@@ -67,7 +65,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.NormalPackChecked = value;
-                OnPropertyChanged();
             }
         }
 
@@ -77,7 +74,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.FilterAdminCodeChecked = value;
-                OnPropertyChanged();
             }
         }
 
@@ -87,7 +83,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.UseAdminCodeChecked = value;
-                OnPropertyChanged();
             }
         }
 
@@ -97,7 +92,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.PackModeVisible = value;
-                OnPropertyChanged();
             }
         }
 
@@ -107,7 +101,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.AdminCode = value;
-                OnPropertyChanged();
             }
         }
 
@@ -117,7 +110,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.AdminCodePackList = value;
-                OnPropertyChanged();
             }
         }
 
@@ -127,7 +119,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.Random = value;
-                OnPropertyChanged();
             }
         }
 
@@ -137,7 +128,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.MultiChecked = value;
-                OnPropertyChanged();
             }
         }
         public bool CombiChecked
@@ -146,7 +136,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.CombiChecked = value;
-                OnPropertyChanged();
             }
         }
 
@@ -156,7 +145,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.OutputSpecialAdminCode = value;
-                OnPropertyChanged();
             }
         }
 
@@ -166,7 +154,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.CutTime = value;
-                OnPropertyChanged();
             }
         }
 
@@ -176,7 +163,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.AdminCodeOfCrossDay = value;
-                OnPropertyChanged();
             }
         }
 
@@ -186,7 +172,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.MedicineCode = value;
-                OnPropertyChanged();
             }
         }
         public ObservableCollection<string> FilterMedicineCode
@@ -195,7 +180,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.FilterMedicineCode = value;
-                OnPropertyChanged();
             }
         }
 
@@ -205,7 +189,6 @@ namespace FCP.MVVM.ViewModels
             set
             {
                 _Model.FilterMedicineCodeIndex = value;
-                OnPropertyChanged();
             }
         }
 

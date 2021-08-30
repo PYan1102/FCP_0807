@@ -5,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FCP"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:vm="clr-namespace:FCP.MVVM.ViewModels"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
@@ -21,12 +23,20 @@
         ResizeMode="NoResize"
         Loaded="Window_Loaded"
         Closing="Window_Closing">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding Closing}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
     <Window.Resources>
         <ResourceDictionary>
             <RoutedUICommand x:Key="OPD"/>
             <RoutedUICommand x:Key="Stop"/>
             <RoutedUICommand x:Key="Save"/>
-            <RoutedUICommand x:Key="Exit"/>
+            <RoutedUICommand x:Key="Close"/>
             <RoutedUICommand x:Key="UD"/>
             <RoutedUICommand x:Key="InputPath1"/>
             <RoutedUICommand x:Key="InputPath2"/>
@@ -42,14 +52,14 @@
         <KeyBinding Gesture="F5" Command="{StaticResource OPD}"/>
         <KeyBinding Gesture="F7" Command="{StaticResource Stop}"/>
         <KeyBinding Gesture="Ctrl+S" Command="{StaticResource Save}"/>
-        <KeyBinding Gesture="Escape" Command="{StaticResource Exit}"/>
+        <KeyBinding Gesture="Escape" Command="{Binding Close}"/>
         <KeyBinding Gesture="F6" Command="{StaticResource UD}"/>
         <KeyBinding Gesture="Ctrl+1" Command="{StaticResource InputPath1}"/>
         <KeyBinding Gesture="Ctrl+2" Command="{StaticResource InputPath2}"/>
         <KeyBinding Gesture="Ctrl+3" Command="{StaticResource InputPath3}"/>
         <KeyBinding Gesture="Ctrl+4" Command="{StaticResource OutputPath}"/>
         <KeyBinding Gesture="Ctrl+G" Command="{StaticResource ChangeSize}"/>
-        <KeyBinding Gesture="Ctrl+W" Command="{StaticResource AdvancedSettings}"/>
+        <KeyBinding Gesture="Ctrl+W" Command="{Binding ShowAdvancedSettings}"/>
         <KeyBinding Gesture="Ctrl+E" Command="{StaticResource ClearListBox}"/>
         <KeyBinding Gesture="F1" Command="{StaticResource Log}"/>
     </Window.InputBindings>
@@ -57,14 +67,14 @@
         <CommandBinding Command="{StaticResource OPD}" CanExecute="OPD_CanExecute" Executed="OPD_Executed"/>
         <CommandBinding Command="{StaticResource Stop}" CanExecute="Stop_CanExecute" Executed="Stop_Executed"/>
         <CommandBinding Command="{StaticResource Save}" CanExecute="Save_CanExecute" Executed="Save_Executed"/>
-        <CommandBinding Command="{StaticResource Exit}" Executed="Exit_Executed"/>
+        <CommandBinding Command="{StaticResource Close}"/>
         <CommandBinding Command="{StaticResource UD}" CanExecute="UD_CanExecute" Executed="UD_Executed"/>
         <CommandBinding Command="{StaticResource InputPath1}" CanExecute="InputPath1_CanExecute" Executed="InputPath1_Executed"/>
         <CommandBinding Command="{StaticResource InputPath2}" CanExecute="InputPath2_CanExecute" Executed="InputPath2_Executed"/>
         <CommandBinding Command="{StaticResource InputPath3}" CanExecute="InputPath3_CanExecute" Executed="InputPath3_Executed"/>
         <CommandBinding Command="{StaticResource OutputPath}" CanExecute="OutputPath_CanExecute" Executed="OutputPath_Executed"/>
         <CommandBinding Command="{StaticResource ChangeSize}" CanExecute="ChangeSize_CanExecute" Executed="ChangeSize_Executed"/>
-        <CommandBinding Command="{StaticResource AdvancedSettings}" CanExecute="AdvancedSettings_CanExecute" Executed="AdvancedSettings_Executed"/>
+        <CommandBinding Command="{StaticResource AdvancedSettings}"/>
         <CommandBinding Command="{StaticResource ClearListBox}" Executed="ClearListBox_Executed"/>
         <CommandBinding Command="{StaticResource Log}" Executed="Log_Executed"/>
     </Window.CommandBindings>
@@ -95,6 +105,7 @@
                            FontSize="16"
                            Foreground="White"
                            VerticalAlignment="Center"
+                           Text="{Binding WindowTitle}"
                            Margin="10"/>
                 <Button x:Name="Btn_Minimum"
                         Grid.Column="1"
@@ -112,7 +123,7 @@
                         Background="Transparent"
                         BorderBrush="Transparent"
                         materialDesign:ButtonAssist.CornerRadius="5"
-                        Click="Btn_Close_Click">
+                        Command="{Binding Close}">
                     <materialDesign:PackIcon Kind="WindowClose"
                                              Height="30"
                                              Width="30"
@@ -151,7 +162,7 @@
                                     <ColumnDefinition Width="0.4*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock x:Name="Txtb_InputPath1"
-                                           Text="輸入路徑1"
+                                           Text="{Binding InputPath1Title}"
                                            Foreground="{StaticResource DeepBlue}"
                                            VerticalAlignment="Center"
                                            HorizontalAlignment="Center"
@@ -164,6 +175,7 @@
                                          VerticalAlignment="Center"
                                          FontSize="16"
                                          IsReadOnly="True"
+                                         Text="{Binding InputPath1}"
                                          Opacity="0.6"
                                          Margin="0 8 0 0"/>
                                 <Button x:Name="Btn_InputPath1"
@@ -172,6 +184,7 @@
                                         BorderBrush="Transparent"
                                         Background="{StaticResource DeepBlue}"
                                         materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                        IsEnabled="{Binding InputPath1Enabled}"
                                         Click="Btn_InputPath1_Click">
                                     <materialDesign:PackIcon Kind="Folder"
                                                              Height="25"
@@ -180,7 +193,7 @@
                                 </Button>
                                 <TextBlock x:Name="Txtb_InputPath2"
                                            Grid.Row="1"
-                                           Text="輸入路徑2"
+                                           Text="{Binding InputPath2Title}"
                                            Foreground="{StaticResource DeepBlue}"
                                            VerticalAlignment="Center"
                                            HorizontalAlignment="Center"
@@ -194,6 +207,7 @@
                                          VerticalAlignment="Center"
                                          FontSize="16"
                                          IsReadOnly="True"
+                                         Text="{Binding InputPath2}"
                                          Opacity="0.6"
                                          Margin="0 8 0 0"/>
                                 <Button x:Name="Btn_InputPath2"
@@ -203,6 +217,7 @@
                                         BorderBrush="Transparent"
                                         Background="{StaticResource DeepBlue}"
                                         materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                        IsEnabled="{Binding InputPath2Enabled}"
                                         Click="Btn_InputPath2_Click">
                                     <materialDesign:PackIcon Kind="Folder"
                                                              Height="25"
@@ -211,7 +226,7 @@
                                 </Button>
                                 <TextBlock x:Name="Txtb_InputPath3"
                                            Grid.Row="2"
-                                           Text="輸入路徑3"
+                                           Text="{Binding InputPath3Title}"
                                            Foreground="{StaticResource DeepBlue}"
                                            VerticalAlignment="Center"
                                            HorizontalAlignment="Center"
@@ -225,6 +240,7 @@
                                          VerticalAlignment="Center"
                                          FontSize="16"
                                          IsReadOnly="True"
+                                         Text="{Binding InputPath3}"
                                          Opacity="0.6"
                                          Margin="0 8 0 0"/>
                                 <Button x:Name="Btn_InputPath3"
@@ -234,6 +250,7 @@
                                         BorderBrush="Transparent"
                                         Background="{StaticResource DeepBlue}"
                                         materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                        IsEnabled="{Binding InputPath3Enabled}"
                                     Click="Btn_InputPath3_Click">
                                     <materialDesign:PackIcon Kind="Folder"
                                                              Height="25"
@@ -242,7 +259,7 @@
                                 </Button>
                                 <TextBlock x:Name="Txtb_OutputPath"
                                            Grid.Row="3"
-                                           Text="輸出路徑"
+                                           Text="{Binding OutputPathTitle}"
                                            Foreground="{StaticResource DeepBlue}"
                                            VerticalAlignment="Center"
                                            HorizontalAlignment="Center"
@@ -256,6 +273,7 @@
                                          VerticalAlignment="Center"
                                          FontSize="16"
                                          IsReadOnly="True"
+                                         Text="{Binding OutputPath}"
                                          Opacity="0.6"
                                          Margin="0 8 0 0" />
                                 <Button x:Name="Btn_OutputPath"
@@ -265,6 +283,8 @@
                                         BorderBrush="Transparent"
                                         Background="{StaticResource DeepBlue}"
                                         materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                        
+                                        IsEnabled="{Binding OutputPathEnabled}"
                                         Click="Btn_OutputPath_Click">
                                     <materialDesign:PackIcon Kind="Folder"
                                                              Height="25"
@@ -339,7 +359,7 @@
                                                        Foreground="White"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center" 
-                                                       Text="餐包"/>
+                                                       Text="{Binding DoseType}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -370,7 +390,7 @@
                                                        Foreground="White"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
-                                                       Text="0"/>
+                                                       Text="{Binding SuccessCount}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -401,7 +421,7 @@
                                                        Foreground="White"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
-                                                       Text="0"/>
+                                                       Text="{Binding FailCount}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -413,6 +433,7 @@
                                         Width="120"
                                         Height="43"
                                         HorizontalAlignment="Left"
+                                        Visibility="{Binding WindowXVisibility}"
                                         Margin="0 5 0 5">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -434,7 +455,7 @@
                                                      Foreground="White"
                                                      HorizontalAlignment="Center"
                                                      VerticalAlignment="Center"
-                                                     Text="0"
+                                                     Text="{Binding WindowX}"
                                                      MaxLength="4"/>
                                         </Border>
                                     </Grid>
@@ -447,6 +468,7 @@
                                         Width="120"
                                         Height="43" 
                                         HorizontalAlignment="Left"
+                                        Visibility="{Binding WindowYVisibility}"
                                         Margin="130 5 0 5">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -468,7 +490,7 @@
                                                      Foreground="White"
                                                      HorizontalAlignment="Center"
                                                      VerticalAlignment="Center"
-                                                     Text="0"
+                                                     Text="{Binding WindowY}"
                                                      MaxLength="4"/>
                                         </Border>
                                     </Grid>
@@ -491,6 +513,8 @@
                                         HorizontalAlignment="Left"
                                         materialDesign:ButtonAssist.CornerRadius="5"
                                         Click="Btn_OPD_Click"
+                                            IsEnabled="{Binding OPDEnabled}"
+                                            Command="{Binding OPD}"
                                         Style="{StaticResource ControlButton}"
                                         Margin="0 5 0 5">
                                         <Grid Width="110" Margin="-10 0 0 0">
@@ -510,6 +534,8 @@
                                                   Grid.Column="1"
                                                   HorizontalAlignment="Left"
                                                   Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                                  IsChecked="{Binding OPDToogle1Checked}"
+                                                  Visibility="{Binding OPDToogle1Visibility}"
                                                   Margin="10 0 0 0">
                                     </ToggleButton>
                                     <TextBlock x:Name="Txt_OPD1"
@@ -517,12 +543,14 @@
                                                VerticalAlignment="Center"
                                                Foreground="White"
                                                FontSize="16"
-                                               Text="門診"
+                                               Text="{Binding OPDToogle1}"
                                                Margin="50 0 0 0"/>
                                     <ToggleButton x:Name="Tgl_OPD2"
                                                   Grid.Column="2"
                                                   HorizontalAlignment="Left"
                                                   Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                                  IsChecked="{Binding OPDToogle2Checked}"
+                                                  Visibility="{Binding OPDToogle2Visibility}"
                                                   Margin="10 0 0 0">
                                     </ToggleButton>
                                     <TextBlock x:Name="Txt_OPD2"
@@ -530,12 +558,14 @@
                                                VerticalAlignment="Center"
                                                Foreground="White"
                                                FontSize="16"
-                                               Text="磨粉"
+                                               Text="{Binding OPDToogle1}"
                                                Margin="50 0 0 0"/>
                                     <ToggleButton x:Name="Tgl_OPD3"
                                                   Grid.Column="3"
                                                   HorizontalAlignment="Left"
                                                   Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                                  IsChecked="{Binding OPDToogle3Checked}"
+                                                  Visibility="{Binding OPDToogle3Visibility}"
                                                   Margin="10 0 0 0">
                                     </ToggleButton>
                                     <TextBlock x:Name="Txt_OPD3"
@@ -543,12 +573,14 @@
                                                VerticalAlignment="Center"
                                                Foreground="White"
                                                FontSize="16"
-                                               Text="養護"
+                                               Text="{Binding OPDToogle1}"
                                                Margin="50 0 0 0"/>
                                     <ToggleButton x:Name="Tgl_OPD4"
                                                   Grid.Column="4"
                                                   HorizontalAlignment="Left"
                                                   Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                                  IsChecked="{Binding OPDToogle4Checked}"
+                                                  Visibility="{Binding OPDToogle4Visibility}"
                                                   Margin="10 0 0 0">
                                     </ToggleButton>
                                     <TextBlock x:Name="Txt_OPD4"
@@ -556,7 +588,7 @@
                                                VerticalAlignment="Center"
                                                Foreground="White"
                                                FontSize="16"
-                                               Text="其他"
+                                               Text="{Binding OPDToogle1}"
                                                Margin="50 0 0 0"/>
                                 </Grid>
                                 <Button x:Name="Btn_UD"
@@ -570,6 +602,8 @@
                                         HorizontalAlignment="Left"
                                         materialDesign:ButtonAssist.CornerRadius="5"
                                         Click="Btn_UD_Click"
+                                        IsEnabled="{Binding UDEnabled}"
+                                        Command="{Binding UD}"
                                         Style="{StaticResource ControlButton}"
                                         Margin="0 5 0 5">
                                     <Grid Width="110" Margin="-10 0 0 0">
@@ -590,16 +624,28 @@
                                              FontSize="20"
                                              Foreground="White"
                                              Content=" 即時"
-                                             IsChecked="True"
+                                             IsChecked="{Binding IsStatChecked}"
                                              Style="{StaticResource RadioButton}"
-                                             Margin="-170 0 0 0"/>
+                                             Visibility="{Binding StatVisibility}"
+                                             Margin="-170 0 0 0">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Checked">
+                                            <i:InvokeCommandAction Command="{Binding Check}"/>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="Unchecked">
+                                            <i:InvokeCommandAction Command="{Binding Check}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </RadioButton>
                                 <RadioButton x:Name="Rdo_Batch"
                                              Grid.Row="1"
                                              HorizontalAlignment="Center"
                                              FontSize="20"
                                              Foreground="White"
                                              Content=" 長期"
+                                             IsChecked="{Binding IsBatchChecked}"
                                              Style="{StaticResource RadioButton}"
+                                             Visibility="{Binding BatchVisibility}"
                                              Margin="20 0 0 0"/>
                                 <Button x:Name="Btn_Stop"
                                         Grid.Row="2"
@@ -612,6 +658,7 @@
                                         HorizontalAlignment="Right"
                                         materialDesign:ButtonAssist.CornerRadius="5"
                                         Click="Btn_Stop_Click"
+                                        IsEnabled="{Binding StopEnabled}"
                                         Margin="0 5 0 5">
                                     <Grid Width="130">
                                         <materialDesign:PackIcon Kind="Stop"

@@ -7,6 +7,7 @@ using System.Windows.Media;
 using FCP.Core;
 using FCP.MVVM.Models;
 using FCP.MVVM.Factory.ViewModels;
+using MaterialDesignThemes.Wpf;
 
 namespace FCP.MVVM.ViewModels
 {
@@ -31,61 +32,37 @@ namespace FCP.MVVM.ViewModels
         public string Content
         {
             get => _Model.Content;
-            set
-            {
-                _Model.Content = value;
-                OnPropertyChanged();
-            }
+            set => _Model.Content = value;
         }
 
         public string Title
         {
             get => _Model.Title;
-            set
-            {
-                _Model.Title = value;
-                OnPropertyChanged();
-            }
+            set => _Model.Title = value;
         }
 
-        public MaterialDesignThemes.Wpf.PackIconKind Kind
+        public PackIconKind Kind
         {
             get => _Model.Kind;
-            set
-            {
-                _Model.Kind = value;
-                OnPropertyChanged();
-            }
+            set => _Model.Kind = value;
         }
 
         public Color KindColor
         {
             get => _Model.KindColor;
-            set
-            {
-                _Model.KindColor = value;
-                OnPropertyChanged();
-            }
+            set => _Model.KindColor = value;
         }
 
-        public Visibility Visibility
+        public Visibility WindowVisibility
         {
-            get => _Model.Visibility;
-            set
-            {
-                _Model.Visibility = value;
-                OnPropertyChanged();
-            }
+            get => _Model.WindowVisibility;
+            set => _Model.WindowVisibility = value;
         }
 
         public bool OKButtonFocus
         {
             get => _Model.OKButtonFocus;
-            set
-            {
-                _Model.OKButtonFocus = value;
-                OnPropertyChanged();
-            }
+            set => _Model.OKButtonFocus = value;
         }
 
         public void Show(string content, string title, MaterialDesignThemes.Wpf.PackIconKind kind, Color kindColor)

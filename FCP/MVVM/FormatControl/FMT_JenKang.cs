@@ -113,6 +113,11 @@ namespace FCP.MVVM.FormatControl
                     int adminCodeTimePerDay = GetMultiAdminCodeTimes(adminCode).Count;
                     Single sumQty = Convert.ToSingle(EncodingHelper.GetString(200, 10));
                     Single perQty = Convert.ToSingle(EncodingHelper.GetString(167, 10));
+                    string days = Math.Ceiling(sumQty / perQty / adminCodeTimePerDay).ToString();
+                    if (SettingsModel.CrossDayAdminCode.Contains(adminCode))
+                    {
+                        days = EncodingHelper.GetString(197, 3);
+                    }
                     _UDBatch.Add(new JenKang()
                     {
                         BedNo = EncodingHelper.GetString(0, 10),
@@ -122,12 +127,12 @@ namespace FCP.MVVM.FormatControl
                         MedicineName = EncodingHelper.GetString(67, 50),
                         PerQty = perQty.ToString("0.##"),
                         AdminCode = adminCode,
-                        Days = Math.Ceiling(sumQty / perQty / adminCodeTimePerDay).ToString(),
+                        Days = days,
                         SumQty = sumQty.ToString(),
                         Location = location
                     });
                     var lastUDBatchTemp = _UDBatch[_UDBatch.Count - 1];
-                    DateTime.TryParseExact(EncodingHelper.GetString(41, 8), "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime startDate);
+                    DateTime startDate = DateTimeHelper.Convert(EncodingHelper.GetString(41, 8), "yyyyMMdd");
                     lastUDBatchTemp.StartDay = startDate.AddDays(location == "住院" ? 2 : 1);  //住院+2天，養護+1天
                     try
                     {

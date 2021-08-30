@@ -11,7 +11,7 @@ namespace FCP.MVVM.Models
         public string Title { get; set; }
         public PackIconKind Kind { get; set; }
         public Color KindColor { get; set; }
-        public Visibility Visibility { get; set; }
+        public Visibility WindowVisibility { get; set; }
         public bool OKButtonFocus { get; set; }
     }
 }

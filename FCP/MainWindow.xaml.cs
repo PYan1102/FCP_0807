@@ -19,7 +19,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.ComponentModel;
 using FCP.MVVM.Factory.ViewModels;
-using FCP.MVVM.ViewModels.MainWindow;
 using FCP.MVVM.FormatInit;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.Factory;
@@ -28,6 +27,7 @@ using FCP.MVVM.Control;
 using FCP.MVVM.ViewModels;
 using MaterialDesignThemes.Wpf;
 using FCP.MVVM.Dialog;
+using FCP.MVVM.Factory.ViewModel;
 
 namespace FCP
 {
@@ -38,13 +38,9 @@ namespace FCP
     {
         private FunctionCollections _Format { get; set; }
         private SettingsModel _SettingsModel { get; set; }
-        private MainWindowModel _MainWindowModel { get; set; }
+        private MainWindowModel _MainWindowModel { get => MainWindowFacotry.GenerateMainWindowModel(); }
         private MsgBViewModel _MsgBVM { get; set; }
-        private Settings _Settings { get; set; }
         private Stopwatch _StopWatch = new Stopwatch();
-        private Color _WarningColor = Color.FromRgb(225, 219, 96);
-        private SolidColorBrush _RedColor = new SolidColorBrush((Color)Color.FromRgb(255, 82, 85));
-        private SolidColorBrush _WhiteColor = new SolidColorBrush((Color)Color.FromRgb(255, 255, 255));
         public string CurrentWindow { get; set; }
         private string _StatOrBatch = "S";
         private string _InputPath1 = "";
@@ -126,12 +122,8 @@ namespace FCP
         public MainWindow()
         {
             InitializeComponent();
-            _Settings = SettingsFactory.GenerateSettingsControl();
+            this.DataContext = new MainWindowViewModel();
             _SettingsModel = SettingsFactory.GenerateSettingsModels();
-            _MainWindowModel = MainWindowFacotry.GenerateMainWindowModel();
-            _MsgBVM = MsgBFactory.GenerateMsgBViewModel();
-            MsgBFactory.GenerateMsgB();
-            _MsgBVM.Visibility = Visibility.Hidden;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -190,14 +182,11 @@ namespace FCP
                 _MsgBVM.Show("沒有勾選任一個轉檔位置", "位置未勾選", PackIconKind.Error, KindColors.Error);
                 return;
             }
-            _MainWindowModel.IsOPD = true;
-            _Format.ConvertPrepare(_MainWindowModel.IsOPD);
         }
 
         public void Btn_UD_Click(object sender, RoutedEventArgs e)
         {
-            _MainWindowModel.IsOPD = false;
-            _Format.ConvertPrepare(_MainWindowModel.IsOPD);
+
         }
 
         private void Btn_Close_Click(object sender, RoutedEventArgs e)
@@ -275,11 +264,6 @@ namespace FCP
         private void Save_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             Btn_Save_Click(null, null);
-        }
-
-        private void Exit_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            Btn_Close_Click(null, null);
         }
 
         private void UD_CanExecute(object sender, CanExecuteRoutedEventArgs e)

@@ -8,7 +8,6 @@ using System.IO;
 using System.Windows;
 using System.Threading;
 using System.Windows.Media;
-using FCP.MVVM.ViewModels.MainWindow;
 using FCP.MVVM.Factory.ViewModels;
 using FCP.MVVM.Control;
 using FCP.MVVM.Models;
@@ -950,7 +949,9 @@ namespace FCP
             if (b2 != null)
                 SF.Visibility = (bool)b2 ? Visibility.Visible : Visibility.Hidden;
             if (b3 != null)
-                AS.Visibility = (bool)b3 ? Visibility.Visible : Visibility.Hidden;
+            {
+                //AS.Visibility = (bool)b3 ? Visibility.Visible : Visibility.Hidden;
+            }
         }
 
         //工具列圖示雙擊
