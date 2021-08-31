@@ -8,7 +8,7 @@ using System.IO;
 using System.Windows;
 using System.Threading;
 using System.Windows.Media;
-using FCP.MVVM.Factory.ViewModels;
+using FCP.MVVM.Factory.ViewModel;
 using FCP.MVVM.Control;
 using FCP.MVVM.Models;
 using FCP.MVVM.Factory;
@@ -20,27 +20,28 @@ using MaterialDesignThemes.Wpf;
 
 namespace FCP
 {
-    public abstract class FunctionCollections
+    abstract class FunctionCollections
     {
+        public MainWindowViewModel MainWindowVM { get; set; }
         public string IP1, IP2, IP3, OP = "";
         public string PackedType;
-        public const string FileBackupPath = @"D:\Converter_Backup";
-        System.Windows.Forms.NotifyIcon NF = new System.Windows.Forms.NotifyIcon();
-        System.Windows.Forms.ContextMenuStrip CM = new System.Windows.Forms.ContextMenuStrip();
-        public SettingsModel SettingsModel { get; set; }
-        private Settings _Settings { get; set; }
-        public SmallForm SF;
-        public AdvancedSettings AS;
-        List<string> IPList = new List<string>();
-        public WindowsDo WD { get; set; }
-        private string SuccessPath { get; set; }
-        private string FailPath { get; set; }
         public string FilePath { get; set; }
         public string InputPath { get; set; }
         public string OutputPath { get; set; }
         public string CurrentSeconds { get; set; }
         public FindFile FindFile { get; set; }
         public MainWindow MainWindow { get; set; }
+        public readonly static string FileBackupPath = @"D:\Converter_Backup";
+        public SettingsModel SettingsModel { get; set; }
+        private Settings _Settings { get; set; }
+        public SmallForm SF;
+        public AdvancedSettings AS;
+        List<string> IPList = new List<string>();
+        public WindowsDo WD { get; set; }
+        private System.Windows.Forms.NotifyIcon _NotifyIcon = new System.Windows.Forms.NotifyIcon();
+        private AdvancedSettingsViewModel _AdvancedSettingsVM { get; set; }
+        private string SuccessPath { get; set; }
+        private string FailPath { get; set; }
         private ConvertFileInformtaionModel _ConvertFileInformation { get; set; }
         protected internal DepartmentEnum CurrentDepartment { get; set; }
         private string _OPD { get; set; } = string.Empty;
@@ -56,10 +57,11 @@ namespace FCP
         public FunctionCollections()
         {
             _Settings = SettingsFactory.GenerateSettingsControl();
-            SettingsModel = SettingsFactory.GenerateSettingsModels();
+            SettingsModel = SettingsFactory.GenerateSettingsModel();
             _ConvertFileInformation = ConvertInfoactory.GenerateConvertFileInformation();
             FindFile = new FindFile();
             _MsgBVM = MsgBFactory.GenerateMsgBViewModel();
+            MainWindowVM = MainWindowFacotry.GenerateMainWindowViewModel();
         }
 
         public void SetWindow(MainWindow mainWindow)
@@ -86,11 +88,12 @@ namespace FCP
                 WD = new WindowsDo() { MainWindow = MainWindow, SF = SF, AS = AS };
                 CheckProgramStart();
                 CheckFileBackupPath();
-                CreateIcon();
-                WD.ProcessAction();
-                NF.Text = (bool)MainWindow.Tgl_AutoStart.IsChecked ? "轉檔程式：轉檔進行中" : "轉檔程式：停止";
+                CreateNotifyIcon();
+                RefreshUIPropertyServices.InitMainWindowUI();
+                RefreshUIPropertyServices.SwitchMainWindowControlState(true);
                 _CTS1 = new CancellationTokenSource();
-                MainWindow.Dispatcher.InvokeAsync(new Action(() => WD.UI_Refresh(_CTS1)));
+                WD.UI_Refresh(_CTS1);
+                //MainWindow.Dispatcher.InvokeAsync(new Action(() => ));
             }
             catch (Exception ex)
             {
@@ -125,32 +128,22 @@ namespace FCP
             WD.AllWindowShowOrHide(b1, b2, b3);
         }
 
-        private void CreateIcon()
+        private void CreateNotifyIcon()
         {
-            CM = new System.Windows.Forms.ContextMenuStrip();
-            CM.Items.Add("離開");
-            CM.ItemClicked += CMS_ItemClicked;
-            NF.Icon = new System.Drawing.Icon(new Uri("FCP.ico", UriKind.Relative).ToString());
-            NF.Visible = true;
-            NF.Text = "轉檔狀態：停止";
-            NF.ContextMenuStrip = CM;
-            NF.DoubleClick += IconDBClick;
+            _NotifyIcon.Icon = Properties.Resources.FCP;
+            _NotifyIcon.Visible = true;
+            _NotifyIcon.Text = "轉檔";
+            _NotifyIcon.DoubleClick += NotifyIconDBClick;
         }
 
-        private void CMS_ItemClicked(object sender, System.Windows.Forms.ToolStripItemClickedEventArgs e)
+        public void NotifyIconDBClick(object sender, EventArgs e)
         {
-            if (e.ClickedItem.ToString().Equals("離開"))
-                Environment.Exit(0);
+            WD.NotifyIconDBClick();
         }
 
-        public void IconDBClick(object sender, EventArgs e)
+        public virtual void ShowAdvancedSettings()
         {
-            WD.IconDBClick();
-        }
-
-        public virtual void AdvancedSettingsShow()
-        {
-            WD.AdvancedSettingsShow();
+            WD.ShowAdvancedSettings();
         }
 
         public virtual void Stop()
@@ -158,7 +151,6 @@ namespace FCP
             if (_CTS != null) _CTS.Cancel();
             WD.Stop_Control();
             WD.SwitchControlEnabled(true);
-            NF.Text = "停止";
             _CTS = null;
         }
 
@@ -170,8 +162,8 @@ namespace FCP
                 Properties.Settings.Default.Y = WD.Y;
                 Properties.Settings.Default.Save();
 
-                _Settings.SaveMainWidow(WD.IP1, WD.IP2, WD.IP3, WD.OP, WD._AutoStart, WD._IsStat ? "S" : "B");
-                ProgressBoxAdd("儲存成功");
+                _Settings.SaveMainWidow(MainWindowVM.InputPath1, MainWindowVM.InputPath2, MainWindowVM.InputPath3, MainWindowVM.OutputPath, MainWindowVM.IsAutoStartChecked, MainWindowVM.StatChecked ? "S" : "B");
+                AddNewMessageToProgressBox("儲存成功");
             }
             catch (Exception ex)
             {
@@ -186,21 +178,20 @@ namespace FCP
 
         public virtual void ConvertPrepare(bool isOPD)
         {
-            if ((WD.IP1 + WD.IP2 + WD.IP3).Trim() == "")
+            if ((MainWindowVM.InputPath1 + MainWindowVM.InputPath2 + MainWindowVM.InputPath3).Trim().Length == 0)
             {
                 if (_CTS != null) Stop();
                 _MsgBVM.Show("來源路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
                 return;
             }
-            if (WD.OP.Trim() == "")
+            if (MainWindowVM.OutputPath.Trim().Length == 0)
             {
                 if (_CTS != null) Stop();
                 _MsgBVM.Show("輸出路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
                 return;
             }
-            WD.Start_Control(isOPD);
-            WD.SwitchControlEnabled(false);
-            NF.Text = "開始";
+            WD.SwitchConverterButtonColor(isOPD);
+            RefreshUIPropertyServices.SwitchMainWindowControlState(false);
             IPList.Clear();
             if (isOPD)
             {
@@ -211,7 +202,8 @@ namespace FCP
             {
                 IPList.Add(WD.IP3);
             }
-            WD.AllWindowShowOrHide(null, null, false);
+            _AdvancedSettingsVM = AdvancedSettingsFactory.GenerateAdvancedSettingsViewModel();
+            _AdvancedSettingsVM.Visibility = Visibility.Hidden;
             _CTS = null;
             _CTS = new CancellationTokenSource();
             FindFile.ResetRuleToEmpty();
@@ -502,8 +494,8 @@ namespace FCP
                         WD.SuccessCountAdd();
                     }
                     tip = $"{fileNameWithoutExtension} {nameof(ConvertResult.成功)}";
-                    ProgressBoxAdd(tip);
-                    NF.ShowBalloonTip(850, nameof(ConvertResult.成功), tip, System.Windows.Forms.ToolTipIcon.None);
+                    AddNewMessageToProgressBox(tip);
+                    _NotifyIcon.ShowBalloonTip(850, nameof(ConvertResult.成功), tip, System.Windows.Forms.ToolTipIcon.None);
                     break;
                 case ConvertResult.全數過濾:
                     if (isMoveFile)
@@ -514,19 +506,19 @@ namespace FCP
                     if (isReminder)
                     {
                         tip = $"{fileNameWithoutExtension} {nameof(ConvertResult.全數過濾)}";
-                        ProgressBoxAdd(tip);
-                        NF.ShowBalloonTip(850, nameof(ConvertResult.全數過濾), tip, System.Windows.Forms.ToolTipIcon.None);
+                        AddNewMessageToProgressBox(tip);
+                        _NotifyIcon.ShowBalloonTip(850, nameof(ConvertResult.全數過濾), tip, System.Windows.Forms.ToolTipIcon.None);
                     }
                     break;
                 case ConvertResult.沒有種包頻率:
                     Stop();
-                    ProgressBoxAdd(message);
-                    NF.ShowBalloonTip(850, $"缺少頻率", $"{Path.GetFileName(FilePath)} OnCube中缺少該檔案 {message} 的種包頻率", System.Windows.Forms.ToolTipIcon.Error);
+                    AddNewMessageToProgressBox(message);
+                    _NotifyIcon.ShowBalloonTip(850, $"缺少頻率", $"{Path.GetFileName(FilePath)} OnCube中缺少該檔案 {message} 的種包頻率", System.Windows.Forms.ToolTipIcon.Error);
                     break;
                 case ConvertResult.沒有餐包頻率:
                     Stop();
-                    ProgressBoxAdd(message);
-                    NF.ShowBalloonTip(850, $"缺少頻率", $"{Path.GetFileName(FilePath)} OnCube中缺少該檔案 {message} 的餐包頻率", System.Windows.Forms.ToolTipIcon.Error);
+                    AddNewMessageToProgressBox(message);
+                    _NotifyIcon.ShowBalloonTip(850, $"缺少頻率", $"{Path.GetFileName(FilePath)} OnCube中缺少該檔案 {message} 的餐包頻率", System.Windows.Forms.ToolTipIcon.Error);
                     break;
                 default:
                     if (isMoveFile)
@@ -534,8 +526,8 @@ namespace FCP
                         File.Move(FilePath, $@"{FailPath}\{fileName}.fail");
                         WD.FailCountAdd();
                     }
-                    ProgressBoxAdd($"{returnsResult.Result} {message}");
-                    NF.ShowBalloonTip(850, "轉檔錯誤", message, System.Windows.Forms.ToolTipIcon.Error);
+                    AddNewMessageToProgressBox($"{returnsResult.Result} {message}");
+                    _NotifyIcon.ShowBalloonTip(850, "轉檔錯誤", message, System.Windows.Forms.ToolTipIcon.Error);
                     break;
             }
             //Stop();
@@ -546,7 +538,7 @@ namespace FCP
             WD.ProgressBoxClear();
         }
 
-        private void ProgressBoxAdd(string Result)
+        private void AddNewMessageToProgressBox(string Result)
         {
             WD.ProgressBoxAdd($"{DateTime.Now:HH:mm:ss:fff} {Result}");
         }
@@ -586,8 +578,7 @@ namespace FCP
         {
             Stop();
             _CTS1.Cancel();
-            NF.Dispose();
-            CM.Dispose();
+            _NotifyIcon.Dispose();
             WD = null;
         }
 
@@ -638,6 +629,7 @@ namespace FCP
         public bool _OPD2 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD2.IsChecked; })); return B; } }
         public bool _OPD3 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD3.IsChecked; })); return B; } }
         public bool _OPD4 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD4.IsChecked; })); return B; } }
+        private MainWindowViewModel _MainWindowVM { get => MainWindowFacotry.GenerateMainWindowViewModel(); }
         bool isMainWindow = true;  //true > mainwindow, false > smallform
 
         SolidColorBrush Red = new SolidColorBrush((Color)Color.FromRgb(255, 82, 85));
@@ -646,7 +638,7 @@ namespace FCP
         public WindowsDo()
         {
             _Settings = SettingsFactory.GenerateSettingsControl();
-            _SettingsModel = SettingsFactory.GenerateSettingsModels();
+            _SettingsModel = SettingsFactory.GenerateSettingsModel();
             _MsgBVM = MsgBFactory.GenerateMsgBViewModel();
         }
 
@@ -660,7 +652,7 @@ namespace FCP
                 MainWindow.Txt_InputPath1.Text = _SettingsModel.InputPath1;
                 MainWindow.Txt_InputPath2.Text = _SettingsModel.InputPath2;
                 MainWindow.Txt_InputPath3.Text = _SettingsModel.InputPath3;
-                MainWindow.Txt_OutputPath.Text = _SettingsModel.OutputPath1;
+                MainWindow.Txt_OutputPath.Text = _SettingsModel.OutputPath;
                 MainWindow.Tgl_AutoStart.IsChecked = _SettingsModel.EN_AutoStart;
                 MainWindow.Txt_X.Text = Properties.Settings.Default.X.ToString();
                 MainWindow.Txt_Y.Text = Properties.Settings.Default.Y.ToString();
@@ -690,7 +682,7 @@ namespace FCP
                 {
                     //string FileVersion = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion.ToString();  //版本
                     SF.SetFormLocation(Properties.Settings.Default.X, Properties.Settings.Default.Y);
-                    if (!(bool)MainWindow.Btn_Stop.IsEnabled)
+                    if (!_MainWindowVM.StopEnabled)
                     {
                         UILayout UI = new UILayout();
                         switch (_SettingsModel.Mode)
@@ -723,15 +715,14 @@ namespace FCP
                                 JVServerToOnCube(UI);
                                 break;
                         }
-                        UI_LayoutSet(UI);
-                        MainWindow.Txtb_PackType.Text = _SettingsModel.DoseType.ToString();
+                        RefreshUIPropertyServices.RefrehMainWindowUI(UI);
+                        _MainWindowVM.DoseType = _SettingsModel.DoseType.ToString();
                     }
-                    MainWindow.Rdo_Stat.Visibility = _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
-                    MainWindow.Rdo_Batch.Visibility = _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
-                    MainWindow.Btn_Close.Visibility = _SettingsModel.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
-                    MainWindow.Btn_Minimum.Visibility = _SettingsModel.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
-                    MainWindow.Bod_X.Visibility = _SettingsModel.EN_ShowXY ? Visibility.Visible : Visibility.Hidden;
-                    MainWindow.Bod_Y.Visibility = _SettingsModel.EN_ShowXY ? Visibility.Visible : Visibility.Hidden;
+                    _MainWindowVM.StatVisibility= _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
+                    _MainWindowVM.BatchVisibility= _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
+                    _MainWindowVM.MinimumAndCloseVisibility = _SettingsModel.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
+                    _MainWindowVM.WindowXVisibility = _SettingsModel.EN_ShowXY ? Visibility.Visible : Visibility.Hidden;
+                    _MainWindowVM.WindowYVisibility = _SettingsModel.EN_ShowXY ? Visibility.Visible : Visibility.Hidden;
                 }
                 catch (Exception a)
                 {
@@ -744,201 +735,201 @@ namespace FCP
         private void UI_LayoutSet(UILayout UI)
         {
             MainWindow.Txtb_Title.Text = UI.Title;
-            MainWindow.Txtb_InputPath1.Text = UI.IP1s;
-            MainWindow.Txtb_InputPath2.Text = UI.IP2s;
-            MainWindow.Txtb_InputPath3.Text = UI.IP3s;
-            MainWindow.Txt_OPD1.Text = UI.OPD1s;
-            MainWindow.Txt_OPD2.Text = UI.OPD2s;
-            MainWindow.Txt_OPD3.Text = UI.OPD3s;
-            MainWindow.Txt_OPD4.Text = UI.OPD4s;
-            MainWindow.Btn_InputPath1.IsEnabled = UI.IP1b;
-            MainWindow.Btn_InputPath2.IsEnabled = UI.IP2b;
-            MainWindow.Btn_InputPath3.IsEnabled = UI.IP3b;
-            MainWindow.Btn_UD.Visibility = UI.UDv;
-            MainWindow.Tgl_OPD1.Visibility = UI.OPD1v;
-            MainWindow.Tgl_OPD2.Visibility = UI.OPD2v;
-            MainWindow.Tgl_OPD3.Visibility = UI.OPD3v;
-            MainWindow.Tgl_OPD4.Visibility = UI.OPD4v;
+            MainWindow.Txtb_InputPath1.Text = UI.IP1Title;
+            MainWindow.Txtb_InputPath2.Text = UI.IP2Title;
+            MainWindow.Txtb_InputPath3.Text = UI.IP3Title;
+            MainWindow.Txt_OPD1.Text = UI.OPDToogle1;
+            MainWindow.Txt_OPD2.Text = UI.OPDToogle2;
+            MainWindow.Txt_OPD3.Text = UI.OPDToogle3;
+            MainWindow.Txt_OPD4.Text = UI.OPDToogle4;
+            MainWindow.Btn_InputPath1.IsEnabled = UI.IP1Enabled;
+            MainWindow.Btn_InputPath2.IsEnabled = UI.IP2Enabled;
+            MainWindow.Btn_InputPath3.IsEnabled = UI.IP3Enabled;
+            MainWindow.Btn_UD.Visibility = UI.UDVisibility;
+            MainWindow.Tgl_OPD1.Visibility = UI.OPD1Visibility;
+            MainWindow.Tgl_OPD2.Visibility = UI.OPD2Visibility;
+            MainWindow.Tgl_OPD3.Visibility = UI.OPD3Visibility;
+            MainWindow.Tgl_OPD4.Visibility = UI.OPD4Visibility;
         }
 
         private void JVServerToOnCube(UILayout UI)
         {
             UI.Title = "Normal > OnCube";
-            UI.IP1s = "輸入路徑1";
-            UI.IP2s = "輸入路徑2";
-            UI.IP3s = "輸入路徑3";
-            UI.OPD1s = "門診";
-            UI.OPD2s = "";
-            UI.OPD3s = "";
-            UI.OPD4s = "";
-            UI.IP1b = true;
-            UI.IP2b = true;
-            UI.IP3b = true;
-            UI.UDv = Visibility.Hidden;
-            UI.OPD1v = Visibility.Visible;
-            UI.OPD2v = Visibility.Hidden;
-            UI.OPD3v = Visibility.Hidden;
-            UI.OPD4v = Visibility.Hidden;
+            UI.IP1Title = "輸入路徑1";
+            UI.IP2Title = "輸入路徑2";
+            UI.IP3Title = "輸入路徑3";
+            UI.OPDToogle1 = "門診";
+            UI.OPDToogle2 = "";
+            UI.OPDToogle3 = "";
+            UI.OPDToogle4 = "";
+            UI.IP1Enabled = true;
+            UI.IP2Enabled = true;
+            UI.IP3Enabled = true;
+            UI.UDVisibility = Visibility.Hidden;
+            UI.OPD1Visibility = Visibility.Visible;
+            UI.OPD2Visibility = Visibility.Hidden;
+            UI.OPD3Visibility = Visibility.Hidden;
+            UI.OPD4Visibility = Visibility.Hidden;
         }
 
         private void 小港ToOnCube(UILayout UI)
         {
             UI.Title = "小港醫院 > OnCube";
-            UI.IP1s = "門   診";
-            UI.IP2s = "磨   粉";
-            UI.IP3s = "住   院";
-            UI.OPD1s = "門診";
-            UI.OPD2s = "磨粉";
-            UI.OPD3s = "慢籤";
-            UI.OPD4s = "急診";
-            UI.IP1b = true;
-            UI.IP2b = true;
-            UI.IP3b = true;
-            UI.UDv = Visibility.Visible;
-            UI.OPD1v = Visibility.Visible;
-            UI.OPD2v = Visibility.Visible;
-            UI.OPD3v = Visibility.Visible;
-            UI.OPD4v = Visibility.Visible;
+            UI.IP1Title = "門   診";
+            UI.IP2Title = "磨   粉";
+            UI.IP3Title = "住   院";
+            UI.OPDToogle1 = "門診";
+            UI.OPDToogle2 = "磨粉";
+            UI.OPDToogle3 = "慢籤";
+            UI.OPDToogle4 = "急診";
+            UI.IP1Enabled = true;
+            UI.IP2Enabled = true;
+            UI.IP3Enabled = true;
+            UI.UDVisibility = Visibility.Visible;
+            UI.OPD1Visibility = Visibility.Visible;
+            UI.OPD2Visibility = Visibility.Visible;
+            UI.OPD3Visibility = Visibility.Visible;
+            UI.OPD4Visibility = Visibility.Visible;
         }
 
         private void 光田ToOnCube(UILayout UI)
         {
             UI.Title = "光田醫院 > OnCube";
-            UI.IP1s = "門   診";
-            UI.IP2s = "輸入路徑2";
-            UI.IP3s = "住   院";
-            UI.OPD1s = "門診";
-            UI.OPD2s = "";
-            UI.OPD3s = "";
-            UI.OPD4s = "";
-            UI.IP1b = true;
-            UI.IP2b = false;
-            UI.IP3b = true;
-            UI.UDv = Visibility.Visible;
-            UI.OPD1v = Visibility.Visible;
-            UI.OPD2v = Visibility.Hidden;
-            UI.OPD3v = Visibility.Hidden;
-            UI.OPD4v = Visibility.Hidden;
+            UI.IP1Title = "門   診";
+            UI.IP2Title = "輸入路徑2";
+            UI.IP3Title = "住   院";
+            UI.OPDToogle1 = "門診";
+            UI.OPDToogle2 = "";
+            UI.OPDToogle3 = "";
+            UI.OPDToogle4 = "";
+            UI.IP1Enabled = true;
+            UI.IP2Enabled = false;
+            UI.IP3Enabled = true;
+            UI.UDVisibility = Visibility.Visible;
+            UI.OPD1Visibility = Visibility.Visible;
+            UI.OPD2Visibility = Visibility.Hidden;
+            UI.OPD3Visibility = Visibility.Hidden;
+            UI.OPD4Visibility = Visibility.Hidden;
         }
 
         private void 光田ToJVServer(UILayout UI)
         {
             UI.Title = "光田醫院 > JVServer";
-            UI.IP1s = "輸入路徑1";
-            UI.IP2s = "磨   粉";
-            UI.IP3s = "輸入路徑3";
-            UI.OPD1s = "";
-            UI.OPD2s = "磨粉";
-            UI.OPD3s = "";
-            UI.OPD4s = "";
-            UI.IP1b = false;
-            UI.IP2b = true;
-            UI.IP3b = false;
-            UI.UDv = Visibility.Hidden;
-            UI.OPD1v = Visibility.Hidden;
-            UI.OPD2v = Visibility.Visible;
-            UI.OPD3v = Visibility.Hidden;
-            UI.OPD4v = Visibility.Hidden;
+            UI.IP1Title = "輸入路徑1";
+            UI.IP2Title = "磨   粉";
+            UI.IP3Title = "輸入路徑3";
+            UI.OPDToogle1 = "";
+            UI.OPDToogle2 = "磨粉";
+            UI.OPDToogle3 = "";
+            UI.OPDToogle4 = "";
+            UI.IP1Enabled = false;
+            UI.IP2Enabled = true;
+            UI.IP3Enabled = false;
+            UI.UDVisibility = Visibility.Hidden;
+            UI.OPD1Visibility = Visibility.Hidden;
+            UI.OPD2Visibility = Visibility.Visible;
+            UI.OPD3Visibility = Visibility.Hidden;
+            UI.OPD4Visibility = Visibility.Hidden;
         }
 
         private void 民生ToOnCube(UILayout UI)
         {
             UI.Title = "民生醫院 > OnCube";
-            UI.IP1s = "輸入路徑1";
-            UI.IP2s = "輸入路徑1";
-            UI.IP3s = "住   院";
-            UI.OPD1s = "門診";
-            UI.OPD2s = "";
-            UI.OPD3s = "養護";
-            UI.OPD4s = "大寮";
-            UI.IP1b = true;
-            UI.IP2b = true;
-            UI.IP3b = true;
-            UI.UDv = Visibility.Visible;
-            UI.OPD1v = Visibility.Visible;
-            UI.OPD2v = Visibility.Hidden;
-            UI.OPD3v = Visibility.Visible;
-            UI.OPD4v = Visibility.Visible;
+            UI.IP1Title = "輸入路徑1";
+            UI.IP2Title = "輸入路徑1";
+            UI.IP3Title = "住   院";
+            UI.OPDToogle1 = "門診";
+            UI.OPDToogle2 = "";
+            UI.OPDToogle3 = "養護";
+            UI.OPDToogle4 = "大寮";
+            UI.IP1Enabled = true;
+            UI.IP2Enabled = true;
+            UI.IP3Enabled = true;
+            UI.UDVisibility = Visibility.Visible;
+            UI.OPD1Visibility = Visibility.Visible;
+            UI.OPD2Visibility = Visibility.Hidden;
+            UI.OPD3Visibility = Visibility.Visible;
+            UI.OPD4Visibility = Visibility.Visible;
         }
 
         private void 義大ToOnCube(UILayout UI)
         {
             UI.Title = "義大醫院 > OnCube";
-            UI.IP1s = "輸入路徑1";
-            UI.IP2s = "輸入路徑2";
-            UI.IP3s = "住   院";
-            UI.OPD1s = "";
-            UI.OPD2s = "";
-            UI.OPD3s = "";
-            UI.OPD4s = "";
-            UI.IP1b = false;
-            UI.IP2b = false;
-            UI.IP3b = true;
-            UI.UDv = Visibility.Visible;
-            UI.OPD1v = Visibility.Hidden;
-            UI.OPD2v = Visibility.Hidden;
-            UI.OPD3v = Visibility.Hidden;
-            UI.OPD4v = Visibility.Hidden;
+            UI.IP1Title = "輸入路徑1";
+            UI.IP2Title = "輸入路徑2";
+            UI.IP3Title = "住   院";
+            UI.OPDToogle1 = "";
+            UI.OPDToogle2 = "";
+            UI.OPDToogle3 = "";
+            UI.OPDToogle4 = "";
+            UI.IP1Enabled = false;
+            UI.IP2Enabled = false;
+            UI.IP3Enabled = true;
+            UI.UDVisibility = Visibility.Visible;
+            UI.OPD1Visibility = Visibility.Hidden;
+            UI.OPD2Visibility = Visibility.Hidden;
+            UI.OPD3Visibility = Visibility.Hidden;
+            UI.OPD4Visibility = Visibility.Hidden;
         }
 
         private void 長庚磨粉ToJVServer(UILayout UI)
         {
             UI.Title = "長庚磨粉 > JVServer";
-            UI.IP1s = "磨粉";
-            UI.IP2s = "輸入路徑2";
-            UI.IP3s = "輸入路徑3";
-            UI.OPD1s = "";
-            UI.OPD2s = "磨粉";
-            UI.OPD3s = "";
-            UI.OPD4s = "";
-            UI.IP1b = true;
-            UI.IP2b = false;
-            UI.IP3b = false;
-            UI.UDv = Visibility.Hidden;
-            UI.OPD1v = Visibility.Hidden;
-            UI.OPD2v = Visibility.Visible;
-            UI.OPD3v = Visibility.Hidden;
-            UI.OPD4v = Visibility.Hidden;
+            UI.IP1Title = "磨粉";
+            UI.IP2Title = "輸入路徑2";
+            UI.IP3Title = "輸入路徑3";
+            UI.OPDToogle1 = "";
+            UI.OPDToogle2 = "磨粉";
+            UI.OPDToogle3 = "";
+            UI.OPDToogle4 = "";
+            UI.IP1Enabled = true;
+            UI.IP2Enabled = false;
+            UI.IP3Enabled = false;
+            UI.UDVisibility = Visibility.Hidden;
+            UI.OPD1Visibility = Visibility.Hidden;
+            UI.OPD2Visibility = Visibility.Visible;
+            UI.OPD3Visibility = Visibility.Hidden;
+            UI.OPD4Visibility = Visibility.Hidden;
         }
 
         private void 長庚醫院ToOnCube(UILayout UI)
         {
             UI.Title = "長庚醫院 > OnCube";
-            UI.IP1s = "門診";
-            UI.IP2s = "藥來速";
-            UI.IP3s = "住院";
-            UI.OPD1s = "門診";
-            UI.OPD2s = "";
-            UI.OPD3s = "";
-            UI.OPD4s = "藥來速";
-            UI.IP1b = true;
-            UI.IP2b = true;
-            UI.IP3b = true;
-            UI.UDv = Visibility.Visible;
-            UI.OPD1v = Visibility.Visible;
-            UI.OPD2v = Visibility.Hidden;
-            UI.OPD3v = Visibility.Hidden;
-            UI.OPD4v = Visibility.Visible;
+            UI.IP1Title = "門診";
+            UI.IP2Title = "藥來速";
+            UI.IP3Title = "住院";
+            UI.OPDToogle1 = "門診";
+            UI.OPDToogle2 = "";
+            UI.OPDToogle3 = "";
+            UI.OPDToogle4 = "藥來速";
+            UI.IP1Enabled = true;
+            UI.IP2Enabled = true;
+            UI.IP3Enabled = true;
+            UI.UDVisibility = Visibility.Visible;
+            UI.OPD1Visibility = Visibility.Visible;
+            UI.OPD2Visibility = Visibility.Hidden;
+            UI.OPD3Visibility = Visibility.Hidden;
+            UI.OPD4Visibility = Visibility.Visible;
         }
 
         private void 仁康醫院ToOnCube(UILayout UI)
         {
             UI.Title = "仁康醫院 > OnCube";
-            UI.IP1s = "門診";
-            UI.IP2s = "輸入路徑2";
-            UI.IP3s = "住院";
-            UI.OPD1s = "門診";
-            UI.OPD2s = "";
-            UI.OPD3s = "";
-            UI.OPD4s = "";
-            UI.IP1b = true;
-            UI.IP2b = false;
-            UI.IP3b = true;
-            UI.UDv = Visibility.Visible;
-            UI.OPD1v = Visibility.Visible;
-            UI.OPD2v = Visibility.Hidden;
-            UI.OPD3v = Visibility.Hidden;
-            UI.OPD4v = Visibility.Hidden;
+            UI.IP1Title = "門診";
+            UI.IP2Title = "輸入路徑2";
+            UI.IP3Title = "住院";
+            UI.OPDToogle1 = "門診";
+            UI.OPDToogle2 = "";
+            UI.OPDToogle3 = "";
+            UI.OPDToogle4 = "";
+            UI.IP1Enabled = true;
+            UI.IP2Enabled = false;
+            UI.IP3Enabled = true;
+            UI.UDVisibility = Visibility.Visible;
+            UI.OPD1Visibility = Visibility.Visible;
+            UI.OPD2Visibility = Visibility.Hidden;
+            UI.OPD3Visibility = Visibility.Hidden;
+            UI.OPD4Visibility = Visibility.Hidden;
         }
 
         //視窗顯示控制
@@ -955,7 +946,7 @@ namespace FCP
         }
 
         //工具列圖示雙擊
-        public void IconDBClick()
+        public void NotifyIconDBClick()
         {
             if (isMainWindow)
             {
@@ -1019,7 +1010,7 @@ namespace FCP
         }
 
         //OPD或UD切換
-        public void Start_Control(bool isOPD)
+        public void SwitchConverterButtonColor(bool isOPD)
         {
             if (isOPD)
             {
@@ -1045,13 +1036,13 @@ namespace FCP
             }));
         }
 
-        public void AdvancedSettingsShow()
+        public void ShowAdvancedSettings()
         {
             try
             {
-                AS = SettingsFactory.GenerateAdvancesSettings();
+                AS = AdvancedSettingsFactory.GenerateAdvancedSettings();
                 AS.SetMainWindow(MainWindow);
-                AS.Window_Loaded(null, null);
+                AS.Window_Loaded(null,null);
                 AS.ShowDialog();
                 AS = null;
             }
@@ -1090,27 +1081,27 @@ namespace FCP
         public void AutoStart()
         {
             if (_SettingsModel.EN_AutoStart)
-                MainWindow.Btn_OPD_Click(null, null);
+                _MainWindowVM.OPDFunc();
         }
     }
 
     public class UILayout
     {
         public string Title { get; set; }
-        public string IP1s { get; set; }
-        public string IP2s { get; set; }
-        public string IP3s { get; set; }
-        public string OPD1s { get; set; }
-        public string OPD2s { get; set; }
-        public string OPD3s { get; set; }
-        public string OPD4s { get; set; }
-        public bool IP1b { get; set; }
-        public bool IP2b { get; set; }
-        public bool IP3b { get; set; }
-        public Visibility UDv { get; set; }
-        public Visibility OPD1v { get; set; }
-        public Visibility OPD2v { get; set; }
-        public Visibility OPD3v { get; set; }
-        public Visibility OPD4v { get; set; }
+        public string IP1Title { get; set; }
+        public string IP2Title { get; set; }
+        public string IP3Title { get; set; }
+        public string OPDToogle1 { get; set; }
+        public string OPDToogle2 { get; set; }
+        public string OPDToogle3 { get; set; }
+        public string OPDToogle4 { get; set; }
+        public bool IP1Enabled { get; set; }
+        public bool IP2Enabled { get; set; }
+        public bool IP3Enabled { get; set; }
+        public Visibility UDVisibility { get; set; }
+        public Visibility OPD1Visibility { get; set; }
+        public Visibility OPD2Visibility { get; set; }
+        public Visibility OPD3Visibility { get; set; }
+        public Visibility OPD4Visibility { get; set; }
     }
 }

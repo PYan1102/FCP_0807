@@ -4,7 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.Models;
-using FCP.MVVM.Factory.ViewModels;
+using FCP.MVVM.Factory.ViewModel;
 
 namespace FCP.MVVM.ViewModels.GetConvertFile
 {

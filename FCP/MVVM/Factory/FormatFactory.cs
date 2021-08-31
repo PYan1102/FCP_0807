@@ -4,7 +4,7 @@ using FCP.MVVM.FormatInit;
 
 namespace FCP.MVVM.Factory
 {
-    public static class FormatFactory
+    static class FormatFactory
     {
         private static FunctionCollections _Format { get; set; }
         private static Format _CurrentFormat { get; set; }

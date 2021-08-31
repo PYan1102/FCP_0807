@@ -1,5 +1,5 @@
 ﻿using System;
-using FCP.MVVM.Factory.ViewModels;
+using FCP.MVVM.Factory.ViewModel;
 
 namespace FCP.MVVM.Dialog
 {

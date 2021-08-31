@@ -65,6 +65,11 @@ namespace FCP.MVVM.ViewModels
             set => _Model.Page2Foreground = value;
         }
 
+        public Visibility Visibility
+        {
+            get => _Model.Visibility;
+            set => _Model.Visibility = value;
+        }
         public void Page1Func()
         {
             Page1Backround = Yellow;

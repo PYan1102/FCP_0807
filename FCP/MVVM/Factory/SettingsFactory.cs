@@ -16,16 +16,11 @@ namespace FCP.MVVM.Factory
             return _SettingsControl;
         }
 
-        public static SettingsModel GenerateSettingsModels()
+        public static SettingsModel GenerateSettingsModel()
         {
             if (_SettingsModel == null)
                 _SettingsModel = new SettingsModel();
             return _SettingsModel;
-        }
-        
-        public static AdvancedSettings GenerateAdvancesSettings()
-        {
-            return new AdvancedSettings();
         }
     }
 }

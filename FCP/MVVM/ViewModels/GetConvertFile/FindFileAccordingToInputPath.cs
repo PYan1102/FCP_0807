@@ -19,7 +19,7 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
 
         public FindFileAccordingToInputPath()
         {
-            _SettingsModel = SettingsFactory.GenerateSettingsModels();
+            _SettingsModel = SettingsFactory.GenerateSettingsModel();
         }
 
         public void Reset(CancellationTokenSource cts, List<string> list)

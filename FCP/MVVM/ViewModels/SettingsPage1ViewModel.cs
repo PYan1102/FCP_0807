@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 using FCP.MVVM.Models;
 using System.Windows;
 using System.Windows.Input;
-using FCP.MVVM.Factory.ViewModels;
+using FCP.MVVM.Factory.ViewModel;
 using MaterialDesignThemes.Wpf;
 
 namespace FCP.MVVM.ViewModels

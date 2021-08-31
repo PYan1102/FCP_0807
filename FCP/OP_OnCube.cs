@@ -16,7 +16,7 @@ namespace FCP
 {
     static class OP_OnCube
     {
-        private static SettingsModel _SettingsModel { get => SettingsFactory.GenerateSettingsModels(); }
+        private static SettingsModel _SettingsModel { get => SettingsFactory.GenerateSettingsModel(); }
 
         public static void JVServer(List<JVServerOPD> OPD, JVServerOPDBasic basic, List<string> oncubeRandom, string random, string filePathOutput)
         {
@@ -1177,10 +1177,12 @@ namespace FCP
                         sw.Write("".PadRight(158));
                         sw.Write("1999-01-01");
                         sw.Write("男    ");
-                        sw.Write("".PadRight(40));
+                        sw.Write(v.RoomNo.PadRight(20));
+                        sw.Write("".PadRight(20));
                         sw.Write("0");
                         sw.Write(ECD(v.Hospital, 30));
-                        sw.Write("".PadRight(450));
+                        sw.Write(ECD(v.Handler, 30));
+                        sw.Write("".PadRight(420));
                         sw.WriteLine("M");
                     }
                 }

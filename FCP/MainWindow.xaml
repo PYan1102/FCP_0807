@@ -21,11 +21,13 @@
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        Loaded="Window_Loaded"
         Closing="Window_Closing">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction Command="{Binding Closing}"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding Loaded}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Window.DataContext>
@@ -112,6 +114,7 @@
                         Background="Transparent"
                         BorderBrush="Transparent"
                         materialDesign:ButtonAssist.CornerRadius="5"
+                        Visibility="{Binding MinimumAndCloseVisibility}"
                         Click="Btn_Minimum_Click">
                     <materialDesign:PackIcon Kind="WindowMinimize"
                                              Height="30"
@@ -123,6 +126,7 @@
                         Background="Transparent"
                         BorderBrush="Transparent"
                         materialDesign:ButtonAssist.CornerRadius="5"
+                        Visibility="{Binding MinimumAndCloseVisibility}"
                         Command="{Binding Close}">
                     <materialDesign:PackIcon Kind="WindowClose"
                                              Height="30"
@@ -317,6 +321,7 @@
                                         <ToggleButton x:Name="Tgl_AutoStart"
                                                       HorizontalAlignment="Left"
                                                       Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                                      IsChecked="{Binding IsAutoStartChecked}"
                                                       Margin="5 0 0 0">
                                         </ToggleButton>
                                         <Border Grid.Column="1"
@@ -434,6 +439,7 @@
                                         Height="43"
                                         HorizontalAlignment="Left"
                                         Visibility="{Binding WindowXVisibility}"
+                                        IsEnabled="{Binding WindowXEnabled}"
                                         Margin="0 5 0 5">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -469,6 +475,7 @@
                                         Height="43" 
                                         HorizontalAlignment="Left"
                                         Visibility="{Binding WindowYVisibility}"
+                                        IsEnabled="{Binding WindowYEnabled}"
                                         Margin="130 5 0 5">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -536,6 +543,7 @@
                                                   Style="{StaticResource MaterialDesignSwitchToggleButton}"
                                                   IsChecked="{Binding OPDToogle1Checked}"
                                                   Visibility="{Binding OPDToogle1Visibility}"
+                                                  IsEnabled="{Binding OPDToogle1Enabled}"
                                                   Margin="10 0 0 0">
                                     </ToggleButton>
                                     <TextBlock x:Name="Txt_OPD1"
@@ -551,6 +559,7 @@
                                                   Style="{StaticResource MaterialDesignSwitchToggleButton}"
                                                   IsChecked="{Binding OPDToogle2Checked}"
                                                   Visibility="{Binding OPDToogle2Visibility}"
+                                                  IsEnabled="{Binding OPDToogle2Enabled}"
                                                   Margin="10 0 0 0">
                                     </ToggleButton>
                                     <TextBlock x:Name="Txt_OPD2"
@@ -558,7 +567,7 @@
                                                VerticalAlignment="Center"
                                                Foreground="White"
                                                FontSize="16"
-                                               Text="{Binding OPDToogle1}"
+                                               Text="{Binding OPDToogle2}"
                                                Margin="50 0 0 0"/>
                                     <ToggleButton x:Name="Tgl_OPD3"
                                                   Grid.Column="3"
@@ -566,6 +575,7 @@
                                                   Style="{StaticResource MaterialDesignSwitchToggleButton}"
                                                   IsChecked="{Binding OPDToogle3Checked}"
                                                   Visibility="{Binding OPDToogle3Visibility}"
+                                                  IsEnabled="{Binding OPDToogle3Enabled}"
                                                   Margin="10 0 0 0">
                                     </ToggleButton>
                                     <TextBlock x:Name="Txt_OPD3"
@@ -573,7 +583,7 @@
                                                VerticalAlignment="Center"
                                                Foreground="White"
                                                FontSize="16"
-                                               Text="{Binding OPDToogle1}"
+                                               Text="{Binding OPDToogle3}"
                                                Margin="50 0 0 0"/>
                                     <ToggleButton x:Name="Tgl_OPD4"
                                                   Grid.Column="4"
@@ -581,6 +591,7 @@
                                                   Style="{StaticResource MaterialDesignSwitchToggleButton}"
                                                   IsChecked="{Binding OPDToogle4Checked}"
                                                   Visibility="{Binding OPDToogle4Visibility}"
+                                                  IsEnabled="{Binding OPDToogle4Enabled}"
                                                   Margin="10 0 0 0">
                                     </ToggleButton>
                                     <TextBlock x:Name="Txt_OPD4"
@@ -588,7 +599,7 @@
                                                VerticalAlignment="Center"
                                                Foreground="White"
                                                FontSize="16"
-                                               Text="{Binding OPDToogle1}"
+                                               Text="{Binding OPDToogle4}"
                                                Margin="50 0 0 0"/>
                                 </Grid>
                                 <Button x:Name="Btn_UD"
@@ -624,8 +635,9 @@
                                              FontSize="20"
                                              Foreground="White"
                                              Content=" 即時"
-                                             IsChecked="{Binding IsStatChecked}"
                                              Style="{StaticResource RadioButton}"
+                                             IsChecked="{Binding StatChecked}"
+                                             IsEnabled="{Binding StatEnabled}"
                                              Visibility="{Binding StatVisibility}"
                                              Margin="-170 0 0 0">
                                     <i:Interaction.Triggers>
@@ -643,8 +655,9 @@
                                              FontSize="20"
                                              Foreground="White"
                                              Content=" 長期"
-                                             IsChecked="{Binding IsBatchChecked}"
                                              Style="{StaticResource RadioButton}"
+                                             IsChecked="{Binding BatchChecked}"
+                                             IsEnabled="{Binding BatchEnabled}"
                                              Visibility="{Binding BatchVisibility}"
                                              Margin="20 0 0 0"/>
                                 <Button x:Name="Btn_Stop"
@@ -681,8 +694,9 @@
                                         Width="170"
                                         Height="Auto"
                                         HorizontalAlignment="Right"
-                                    materialDesign:ButtonAssist.CornerRadius="5"
+                                        materialDesign:ButtonAssist.CornerRadius="5"
                                         Click="Btn_Save_Click"
+                                        IsEnabled="{Binding SaveEnabled}"
                                         Margin="0 5 0 5">
                                     <Grid Width="130">
                                         <materialDesign:PackIcon Kind="ContentSaveEdit"

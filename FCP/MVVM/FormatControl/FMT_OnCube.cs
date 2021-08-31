@@ -53,7 +53,8 @@ namespace FCP.MVVM.FormatControl
                     EndDay = DateTimeHelper.Convert(EncodingHelper.GetString(230, 6), "yyMMdd"),
                     RoomNo = EncodingHelper.GetString(410, 20),
                     BedNo = EncodingHelper.GetString(430, 20),
-                    Hospital = EncodingHelper.GetString(451, 30)
+                    Hospital = EncodingHelper.GetString(451, 30),
+                    Handler = EncodingHelper.GetString(481, 30)
                 });
             }
             if (_OPD.Count == 0)
@@ -148,5 +149,6 @@ namespace FCP.MVVM.FormatControl
         public string BedNo { get; set; }
         public string Department { get; set; }
         public string Hospital { get; set; }
+        public string Handler { get; set; }
     }
 }

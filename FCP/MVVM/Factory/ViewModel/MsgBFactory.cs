@@ -1,7 +1,7 @@
 ﻿using System;
 using FCP.MVVM.ViewModels;
 
-namespace FCP.MVVM.Factory.ViewModels
+namespace FCP.MVVM.Factory.ViewModel
 {
     static class MsgBFactory
     {

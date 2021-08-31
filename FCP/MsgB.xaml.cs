@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 using FCP.MVVM.ViewModels;
-using FCP.MVVM.Factory.ViewModels;
+using FCP.MVVM.Factory.ViewModel;
 
 namespace FCP
 {

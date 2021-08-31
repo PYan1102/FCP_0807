@@ -22,7 +22,7 @@ namespace FCP.MVVM.FormatControl
 
         public FMT_ChangGung()
         {
-            _SettingsModel = SettingsFactory.GenerateSettingsModels();
+            _SettingsModel = SettingsFactory.GenerateSettingsModel();
         }
 
         public override ReturnsResultFormat MethodShunt()

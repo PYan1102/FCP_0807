@@ -30,7 +30,7 @@ namespace FCP.MVVM.Control
 
         public Settings()
         {
-            _SettingsModel = SettingsFactory.GenerateSettingsModels();
+            _SettingsModel = SettingsFactory.GenerateSettingsModel();
             if (!IsJsonFileExists())
                 CreateJsonFile();
             JObject json = JObject.Parse(Get);
@@ -89,7 +89,7 @@ namespace FCP.MVVM.Control
             _SettingsModel.InputPath1 = $"{v["InputPath1"]}";
             _SettingsModel.InputPath2 = $"{v["InputPath2"]}";
             _SettingsModel.InputPath3 = $"{v["InputPath3"]}";
-            _SettingsModel.OutputPath1 = $"{v["OutputPath1"]}";
+            _SettingsModel.OutputPath = $"{v["OutputPath1"]}";
             _SettingsModel.DeputyFileName = $"{v["DeputyFileName"]}";
             _SettingsModel.EN_AutoStart = bool.Parse($"{v["EN_AutoStart"]}");
             _SettingsModel.Mode = (Format)Enum.Parse(typeof(Format), $"{v["Mode"]}");
@@ -176,7 +176,7 @@ namespace FCP.MVVM.Control
                 _SettingsModel.InputPath1,
                 _SettingsModel.InputPath2,
                 _SettingsModel.InputPath3,
-                _SettingsModel.OutputPath1,
+                _SettingsModel.OutputPath,
                 DeputyFileName = $"*.{deputyFileName}",
                 _SettingsModel.EN_AutoStart,
                 Mode = mode,

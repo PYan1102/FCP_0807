@@ -24,6 +24,7 @@ namespace FCP.MVVM.View
         public SettingsPage1View()
         {
             InitializeComponent();
+            RefreshUIPropertyServices.InitSettingsPage1UI();
         }
     }
 }

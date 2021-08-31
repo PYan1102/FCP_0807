@@ -23,6 +23,7 @@ namespace FCP.MVVM.FormatControl
                 {
                     EncodingHelper.SetBytes(s);
                     string adminCode = EncodingHelper.GetString(137, 10).Replace("/", "");
+                    adminCode = adminCode.Split(' ')[0];
                     string medicineCode = EncodingHelper.GetString(63, 10);
                     if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
                         continue;
@@ -45,11 +46,17 @@ namespace FCP.MVVM.FormatControl
                         EndDate = startDate.AddDays(days - 1).ToString("yyMMdd"),
                         MedicineCode = medicineCode,
                         MedicineName = EncodingHelper.GetString(73, 54),
-                        PerQty = EncodingHelper.GetString(127, 10),
+                        PerQty = Convert.ToSingle(EncodingHelper.GetString(127, 10)).ToString("0.###"),
                         AdminCode = adminCode,
                         Days = days.ToString(),
                         SumQty = EncodingHelper.GetString(150, 10),
                     });
+                    float sumQty = Convert.ToSingle(_OPD[_OPD.Count - 1].SumQty);
+                    float dyas = Convert.ToSingle(_OPD[_OPD.Count - 1].Days);
+                    if (adminCode == "prn")
+                    {
+                        _OPD[_OPD.Count - 1].PerQty = Math.Ceiling(sumQty / days).ToString("0.###");
+                    }
                 }
                 if (_OPD.Count == 0)
                 {

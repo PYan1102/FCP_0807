@@ -85,7 +85,7 @@ namespace FCP
         public FormatCollection()
         {
             Settings = SettingsFactory.GenerateSettingsControl();
-            SettingsModel = SettingsFactory.GenerateSettingsModels();
+            SettingsModel = SettingsFactory.GenerateSettingsModel();
             ConvertFileInformation = ConvertInfoactory.GenerateConvertFileInformation();
         }
 

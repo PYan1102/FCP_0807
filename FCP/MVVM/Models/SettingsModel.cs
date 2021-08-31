@@ -9,7 +9,7 @@ namespace FCP.MVVM.Models
         public string InputPath1 { get; set; }
         public string InputPath2 { get; set; }
         public string InputPath3 { get; set; }
-        public string OutputPath1 { get; set; }
+        public string OutputPath { get; set; }
         public string DeputyFileName { get; set; }
         public bool EN_AutoStart { get; set; }
         public Format Mode { get; set; }

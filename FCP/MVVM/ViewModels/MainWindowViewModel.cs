@@ -9,7 +9,7 @@ using FCP.MVVM.Factory;
 using System.Windows.Input;
 using FCP.MVVM.Models;
 using FCP.MVVM.Models.Enum;
-using FCP.MVVM.Factory.ViewModels;
+using FCP.MVVM.Factory.ViewModel;
 using MaterialDesignThemes.Wpf;
 
 namespace FCP.MVVM.ViewModels
@@ -24,6 +24,7 @@ namespace FCP.MVVM.ViewModels
         public ICommand Close { get; set; }
         public ICommand Closing { get; set; }
         public ICommand Check { get; set; }
+        public ICommand Loaded { get; set; }
         private MainWindowModel _Model;
         private FunctionCollections _Format { get; set; }
         private SettingsModel _SettingsModel { get; set; }
@@ -31,16 +32,17 @@ namespace FCP.MVVM.ViewModels
 
         public MainWindowViewModel()
         {
-            _SettingsModel = SettingsFactory.GenerateSettingsModels();
+            _SettingsModel = SettingsFactory.GenerateSettingsModel();
             _MsgBVM = MsgBFactory.GenerateMsgBViewModel();
             ShowAdvancedSettings = new RelayCommand(ShowAdvancedSettingsFunc, CanStartConverterOrShowAdvancedSettings);
             _Model = new MainWindowModel();
+            Loaded = new RelayCommand(() => LoadedFunc());
             Close = new RelayCommand(() => Environment.Exit(0));
             Closing = new RelayCommand(() => Disconnect小港醫院NetDiskFunc());
             OPD = new RelayCommand(OPDFunc, CanStartConverterOrShowAdvancedSettings);
             UD = new RelayCommand(UDFunc, CanStartConverterOrShowAdvancedSettings);
             Stop = new RelayCommand(StopFunc, CanStartConverterOrShowAdvancedSettings);
-            Check = new RelayCommand(() => Console.WriteLine(IsStatChecked));
+            Check = new RelayCommand(() => Console.WriteLine(StatChecked));
         }
 
         public string WindowTitle
@@ -185,6 +187,30 @@ namespace FCP.MVVM.ViewModels
             set => _Model.OPDToogle4Checked = value;
         }
 
+        public bool OPDToogle1Enabled
+        {
+            get => _Model.OPDToogle1Enabled;
+            set => _Model.OPDToogle1Enabled = value;
+        }
+
+        public bool OPDToogle2Enabled
+        {
+            get => _Model.OPDToogle2Enabled;
+            set => _Model.OPDToogle2Enabled = value;
+        }
+
+        public bool OPDToogle3Enabled
+        {
+            get => _Model.OPDToogle3Enabled;
+            set => _Model.OPDToogle3Enabled = value;
+        }
+
+        public bool OPDToogle4Enabled
+        {
+            get => _Model.OPDToogle4Enabled;
+            set => _Model.OPDToogle4Enabled = value;
+        }
+
         public Visibility OPDToogle1Visibility
         {
             get => _Model.OPDToogle1Visibility;
@@ -227,16 +253,34 @@ namespace FCP.MVVM.ViewModels
             set => _Model.StopEnabled = value;
         }
 
-        public bool IsStatChecked
+        public bool SaveEnabled
         {
-            get => _Model.IsStatChecked;
-            set => _Model.IsStatChecked = value;
+            get => _Model.SaveEnabled;
+            set => _Model.SaveEnabled = value;
         }
 
-        public bool IsBatchChecked
+        public bool StatChecked
         {
-            get => _Model.IsBatchChecked;
-            set => _Model.IsBatchChecked = value;
+            get => _Model.StatChecked;
+            set => _Model.StatChecked = value;
+        }
+
+        public bool BatchChecked
+        {
+            get => _Model.BatchChecked;
+            set => _Model.BatchChecked = value;
+        }
+
+        public bool StatEnabled
+        {
+            get => _Model.StatEnabled;
+            set => _Model.StatEnabled = value;
+        }
+
+        public bool BatchEnabled
+        {
+            get => _Model.BatchEnabled;
+            set => _Model.BatchEnabled = value;
         }
 
         public Visibility StatVisibility
@@ -251,6 +295,11 @@ namespace FCP.MVVM.ViewModels
             set => _Model.BatchVisibility = value;
         }
 
+        public bool IsAutoStartChecked
+        {
+            get => _Model.IsAutoStartChecked;
+            set => _Model.IsAutoStartChecked = value;
+        }
         public string DoseType
         {
             get => _Model.DoseType;
@@ -281,6 +330,18 @@ namespace FCP.MVVM.ViewModels
             set => _Model.WindowY = value;
         }
 
+        public bool WindowXEnabled
+        {
+            get => _Model.WindowXEnabled;
+            set => _Model.WindowXEnabled = value;
+        }
+
+        public bool WindowYEnabled
+        {
+            get => _Model.WindowYEnabled;
+            set => _Model.WindowYEnabled = value;
+        }
+
         public Visibility WindowXVisibility
         {
             get => _Model.WindowXVisibility;
@@ -293,31 +354,13 @@ namespace FCP.MVVM.ViewModels
             set => _Model.WindowYVisibility = value;
         }
 
-        private void ShowAdvancedSettingsFunc()
+        public Visibility MinimumAndCloseVisibility
         {
-            var window = SettingsFactory.GenerateAdvancesSettings();
-            window.ShowDialog();
+            get => _Model.MinimumAndCloseVisibility;
+            set => _Model.MinimumAndCloseVisibility = value;
         }
 
-        private void JudgeCurrentFormat(bool isStart)
-        {
-            _Format = FormatFactory.GenerateFormat(_SettingsModel.Mode);
-            _Format.SetWindow(null);
-            _Format.Init();
-            if (isStart) _Format.AutoStart();
-        }
-
-        private void Disconnect小港醫院NetDiskFunc()
-        {
-            switch (_SettingsModel.Mode)
-            {
-                case Format.小港醫院TOC:
-                    _Format.Stop();
-                    break;
-            }
-        }
-
-        private void OPDFunc()
+        public void OPDFunc()
         {
             if ((_Model.OPDToogle1Checked | _Model.OPDToogle2Checked | _Model.OPDToogle3Checked | _Model.OPDToogle4Checked) == false)
             {
@@ -328,15 +371,45 @@ namespace FCP.MVVM.ViewModels
             _Format.ConvertPrepare(IsOPD);
         }
 
-        private void UDFunc()
+        public void UDFunc()
         {
             IsOPD = false;
             _Format.ConvertPrepare(IsOPD);
         }
 
-        private void StopFunc()
+        public void StopFunc()
         {
 
+        }
+
+        private void LoadedFunc()
+        {
+            JudgeCurrentFormat(true);
+        }
+
+        private void JudgeCurrentFormat(bool isStart)
+        {
+            _Format = FormatFactory.GenerateFormat(_SettingsModel.Mode);
+            _Format.SetWindow(null);
+            _Format.Init();
+            if (isStart) _Format.AutoStart();
+        }
+
+        private void ShowAdvancedSettingsFunc()
+        {
+            var window = AdvancedSettingsFactory.GenerateAdvancedSettings();
+            window.ShowDialog();
+            window = null;
+        }
+
+        private void Disconnect小港醫院NetDiskFunc()
+        {
+            switch (_SettingsModel.Mode)
+            {
+                case Format.小港醫院TOC:
+                    _Format.Stop();
+                    break;
+            }
         }
 
         private bool CanStartConverterOrShowAdvancedSettings()

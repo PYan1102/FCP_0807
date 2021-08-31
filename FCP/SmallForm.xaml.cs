@@ -33,7 +33,7 @@ namespace FCP
             InitializeComponent();
             mw = m;
             _Settings = SettingsFactory.GenerateSettingsControl();
-            _SettingsModel = SettingsFactory.GenerateSettingsModels();
+            _SettingsModel = SettingsFactory.GenerateSettingsModel();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

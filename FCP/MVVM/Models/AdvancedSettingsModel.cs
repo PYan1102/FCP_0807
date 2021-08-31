@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Windows.Media;
+using System.Windows;
 
 namespace FCP.MVVM.Models
 {
@@ -14,5 +15,6 @@ namespace FCP.MVVM.Models
         public SolidColorBrush Page1Foreground { get; set; }
         public SolidColorBrush Page2Background { get; set; }
         public SolidColorBrush Page2Foreground { get; set; }
+        public Visibility Visibility { get; set; }
     }
 }

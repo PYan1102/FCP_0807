@@ -20,7 +20,8 @@
         Width="750"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize"
-        WindowStyle="None">
+        WindowStyle="None"
+        Visibility="{Binding Visibility}">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding Page1}"/>

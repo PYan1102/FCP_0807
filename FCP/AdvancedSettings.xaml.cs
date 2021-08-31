@@ -12,7 +12,7 @@ using FCP.MVVM.Control;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.Helper;
 using FCP.MVVM.ViewModels;
-using FCP.MVVM.Factory.ViewModels;
+using FCP.MVVM.Factory.ViewModel;
 using MaterialDesignThemes.Wpf;
 
 namespace FCP
@@ -41,8 +41,9 @@ namespace FCP
         public AdvancedSettings()
         {
             InitializeComponent();
+            this.DataContext = AdvancedSettingsFactory.GenerateAdvancedSettingsViewModel();
             _Settings = SettingsFactory.GenerateSettingsControl();
-            _SettingsModel = SettingsFactory.GenerateSettingsModels();
+            _SettingsModel = SettingsFactory.GenerateSettingsModel();
             _MsgBVM = MsgBFactory.GenerateMsgBViewModel();
         }
 

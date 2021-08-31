@@ -18,7 +18,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.ComponentModel;
-using FCP.MVVM.Factory.ViewModels;
+using FCP.MVVM.Factory.ViewModel;
 using FCP.MVVM.FormatInit;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.Factory;
@@ -110,7 +110,7 @@ namespace FCP
                     switch (wParam.ToInt32())
                     {
                         case _ShowMainWindow_ID:
-                            _Format.IconDBClick(null, null);
+                            _Format.NotifyIconDBClick(null, null);
                             handled = true;
                             break;
                     }
@@ -122,8 +122,8 @@ namespace FCP
         public MainWindow()
         {
             InitializeComponent();
-            this.DataContext = new MainWindowViewModel();
-            _SettingsModel = SettingsFactory.GenerateSettingsModels();
+            this.DataContext = MainWindowFacotry.GenerateMainWindowViewModel();
+            _SettingsModel = SettingsFactory.GenerateSettingsModel();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -157,7 +157,7 @@ namespace FCP
 
         private void AdvancedSettings_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            _Format.AdvancedSettingsShow();
+            _Format.ShowAdvancedSettings();
         }
 
         private void Btn_ProgressBoxClear_Click(object sender, RoutedEventArgs e)

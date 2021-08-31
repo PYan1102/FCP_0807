@@ -6,7 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using FCP.Core;
 using FCP.MVVM.Models;
-using FCP.MVVM.Factory.ViewModels;
+using FCP.MVVM.Factory.ViewModel;
 using MaterialDesignThemes.Wpf;
 
 namespace FCP.MVVM.ViewModels
