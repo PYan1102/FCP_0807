@@ -95,6 +95,7 @@
     <Compile Include="MVVM\Dialog\MsgBService.cs" />
     <Compile Include="MVVM\Factory\ViewModel\AdvancedSettingsFactory.cs" />
     <Compile Include="MVVM\Factory\ViewModel\MsgBFactory.cs" />
+    <Compile Include="MVVM\Factory\ViewModel\SimpleWindowFactory.cs" />
     <Compile Include="MVVM\FormatControl\FMT_ChengYu.cs" />
     <Compile Include="MVVM\FormatControl\FMT_OnCube.cs" />
     <Compile Include="MVVM\FormatInit\BASE_ChengYu.cs" />
@@ -111,7 +112,7 @@
     <Compile Include="ExtraSettings.cs" />
     <Compile Include="MVVM\FormatInit\BASE_E_DA.cs" />
     <Compile Include="MVVM\Factory\FormatFactory.cs" />
-    <Compile Include="MVVM\Factory\ViewModel\MainWindowFacotry.cs" />
+    <Compile Include="MVVM\Factory\ViewModel\MainWindowFactory.cs" />
     <Compile Include="MVVM\FormatControl\FMT_FangDing.cs" />
     <Compile Include="MVVM\FormatControl\FMT_JenKang.cs" />
     <Compile Include="FormatCollection.cs" />
@@ -147,6 +148,7 @@
     <Compile Include="MVVM\Models\SettingsModel.cs" />
     <Compile Include="MVVM\Models\SettingsPage1Model.cs" />
     <Compile Include="MVVM\Models\SettingsPage2Model.cs" />
+    <Compile Include="MVVM\Models\SimpleWindowModel.cs" />
     <Compile Include="MVVM\Models\SmallFormModel.cs" />
     <Compile Include="MVVM\Factory\SettingsFactory.cs" />
     <Compile Include="MVVM\SQL\SQLQuery.cs" />
@@ -166,6 +168,7 @@
     <Compile Include="MVVM\ViewModels\MsgBViewModel.cs" />
     <Compile Include="MVVM\ViewModels\ReturnsResult.cs" />
     <Compile Include="MVVM\ViewModels\SettingsPage2ViewModel.cs" />
+    <Compile Include="MVVM\ViewModels\SimpleWindowViewModel.cs" />
     <Compile Include="MVVM\ViewModels\SmallFormViewModel.cs" />
     <Compile Include="Core\ViewModelBase.cs" />
     <Compile Include="MVVM\View\SettingsPage1View.xaml.cs">
@@ -184,8 +187,8 @@
     <Compile Include="MVVM\SQL\OLEDB.cs" />
     <Compile Include="OP_OnCube.cs" />
     <Compile Include="MVVM\Control\Settings.cs" />
-    <Compile Include="SmallForm.xaml.cs">
-      <DependentUpon>SmallForm.xaml</DependentUpon>
+    <Compile Include="MVVM\View\SimpleWIndowView.xaml.cs">
+      <DependentUpon>SimpleWIndowView.xaml</DependentUpon>
     </Compile>
     <Compile Include="MVVM\FormatInit\BASE_TaipeiDetention.cs" />
     <Compile Include="MVVM\FormatInit\BASE_XiaoGang.cs" />
@@ -218,7 +221,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SmallForm.xaml">
+    <Page Include="MVVM\View\SimpleWIndowView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

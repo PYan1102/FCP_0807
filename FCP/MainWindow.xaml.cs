@@ -27,7 +27,6 @@ using FCP.MVVM.Control;
 using FCP.MVVM.ViewModels;
 using MaterialDesignThemes.Wpf;
 using FCP.MVVM.Dialog;
-using FCP.MVVM.Factory.ViewModel;
 
 namespace FCP
 {
@@ -38,7 +37,7 @@ namespace FCP
     {
         private FunctionCollections _Format { get; set; }
         private SettingsModel _SettingsModel { get; set; }
-        private MainWindowModel _MainWindowModel { get => MainWindowFacotry.GenerateMainWindowModel(); }
+        private MainWindowModel _MainWindowModel { get => MainWindowFactory.GenerateMainWindowModel(); }
         private MsgBViewModel _MsgBVM { get; set; }
         private Stopwatch _StopWatch = new Stopwatch();
         public string CurrentWindow { get; set; }
@@ -122,21 +121,9 @@ namespace FCP
         public MainWindow()
         {
             InitializeComponent();
-            this.DataContext = MainWindowFacotry.GenerateMainWindowViewModel();
+            MainWindowFactory.MainWindow = this;
+            this.DataContext = MainWindowFactory.GenerateMainWindowViewModel();
             _SettingsModel = SettingsFactory.GenerateSettingsModel();
-        }
-
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            Judge(true);
-        }
-
-        public void Judge(bool Auto)
-        {
-            _Format = FormatFactory.GenerateFormat(_SettingsModel.Mode);
-            _Format.SetWindow(this);
-            _Format.Init();
-            if (Auto) _Format.AutoStart();
         }
 
         public void Btn_Stop_Click(object sender, RoutedEventArgs e)
@@ -155,11 +142,6 @@ namespace FCP
             _Format.ChangeWindow();
         }
 
-        private void AdvancedSettings_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            _Format.ShowAdvancedSettings();
-        }
-
         private void Btn_ProgressBoxClear_Click(object sender, RoutedEventArgs e)
         {
             _Format.ProgressBoxClear();
@@ -174,25 +156,6 @@ namespace FCP
         {
             _Format.AllWindowShowOrHide(false, false, false);
         }  //縮小程式
-
-        public void Btn_OPD_Click(object sender, RoutedEventArgs e)
-        {
-            if ((Tgl_OPD1.IsChecked | Tgl_OPD2.IsChecked | Tgl_OPD3.IsChecked | Tgl_OPD4.IsChecked) == false)
-            {
-                _MsgBVM.Show("沒有勾選任一個轉檔位置", "位置未勾選", PackIconKind.Error, KindColors.Error);
-                return;
-            }
-        }
-
-        public void Btn_UD_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Btn_Close_Click(object sender, RoutedEventArgs e)
-        {
-            Environment.Exit(0);
-        }  //關閉程式
 
         private void Gd_Title_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -234,46 +197,6 @@ namespace FCP
                 Txt_OutputPath.Text = "";
                 _OutputPath = "";
             }
-        }
-
-        private void OPD_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = !Btn_Stop.IsEnabled;
-        }
-
-        private void OPD_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            Btn_OPD_Click(null, null);
-        }
-
-        private void Stop_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = Btn_Stop.IsEnabled ? true : false;
-        }
-
-        private void Stop_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            Btn_Stop_Click(null, null);
-        }
-
-        private void Save_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = Btn_Save.IsEnabled ? true : false;
-        }
-
-        private void Save_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            Btn_Save_Click(null, null);
-        }
-
-        private void UD_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = !Btn_Stop.IsEnabled & Btn_UD.Visibility == Visibility.Visible;
-        }
-
-        private void UD_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            Btn_UD_Click(null, null);
         }
 
         private void InputPath1_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -356,16 +279,6 @@ namespace FCP
             }
         }
 
-        private void ChangeSize_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = !Btn_Stop.IsEnabled;
-        }
-
-        private void AdvancedSettings_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = !Btn_Stop.IsEnabled;
-        }
-
         private void ClearListBox_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             Btn_ProgressBoxClear_Click(null, null);
@@ -392,15 +305,5 @@ namespace FCP
                 Rdo_Batch.IsChecked = true;
 
         }  //SmallForm切換即時與長期時，連帶更改主視窗的即時與長期
-
-        private void Window_Closing(object sender, CancelEventArgs e)
-        {
-            switch (_SettingsModel.Mode)
-            {
-                case Format.小港醫院TOC:
-                    _Format.Stop();
-                    break;
-            }
-        }
     }
 }

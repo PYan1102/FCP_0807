@@ -13,27 +13,32 @@ using FCP.MVVM.Models;
 using FCP.MVVM.Control;
 using FCP.MVVM.Factory;
 using FCP.MVVM.Models.Enum;
+using FCP.MVVM.ViewModels;
+using FCP.MVVM.Factory.ViewModel;
 
-namespace FCP
+namespace FCP.MVVM.View
 {
     /// <summary>
     /// SmallForm.xaml 的互動邏輯
     /// </summary>
-    public partial class SmallForm : Window
+    public partial class SimpleWindow : Window
     {
         private SettingsModel _SettingsModel { get; set; }
+        private MainWindowViewModel _MainWindowVM { get; set; }
         private Settings _Settings { get; set; }
         SolidColorBrush DeepBlue = new SolidColorBrush((Color)(Color.FromRgb(17, 68, 109)));
         SolidColorBrush ShinyBlue = new SolidColorBrush((Color)(Color.FromRgb(9, 225, 255)));
         SolidColorBrush White = new SolidColorBrush((Color)(Color.FromRgb(255, 255, 255)));
         SolidColorBrush Red = new SolidColorBrush((Color)Color.FromRgb(255, 82, 85));
         public MainWindow mw;
-        public SmallForm(MainWindow m)
+        public SimpleWindow(MainWindow m)
         {
             InitializeComponent();
             mw = m;
+            this.DataContext = SimpleWindowFactory.GenerateSimpleWindowViewModel();
             _Settings = SettingsFactory.GenerateSettingsControl();
             _SettingsModel = SettingsFactory.GenerateSettingsModel();
+            _MainWindowVM = MainWindowFactory.GenerateMainWindowViewModel();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -135,7 +140,7 @@ namespace FCP
 
         public void Btn_StartConverter_Click(object sender, RoutedEventArgs e)
         {
-            mw.Btn_OPD_Click(null, null);
+            _MainWindowVM.OPDFunc();
             Btn_StartConverter.IsEnabled = false;
             Btn_UD.IsEnabled = false;
             Btn_StopConverter.IsEnabled = true;
@@ -165,7 +170,7 @@ namespace FCP
                 mw.ChangeUDFormatType("S");
             else
                 mw.ChangeUDFormatType("B");
-            mw.Btn_UD_Click(null, null);
+            _MainWindowVM.UDFunc();
             Btn_StartConverter.IsEnabled = false;
             Btn_UD.IsEnabled = false;
             Btn_StopConverter.IsEnabled = true;

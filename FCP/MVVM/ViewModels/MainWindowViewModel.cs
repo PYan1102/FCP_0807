@@ -11,6 +11,8 @@ using FCP.MVVM.Models;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.Factory.ViewModel;
 using MaterialDesignThemes.Wpf;
+using System.Windows.Media;
+using FCP.MVVM.View;
 
 namespace FCP.MVVM.ViewModels
 {
@@ -21,10 +23,11 @@ namespace FCP.MVVM.ViewModels
         public ICommand OPD { get; set; }
         public ICommand UD { get; set; }
         public ICommand Stop { get; set; }
+        public ICommand Save { get; set; }
         public ICommand Close { get; set; }
         public ICommand Closing { get; set; }
-        public ICommand Check { get; set; }
         public ICommand Loaded { get; set; }
+        public ICommand SwitchWindow { get; set; }
         private MainWindowModel _Model;
         private FunctionCollections _Format { get; set; }
         private SettingsModel _SettingsModel { get; set; }
@@ -42,7 +45,14 @@ namespace FCP.MVVM.ViewModels
             OPD = new RelayCommand(OPDFunc, CanStartConverterOrShowAdvancedSettings);
             UD = new RelayCommand(UDFunc, CanStartConverterOrShowAdvancedSettings);
             Stop = new RelayCommand(StopFunc, CanStartConverterOrShowAdvancedSettings);
-            Check = new RelayCommand(() => Console.WriteLine(StatChecked));
+            Save = new RelayCommand(SaveFunc, CanStartConverterOrShowAdvancedSettings);
+            SwitchWindow = new RelayCommand(SwitchWindowFunc,CanStartConverterOrShowAdvancedSettings);
+        }
+
+        public Visibility Visibility
+        {
+            get => _Model.Visibility;
+            set => _Model.Visibility = value;
         }
 
         public string WindowTitle
@@ -120,18 +130,6 @@ namespace FCP.MVVM.ViewModels
         {
             get => _Model.OutputPathEnabled;
             set => _Model.OutputPathEnabled = value;
-        }
-
-        public string OPDButtonContent
-        {
-            get => _Model.OPDButtonContent;
-            set => _Model.OPDButtonContent = value;
-        }
-
-        public string UDButtonContent
-        {
-            get => _Model.UDButtonContent;
-            set => _Model.UDButtonContent = value;
         }
 
         public Visibility UDButtonVisibility
@@ -360,8 +358,34 @@ namespace FCP.MVVM.ViewModels
             set => _Model.MinimumAndCloseVisibility = value;
         }
 
+        public float OPDOpacity
+        {
+            get => _Model.OPDOpacity;
+            set => _Model.OPDOpacity = value;
+        }
+
+        public float UDOpacity
+        {
+            get => _Model.UDOpacity;
+            set => _Model.UDOpacity = value;
+        }
+
+        public SolidColorBrush OPDBackground
+        {
+            get => _Model.OPDBacground;
+            set => _Model.OPDBacground = value;
+        }
+
+        public SolidColorBrush UDBackground
+        {
+            get => _Model.UDBackground;
+            set => _Model.UDBackground = value;
+        }
+
         public void OPDFunc()
         {
+            this.Visibility = Visibility.Hidden;
+            return;
             if ((_Model.OPDToogle1Checked | _Model.OPDToogle2Checked | _Model.OPDToogle3Checked | _Model.OPDToogle4Checked) == false)
             {
                 _MsgBVM.Show("沒有勾選任一個轉檔位置", "位置未勾選", PackIconKind.Error, KindColors.Error);
@@ -371,6 +395,7 @@ namespace FCP.MVVM.ViewModels
             _Format.ConvertPrepare(IsOPD);
         }
 
+
         public void UDFunc()
         {
             IsOPD = false;
@@ -379,7 +404,31 @@ namespace FCP.MVVM.ViewModels
 
         public void StopFunc()
         {
+            _Format.Stop();
+        }
 
+        public void SaveFunc()
+        {
+            _Format.Save();
+        }
+
+        public void ActivateFunc()
+        {
+            MainWindowFactory.MainWindow.Activate();
+        }
+
+        private void SwitchWindowFunc()
+        {
+            _Format.ChangeWindow();
+        }
+
+        public void ShowSimpleWindow()
+        {
+            var window = SimpleWindowFactory.GenerateSipleWindow();
+            window.Visibility = Visibility.Visible;
+            window.Activate();
+            window.Topmost = true;
+            OPDEnabled = false;
         }
 
         private void LoadedFunc()

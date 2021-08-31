@@ -1,0 +1,22 @@
+﻿using System;
+using FCP.MVVM.View;
+using FCP.MVVM.ViewModels;
+
+namespace FCP.MVVM.Factory.ViewModel
+{
+    static class SimpleWindowFactory
+    {
+        private static SimpleWindowViewModel _SimpleWindowVM { get; set; }
+        public static SimpleWindow GenerateSipleWindow()
+        {
+            return new SimpleWindow(null);
+        }
+
+        public static SimpleWindowViewModel GenerateSimpleWindowViewModel()
+        {
+            if (_SimpleWindowVM == null)
+                _SimpleWindowVM = new SimpleWindowViewModel();
+            return _SimpleWindowVM;
+        }
+    }
+}

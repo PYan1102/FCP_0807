@@ -9,22 +9,25 @@ using FCP.MVVM.Factory;
 using FCP.MVVM.Factory.ViewModel;
 using FCP.MVVM.Models;
 using FCP.MVVM.Models.Enum;
+using System.Windows.Media;
+using System.Windows;
 
 namespace FCP.MVVM.ViewModels
 {
     static class RefreshUIPropertyServices
     {
-        private static MainWindowViewModel _MainWindowVM { get => MainWindowFacotry.GenerateMainWindowViewModel(); }
+        private static MainWindowViewModel _MainWindowVM { get => MainWindowFactory.GenerateMainWindowViewModel(); }
         private static SettingsModel _SettingsModel { get => SettingsFactory.GenerateSettingsModel(); }
-        private static AdvancedSettingsViewModel _AdvancedSettingsVM { get=> AdvancedSettingsFactory.GenerateAdvancedSettingsViewModel(); }
-        private static SettingsPage1ViewModel _SettingsPage1VM { get=> AdvancedSettingsFactory.GenerateSettingsPage1(); }
+        private static AdvancedSettingsViewModel _AdvancedSettingsVM { get => AdvancedSettingsFactory.GenerateAdvancedSettingsViewModel(); }
+        private static SettingsPage1ViewModel _SettingsPage1VM { get => AdvancedSettingsFactory.GenerateSettingsPage1(); }
         private static SettingsPage2ViewModel _SettingsPage2VM { get => AdvancedSettingsFactory.GenerateSettingsPage2(); }
+        private static SimpleWindowViewModel _SimpleWindowVM { get => SimpleWindowFactory.GenerateSimpleWindowViewModel(); }
 
         public static void InitMainWindowUI()
         {
             string BackupPath = $@"{FunctionCollections.FileBackupPath}\{DateTime.Now:yyyy-MM-dd}";
-            _MainWindowVM.SuccessCount= $"{Directory.GetFiles($@"{BackupPath}\Success").Length}";
-            _MainWindowVM.FailCount= $"{Directory.GetFiles($@"{BackupPath}\Fail").Length}";
+            _MainWindowVM.SuccessCount = $"{Directory.GetFiles($@"{BackupPath}\Success").Length}";
+            _MainWindowVM.FailCount = $"{Directory.GetFiles($@"{BackupPath}\Fail").Length}";
             _MainWindowVM.InputPath1 = _SettingsModel.InputPath1;
             _MainWindowVM.InputPath2 = _SettingsModel.InputPath2;
             _MainWindowVM.InputPath3 = _SettingsModel.InputPath3;
@@ -39,7 +42,7 @@ namespace FCP.MVVM.ViewModels
             _MainWindowVM.OPDToogle4Checked = false;
             _MainWindowVM.StatChecked = _SettingsModel.StatOrBatch == "S";
             _MainWindowVM.BatchChecked = _SettingsModel.StatOrBatch == "B";
-            
+
         }
 
         public static void RefrehMainWindowUI(UILayout UI)
@@ -83,6 +86,29 @@ namespace FCP.MVVM.ViewModels
             _MainWindowVM.OPDToogle4Enabled = b;
         }
 
+        public static void RefreshUIForStart(bool isOPD)
+        {
+            if (isOPD)
+            {
+                _MainWindowVM.OPDBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("FF5255"));
+                _MainWindowVM.UDOpacity = 0.2F;
+            }
+            else
+            {
+                _MainWindowVM.UDBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("FF5255"));
+                _MainWindowVM.OPDOpacity = 0.2F;
+            }
+        }
+
+        public static void RefreshUIForStop()
+        {
+            _MainWindowVM.OPDOpacity = 1;
+            _MainWindowVM.UDOpacity = 1;
+            _MainWindowVM.OPDBackground = new SolidColorBrush(Colors.White);
+            _MainWindowVM.UDBackground = new SolidColorBrush(Colors.White);
+        }
+
+
         public static void InitAdvancedSettingsUI()
         {
 
@@ -97,6 +123,30 @@ namespace FCP.MVVM.ViewModels
         public static void InitSettingsPage2UI()
         {
 
+        }
+
+        public static void InitSimpleWindow()
+        {
+            List<Format> hospitalCustomers = new List<Format>() {Format.小港醫院TOC,Format.光田醫院TOC,Format.民生醫院TOC,Format.義大醫院TOC };
+            if (hospitalCustomers.Contains(_SettingsModel.Mode))
+            {
+                _SimpleWindowVM.OPD = "門診F5";
+                _SimpleWindowVM.UDVisibility = Visibility.Visible;
+            }
+            _SimpleWindowVM.MultiVisibility = _SettingsModel.Mode == Format.光田醫院TOC ? Visibility.Visible : Visibility.Hidden;
+            _SimpleWindowVM.CombiVisibility = _SettingsModel.Mode == Format.光田醫院TOC ? Visibility.Visible : Visibility.Hidden;
+            _SimpleWindowVM.MultiChecked = Properties.Settings.Default.DoseType == "M";
+            if (_SettingsModel.Mode == Format.JVS)
+            {
+                _SimpleWindowVM.OPD = "磨粉F5";
+                _SimpleWindowVM.UDVisibility = Visibility.Hidden;
+            }
+            _SimpleWindowVM.StatVisibility = _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
+            _SimpleWindowVM.BatchVisibility = _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
+            _SimpleWindowVM.CloseVisibility = _SettingsModel.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
+            _SimpleWindowVM.MinimumVisibility = _SettingsModel.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
+            _SimpleWindowVM.StatChecked = _SettingsModel.StatOrBatch == "S";
+            _SimpleWindowVM.StopEnalbed = false;
         }
     }
 }

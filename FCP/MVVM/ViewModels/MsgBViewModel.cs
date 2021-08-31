@@ -65,7 +65,7 @@ namespace FCP.MVVM.ViewModels
             set => _Model.OKButtonFocus = value;
         }
 
-        public void Show(string content, string title, MaterialDesignThemes.Wpf.PackIconKind kind, Color kindColor)
+        public void Show(string content, string title, PackIconKind kind, Color kindColor)
         {
             Content = content;
             Title = title;
@@ -75,6 +75,7 @@ namespace FCP.MVVM.ViewModels
             OKButtonFocus = true;
             MessageBeep(1);
             window.ShowDialog();
+            window.Close();
         }
     }
 

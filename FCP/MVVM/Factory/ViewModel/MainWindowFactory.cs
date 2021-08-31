@@ -8,8 +8,9 @@ using FCP.MVVM.ViewModels;
 
 namespace FCP.MVVM.Factory.ViewModel
 {
-    static class MainWindowFacotry
+    static class MainWindowFactory
     {
+        public static MainWindow MainWindow { get; set; }
         private static MainWindowModel _MainWindowModel { get; set; }
         private static MainWindowViewModel _MainWindowVM { get; set; }
         public static MainWindowModel GenerateMainWindowModel()

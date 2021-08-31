@@ -21,7 +21,7 @@
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        Closing="Window_Closing">
+        Visibility="{Binding Visibility}">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction Command="{Binding Closing}"/>
@@ -44,38 +44,38 @@
             <RoutedUICommand x:Key="InputPath2"/>
             <RoutedUICommand x:Key="InputPath3"/>
             <RoutedUICommand x:Key="OutputPath"/>
-            <RoutedUICommand x:Key="ChangeSize"/>
+            <RoutedUICommand x:Key="SwitchWindow"/>
             <RoutedUICommand x:Key="AdvancedSettings"/>
             <RoutedUICommand x:Key="ClearListBox"/>
             <RoutedUICommand x:Key="Log"/>
         </ResourceDictionary>
     </Window.Resources>
     <Window.InputBindings>
-        <KeyBinding Gesture="F5" Command="{StaticResource OPD}"/>
-        <KeyBinding Gesture="F7" Command="{StaticResource Stop}"/>
-        <KeyBinding Gesture="Ctrl+S" Command="{StaticResource Save}"/>
+        <KeyBinding Gesture="F5" Command="{Binding OPD}"/>
+        <KeyBinding Gesture="F6" Command="{Binding UD}"/>
+        <KeyBinding Gesture="F7" Command="{Binding Stop}"/>
+        <KeyBinding Gesture="Ctrl+S" Command="{Binding Save}"/>
         <KeyBinding Gesture="Escape" Command="{Binding Close}"/>
-        <KeyBinding Gesture="F6" Command="{StaticResource UD}"/>
         <KeyBinding Gesture="Ctrl+1" Command="{StaticResource InputPath1}"/>
         <KeyBinding Gesture="Ctrl+2" Command="{StaticResource InputPath2}"/>
         <KeyBinding Gesture="Ctrl+3" Command="{StaticResource InputPath3}"/>
         <KeyBinding Gesture="Ctrl+4" Command="{StaticResource OutputPath}"/>
-        <KeyBinding Gesture="Ctrl+G" Command="{StaticResource ChangeSize}"/>
+        <KeyBinding Gesture="Ctrl+G" Command="{Binding SwitchWindow}"/>
         <KeyBinding Gesture="Ctrl+W" Command="{Binding ShowAdvancedSettings}"/>
         <KeyBinding Gesture="Ctrl+E" Command="{StaticResource ClearListBox}"/>
         <KeyBinding Gesture="F1" Command="{StaticResource Log}"/>
     </Window.InputBindings>
     <Window.CommandBindings>
-        <CommandBinding Command="{StaticResource OPD}" CanExecute="OPD_CanExecute" Executed="OPD_Executed"/>
-        <CommandBinding Command="{StaticResource Stop}" CanExecute="Stop_CanExecute" Executed="Stop_Executed"/>
-        <CommandBinding Command="{StaticResource Save}" CanExecute="Save_CanExecute" Executed="Save_Executed"/>
+        <CommandBinding Command="{StaticResource OPD}"/>
+        <CommandBinding Command="{StaticResource UD}"/>
+        <CommandBinding Command="{StaticResource Stop}"/>
+        <CommandBinding Command="{StaticResource Save}"/>
         <CommandBinding Command="{StaticResource Close}"/>
-        <CommandBinding Command="{StaticResource UD}" CanExecute="UD_CanExecute" Executed="UD_Executed"/>
         <CommandBinding Command="{StaticResource InputPath1}" CanExecute="InputPath1_CanExecute" Executed="InputPath1_Executed"/>
         <CommandBinding Command="{StaticResource InputPath2}" CanExecute="InputPath2_CanExecute" Executed="InputPath2_Executed"/>
         <CommandBinding Command="{StaticResource InputPath3}" CanExecute="InputPath3_CanExecute" Executed="InputPath3_Executed"/>
         <CommandBinding Command="{StaticResource OutputPath}" CanExecute="OutputPath_CanExecute" Executed="OutputPath_Executed"/>
-        <CommandBinding Command="{StaticResource ChangeSize}" CanExecute="ChangeSize_CanExecute" Executed="ChangeSize_Executed"/>
+        <CommandBinding Command="{StaticResource SwitchWindow}"/>
         <CommandBinding Command="{StaticResource AdvancedSettings}"/>
         <CommandBinding Command="{StaticResource ClearListBox}" Executed="ClearListBox_Executed"/>
         <CommandBinding Command="{StaticResource Log}" Executed="Log_Executed"/>
@@ -511,19 +511,19 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Button x:Name="Btn_OPD"
-                                        Background="White"
-                                        Foreground="{StaticResource DeepBlue}"
-                                        BorderBrush="Transparent"
-                                        FontSize="20"
-                                        Width="120"
-                                        Height="Auto"
-                                        HorizontalAlignment="Left"
-                                        materialDesign:ButtonAssist.CornerRadius="5"
-                                        Click="Btn_OPD_Click"
+                                            Foreground="{StaticResource DeepBlue}"
+                                            BorderBrush="Transparent"
+                                            FontSize="20"
+                                            Width="120"
+                                            Height="Auto"
+                                            HorizontalAlignment="Left"
+                                            materialDesign:ButtonAssist.CornerRadius="5"
                                             IsEnabled="{Binding OPDEnabled}"
                                             Command="{Binding OPD}"
-                                        Style="{StaticResource ControlButton}"
-                                        Margin="0 5 0 5">
+                                            Opacity="{Binding OPDOpacity}"
+                                            Background="{Binding OPDBackground}"
+                                            Style="{StaticResource ControlButton}"
+                                            Margin="0 5 0 5">
                                         <Grid Width="110" Margin="-10 0 0 0">
                                             <materialDesign:PackIcon Kind="Play"
                                                                      Height="30"
@@ -604,7 +604,6 @@
                                 </Grid>
                                 <Button x:Name="Btn_UD"
                                         Grid.Row="1"
-                                        Background="White"
                                         Foreground="{StaticResource DeepBlue}"
                                         BorderBrush="Transparent"
                                         FontSize="20"
@@ -612,8 +611,10 @@
                                         Height="Auto"
                                         HorizontalAlignment="Left"
                                         materialDesign:ButtonAssist.CornerRadius="5"
-                                        Click="Btn_UD_Click"
                                         IsEnabled="{Binding UDEnabled}"
+                                        Opacity="{Binding UDOpacity}"
+                                        Background="{Binding UDBackground}"
+                                        Visibility="{Binding UDButtonVisibility}"
                                         Command="{Binding UD}"
                                         Style="{StaticResource ControlButton}"
                                         Margin="0 5 0 5">
@@ -640,14 +641,6 @@
                                              IsEnabled="{Binding StatEnabled}"
                                              Visibility="{Binding StatVisibility}"
                                              Margin="-170 0 0 0">
-                                    <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="Checked">
-                                            <i:InvokeCommandAction Command="{Binding Check}"/>
-                                        </i:EventTrigger>
-                                        <i:EventTrigger EventName="Unchecked">
-                                            <i:InvokeCommandAction Command="{Binding Check}"/>
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>
                                 </RadioButton>
                                 <RadioButton x:Name="Rdo_Batch"
                                              Grid.Row="1"
@@ -720,7 +713,7 @@
                                         Margin="0 5 0 5"
                                         HorizontalAlignment="Right"
                                         materialDesign:ButtonAssist.CornerRadius="5"
-                                        Click="Btn_Close_Click">
+                                        Command="{Binding Close}">
                                     <Grid Width="130">
                                         <materialDesign:PackIcon Kind="ExitToApp"
                                                                  Height="30"

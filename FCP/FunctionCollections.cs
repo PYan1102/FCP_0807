@@ -17,6 +17,7 @@ using FCP.MVVM.ViewModels.GetConvertFile;
 using FCP.MVVM.Helper;
 using FCP.MVVM.ViewModels;
 using MaterialDesignThemes.Wpf;
+using FCP.MVVM.View;
 
 namespace FCP
 {
@@ -34,7 +35,7 @@ namespace FCP
         public readonly static string FileBackupPath = @"D:\Converter_Backup";
         public SettingsModel SettingsModel { get; set; }
         private Settings _Settings { get; set; }
-        public SmallForm SF;
+        public SimpleWindow SimpleWindow { get; set; }
         public AdvancedSettings AS;
         List<string> IPList = new List<string>();
         public WindowsDo WD { get; set; }
@@ -61,7 +62,7 @@ namespace FCP
             _ConvertFileInformation = ConvertInfoactory.GenerateConvertFileInformation();
             FindFile = new FindFile();
             _MsgBVM = MsgBFactory.GenerateMsgBViewModel();
-            MainWindowVM = MainWindowFacotry.GenerateMainWindowViewModel();
+            MainWindowVM = MainWindowFactory.GenerateMainWindowViewModel();
         }
 
         public void SetWindow(MainWindow mainWindow)
@@ -84,8 +85,8 @@ namespace FCP
         {
             try
             {
-                SF = new SmallForm(MainWindow) { Owner = MainWindow };
-                WD = new WindowsDo() { MainWindow = MainWindow, SF = SF, AS = AS };
+                SimpleWindow = new SimpleWindow(MainWindow) { Owner=MainWindow };
+                WD = new WindowsDo() { MainWindow = MainWindow, SimpleWindow = SimpleWindow, AS = AS };
                 CheckProgramStart();
                 CheckFileBackupPath();
                 CreateNotifyIcon();
@@ -149,8 +150,8 @@ namespace FCP
         public virtual void Stop()
         {
             if (_CTS != null) _CTS.Cancel();
-            WD.Stop_Control();
-            WD.SwitchControlEnabled(true);
+            RefreshUIPropertyServices.SwitchMainWindowControlState(true);
+            RefreshUIPropertyServices.RefreshUIForStop();
             _CTS = null;
         }
 
@@ -158,8 +159,8 @@ namespace FCP
         {
             try
             {
-                Properties.Settings.Default.X = WD.X;
-                Properties.Settings.Default.Y = WD.Y;
+                Properties.Settings.Default.X = Convert.ToInt32(MainWindowVM.WindowX);
+                Properties.Settings.Default.Y = Convert.ToInt32(MainWindowVM.WindowY);
                 Properties.Settings.Default.Save();
 
                 _Settings.SaveMainWidow(MainWindowVM.InputPath1, MainWindowVM.InputPath2, MainWindowVM.InputPath3, MainWindowVM.OutputPath, MainWindowVM.IsAutoStartChecked, MainWindowVM.StatChecked ? "S" : "B");
@@ -190,17 +191,17 @@ namespace FCP
                 _MsgBVM.Show("輸出路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
                 return;
             }
-            WD.SwitchConverterButtonColor(isOPD);
+            RefreshUIPropertyServices.RefreshUIForStart(isOPD);
             RefreshUIPropertyServices.SwitchMainWindowControlState(false);
             IPList.Clear();
             if (isOPD)
             {
-                IPList.Add(WD.IP1);
-                IPList.Add(WD.IP2);
+                IPList.Add(MainWindowVM.InputPath1);
+                IPList.Add(MainWindowVM.InputPath2);
             }
             else
             {
-                IPList.Add(WD.IP3);
+                IPList.Add(MainWindowVM.InputPath3);
             }
             _AdvancedSettingsVM = AdvancedSettingsFactory.GenerateAdvancedSettingsViewModel();
             _AdvancedSettingsVM.Visibility = Visibility.Hidden;
@@ -243,18 +244,18 @@ namespace FCP
         {
             if (isOPD)
             {
-                if (WD._OPD1)
+                if (MainWindowVM.OPDToogle1Enabled)
                     FindFile.SetOPD(_OPD);
-                if (WD._OPD2)
+                if (MainWindowVM.OPDToogle2Enabled)
                     FindFile.SetPowder(_Powder);
-                if (WD._OPD3)
+                if (MainWindowVM.OPDToogle3Enabled)
                     FindFile.SetCare(_Care);
-                if (WD._OPD4)
+                if (MainWindowVM.OPDToogle4Enabled)
                     FindFile.SetOther(_Other);
             }
             else
             {
-                if (WD._IsStat)
+                if (MainWindowVM.StatChecked)
                     FindFile.SetUDStat(_UDStat);
                 else
                     FindFile.SetUDBatch(_UDBatch);
@@ -294,7 +295,7 @@ namespace FCP
         private void Clear()
         {
             InputPath = string.Empty;
-            OutputPath = WD.OP;
+            OutputPath = MainWindowVM.OutputPath;
             FilePath = string.Empty;
             CurrentSeconds = string.Empty;
             CurrentDepartment = DepartmentEnum.OPD;
@@ -329,7 +330,7 @@ namespace FCP
                                             continue;
                                         if (Path.GetFileNameWithoutExtension(Name).Substring(Start, Length) == s)
                                         {
-                                            SetConvertValue(Index, Path.GetDirectoryName(IP), WD.OP, Name);
+                                            SetConvertValue(Index, Path.GetDirectoryName(IP), MainWindowVM.OutputPath, Name);
                                             SetConvertInformation();
                                             _Exit = true;
                                             break;
@@ -340,7 +341,7 @@ namespace FCP
                                 }
                                 else
                                 {
-                                    SetConvertValue(Index, Path.GetDirectoryName(IP), WD.OP, Name);
+                                    SetConvertValue(Index, Path.GetDirectoryName(IP), MainWindowVM.OutputPath, Name);
                                     SetConvertInformation();
                                     break;
                                 }
@@ -381,28 +382,28 @@ namespace FCP
                                     string[] Split = FileName.Split(' ');
                                     int No = Convert.ToInt32(Split[1]);
 
-                                    if (WD._OPD1 & 1 <= No & No <= 4999)
+                                    if (MainWindowVM.OPDToogle1Checked & 1 <= No & No <= 4999)
                                     {
-                                        SetConvertValue(Index, Path.GetDirectoryName(IP), WD.OP, Name);
+                                        SetConvertValue(Index, Path.GetDirectoryName(IP), MainWindowVM.OutputPath, Name);
                                         SetConvertInformation();
                                         break;
                                     }
-                                    else if (WD._OPD2 & 6001 <= No & No <= 7999)
+                                    else if (MainWindowVM.OPDToogle2Checked & 6001 <= No & No <= 7999)
                                     {
-                                        SetConvertValue(Index, Path.GetDirectoryName(IP), WD.OP, Name);
+                                        SetConvertValue(Index, Path.GetDirectoryName(IP), MainWindowVM.OutputPath, Name);
                                         SetConvertInformation();
                                         break;
                                     }
-                                    else if (WD._OPD3 & 9001 <= No & No < 19999)
+                                    else if (MainWindowVM.OPDToogle3Checked & 9001 <= No & No < 19999)
                                     {
-                                        SetConvertValue(Index, Path.GetDirectoryName(IP), WD.OP, Name);
+                                        SetConvertValue(Index, Path.GetDirectoryName(IP), MainWindowVM.OutputPath, Name);
                                         SetConvertInformation();
                                         break;
                                     }
                                 }
-                                else if (WD._OPD4) //磨粉
+                                else if (MainWindowVM.OPDToogle4Checked) //磨粉
                                 {
-                                    SetConvertValue(Index, Path.GetDirectoryName(IP), WD.OP, Name);
+                                    SetConvertValue(Index, Path.GetDirectoryName(IP), MainWindowVM.OutputPath, Name);
                                     SetConvertInformation();
                                     break;
                                 }
@@ -430,7 +431,7 @@ namespace FCP
                     while (!_CTS.IsCancellationRequested)
                     {
                         await Task.Delay(SettingsModel.Speed);
-                        string IP = WD.IP3;
+                        string IP = MainWindowVM.InputPath3;
                         if (IP.Trim() == "")
                             continue;
                         foreach (string Name in Directory.GetFiles(IP, SettingsModel.DeputyFileName))
@@ -439,14 +440,14 @@ namespace FCP
                             {
                                 if (Path.GetFileNameWithoutExtension(Name).Substring(Start, Length) == Content)
                                 {
-                                    SetConvertValue(2, Path.GetDirectoryName(IP), WD.OP, Name);
+                                    SetConvertValue(2, Path.GetDirectoryName(IP), MainWindowVM.OutputPath, Name);
                                     SetConvertInformation();
                                     break;
                                 };
                             }
                             else
                             {
-                                SetConvertValue(2, Path.GetDirectoryName(IP), WD.OP, Name);
+                                SetConvertValue(2, Path.GetDirectoryName(IP), MainWindowVM.OutputPath, Name);
                                 SetConvertInformation();
                                 break;
                             }
@@ -599,11 +600,10 @@ namespace FCP
             string[] files = Directory.GetFiles($@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\Batch");
             foreach (string s in files)
             {
-                Console.WriteLine(s);
                 File.Move(s, $@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\{folderName}\{Path.GetFileNameWithoutExtension(s)}.{extension}");
             }
-            if (SF.Visibility == Visibility.Visible)
-                SF.Btn_StopConverter_Click(null, null);
+            if (SimpleWindow.Visibility == Visibility.Visible)
+                SimpleWindow.Btn_StopConverter_Click(null, null);
             else
                 Stop();
         }
@@ -616,7 +616,7 @@ namespace FCP
         private Settings _Settings { get; set; }
         private MsgBViewModel _MsgBVM { get; set; }
         public AdvancedSettings AS { get; set; }
-        public SmallForm SF { get; set; }
+        public SimpleWindow SimpleWindow { get; set; }
         public string IP1 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = MainWindow.Txt_InputPath1.Text; })); return A; } }
         public string IP2 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = MainWindow.Txt_InputPath2.Text; })); return A; } }
         public string IP3 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = MainWindow.Txt_InputPath3.Text; })); return A; } }
@@ -629,8 +629,7 @@ namespace FCP
         public bool _OPD2 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD2.IsChecked; })); return B; } }
         public bool _OPD3 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD3.IsChecked; })); return B; } }
         public bool _OPD4 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD4.IsChecked; })); return B; } }
-        private MainWindowViewModel _MainWindowVM { get => MainWindowFacotry.GenerateMainWindowViewModel(); }
-        bool isMainWindow = true;  //true > mainwindow, false > smallform
+        private MainWindowViewModel _MainWindowVM { get => MainWindowFactory.GenerateMainWindowViewModel(); }
 
         SolidColorBrush Red = new SolidColorBrush((Color)Color.FromRgb(255, 82, 85));
         SolidColorBrush White = new SolidColorBrush((Color)Color.FromRgb(255, 255, 255));
@@ -681,7 +680,7 @@ namespace FCP
                 try
                 {
                     //string FileVersion = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion.ToString();  //版本
-                    SF.SetFormLocation(Properties.Settings.Default.X, Properties.Settings.Default.Y);
+                    SimpleWindow.SetFormLocation(Properties.Settings.Default.X, Properties.Settings.Default.Y);
                     if (!_MainWindowVM.StopEnabled)
                     {
                         UILayout UI = new UILayout();
@@ -938,7 +937,7 @@ namespace FCP
             if (b1 != null)
                 MainWindow.Visibility = (bool)b1 ? Visibility.Visible : Visibility.Hidden;
             if (b2 != null)
-                SF.Visibility = (bool)b2 ? Visibility.Visible : Visibility.Hidden;
+                SimpleWindow.Visibility = (bool)b2 ? Visibility.Visible : Visibility.Hidden;
             if (b3 != null)
             {
                 //AS.Visibility = (bool)b3 ? Visibility.Visible : Visibility.Hidden;
@@ -948,39 +947,31 @@ namespace FCP
         //工具列圖示雙擊
         public void NotifyIconDBClick()
         {
-            if (isMainWindow)
+            if (SimpleWindow.IsEnabled)
             {
-                MainWindow.Visibility = Visibility.Visible;
-                MainWindow.Activate();
+                _MainWindowVM.Visibility = Visibility.Visible;
+                _MainWindowVM.ActivateFunc();
             }
             else
             {
-                SF = SF ?? new SmallForm(MainWindow) { Owner = MainWindow };
-                SF.Visibility = Visibility.Visible;
-                SF.Visibility = Visibility.Visible;
-                SF.Topmost = true;
+                _MainWindowVM.ShowSimpleWindow();
             }
         }
 
         public void ChangeWindow()
         {
-            if (isMainWindow)
+            if (_MainWindowVM.Visibility == Visibility.Visible)
             {
-                SF = SF ?? new SmallForm(MainWindow) { Owner = MainWindow };
-                SF.Initialize();
-                SF.ChangeLayout();
-                SF.Visibility = Visibility.Visible;
-                SF.Topmost = true;
-                MainWindow.Visibility = Visibility.Hidden;
-                isMainWindow = false;
+                _MainWindowVM.ShowSimpleWindow();
+                RefreshUIPropertyServices.InitSimpleWindow();
+                Console.WriteLine(_MainWindowVM.Visibility);
             }
             else
             {
-                SF.Topmost = false;
-                SF.Visibility = Visibility.Hidden;
+                SimpleWindow.Topmost = false;
+                SimpleWindow.Visibility = Visibility.Hidden;
                 MainWindow.Visibility = Visibility.Visible;
                 MainWindow.Activate();
-                isMainWindow = true;
             }
         }
 
@@ -1028,11 +1019,7 @@ namespace FCP
         {
             Dispatcher.Invoke(new Action(() =>
             {
-                SF.Stop();
-                MainWindow.Btn_OPD.Opacity = 1;
-                MainWindow.Btn_UD.Opacity = 1;
-                MainWindow.Btn_OPD.Background = White;
-                MainWindow.Btn_UD.Background = White;
+                SimpleWindow.Stop();
             }));
         }
 
@@ -1055,7 +1042,7 @@ namespace FCP
         public void ProgressBoxClear()
         {
             MainWindow.Txt_ProgressBox.Clear();
-            SF.ProgressBoxClear();
+            SimpleWindow.ProgressBoxClear();
         }
 
         public void ProgressBoxAdd(string Result)
@@ -1064,7 +1051,7 @@ namespace FCP
             {
                 MainWindow.Txt_ProgressBox.AppendText($"{Result}\n");
                 MainWindow.Txt_ProgressBox.ScrollToEnd();
-                SF.ProgressBoxAdd(Result);
+                SimpleWindow.ProgressBoxAdd(Result);
             }));
         }
 

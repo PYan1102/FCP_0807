@@ -1,10 +1,11 @@
-﻿<Window x:Class="FCP.SmallForm"
+﻿<Window x:Class="FCP.MVVM.View.SimpleWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:FCP"
+        xmlns:local="clr-namespace:FCP.MVVM.View"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:vm="clr-namespace:FCP.MVVM.ViewModels"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
@@ -19,9 +20,12 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         ResizeMode="NoResize"
-        Loaded="Window_Loaded"
         Background="Transparent"
-        AllowsTransparency="True">
+        AllowsTransparency="True"
+        IsEnabled="{Binding Enabled}">
+    <Window.DataContext>
+        <vm:SimpleWindowViewModel/>
+    </Window.DataContext>
     <Window.Resources>
         <ResourceDictionary>
             <SolidColorBrush x:Key="ShallowBlue" Color="#7B97AB"/>

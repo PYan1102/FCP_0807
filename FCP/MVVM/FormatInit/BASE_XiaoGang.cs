@@ -37,10 +37,10 @@ namespace FCP.MVVM.FormatInit
         public override void Init()
         {
             base.Init();
-            MainWindow.Tgl_OPD1.IsChecked = true;
-            MainWindow.Tgl_OPD2.IsChecked = true;
-            MainWindow.Tgl_OPD3.IsChecked = true;
-            MainWindow.Tgl_OPD4.IsChecked = true;
+            base.MainWindow.Tgl_OPD1.IsChecked = true;
+            base.MainWindow.Tgl_OPD2.IsChecked = true;
+            base.MainWindow.Tgl_OPD3.IsChecked = true;
+            base.MainWindow.Tgl_OPD4.IsChecked = true;
         }
 
         public override void ShowAdvancedSettings()
@@ -75,9 +75,9 @@ namespace FCP.MVVM.FormatInit
         {
             if (isOPD)
             {
-                if (base.WD._OPD4)
+                if (base.MainWindowVM.OPDToogle4Checked)
                     CMD(@"net use P: \\192.168.11.134\Powder_OPD");
-                if (base.WD._OPD1 || base.WD._OPD2 || base.WD._OPD3)
+                if (base.MainWindowVM.OPDToogle1Checked || base.MainWindowVM.OPDToogle2Checked || base.MainWindowVM.OPDToogle3Checked)
                     CMD(@"net use O: \\192.168.11.134\Pack");
             }
             else
@@ -87,7 +87,7 @@ namespace FCP.MVVM.FormatInit
                 Loop_OPD_小港();
             else
             {
-                if (base.WD._IsStat)
+                if (base.MainWindowVM.StatChecked)
                     Loop_UD(0, 1, "O");
                 else
                     Loop_UD(0, 1, "B");
@@ -120,7 +120,7 @@ namespace FCP.MVVM.FormatInit
                                             update PrintFormItem set PrintElementID=743 where printformitem.RawID=120201
                                             update PrintFormItem set PrintFormItemName='PackOrderMedicineRefV - Medicine_ETC14' where printformitem.RawID=120200
                                             update PrintFormItem set PrintElementID=743 where printformitem.RawID=120200");
-            if (base.WD._IsStat)
+            if (base.MainWindowVM.StatChecked)
                 SQLQuery.NonQuery("update SettingValue set Value='True' where RawID=71");
             else
                 SQLQuery.NonQuery("update SettingValue set Value='False' where RawID=71");
@@ -132,7 +132,7 @@ namespace FCP.MVVM.FormatInit
         {
             //MethodID = 2為住院路徑
             //若為住院長期才整合多檔案到一個檔案內，並取得該整合檔案的檔名
-            if (base.CurrentDepartment == DepartmentEnum.UDBatch & !base.WD._IsStat)
+            if (base.CurrentDepartment == DepartmentEnum.UDBatch & !base.MainWindowVM.StatChecked)
             {
                 FilesAllInOne();
                 GetBatchFile();
@@ -153,7 +153,7 @@ namespace FCP.MVVM.FormatInit
 
         private void MoveFile(ConvertResult result)
         {
-            if (!WD._IsStat)
+            if (!base.MainWindowVM.StatChecked)
             {
                 switch (result)
                 {
@@ -204,21 +204,18 @@ namespace FCP.MVVM.FormatInit
         //取得整合完的檔案檔名
         private void GetBatchFile()
         {
-            WD.MainWindow.Dispatcher.Invoke(new Action(() =>
+            string FilePath = SettingsModel.InputPath3;
+            List<string> L = new List<string>() { $"cd {FilePath}", $"{FilePath.Substring(0, 2)}", "dir /b" };
+            string[] FilesList = CMD(L);
+            foreach (string s in FilesList)
             {
-                string FilePath = SettingsModel.InputPath3;
-                List<string> L = new List<string>() { $"cd {FilePath}", $"{FilePath.Substring(0, 2)}", "dir /b" };
-                string[] FilesList = CMD(L);
-                foreach (string s in FilesList)
+                if (s.Contains("Batch"))
                 {
-                    if (s.Contains("Batch"))
-                    {
-                        _FullFileName = $@"{FilePath}\{s.Trim()}";
-                        return;
-                    }
+                    _FullFileName = $@"{FilePath}\{s.Trim()}";
+                    return;
                 }
-                _FullFileName = "NO";
-            }));
+            }
+            _FullFileName = "NO";
         }
     }
 }

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Media;
 using FCP.MVVM.Models.Enum;
 
 namespace FCP.MVVM.Models
 {
     class MainWindowModel
     {
+        public Visibility Visibility { get; set; }
         public string WindowTitle { get; set; }
         public string InputPath1Title { get; set; }
         public string InputPath2Title { get; set; }
@@ -16,11 +18,9 @@ namespace FCP.MVVM.Models
         public bool InputPath1Enabled { get; set; }
         public bool InputPath2Enabled { get; set; }
         public bool InputPath3Enabled { get; set; }
-        public string OutputPathTitle { get; set; }
+        public string OutputPathTitle { get; set; } = "輸出路徑";
         public string OutputPath { get; set; }
         public bool OutputPathEnabled { get; set; }
-        public string OPDButtonContent { get; set; }
-        public string UDButtonContent { get; set; }
         public Visibility UDButtonVisibility { get; set; }
         public string OPDToogle1 { get; set; }
         public string OPDToogle2 { get; set; }
@@ -60,5 +60,9 @@ namespace FCP.MVVM.Models
         public Visibility WindowYVisibility { get; set; }
         public DoseType PackType { get; set; }
         public Visibility MinimumAndCloseVisibility { get; set; }
+        public float OPDOpacity { get; set; } = 1;
+        public float UDOpacity { get; set; } = 1;
+        public SolidColorBrush OPDBacground { get; set; } = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+        public SolidColorBrush UDBackground { get; set; } = new SolidColorBrush(Color.FromRgb(255, 255, 255));
     }
 }
