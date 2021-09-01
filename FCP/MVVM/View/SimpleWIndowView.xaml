@@ -1,10 +1,11 @@
-﻿<Window x:Class="FCP.MVVM.View.SimpleWindow"
+﻿<Window x:Class="FCP.MVVM.View.SimpleWindowView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FCP.MVVM.View"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:vm="clr-namespace:FCP.MVVM.ViewModels"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -22,7 +23,17 @@
         ResizeMode="NoResize"
         Background="Transparent"
         AllowsTransparency="True"
-        IsEnabled="{Binding Enabled}">
+        Top="{Binding Top}"
+        Left="{Binding Left}"
+        IsEnabled="{Binding Enabled,Mode=TwoWay}"
+        Visibility="{Binding Visibility,Mode=TwoWay}"
+        Topmost="{Binding Topmost}">
+    <i:Interaction.Triggers>
+        <i:DataTrigger Binding="{Binding Visibility}" Value="Visible">
+            <i:InvokeCommandAction Command="{Binding Activate}"
+                                   CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"/>
+        </i:DataTrigger>
+    </i:Interaction.Triggers>
     <Window.DataContext>
         <vm:SimpleWindowViewModel/>
     </Window.DataContext>
@@ -31,7 +42,7 @@
             <SolidColorBrush x:Key="ShallowBlue" Color="#7B97AB"/>
             <SolidColorBrush x:Key="NormalBlue" Color="#3797E3"/>
             <SolidColorBrush x:Key="DeepBlue" Color="#1D6FB1"/>
-            <RoutedCommand x:Key="ChangeSize"/>
+            <RoutedCommand x:Key="SwitchWindow"/>
             <RoutedCommand x:Key="StartConverter"/>
             <RoutedCommand x:Key="StopConverter"/>
             <RoutedCommand x:Key="UDConverter"/>
@@ -39,7 +50,7 @@
         </ResourceDictionary>
     </Window.Resources>
     <Window.InputBindings>
-        <KeyBinding Gesture="Ctrl+G" Command="{StaticResource ChangeSize}"/>
+        <KeyBinding Gesture="Ctrl+G" Command="{Binding SwitchWindow}"/>
         <KeyBinding Gesture="F5" Command="{StaticResource StartConverter}"/>
         <KeyBinding Gesture="F6" Command="{StaticResource UDConverter}"/>
         <KeyBinding Gesture="F7" Command="{StaticResource StopConverter}"/>
@@ -47,7 +58,7 @@
 
     </Window.InputBindings>
     <Window.CommandBindings>
-        <CommandBinding Command="{StaticResource ChangeSize}" CanExecute="ChangeSize_CanExecute" Executed="ChangeSize_Executed"/>
+        <CommandBinding Command="{StaticResource SwitchWindow}"/>
         <CommandBinding Command="{StaticResource StartConverter}" CanExecute="StartConverter_CanExecute" Executed="StartConverter_Executed"/>
         <CommandBinding Command="{StaticResource UDConverter}" CanExecute="UDConverter_CanExecute" Executed="UDConverter_Executed"/>
         <CommandBinding Command="{StaticResource StopConverter}" Executed="StopConverter_Executed"/>

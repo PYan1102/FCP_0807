@@ -21,7 +21,7 @@
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        Visibility="{Binding Visibility}">
+        Visibility="{Binding Visibility,Mode=TwoWay}">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction Command="{Binding Closing}"/>
@@ -29,6 +29,10 @@
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding Loaded}"/>
         </i:EventTrigger>
+        <i:DataTrigger Binding="{Binding Visibility}" Value="Visible">
+            <i:InvokeCommandAction Command="{Binding Activate}"
+                                   CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"/>
+        </i:DataTrigger>
     </i:Interaction.Triggers>
     <Window.DataContext>
         <vm:MainWindowViewModel/>

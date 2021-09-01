@@ -6,10 +6,13 @@ namespace FCP.MVVM.Factory.ViewModel
 {
     static class SimpleWindowFactory
     {
+        private static SimpleWindowView _SimpleWindow { get; set; }
         private static SimpleWindowViewModel _SimpleWindowVM { get; set; }
-        public static SimpleWindow GenerateSipleWindow()
+        public static SimpleWindowView GenerateSimpleWindow()
         {
-            return new SimpleWindow(null);
+            if (_SimpleWindow == null)
+                _SimpleWindow = new SimpleWindowView(null);
+            return _SimpleWindow;
         }
 
         public static SimpleWindowViewModel GenerateSimpleWindowViewModel()

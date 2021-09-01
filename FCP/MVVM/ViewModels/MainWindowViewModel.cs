@@ -28,6 +28,7 @@ namespace FCP.MVVM.ViewModels
         public ICommand Closing { get; set; }
         public ICommand Loaded { get; set; }
         public ICommand SwitchWindow { get; set; }
+        public ICommand Activate { get; set; }
         private MainWindowModel _Model;
         private FunctionCollections _Format { get; set; }
         private SettingsModel _SettingsModel { get; set; }
@@ -47,6 +48,7 @@ namespace FCP.MVVM.ViewModels
             Stop = new RelayCommand(StopFunc, CanStartConverterOrShowAdvancedSettings);
             Save = new RelayCommand(SaveFunc, CanStartConverterOrShowAdvancedSettings);
             SwitchWindow = new RelayCommand(SwitchWindowFunc,CanStartConverterOrShowAdvancedSettings);
+            Activate = new ObjectRelayCommand(o => ActivateFunc((Window)o), o => CanActivate());
         }
 
         public Visibility Visibility
@@ -412,23 +414,18 @@ namespace FCP.MVVM.ViewModels
             _Format.Save();
         }
 
-        public void ActivateFunc()
+        public void ActivateFunc(Window window)
         {
-            MainWindowFactory.MainWindow.Activate();
+            window.Activate();
+            window.Focus();
         }
 
         private void SwitchWindowFunc()
         {
-            _Format.ChangeWindow();
-        }
-
-        public void ShowSimpleWindow()
-        {
-            var window = SimpleWindowFactory.GenerateSipleWindow();
-            window.Visibility = Visibility.Visible;
-            window.Activate();
-            window.Topmost = true;
-            OPDEnabled = false;
+            Visibility = Visibility.Hidden;
+            var vm = SimpleWindowFactory.GenerateSimpleWindowViewModel();
+            vm.Visibility = Visibility.Visible;
+            RefreshUIPropertyServices.InitSimpleWindow();
         }
 
         private void LoadedFunc()
@@ -464,6 +461,11 @@ namespace FCP.MVVM.ViewModels
         private bool CanStartConverterOrShowAdvancedSettings()
         {
             return !StopEnabled;
+        }
+
+        private bool CanActivate()
+        {
+            return Visibility == Visibility.Visible;
         }
     }
 }

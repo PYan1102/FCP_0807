@@ -6,7 +6,11 @@ namespace FCP.MVVM.Models
 {
     class SimpleWindowModel
     {
+        public Visibility Visibility { get; set; } = Visibility.Hidden;
+        public bool Topmost { get; set; }
         public bool Enabled { get; set; } = true;
+        public int Top { get; set; }
+        public int Left { get; set; }
         public bool MultiChecked { get; set; }
         public bool CombiChecked { get; set; }
         public bool MultiEnabled { get; set; }

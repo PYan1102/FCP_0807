@@ -35,7 +35,7 @@ namespace FCP
         public readonly static string FileBackupPath = @"D:\Converter_Backup";
         public SettingsModel SettingsModel { get; set; }
         private Settings _Settings { get; set; }
-        public SimpleWindow SimpleWindow { get; set; }
+        public SimpleWindowView SimpleWindow { get; set; }
         public AdvancedSettings AS;
         List<string> IPList = new List<string>();
         public WindowsDo WD { get; set; }
@@ -54,6 +54,7 @@ namespace FCP
         private MsgBViewModel _MsgBVM { get; set; }
         private CancellationTokenSource _CTS;
         private CancellationTokenSource _CTS1;
+        private SimpleWindowViewModel _SimpleWindowVM { get; set; }
 
         public FunctionCollections()
         {
@@ -63,6 +64,7 @@ namespace FCP
             FindFile = new FindFile();
             _MsgBVM = MsgBFactory.GenerateMsgBViewModel();
             MainWindowVM = MainWindowFactory.GenerateMainWindowViewModel();
+            _SimpleWindowVM = SimpleWindowFactory.GenerateSimpleWindowViewModel();
         }
 
         public void SetWindow(MainWindow mainWindow)
@@ -85,8 +87,7 @@ namespace FCP
         {
             try
             {
-                SimpleWindow = new SimpleWindow(MainWindow) { Owner=MainWindow };
-                WD = new WindowsDo() { MainWindow = MainWindow, SimpleWindow = SimpleWindow, AS = AS };
+                WD = new WindowsDo() { MainWindow = MainWindow, AS = AS };
                 CheckProgramStart();
                 CheckFileBackupPath();
                 CreateNotifyIcon();
@@ -94,7 +95,6 @@ namespace FCP
                 RefreshUIPropertyServices.SwitchMainWindowControlState(true);
                 _CTS1 = new CancellationTokenSource();
                 WD.UI_Refresh(_CTS1);
-                //MainWindow.Dispatcher.InvokeAsync(new Action(() => ));
             }
             catch (Exception ex)
             {
@@ -616,7 +616,7 @@ namespace FCP
         private Settings _Settings { get; set; }
         private MsgBViewModel _MsgBVM { get; set; }
         public AdvancedSettings AS { get; set; }
-        public SimpleWindow SimpleWindow { get; set; }
+        private SimpleWindowViewModel _SimpleWindowVM { get; set; }
         public string IP1 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = MainWindow.Txt_InputPath1.Text; })); return A; } }
         public string IP2 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = MainWindow.Txt_InputPath2.Text; })); return A; } }
         public string IP3 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = MainWindow.Txt_InputPath3.Text; })); return A; } }
@@ -639,6 +639,7 @@ namespace FCP
             _Settings = SettingsFactory.GenerateSettingsControl();
             _SettingsModel = SettingsFactory.GenerateSettingsModel();
             _MsgBVM = MsgBFactory.GenerateMsgBViewModel();
+            _SimpleWindowVM = SimpleWindowFactory.GenerateSimpleWindowViewModel();
         }
 
         public void ProcessAction()
@@ -680,7 +681,7 @@ namespace FCP
                 try
                 {
                     //string FileVersion = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion.ToString();  //版本
-                    SimpleWindow.SetFormLocation(Properties.Settings.Default.X, Properties.Settings.Default.Y);
+                    _SimpleWindowVM.SetWindowPosition(Properties.Settings.Default.X, Properties.Settings.Default.Y);
                     if (!_MainWindowVM.StopEnabled)
                     {
                         UILayout UI = new UILayout();
@@ -937,7 +938,7 @@ namespace FCP
             if (b1 != null)
                 MainWindow.Visibility = (bool)b1 ? Visibility.Visible : Visibility.Hidden;
             if (b2 != null)
-                SimpleWindow.Visibility = (bool)b2 ? Visibility.Visible : Visibility.Hidden;
+                _SimpleWindowVM.Visibility = (bool)b2 ? Visibility.Visible : Visibility.Hidden;
             if (b3 != null)
             {
                 //AS.Visibility = (bool)b3 ? Visibility.Visible : Visibility.Hidden;
@@ -947,34 +948,38 @@ namespace FCP
         //工具列圖示雙擊
         public void NotifyIconDBClick()
         {
-            if (SimpleWindow.IsEnabled)
+            if (!_SimpleWindowVM.Enabled)
             {
                 _MainWindowVM.Visibility = Visibility.Visible;
-                _MainWindowVM.ActivateFunc();
             }
             else
             {
-                _MainWindowVM.ShowSimpleWindow();
+                _SimpleWindowVM.Visibility = Visibility.Visible;
             }
         }
 
         public void ChangeWindow()
         {
-            if (_MainWindowVM.Visibility == Visibility.Visible)
+            if (!_SimpleWindowVM.Enabled)
             {
-                _MainWindowVM.ShowSimpleWindow();
+                ShowSimpleWindow();
                 RefreshUIPropertyServices.InitSimpleWindow();
-                Console.WriteLine(_MainWindowVM.Visibility);
             }
             else
             {
-                SimpleWindow.Topmost = false;
-                SimpleWindow.Visibility = Visibility.Hidden;
+                _SimpleWindowVM.Topmost = false;
+                _SimpleWindowVM.Visibility = Visibility.Hidden;
                 MainWindow.Visibility = Visibility.Visible;
                 MainWindow.Activate();
             }
         }
 
+        private void ShowSimpleWindow()
+        {
+            _SimpleWindowVM.Visibility = Visibility.Visible;
+            _SimpleWindowVM.Topmost = true;
+            _MainWindowVM.OPDEnabled = false;
+        }
         //MainWindow控建Enabled切換
         public void SwitchControlEnabled(bool b)
         {
@@ -1019,7 +1024,7 @@ namespace FCP
         {
             Dispatcher.Invoke(new Action(() =>
             {
-                SimpleWindow.Stop();
+                _SimpleWindowVM.Stop();
             }));
         }
 
@@ -1042,7 +1047,7 @@ namespace FCP
         public void ProgressBoxClear()
         {
             MainWindow.Txt_ProgressBox.Clear();
-            SimpleWindow.ProgressBoxClear();
+            _SimpleWindowVM.ProgressBoxClear();
         }
 
         public void ProgressBoxAdd(string Result)
@@ -1051,7 +1056,7 @@ namespace FCP
             {
                 MainWindow.Txt_ProgressBox.AppendText($"{Result}\n");
                 MainWindow.Txt_ProgressBox.ScrollToEnd();
-                SimpleWindow.ProgressBoxAdd(Result);
+                _SimpleWindowVM.ProgressBoxAdd(Result);
             }));
         }
 

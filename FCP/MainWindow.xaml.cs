@@ -124,6 +124,7 @@ namespace FCP
             MainWindowFactory.MainWindow = this;
             this.DataContext = MainWindowFactory.GenerateMainWindowViewModel();
             _SettingsModel = SettingsFactory.GenerateSettingsModel();
+            SimpleWindowFactory.GenerateSimpleWindow();
         }
 
         public void Btn_Stop_Click(object sender, RoutedEventArgs e)

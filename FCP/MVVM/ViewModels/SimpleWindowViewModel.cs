@@ -3,22 +3,53 @@ using System.Windows;
 using System.Windows.Media;
 using FCP.Core;
 using FCP.MVVM.Models;
+using FCP.MVVM.Factory.ViewModel;
+using System.Windows.Input;
+using FCP.MVVM.View;
 
 namespace FCP.MVVM.ViewModels
 {
     class SimpleWindowViewModel : ViewModelBase
     {
+        public ICommand Activate { get; set; }
+        public ICommand SwitchWindow { get; set; }
         private SimpleWindowModel _Model;
 
         public SimpleWindowViewModel()
         {
             _Model = new SimpleWindowModel();
+            Activate = new ObjectRelayCommand(o => ActivateFunc((Window)o), o => CanActivate());
+            SwitchWindow = new RelayCommand(SwitchWindowFunc);
+        }
+
+        public Visibility Visibility
+        {
+            get => _Model.Visibility;
+            set => _Model.Visibility = value;
+        }
+
+        public bool Topmost
+        {
+            get => _Model.Topmost;
+            set => _Model.Topmost = value;
         }
 
         public bool Enabled
         {
             get => _Model.Enabled;
             set => _Model.Enabled = value;
+        }
+
+        public int Top
+        {
+            get => _Model.Top;
+            set => _Model.Top = value;
+        }
+
+        public int Left
+        {
+            get => _Model.Left;
+            set => _Model.Left = value;
         }
 
         public bool MultiChecked
@@ -171,9 +202,52 @@ namespace FCP.MVVM.ViewModels
             set => _Model.MinimumVisibility = value;
         }
 
+        public void ActivateFunc(Window window)
+        {
+            window.Activate();
+            Topmost = true;
+            Enabled = true;
+            window.Focus();
+        }
+
+        public void SwitchWindowFunc()
+        {
+            Visibility = Visibility.Hidden;
+            Topmost = false;
+            Enabled = false;
+            var vm = MainWindowFactory.GenerateMainWindowViewModel();
+            vm.Visibility = Visibility.Visible;
+        }
+
+        public void SetWindowPosition(int top, int left)
+        {
+            Top = top;
+            Left = left;
+        }
+
+        public void Stop()
+        {
+
+        }
+
+        public void ProgressBoxClear()
+        {
+
+        }
+
+        public void ProgressBoxAdd(string content)
+        {
+
+        }
+
         public void ChangeLayout()
         {
 
+        }
+
+        private bool CanActivate()
+        {
+            return Visibility == Visibility.Visible;
         }
     }
 }

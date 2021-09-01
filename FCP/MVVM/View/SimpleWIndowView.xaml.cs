@@ -21,7 +21,7 @@ namespace FCP.MVVM.View
     /// <summary>
     /// SmallForm.xaml 的互動邏輯
     /// </summary>
-    public partial class SimpleWindow : Window
+    public partial class SimpleWindowView : Window
     {
         private SettingsModel _SettingsModel { get; set; }
         private MainWindowViewModel _MainWindowVM { get; set; }
@@ -31,7 +31,7 @@ namespace FCP.MVVM.View
         SolidColorBrush White = new SolidColorBrush((Color)(Color.FromRgb(255, 255, 255)));
         SolidColorBrush Red = new SolidColorBrush((Color)Color.FromRgb(255, 82, 85));
         public MainWindow mw;
-        public SimpleWindow(MainWindow m)
+        public SimpleWindowView(MainWindow m)
         {
             InitializeComponent();
             mw = m;
