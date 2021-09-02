@@ -13,6 +13,9 @@ using FCP.MVVM.Factory.ViewModel;
 using MaterialDesignThemes.Wpf;
 using System.Windows.Media;
 using FCP.MVVM.View;
+using System.Windows.Forms;
+using FCP.MVVM.Control;
+using Helper;
 
 namespace FCP.MVVM.ViewModels
 {
@@ -25,30 +28,43 @@ namespace FCP.MVVM.ViewModels
         public ICommand Stop { get; set; }
         public ICommand Save { get; set; }
         public ICommand Close { get; set; }
+        public ICommand MinimumWindow { get; set; }
         public ICommand Closing { get; set; }
         public ICommand Loaded { get; set; }
         public ICommand SwitchWindow { get; set; }
         public ICommand Activate { get; set; }
+        public ICommand DragMove { get; set; }
+        public ICommand SelectFolder { get; set; }
+        public ICommand ClearPath { get; set; }
+        public ICommand ClearLog { get; set; }
         private MainWindowModel _Model;
         private FunctionCollections _Format { get; set; }
         private SettingsModel _SettingsModel { get; set; }
+        private Settings _Settings { get; set; }
         private MsgBViewModel _MsgBVM { get; set; }
+        private NotifyIcon _NotifyIcon;
 
         public MainWindowViewModel()
         {
             _SettingsModel = SettingsFactory.GenerateSettingsModel();
+            _Settings = SettingsFactory.GenerateSettingsControl();
             _MsgBVM = MsgBFactory.GenerateMsgBViewModel();
             ShowAdvancedSettings = new RelayCommand(ShowAdvancedSettingsFunc, CanStartConverterOrShowAdvancedSettings);
             _Model = new MainWindowModel();
             Loaded = new RelayCommand(() => LoadedFunc());
             Close = new RelayCommand(() => Environment.Exit(0));
+            MinimumWindow = new RelayCommand(() => Visibility = Visibility.Hidden);
             Closing = new RelayCommand(() => Disconnect小港醫院NetDiskFunc());
             OPD = new RelayCommand(OPDFunc, CanStartConverterOrShowAdvancedSettings);
             UD = new RelayCommand(UDFunc, CanStartConverterOrShowAdvancedSettings);
             Stop = new RelayCommand(StopFunc, CanStartConverterOrShowAdvancedSettings);
             Save = new RelayCommand(SaveFunc, CanStartConverterOrShowAdvancedSettings);
-            SwitchWindow = new RelayCommand(SwitchWindowFunc,CanStartConverterOrShowAdvancedSettings);
+            SwitchWindow = new RelayCommand(SwitchWindowFunc, CanStartConverterOrShowAdvancedSettings);
             Activate = new ObjectRelayCommand(o => ActivateFunc((Window)o), o => CanActivate());
+            DragMove = new ObjectRelayCommand(o => ((Window)o).DragMove());
+            SelectFolder = new ObjectRelayCommand(o => SelectFolderFunc((string)o));
+            ClearPath = new ObjectRelayCommand(o => ClearPathFunc((string)o), o => CanStartConverterOrShowAdvancedSettings());
+            ClearLog = new RelayCommand(() => ClearLogFunc());
         }
 
         public Visibility Visibility
@@ -300,6 +316,7 @@ namespace FCP.MVVM.ViewModels
             get => _Model.IsAutoStartChecked;
             set => _Model.IsAutoStartChecked = value;
         }
+
         public string DoseType
         {
             get => _Model.DoseType;
@@ -384,10 +401,13 @@ namespace FCP.MVVM.ViewModels
             set => _Model.UDBackground = value;
         }
 
+        public string Log
+        {
+            get => _Model.Log;
+            set => _Model.Log = value;
+        }
         public void OPDFunc()
         {
-            this.Visibility = Visibility.Hidden;
-            return;
             if ((_Model.OPDToogle1Checked | _Model.OPDToogle2Checked | _Model.OPDToogle3Checked | _Model.OPDToogle4Checked) == false)
             {
                 _MsgBVM.Show("沒有勾選任一個轉檔位置", "位置未勾選", PackIconKind.Error, KindColors.Error);
@@ -396,7 +416,6 @@ namespace FCP.MVVM.ViewModels
             IsOPD = true;
             _Format.ConvertPrepare(IsOPD);
         }
-
 
         public void UDFunc()
         {
@@ -407,11 +426,22 @@ namespace FCP.MVVM.ViewModels
         public void StopFunc()
         {
             _Format.Stop();
+            RefreshUIPropertyServices.SwitchMainWindowControlState(true);
+            RefreshUIPropertyServices.SwitchUIStateForStop();
         }
 
         public void SaveFunc()
         {
-            _Format.Save();
+            Properties.Settings.Default.X = Convert.ToInt32(WindowX);
+            Properties.Settings.Default.Y = Convert.ToInt32(WindowY);
+            Properties.Settings.Default.Save();
+
+            _Settings.SaveMainWidow(InputPath1, InputPath2, InputPath3, OutputPath, IsAutoStartChecked, StatChecked ? "S" : "B");
+            StringBuilder sb = new StringBuilder();
+            sb.Append(Log);
+            sb.Append("儲存成功\n");
+            Log = sb.ToString();
+            sb = null;
         }
 
         public void ActivateFunc(Window window)
@@ -420,25 +450,54 @@ namespace FCP.MVVM.ViewModels
             window.Focus();
         }
 
-        private void SwitchWindowFunc()
+        public void SwitchWindowFunc()
         {
             Visibility = Visibility.Hidden;
             var vm = SimpleWindowFactory.GenerateSimpleWindowViewModel();
             vm.Visibility = Visibility.Visible;
-            RefreshUIPropertyServices.InitSimpleWindow();
         }
 
         private void LoadedFunc()
         {
-            JudgeCurrentFormat(true);
+            Helper.Log.SetOutputPath(@"D:\FCP\Log");
+            RefreshUIPropertyServices.InitMainWindowUI();
+            RefreshUIPropertyServices.SwitchMainWindowControlState(true);
+            JudgeCurrentFormatAsync();
+            CreateNotifyIcon();
         }
 
-        private void JudgeCurrentFormat(bool isStart)
+        private async void JudgeCurrentFormatAsync()
         {
             _Format = FormatFactory.GenerateFormat(_SettingsModel.Mode);
-            _Format.SetWindow(null);
+            _Format.SetNotifyIcon(_NotifyIcon);
             _Format.Init();
-            if (isStart) _Format.AutoStart();
+            if (IsAutoStartChecked)
+            {
+                await Task.Delay(1000);
+                OPDFunc();
+            }
+        }
+
+        private void CreateNotifyIcon()
+        {
+            _NotifyIcon = new NotifyIcon();
+            _NotifyIcon.Icon = Properties.Resources.FCP;
+            _NotifyIcon.Visible = true;
+            _NotifyIcon.Text = "轉檔";
+            _NotifyIcon.DoubleClick += NotifyIconDBClick;
+        }
+
+        public void NotifyIconDBClick(object sender, EventArgs e)
+        {
+            var vm = SimpleWindowFactory.GenerateSimpleWindowViewModel();
+            if (vm.Enabled)
+            {
+                vm.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Visibility = Visibility.Visible;
+            }
         }
 
         private void ShowAdvancedSettingsFunc()
@@ -456,6 +515,62 @@ namespace FCP.MVVM.ViewModels
                     _Format.Stop();
                     break;
             }
+        }
+
+        private void SelectFolderFunc(string name)
+        {
+            string path = string.Empty;
+            using (FolderBrowserDialog folder = new FolderBrowserDialog())
+            {
+                if (folder.ShowDialog() == DialogResult.OK)
+                {
+                    path = folder.SelectedPath;
+                }
+            }
+            switch (name)
+            {
+                case "IP1":
+                    InputPath1 = path;
+                    break;
+                case "IP2":
+                    InputPath2 = path;
+                    break;
+                case "IP3":
+                    InputPath3 = path;
+                    break;
+                case "OP":
+                    OutputPath = path;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void ClearPathFunc(string name)
+        {
+            switch (name)
+            {
+                case "IP1":
+                    InputPath1 = string.Empty;
+                    break;
+                case "IP2":
+                    InputPath2 = string.Empty;
+                    break;
+                case "IP3":
+                    InputPath3 = string.Empty;
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+        public void ClearLogFunc()
+        {
+            Log = string.Empty;
+            var vm = SimpleWindowFactory.GenerateSimpleWindowViewModel();
+            vm.Log = string.Empty;
+            vm = null;
         }
 
         private bool CanStartConverterOrShowAdvancedSettings()

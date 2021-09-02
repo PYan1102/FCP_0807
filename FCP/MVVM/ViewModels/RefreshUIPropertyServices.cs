@@ -71,7 +71,6 @@ namespace FCP.MVVM.ViewModels
             _MainWindowVM.InputPath2Enabled = b;
             _MainWindowVM.InputPath3Enabled = b;
             _MainWindowVM.OutputPathEnabled = b;
-            _MainWindowVM.IsAutoStartChecked = b;
             _MainWindowVM.StatEnabled = b;
             _MainWindowVM.BatchEnabled = b;
             _MainWindowVM.OPDEnabled = b;
@@ -86,7 +85,7 @@ namespace FCP.MVVM.ViewModels
             _MainWindowVM.OPDToogle4Enabled = b;
         }
 
-        public static void RefreshUIForStart(bool isOPD)
+        public static void SwitchUIStateForStart(bool isOPD)
         {
             if (isOPD)
             {
@@ -100,7 +99,7 @@ namespace FCP.MVVM.ViewModels
             }
         }
 
-        public static void RefreshUIForStop()
+        public static void SwitchUIStateForStop()
         {
             _MainWindowVM.OPDOpacity = 1;
             _MainWindowVM.UDOpacity = 1;
@@ -127,18 +126,19 @@ namespace FCP.MVVM.ViewModels
 
         public static void InitSimpleWindow()
         {
-            List<Format> hospitalCustomers = new List<Format>() {Format.小港醫院TOC,Format.光田醫院TOC,Format.民生醫院TOC,Format.義大醫院TOC };
+            List<Format> hospitalCustomers = new List<Format>() { Format.小港醫院TOC, Format.光田醫院TOC, Format.民生醫院TOC, Format.義大醫院TOC };
+            List<Format> powderCustomers = new List<Format>() { Format.光田醫院TJVS, Format.長庚磨粉TJVS};
             if (hospitalCustomers.Contains(_SettingsModel.Mode))
             {
-                _SimpleWindowVM.OPD = "門診F5";
+                _SimpleWindowVM.OPDContent = "門 診F5";
                 _SimpleWindowVM.UDVisibility = Visibility.Visible;
             }
             _SimpleWindowVM.MultiVisibility = _SettingsModel.Mode == Format.光田醫院TOC ? Visibility.Visible : Visibility.Hidden;
             _SimpleWindowVM.CombiVisibility = _SettingsModel.Mode == Format.光田醫院TOC ? Visibility.Visible : Visibility.Hidden;
             _SimpleWindowVM.MultiChecked = Properties.Settings.Default.DoseType == "M";
-            if (_SettingsModel.Mode == Format.JVS)
+            if (powderCustomers.Contains(_SettingsModel.Mode))
             {
-                _SimpleWindowVM.OPD = "磨粉F5";
+                _SimpleWindowVM.OPDContent = "磨 粉F5";
                 _SimpleWindowVM.UDVisibility = Visibility.Hidden;
             }
             _SimpleWindowVM.StatVisibility = _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
@@ -146,7 +146,7 @@ namespace FCP.MVVM.ViewModels
             _SimpleWindowVM.CloseVisibility = _SettingsModel.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
             _SimpleWindowVM.MinimumVisibility = _SettingsModel.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
             _SimpleWindowVM.StatChecked = _SettingsModel.StatOrBatch == "S";
-            _SimpleWindowVM.StopEnalbed = false;
+            _SimpleWindowVM.StopEnabled = false;
         }
     }
 }

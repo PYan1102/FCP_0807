@@ -60,27 +60,16 @@
         <KeyBinding Gesture="F7" Command="{Binding Stop}"/>
         <KeyBinding Gesture="Ctrl+S" Command="{Binding Save}"/>
         <KeyBinding Gesture="Escape" Command="{Binding Close}"/>
-        <KeyBinding Gesture="Ctrl+1" Command="{StaticResource InputPath1}"/>
-        <KeyBinding Gesture="Ctrl+2" Command="{StaticResource InputPath2}"/>
-        <KeyBinding Gesture="Ctrl+3" Command="{StaticResource InputPath3}"/>
-        <KeyBinding Gesture="Ctrl+4" Command="{StaticResource OutputPath}"/>
+        <KeyBinding Gesture="Ctrl+1" Command="{Binding SelectFolder}"/>
+        <KeyBinding Gesture="Ctrl+2" Command="{Binding SelectFolder}"/>
+        <KeyBinding Gesture="Ctrl+3" Command="{Binding SelectFolder}"/>
+        <KeyBinding Gesture="Ctrl+4" Command="{Binding SelectFolder}"/>
         <KeyBinding Gesture="Ctrl+G" Command="{Binding SwitchWindow}"/>
         <KeyBinding Gesture="Ctrl+W" Command="{Binding ShowAdvancedSettings}"/>
-        <KeyBinding Gesture="Ctrl+E" Command="{StaticResource ClearListBox}"/>
+        <KeyBinding Gesture="Ctrl+E" Command="{Binding ClearLog}"/>
         <KeyBinding Gesture="F1" Command="{StaticResource Log}"/>
     </Window.InputBindings>
     <Window.CommandBindings>
-        <CommandBinding Command="{StaticResource OPD}"/>
-        <CommandBinding Command="{StaticResource UD}"/>
-        <CommandBinding Command="{StaticResource Stop}"/>
-        <CommandBinding Command="{StaticResource Save}"/>
-        <CommandBinding Command="{StaticResource Close}"/>
-        <CommandBinding Command="{StaticResource InputPath1}" CanExecute="InputPath1_CanExecute" Executed="InputPath1_Executed"/>
-        <CommandBinding Command="{StaticResource InputPath2}" CanExecute="InputPath2_CanExecute" Executed="InputPath2_Executed"/>
-        <CommandBinding Command="{StaticResource InputPath3}" CanExecute="InputPath3_CanExecute" Executed="InputPath3_Executed"/>
-        <CommandBinding Command="{StaticResource OutputPath}" CanExecute="OutputPath_CanExecute" Executed="OutputPath_Executed"/>
-        <CommandBinding Command="{StaticResource SwitchWindow}"/>
-        <CommandBinding Command="{StaticResource AdvancedSettings}"/>
         <CommandBinding Command="{StaticResource ClearListBox}" Executed="ClearListBox_Executed"/>
         <CommandBinding Command="{StaticResource Log}" Executed="Log_Executed"/>
     </Window.CommandBindings>
@@ -97,9 +86,13 @@
                 <RowDefinition Height="35"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid x:Name="Gd_Title"
-                  Background="Transparent"
-                  MouseLeftButtonDown="Gd_Title_MouseLeftButtonDown">
+            <Grid Background="Transparent">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseLeftButtonDown">
+                        <i:InvokeCommandAction Command="{Binding DragMove}"
+                                               CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="35"/>
@@ -113,20 +106,18 @@
                            VerticalAlignment="Center"
                            Text="{Binding WindowTitle}"
                            Margin="10"/>
-                <Button x:Name="Btn_Minimum"
-                        Grid.Column="1"
+                <Button Grid.Column="1"
                         Background="Transparent"
                         BorderBrush="Transparent"
                         materialDesign:ButtonAssist.CornerRadius="5"
                         Visibility="{Binding MinimumAndCloseVisibility}"
-                        Click="Btn_Minimum_Click">
+                        Command="{Binding  MinimumWindow}">
                     <materialDesign:PackIcon Kind="WindowMinimize"
                                              Height="30"
                                              Width="30"
                                              Margin="-14 -3 -10 11"/>
                 </Button>
-                <Button x:Name="Btn_Close"
-                        Grid.Column="3"
+                <Button Grid.Column="3"
                         Background="Transparent"
                         BorderBrush="Transparent"
                         materialDesign:ButtonAssist.CornerRadius="5"
@@ -169,15 +160,17 @@
                                     <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="0.4*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="Txtb_InputPath1"
-                                           Text="{Binding InputPath1Title}"
+                                <TextBlock Text="{Binding InputPath1Title}"
                                            Foreground="{StaticResource DeepBlue}"
                                            VerticalAlignment="Center"
                                            HorizontalAlignment="Center"
-                                           FontSize="16"
-                                           MouseRightButtonUp="Txtb_InputPath1_MouseRightButtonUp"/>
-                                <TextBox x:Name="Txt_InputPath1"
-                                         Grid.Column="2"
+                                           FontSize="16">
+                                    <TextBlock.InputBindings>
+                                        <MouseBinding Gesture="RightDoubleClick" Command="{Binding ClearPath}"
+                                                      CommandParameter="IP1"/>
+                                    </TextBlock.InputBindings>
+                                </TextBlock>
+                                <TextBox Grid.Column="2"
                                          Foreground="{StaticResource DeepBlue}"
                                          Height="35"
                                          VerticalAlignment="Center"
@@ -186,29 +179,31 @@
                                          Text="{Binding InputPath1}"
                                          Opacity="0.6"
                                          Margin="0 8 0 0"/>
-                                <Button x:Name="Btn_InputPath1"
-                                        Grid.Column="4"
+                                <Button Grid.Column="4"
                                         materialDesign:ButtonAssist.CornerRadius="5"
                                         BorderBrush="Transparent"
                                         Background="{StaticResource DeepBlue}"
                                         materialDesign:ShadowAssist.ShadowDepth="Depth2"
                                         IsEnabled="{Binding InputPath1Enabled}"
-                                        Click="Btn_InputPath1_Click">
+                                        Command="{Binding SelectFolder}"
+                                        CommandParameter="IP1">
                                     <materialDesign:PackIcon Kind="Folder"
                                                              Height="25"
                                                              Width="25"
                                                              Margin="-12 -1 -10 0"/>
                                 </Button>
-                                <TextBlock x:Name="Txtb_InputPath2"
-                                           Grid.Row="1"
+                                <TextBlock Grid.Row="1"
                                            Text="{Binding InputPath2Title}"
                                            Foreground="{StaticResource DeepBlue}"
                                            VerticalAlignment="Center"
                                            HorizontalAlignment="Center"
-                                           FontSize="16"
-                                           MouseRightButtonUp="Txtb_InputPath2_MouseRightButtonUp"/>
-                                <TextBox x:Name="Txt_InputPath2"
-                                         Grid.Row="1"
+                                           FontSize="16">
+                                    <TextBlock.InputBindings>
+                                        <MouseBinding Gesture="RightDoubleClick" Command="{Binding ClearPath}"
+                                                      CommandParameter="IP2"/>
+                                    </TextBlock.InputBindings>
+                                </TextBlock>
+                                <TextBox Grid.Row="1"
                                          Grid.Column="2"
                                          Foreground="{StaticResource DeepBlue}"
                                          Height="35"
@@ -218,30 +213,32 @@
                                          Text="{Binding InputPath2}"
                                          Opacity="0.6"
                                          Margin="0 8 0 0"/>
-                                <Button x:Name="Btn_InputPath2"
-                                        Grid.Row="1"
+                                <Button Grid.Row="1"
                                         Grid.Column="4"
                                         materialDesign:ButtonAssist.CornerRadius="5"
                                         BorderBrush="Transparent"
                                         Background="{StaticResource DeepBlue}"
                                         materialDesign:ShadowAssist.ShadowDepth="Depth2"
                                         IsEnabled="{Binding InputPath2Enabled}"
-                                        Click="Btn_InputPath2_Click">
+                                        Command="{Binding SelectFolder}"
+                                        CommandParameter="IP2">
                                     <materialDesign:PackIcon Kind="Folder"
                                                              Height="25"
                                                              Width="25"
                                                              Margin="-12 -1 -10 0"/>
                                 </Button>
-                                <TextBlock x:Name="Txtb_InputPath3"
-                                           Grid.Row="2"
+                                <TextBlock Grid.Row="2"
                                            Text="{Binding InputPath3Title}"
                                            Foreground="{StaticResource DeepBlue}"
                                            VerticalAlignment="Center"
                                            HorizontalAlignment="Center"
-                                           FontSize="16"
-                                           MouseRightButtonUp="Txtb_InputPath3_MouseRightButtonUp"/>
-                                <TextBox x:Name="Txt_InputPath3"
-                                         Grid.Row="2"
+                                           FontSize="16">
+                                    <TextBlock.InputBindings>
+                                        <MouseBinding Gesture="RightDoubleClick" Command="{Binding ClearPath}"
+                                                      CommandParameter="IP3"/>
+                                    </TextBlock.InputBindings>
+                                </TextBlock>
+                                <TextBox Grid.Row="2"
                                          Grid.Column="2"
                                          Foreground="{StaticResource DeepBlue}"
                                          Height="35"
@@ -251,30 +248,27 @@
                                          Text="{Binding InputPath3}"
                                          Opacity="0.6"
                                          Margin="0 8 0 0"/>
-                                <Button x:Name="Btn_InputPath3"
-                                        Grid.Row="2"
+                                <Button Grid.Row="2"
                                         Grid.Column="4"
                                         materialDesign:ButtonAssist.CornerRadius="5"
                                         BorderBrush="Transparent"
                                         Background="{StaticResource DeepBlue}"
                                         materialDesign:ShadowAssist.ShadowDepth="Depth2"
                                         IsEnabled="{Binding InputPath3Enabled}"
-                                    Click="Btn_InputPath3_Click">
+                                        Command="{Binding SelectFolder}"
+                                        CommandParameter="IP3">
                                     <materialDesign:PackIcon Kind="Folder"
                                                              Height="25"
                                                              Width="25"
                                                              Margin="-12 -1 -10 0"/>
                                 </Button>
-                                <TextBlock x:Name="Txtb_OutputPath"
-                                           Grid.Row="3"
+                                <TextBlock Grid.Row="3"
                                            Text="{Binding OutputPathTitle}"
                                            Foreground="{StaticResource DeepBlue}"
                                            VerticalAlignment="Center"
                                            HorizontalAlignment="Center"
-                                           FontSize="16"
-                                           MouseRightButtonDown="Txtb_OutputPath_MouseRightButtonDown"/>
-                                <TextBox x:Name="Txt_OutputPath"
-                                         Grid.Row="3"
+                                           FontSize="16"/>
+                                <TextBox Grid.Row="3"
                                          Grid.Column="2"
                                          Foreground="{StaticResource DeepBlue}"
                                          Height="35"
@@ -284,16 +278,15 @@
                                          Text="{Binding OutputPath}"
                                          Opacity="0.6"
                                          Margin="0 8 0 0" />
-                                <Button x:Name="Btn_OutputPath"
-                                        Grid.Row="3"
+                                <Button Grid.Row="3"
                                         Grid.Column="4"
                                         materialDesign:ButtonAssist.CornerRadius="5"
                                         BorderBrush="Transparent"
                                         Background="{StaticResource DeepBlue}"
                                         materialDesign:ShadowAssist.ShadowDepth="Depth2"
-                                        
                                         IsEnabled="{Binding OutputPathEnabled}"
-                                        Click="Btn_OutputPath_Click">
+                                        Command="{Binding SelectFolder}"
+                                        CommandParameter="OP">
                                     <materialDesign:PackIcon Kind="Folder"
                                                              Height="25"
                                                              Width="25"
@@ -667,7 +660,7 @@
                                         Height="Auto"
                                         HorizontalAlignment="Right"
                                         materialDesign:ButtonAssist.CornerRadius="5"
-                                        Click="Btn_Stop_Click"
+                                        Command="{Binding Stop}"
                                         IsEnabled="{Binding StopEnabled}"
                                         Margin="0 5 0 5">
                                     <Grid Width="130">
@@ -692,7 +685,7 @@
                                         Height="Auto"
                                         HorizontalAlignment="Right"
                                         materialDesign:ButtonAssist.CornerRadius="5"
-                                        Click="Btn_Save_Click"
+                                        Command="{Binding Save}"
                                         IsEnabled="{Binding SaveEnabled}"
                                         Margin="0 5 0 5">
                                     <Grid Width="130">
@@ -741,6 +734,7 @@
                              VerticalScrollBarVisibility="Auto"
                              TextWrapping="Wrap"
                              IsReadOnly="True"
+                             Text="{Binding Log}"
                              Cursor="Arrow">
                         <TextBox.Resources>
                             <Style TargetType="Border">
@@ -759,7 +753,7 @@
                             HorizontalAlignment="Right"
                             VerticalAlignment="Top"
                             materialDesign:ButtonAssist.CornerRadius="5"
-                            Click="Btn_ProgressBoxClear_Click">
+                            Command="{Binding ClearLog}">
                         <materialDesign:PackIcon Kind="Eraser"
                                                  Height="25"
                                                  Width="25"

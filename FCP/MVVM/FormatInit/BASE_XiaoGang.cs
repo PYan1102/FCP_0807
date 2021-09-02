@@ -11,6 +11,7 @@ using System.IO;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.FormatControl;
 using FCP.MVVM.SQL;
+using Helper;
 
 namespace FCP.MVVM.FormatInit
 {
@@ -43,16 +44,6 @@ namespace FCP.MVVM.FormatInit
             base.MainWindow.Tgl_OPD4.IsChecked = true;
         }
 
-        public override void ShowAdvancedSettings()
-        {
-            base.ShowAdvancedSettings();
-        }
-
-        public override void AutoStart()
-        {
-            base.AutoStart();
-        }
-
         public override void Save()
         {
             base.Save();
@@ -76,12 +67,12 @@ namespace FCP.MVVM.FormatInit
             if (isOPD)
             {
                 if (base.MainWindowVM.OPDToogle4Checked)
-                    CMD(@"net use P: \\192.168.11.134\Powder_OPD");
+                    CMD.ExecuteCommand(@"net use P: \\192.168.11.134\Powder_OPD");
                 if (base.MainWindowVM.OPDToogle1Checked || base.MainWindowVM.OPDToogle2Checked || base.MainWindowVM.OPDToogle3Checked)
-                    CMD(@"net use O: \\192.168.11.134\Pack");
+                    CMD.ExecuteCommand(@"net use O: \\192.168.11.134\Pack");
             }
             else
-                CMD(@"net use Z: \\192.168.11.134\udmachine\1");
+                CMD.ExecuteCommand(@"net use Z: \\192.168.11.134\udmachine\1");
             base.ConvertPrepare(isOPD);
             if (isOPD)
                 Loop_OPD_小港();
@@ -205,9 +196,9 @@ namespace FCP.MVVM.FormatInit
         private void GetBatchFile()
         {
             string FilePath = SettingsModel.InputPath3;
-            List<string> L = new List<string>() { $"cd {FilePath}", $"{FilePath.Substring(0, 2)}", "dir /b" };
-            string[] FilesList = CMD(L);
-            foreach (string s in FilesList)
+            List<string> list = new List<string>() { $"cd {FilePath}", $"{FilePath.Substring(0, 2)}", "dir /b" };
+            string[] filesList = CMD.ExecuteMultiCommands(list);
+            foreach (string s in filesList)
             {
                 if (s.Contains("Batch"))
                 {

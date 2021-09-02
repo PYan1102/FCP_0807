@@ -6,6 +6,9 @@ using FCP.MVVM.Models;
 using FCP.MVVM.Factory.ViewModel;
 using System.Windows.Input;
 using FCP.MVVM.View;
+using FCP.MVVM.Factory;
+using FCP.MVVM.Models.Enum;
+using System.Text;
 
 namespace FCP.MVVM.ViewModels
 {
@@ -13,13 +16,36 @@ namespace FCP.MVVM.ViewModels
     {
         public ICommand Activate { get; set; }
         public ICommand SwitchWindow { get; set; }
+        public ICommand ShowAndCloseLog { get; set; }
+        public ICommand ClearLog { get; set; }
+        public ICommand OPD { get; set; }
+        public ICommand UD { get; set; }
+        public ICommand Stop { get; set; }
+        public ICommand MinimumWindow { get; set; }
+        public ICommand Close { get; set; }
+
+        private MainWindowViewModel _MainWindowVM { get; set; }
         private SimpleWindowModel _Model;
+        private SolidColorBrush _DeepBlue = new SolidColorBrush((Color)Color.FromRgb(17, 68, 109));
+        private SolidColorBrush _ShinyBlue = new SolidColorBrush((Color)Color.FromRgb(9, 225, 255));
+        private SolidColorBrush _White = new SolidColorBrush((Color)Color.FromRgb(255, 255, 255));
+        private SolidColorBrush _Red = new SolidColorBrush((Color)Color.FromRgb(255, 82, 85));
+        private SettingsModel _SettingsModel { get; set; }
 
         public SimpleWindowViewModel()
         {
+            _MainWindowVM = MainWindowFactory.GenerateMainWindowViewModel();
             _Model = new SimpleWindowModel();
+            _SettingsModel = SettingsFactory.GenerateSettingsModel();
             Activate = new ObjectRelayCommand(o => ActivateFunc((Window)o), o => CanActivate());
             SwitchWindow = new RelayCommand(SwitchWindowFunc);
+            ShowAndCloseLog = new RelayCommand(ShowAndCloseLogFunc);
+            ClearLog = new RelayCommand(() => Log = string.Empty);
+            OPD = new RelayCommand(OPDFunc, CanStartConverterOrShowAdvancedSettings);
+            UD = new RelayCommand(UDFunc, CanStartConverterOrShowAdvancedSettings);
+            Stop = new RelayCommand(StopFunc, CanStartConverterOrShowAdvancedSettings);
+            MinimumWindow = new RelayCommand(() => Visibility = Visibility.Hidden);
+            Close = new RelayCommand(() => Environment.Exit(0));
         }
 
         public Visibility Visibility
@@ -88,10 +114,10 @@ namespace FCP.MVVM.ViewModels
             set => _Model.CombiVisibility = value;
         }
 
-        public string OPD
+        public string OPDContent
         {
-            get => _Model.OPD;
-            set => _Model.OPD = value;
+            get => _Model.OPDContent;
+            set => _Model.OPDContent = value;
         }
 
         public SolidColorBrush OPDBackground
@@ -100,10 +126,10 @@ namespace FCP.MVVM.ViewModels
             set => _Model.OPDBackground = value;
         }
 
-        public bool OPDEnalbed
+        public bool OPDEnabled
         {
-            get => _Model.OPDEnalbed;
-            set => _Model.OPDEnalbed = value;
+            get => _Model.OPDEnabled;
+            set => _Model.OPDEnabled = value;
         }
 
         public float OPDOpacity
@@ -112,22 +138,16 @@ namespace FCP.MVVM.ViewModels
             set => _Model.OPDOpacity = value;
         }
 
-        public string UD
-        {
-            get => _Model.UD;
-            set => _Model.UD = value;
-        }
-
         public SolidColorBrush UDBackground
         {
             get => _Model.UDBackground;
             set => _Model.UDBackground = value;
         }
 
-        public bool UDEnalbed
+        public bool UDEnabled
         {
-            get => _Model.UDEnalbed;
-            set => _Model.UDEnalbed = value;
+            get => _Model.UDEnabled;
+            set => _Model.UDEnabled = value;
         }
 
         public float UDOpacity
@@ -148,10 +168,10 @@ namespace FCP.MVVM.ViewModels
             set => _Model.StopBackground = value;
         }
 
-        public bool StopEnalbed
+        public bool StopEnabled
         {
-            get => _Model.StopEnalbed;
-            set => _Model.StopEnalbed = value;
+            get => _Model.StopEnabled;
+            set => _Model.StopEnabled = value;
         }
 
         public float StopOpacity
@@ -172,6 +192,12 @@ namespace FCP.MVVM.ViewModels
             set => _Model.StatChecked = value;
         }
 
+        public bool StatEnabled
+        {
+            get => _Model.StatEnabled;
+            set => _Model.StatEnabled = value;
+        }
+
         public Visibility BatchVisibility
         {
             get => _Model.BatchVisibility;
@@ -182,6 +208,12 @@ namespace FCP.MVVM.ViewModels
         {
             get => _Model.BatchChecked;
             set => _Model.BatchChecked = value;
+        }
+
+        public bool BatchEnabled
+        {
+            get => _Model.BatchEnabled;
+            set => _Model.BatchEnabled = value;
         }
 
         public string Log
@@ -202,12 +234,19 @@ namespace FCP.MVVM.ViewModels
             set => _Model.MinimumVisibility = value;
         }
 
+        public Visibility LogVisibility
+        {
+            get => _Model.LogVisibility;
+            set => _Model.LogVisibility = value;
+        }
+
         public void ActivateFunc(Window window)
         {
             window.Activate();
             Topmost = true;
             Enabled = true;
             window.Focus();
+            RefreshUIPropertyServices.InitSimpleWindow();
         }
 
         public void SwitchWindowFunc()
@@ -225,24 +264,75 @@ namespace FCP.MVVM.ViewModels
             Left = left;
         }
 
-        public void Stop()
+        public void ShowAndCloseLogFunc()
         {
-
+            LogVisibility = LogVisibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
         }
 
-        public void ProgressBoxClear()
+        public void OPDFunc()
         {
-
+            //_MainWindowVM.OPDFunc();
+            Console.WriteLine(CanStartConverterOrShowAdvancedSettings());
+            OPDEnabled = false;
+            UDEnabled = false;
+            StopEnabled = true;
+            StatEnabled = false;
+            BatchEnabled = false;
+            CombiEnabled = false;
+            MultiEnabled = false;
+            OPDBackground = _Red;
+            UDOpacity = 0.2f;
+            Console.WriteLine(CanStartConverterOrShowAdvancedSettings());
         }
 
-        public void ProgressBoxAdd(string content)
+        public void UDFunc()
         {
-
+            //_MainWindowVM.UDFunc();
+            Properties.Settings.Default.DoseType = MultiChecked ? "M" : "C";
+            Properties.Settings.Default.Save();
+            if (StatChecked)
+                _MainWindowVM.StatChecked = true;
+            else
+                _MainWindowVM.BatchEnabled = true;
+            OPDEnabled = false;
+            UDEnabled = false;
+            StopEnabled = true;
+            StatEnabled = false;
+            BatchEnabled = false;
+            CombiEnabled = false;
+            MultiEnabled = false;
+            UDBackground = _Red;
+            OPDOpacity = 0.2f;
         }
 
-        public void ChangeLayout()
+        public void StopFunc()
         {
+            //_MainWindowVM.StopFunc();
+            OPDEnabled = true;
+            UDEnabled = true;
+            StopEnabled = false;
+            StatEnabled = true;
+            BatchEnabled = true;
+            CombiEnabled = true;
+            MultiEnabled = true;
+            OPDBackground = _White;
+            UDBackground = _White;
+            OPDOpacity = 1;
+            UDOpacity = 1;
+        }
 
+        public void AddLog(string content)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"{Log}\n");
+            sb.Append($"{content}\n");
+            Log = sb.ToString();
+            sb = null;
+        }
+
+        private bool CanStartConverterOrShowAdvancedSettings()
+        {
+            return !StopEnabled;
         }
 
         private bool CanActivate()

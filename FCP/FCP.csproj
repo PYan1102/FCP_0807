@@ -51,6 +51,9 @@
     <ApplicationIcon>FCP.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Helper">
+      <HintPath>..\..\Helper\Helper\bin\Debug\Helper.dll</HintPath>
+    </Reference>
     <Reference Include="MaterialDesignColors, Version=1.2.6.1513, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialDesignColors.1.2.6\lib\net45\MaterialDesignColors.dll</HintPath>
     </Reference>
@@ -100,8 +103,6 @@
     <Compile Include="MVVM\FormatControl\FMT_OnCube.cs" />
     <Compile Include="MVVM\FormatInit\BASE_ChengYu.cs" />
     <Compile Include="MVVM\FormatInit\BASE_OnCube.cs" />
-    <Compile Include="MVVM\Helper\DateTimeHelper.cs" />
-    <Compile Include="MVVM\Helper\EncodingHelper.cs" />
     <Compile Include="MVVM\Factory\ConvertInfoactory.cs" />
     <Compile Include="MVVM\FormatInit\BASE_ChangGung.cs" />
     <Compile Include="MVVM\FormatInit\BASE_ChangGung_POWDER.cs" />
@@ -133,7 +134,6 @@
     <Compile Include="MVVM\FormatInit\BASE_JVServer.cs" />
     <Compile Include="MergeFiles.cs" />
     <Compile Include="ModelsFactory.cs" />
-    <Compile Include="MVVM\Helper\EnumHelper.cs" />
     <Compile Include="MVVM\Models\AdvancedSettingsModel.cs" />
     <Compile Include="MVVM\Models\ConvertFileInformationModel.cs" />
     <Compile Include="MVVM\Models\Enum\ConvertResult.cs" />
@@ -179,7 +179,6 @@
     </Compile>
     <Compile Include="OP_JVServer.cs" />
     <Compile Include="MVVM\FormatInit\BASE_KuangTien.cs" />
-    <Compile Include="MVVM\Helper\Log.cs" />
     <Compile Include="MVVM\FormatInit\BASE_MinSheng.cs" />
     <Compile Include="MsgB.xaml.cs">
       <DependentUpon>MsgB.xaml</DependentUpon>

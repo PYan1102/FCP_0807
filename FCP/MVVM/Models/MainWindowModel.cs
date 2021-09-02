@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using FCP.MVVM.Models.Enum;
@@ -64,5 +65,6 @@ namespace FCP.MVVM.Models
         public float UDOpacity { get; set; } = 1;
         public SolidColorBrush OPDBacground { get; set; } = new SolidColorBrush(Color.FromRgb(255, 255, 255));
         public SolidColorBrush UDBackground { get; set; } = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+        public string Log { get; set; }
     }
 }

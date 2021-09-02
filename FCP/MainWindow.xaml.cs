@@ -109,7 +109,7 @@ namespace FCP
                     switch (wParam.ToInt32())
                     {
                         case _ShowMainWindow_ID:
-                            _Format.NotifyIconDBClick(null, null);
+                            MainWindowFactory.GenerateMainWindowViewModel().NotifyIconDBClick(null, null);
                             handled = true;
                             break;
                     }
@@ -122,162 +122,15 @@ namespace FCP
         {
             InitializeComponent();
             MainWindowFactory.MainWindow = this;
+            SettingsFactory.GenerateSettingsControl();
             this.DataContext = MainWindowFactory.GenerateMainWindowViewModel();
             _SettingsModel = SettingsFactory.GenerateSettingsModel();
             SimpleWindowFactory.GenerateSimpleWindow();
         }
-
-        public void Btn_Stop_Click(object sender, RoutedEventArgs e)
-        {
-            _Format.Stop();
-        }
-
-        private void Btn_Save_Click(object sender, RoutedEventArgs e)
-        {
-            Btn_Save.Focus();
-            _Format.Save();
-        }
-
-        public void ChangeSize_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            _Format.ChangeWindow();
-        }
-
+        
         private void Btn_ProgressBoxClear_Click(object sender, RoutedEventArgs e)
         {
             _Format.ProgressBoxClear();
-        }
-
-        public void ClearObject()
-        {
-            _Format.CloseSelf();
-        }
-
-        private void Btn_Minimum_Click(object sender, RoutedEventArgs e)
-        {
-            _Format.AllWindowShowOrHide(false, false, false);
-        }  //縮小程式
-
-        private void Gd_Title_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            this.DragMove();
-        }  //拖曳視窗
-
-        private void Txtb_InputPath1_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if (Btn_Stop.IsEnabled == false)
-            {
-                Txt_InputPath1.Text = "";
-                _InputPath1 = "";
-            }
-        }
-
-        private void Txtb_InputPath2_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if (Btn_Stop.IsEnabled == false)
-            {
-                Txt_InputPath2.Text = "";
-                _InputPath2 = "";
-            }
-        }
-
-        private void Txtb_InputPath3_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if (Btn_Stop.IsEnabled == false)
-            {
-                Txt_InputPath3.Text = "";
-                _InputPath3 = "";
-            }
-
-        }
-
-        private void Txtb_OutputPath_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (Btn_Stop.IsEnabled == false)
-            {
-                Txt_OutputPath.Text = "";
-                _OutputPath = "";
-            }
-        }
-
-        private void InputPath1_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = Btn_InputPath1.IsEnabled;
-        }
-
-        private void InputPath1_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            Btn_InputPath1_Click(null, null);
-        }
-
-        private void Btn_InputPath1_Click(object sender, RoutedEventArgs e)
-        {
-            System.Windows.Forms.FolderBrowserDialog OFD = new System.Windows.Forms.FolderBrowserDialog();
-            if (OFD.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                Txt_InputPath1.Text = OFD.SelectedPath;
-                _InputPath1 = OFD.SelectedPath;
-            }
-        }
-
-        private void InputPath2_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = Btn_InputPath2.IsEnabled;
-        }
-
-        private void InputPath2_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            Btn_InputPath2_Click(null, null);
-        }
-
-        private void Btn_InputPath2_Click(object sender, RoutedEventArgs e)
-        {
-            System.Windows.Forms.FolderBrowserDialog OFD = new System.Windows.Forms.FolderBrowserDialog();
-            if (OFD.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                Txt_InputPath2.Text = OFD.SelectedPath;
-                _InputPath2 = OFD.SelectedPath;
-            }
-        }
-
-        private void InputPath3_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = Btn_InputPath3.IsEnabled;
-        }
-
-        private void InputPath3_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            Btn_InputPath3_Click(null, null);
-        }
-
-        private void Btn_InputPath3_Click(object sender, RoutedEventArgs e)
-        {
-            System.Windows.Forms.FolderBrowserDialog OFD = new System.Windows.Forms.FolderBrowserDialog();
-            if (OFD.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                Txt_InputPath3.Text = OFD.SelectedPath;
-                _InputPath3 = OFD.SelectedPath;
-            }
-        }
-
-        private void OutputPath_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = Btn_OutputPath.IsEnabled ? true : false;
-        }
-
-        private void OutputPath_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            Btn_OutputPath_Click(null, null);
-        }
-
-        private void Btn_OutputPath_Click(object sender, RoutedEventArgs e)
-        {
-            System.Windows.Forms.FolderBrowserDialog OFD = new System.Windows.Forms.FolderBrowserDialog();
-            if (OFD.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                Txt_OutputPath.Text = OFD.SelectedPath;
-                _OutputPath = OFD.SelectedPath;
-            }
         }
 
         private void ClearListBox_Executed(object sender, ExecutedRoutedEventArgs e)

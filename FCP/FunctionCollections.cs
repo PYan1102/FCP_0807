@@ -14,10 +14,10 @@ using FCP.MVVM.Models;
 using FCP.MVVM.Factory;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.ViewModels.GetConvertFile;
-using FCP.MVVM.Helper;
 using FCP.MVVM.ViewModels;
 using MaterialDesignThemes.Wpf;
 using FCP.MVVM.View;
+using Helper;
 
 namespace FCP
 {
@@ -39,8 +39,8 @@ namespace FCP
         public AdvancedSettings AS;
         List<string> IPList = new List<string>();
         public WindowsDo WD { get; set; }
-        private System.Windows.Forms.NotifyIcon _NotifyIcon = new System.Windows.Forms.NotifyIcon();
         private AdvancedSettingsViewModel _AdvancedSettingsVM { get; set; }
+        private System.Windows.Forms.NotifyIcon _NotifyIcon;
         private string SuccessPath { get; set; }
         private string FailPath { get; set; }
         private ConvertFileInformtaionModel _ConvertFileInformation { get; set; }
@@ -67,9 +67,9 @@ namespace FCP
             _SimpleWindowVM = SimpleWindowFactory.GenerateSimpleWindowViewModel();
         }
 
-        public void SetWindow(MainWindow mainWindow)
+        public void SetNotifyIcon(System.Windows.Forms.NotifyIcon icon)
         {
-            MainWindow = mainWindow;
+            _NotifyIcon = icon;
         }
 
         public virtual void InitFindFileMode(FindFileModeEnum mode)
@@ -87,19 +87,16 @@ namespace FCP
         {
             try
             {
-                WD = new WindowsDo() { MainWindow = MainWindow, AS = AS };
+                WD = new WindowsDo() { AS = AS };
                 CheckProgramStart();
                 CheckFileBackupPath();
-                CreateNotifyIcon();
-                RefreshUIPropertyServices.InitMainWindowUI();
-                RefreshUIPropertyServices.SwitchMainWindowControlState(true);
                 _CTS1 = new CancellationTokenSource();
                 WD.UI_Refresh(_CTS1);
             }
             catch (Exception ex)
             {
                 Log.Write($"{ex}");
-                MessageBox.Show($"{ex}");
+                _MsgBVM.Show(ex.ToString());
             }
         }
 
@@ -115,7 +112,7 @@ namespace FCP
         }
 
         //檢查備份資料夾是否存在
-        public  void CheckFileBackupPath()
+        public void CheckFileBackupPath()
         {
             string BackupPath = $@"{FileBackupPath}\{DateTime.Now:yyyy-MM-dd}";
             if (!Directory.Exists($@"{BackupPath}\Success")) Directory.CreateDirectory($@"{BackupPath}\Success");
@@ -124,34 +121,12 @@ namespace FCP
             FailPath = $@"{BackupPath}\Fail";
         }
 
-        public void AllWindowShowOrHide(bool b1, bool b2, bool b3)
-        {
-            WD.AllWindowShowOrHide(b1, b2, b3);
-        }
-
-        private void CreateNotifyIcon()
-        {
-            _NotifyIcon.Icon = Properties.Resources.FCP;
-            _NotifyIcon.Visible = true;
-            _NotifyIcon.Text = "轉檔";
-            _NotifyIcon.DoubleClick += NotifyIconDBClick;
-        }
-
-        public void NotifyIconDBClick(object sender, EventArgs e)
-        {
-            WD.NotifyIconDBClick();
-        }
-
-        public virtual void ShowAdvancedSettings()
-        {
-            WD.ShowAdvancedSettings();
-        }
-
         public virtual void Stop()
         {
-            if (_CTS != null) _CTS.Cancel();
-            RefreshUIPropertyServices.SwitchMainWindowControlState(true);
-            RefreshUIPropertyServices.RefreshUIForStop();
+            if (_CTS != null)
+            {
+                _CTS.Cancel();
+            }
             _CTS = null;
         }
 
@@ -159,22 +134,12 @@ namespace FCP
         {
             try
             {
-                Properties.Settings.Default.X = Convert.ToInt32(MainWindowVM.WindowX);
-                Properties.Settings.Default.Y = Convert.ToInt32(MainWindowVM.WindowY);
-                Properties.Settings.Default.Save();
-
-                _Settings.SaveMainWidow(MainWindowVM.InputPath1, MainWindowVM.InputPath2, MainWindowVM.InputPath3, MainWindowVM.OutputPath, MainWindowVM.IsAutoStartChecked, MainWindowVM.StatChecked ? "S" : "B");
-                AddNewMessageToProgressBox("儲存成功");
+                
             }
             catch (Exception ex)
             {
                 Log.Write($"{ex}");
             }
-        }
-
-        public void ChangeWindow()
-        {
-            WD.ChangeWindow();
         }
 
         public virtual void ConvertPrepare(bool isOPD)
@@ -191,7 +156,7 @@ namespace FCP
                 _MsgBVM.Show("輸出路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
                 return;
             }
-            RefreshUIPropertyServices.RefreshUIForStart(isOPD);
+            RefreshUIPropertyServices.SwitchUIStateForStart(isOPD);
             RefreshUIPropertyServices.SwitchMainWindowControlState(false);
             IPList.Clear();
             if (isOPD)
@@ -473,11 +438,11 @@ namespace FCP
         public virtual void SetConvertInformation()
         {
             CurrentSeconds = DateTime.Now.ToString("ss.ffff");
-           _ConvertFileInformation.SetInputPath(InputPath)
-                .SetOutputPath(OutputPath)
-                .SetFilePath(FilePath)
-                .SetDepartment(CurrentDepartment)
-                .SetCurrentSeconds(CurrentSeconds);
+            _ConvertFileInformation.SetInputPath(InputPath)
+                 .SetOutputPath(OutputPath)
+                 .SetFilePath(FilePath)
+                 .SetDepartment(CurrentDepartment)
+                 .SetCurrentSeconds(CurrentSeconds);
         }
 
         public void Result(ReturnsResultFormat returnsResult, bool isMoveFile, bool isReminder)
@@ -544,42 +509,10 @@ namespace FCP
             WD.ProgressBoxAdd($"{DateTime.Now:HH:mm:ss:fff} {Result}");
         }
 
-        public virtual async void AutoStart()
-        {
-            await Task.Delay(1000);
-            WD.AutoStart();
-        }
-
-        public void CMD(string Command)
-        {
-            Process p = new Process();
-            p.StartInfo.FileName = "CMD.exe";
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.RedirectStandardInput = true;
-            p.Start();
-            p.StandardInput.WriteLine(Command);
-            p.StandardInput.WriteLine("exit");
-            p.Close();
-        }
-
-        public string[] CMD(List<string> L)
-        {
-            Process p = new Process();
-            p.StartInfo.FileName = "CMD.exe";
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.RedirectStandardInput = true;
-            p.StartInfo.RedirectStandardOutput = true;
-            p.Start();
-            L.ForEach(x => p.StandardInput.WriteLine(x));
-            p.StandardInput.WriteLine("exit");
-            return p.StandardOutput.ReadToEnd().Split('\n');
-        }
-
         public virtual void CloseSelf()
         {
             Stop();
             _CTS1.Cancel();
-            _NotifyIcon.Dispose();
             WD = null;
         }
 
@@ -602,8 +535,8 @@ namespace FCP
             {
                 File.Move(s, $@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\{folderName}\{Path.GetFileNameWithoutExtension(s)}.{extension}");
             }
-            if (SimpleWindow.Visibility == Visibility.Visible)
-                SimpleWindow.Btn_StopConverter_Click(null, null);
+            if (_SimpleWindowVM.Visibility == Visibility.Visible)
+                _SimpleWindowVM.StopFunc();
             else
                 Stop();
         }
@@ -617,22 +550,7 @@ namespace FCP
         private MsgBViewModel _MsgBVM { get; set; }
         public AdvancedSettings AS { get; set; }
         private SimpleWindowViewModel _SimpleWindowVM { get; set; }
-        public string IP1 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = MainWindow.Txt_InputPath1.Text; })); return A; } }
-        public string IP2 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = MainWindow.Txt_InputPath2.Text; })); return A; } }
-        public string IP3 { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = MainWindow.Txt_InputPath3.Text; })); return A; } }
-        public string OP { get { string A = ""; Dispatcher.Invoke(new Action(() => { A = MainWindow.Txt_OutputPath.Text; })); return A; } }
-        public int X { get { int xPoint = 0; Dispatcher.Invoke(new Action(() => { xPoint = Convert.ToInt32(MainWindow.Txt_X.Text.Trim()); })); return xPoint; } }
-        public int Y { get { int yPoint = 0; Dispatcher.Invoke(new Action(() => { yPoint = Convert.ToInt32(MainWindow.Txt_Y.Text.Trim()); })); return yPoint; } }
-        public bool _AutoStart { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_AutoStart.IsChecked; })); return B; } }
-        public bool _IsStat { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Rdo_Stat.IsChecked; })); return B; } }  //true > Stat, false > Batch
-        public bool _OPD1 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD1.IsChecked; })); return B; } }
-        public bool _OPD2 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD2.IsChecked; })); return B; } }
-        public bool _OPD3 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD3.IsChecked; })); return B; } }
-        public bool _OPD4 { get { bool B = false; Dispatcher.Invoke(new Action(() => { B = (bool)MainWindow.Tgl_OPD4.IsChecked; })); return B; } }
         private MainWindowViewModel _MainWindowVM { get => MainWindowFactory.GenerateMainWindowViewModel(); }
-
-        SolidColorBrush Red = new SolidColorBrush((Color)Color.FromRgb(255, 82, 85));
-        SolidColorBrush White = new SolidColorBrush((Color)Color.FromRgb(255, 255, 255));
 
         public WindowsDo()
         {
@@ -642,37 +560,6 @@ namespace FCP
             _SimpleWindowVM = SimpleWindowFactory.GenerateSimpleWindowViewModel();
         }
 
-        public void ProcessAction()
-        {
-            try
-            {
-                string BackupPath = $@"{FunctionCollections.FileBackupPath}\{DateTime.Now:yyyy-MM-dd}";
-                MainWindow.Txtb_Success.Text = $"{Directory.GetFiles($@"{BackupPath}\Success").Length}";
-                MainWindow.Txtb_Fail.Text = $"{Directory.GetFiles($@"{BackupPath}\Fail").Length}";
-                MainWindow.Txt_InputPath1.Text = _SettingsModel.InputPath1;
-                MainWindow.Txt_InputPath2.Text = _SettingsModel.InputPath2;
-                MainWindow.Txt_InputPath3.Text = _SettingsModel.InputPath3;
-                MainWindow.Txt_OutputPath.Text = _SettingsModel.OutputPath;
-                MainWindow.Tgl_AutoStart.IsChecked = _SettingsModel.EN_AutoStart;
-                MainWindow.Txt_X.Text = Properties.Settings.Default.X.ToString();
-                MainWindow.Txt_Y.Text = Properties.Settings.Default.Y.ToString();
-                MainWindow.Btn_Stop.IsEnabled = false;
-                MainWindow.Tgl_OPD1.IsChecked = false;
-                MainWindow.Tgl_OPD2.IsChecked = false;
-                MainWindow.Tgl_OPD3.IsChecked = false;
-                MainWindow.Tgl_OPD4.IsChecked = false;
-                MainWindow.Rdo_Stat.IsChecked = false;
-                if (_SettingsModel.StatOrBatch == "S") MainWindow.Rdo_Stat.IsChecked = true; else MainWindow.Rdo_Batch.IsChecked = true;
-                if (_SettingsModel.EN_WindowMinimumWhenOpen)
-                    ChangeWindow();
-            }
-            catch (Exception a)
-            {
-                _MsgBVM.Show(a.ToString(), "錯誤", PackIconKind.Error, KindColors.Error);
-                Log.Write(a.ToString());
-            }
-        }  //佈署控鍵
-
         public async void UI_Refresh(CancellationTokenSource cts)
         {
             while (!cts.IsCancellationRequested)
@@ -680,7 +567,6 @@ namespace FCP
                 await Task.Delay(500);
                 try
                 {
-                    //string FileVersion = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion.ToString();  //版本
                     _SimpleWindowVM.SetWindowPosition(Properties.Settings.Default.X, Properties.Settings.Default.Y);
                     if (!_MainWindowVM.StopEnabled)
                     {
@@ -718,8 +604,8 @@ namespace FCP
                         RefreshUIPropertyServices.RefrehMainWindowUI(UI);
                         _MainWindowVM.DoseType = _SettingsModel.DoseType.ToString();
                     }
-                    _MainWindowVM.StatVisibility= _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
-                    _MainWindowVM.BatchVisibility= _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
+                    _MainWindowVM.StatVisibility = _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
+                    _MainWindowVM.BatchVisibility = _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
                     _MainWindowVM.MinimumAndCloseVisibility = _SettingsModel.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
                     _MainWindowVM.WindowXVisibility = _SettingsModel.EN_ShowXY ? Visibility.Visible : Visibility.Hidden;
                     _MainWindowVM.WindowYVisibility = _SettingsModel.EN_ShowXY ? Visibility.Visible : Visibility.Hidden;
@@ -730,26 +616,6 @@ namespace FCP
                     Log.Write(a.ToString());
                 }
             }
-        }
-
-        private void UI_LayoutSet(UILayout UI)
-        {
-            MainWindow.Txtb_Title.Text = UI.Title;
-            MainWindow.Txtb_InputPath1.Text = UI.IP1Title;
-            MainWindow.Txtb_InputPath2.Text = UI.IP2Title;
-            MainWindow.Txtb_InputPath3.Text = UI.IP3Title;
-            MainWindow.Txt_OPD1.Text = UI.OPDToogle1;
-            MainWindow.Txt_OPD2.Text = UI.OPDToogle2;
-            MainWindow.Txt_OPD3.Text = UI.OPDToogle3;
-            MainWindow.Txt_OPD4.Text = UI.OPDToogle4;
-            MainWindow.Btn_InputPath1.IsEnabled = UI.IP1Enabled;
-            MainWindow.Btn_InputPath2.IsEnabled = UI.IP2Enabled;
-            MainWindow.Btn_InputPath3.IsEnabled = UI.IP3Enabled;
-            MainWindow.Btn_UD.Visibility = UI.UDVisibility;
-            MainWindow.Tgl_OPD1.Visibility = UI.OPD1Visibility;
-            MainWindow.Tgl_OPD2.Visibility = UI.OPD2Visibility;
-            MainWindow.Tgl_OPD3.Visibility = UI.OPD3Visibility;
-            MainWindow.Tgl_OPD4.Visibility = UI.OPD4Visibility;
         }
 
         private void JVServerToOnCube(UILayout UI)
@@ -932,122 +798,10 @@ namespace FCP
             UI.OPD4Visibility = Visibility.Hidden;
         }
 
-        //視窗顯示控制
-        public void AllWindowShowOrHide(bool? b1, bool? b2, bool? b3)
-        {
-            if (b1 != null)
-                MainWindow.Visibility = (bool)b1 ? Visibility.Visible : Visibility.Hidden;
-            if (b2 != null)
-                _SimpleWindowVM.Visibility = (bool)b2 ? Visibility.Visible : Visibility.Hidden;
-            if (b3 != null)
-            {
-                //AS.Visibility = (bool)b3 ? Visibility.Visible : Visibility.Hidden;
-            }
-        }
-
-        //工具列圖示雙擊
-        public void NotifyIconDBClick()
-        {
-            if (!_SimpleWindowVM.Enabled)
-            {
-                _MainWindowVM.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                _SimpleWindowVM.Visibility = Visibility.Visible;
-            }
-        }
-
-        public void ChangeWindow()
-        {
-            if (!_SimpleWindowVM.Enabled)
-            {
-                ShowSimpleWindow();
-                RefreshUIPropertyServices.InitSimpleWindow();
-            }
-            else
-            {
-                _SimpleWindowVM.Topmost = false;
-                _SimpleWindowVM.Visibility = Visibility.Hidden;
-                MainWindow.Visibility = Visibility.Visible;
-                MainWindow.Activate();
-            }
-        }
-
-        private void ShowSimpleWindow()
-        {
-            _SimpleWindowVM.Visibility = Visibility.Visible;
-            _SimpleWindowVM.Topmost = true;
-            _MainWindowVM.OPDEnabled = false;
-        }
-        //MainWindow控建Enabled切換
-        public void SwitchControlEnabled(bool b)
-        {
-            Dispatcher.Invoke(new Action(() =>
-            {
-                MainWindow.Btn_InputPath1.IsEnabled = b;
-                MainWindow.Btn_InputPath2.IsEnabled = b;
-                MainWindow.Btn_InputPath3.IsEnabled = b;
-                MainWindow.Btn_OutputPath.IsEnabled = b;
-                MainWindow.Tgl_AutoStart.IsEnabled = b;
-                MainWindow.Rdo_Stat.IsEnabled = b;
-                MainWindow.Rdo_Batch.IsEnabled = b;
-                MainWindow.Btn_OPD.IsEnabled = b;
-                MainWindow.Btn_UD.IsEnabled = b;
-                MainWindow.Btn_Stop.IsEnabled = !b;
-                MainWindow.Btn_Save.IsEnabled = b;
-                MainWindow.Bod_X.IsEnabled = b;
-                MainWindow.Bod_Y.IsEnabled = b;
-                MainWindow.Tgl_OPD1.IsEnabled = b;
-                MainWindow.Tgl_OPD2.IsEnabled = b;
-                MainWindow.Tgl_OPD3.IsEnabled = b;
-                MainWindow.Tgl_OPD4.IsEnabled = b;
-            }));
-        }
-
-        //OPD或UD切換
-        public void SwitchConverterButtonColor(bool isOPD)
-        {
-            if (isOPD)
-            {
-                MainWindow.Btn_OPD.Background = Red;
-                MainWindow.Btn_UD.Opacity = 0.2;
-            }
-            else
-            {
-                MainWindow.Btn_UD.Background = Red;
-                MainWindow.Btn_OPD.Opacity = 0.2;
-            }
-        }
-
-        public void Stop_Control()
-        {
-            Dispatcher.Invoke(new Action(() =>
-            {
-                _SimpleWindowVM.Stop();
-            }));
-        }
-
-        public void ShowAdvancedSettings()
-        {
-            try
-            {
-                AS = AdvancedSettingsFactory.GenerateAdvancedSettings();
-                AS.SetMainWindow(MainWindow);
-                AS.Window_Loaded(null,null);
-                AS.ShowDialog();
-                AS = null;
-            }
-            catch (Exception ex)
-            {
-                _MsgBVM.Show(ex.ToString(), "錯誤", PackIconKind.Error, KindColors.Error);
-            }
-        }
-
         public void ProgressBoxClear()
         {
             MainWindow.Txt_ProgressBox.Clear();
-            _SimpleWindowVM.ProgressBoxClear();
+            
         }
 
         public void ProgressBoxAdd(string Result)
@@ -1056,7 +810,7 @@ namespace FCP
             {
                 MainWindow.Txt_ProgressBox.AppendText($"{Result}\n");
                 MainWindow.Txt_ProgressBox.ScrollToEnd();
-                _SimpleWindowVM.ProgressBoxAdd(Result);
+                _SimpleWindowVM.AddLog(Result);
             }));
         }
 
@@ -1068,12 +822,6 @@ namespace FCP
         public void FailCountAdd()
         {
             Dispatcher.InvokeAsync(new Action(() => { MainWindow.Txtb_Fail.Text = (Convert.ToInt32(MainWindow.Txtb_Fail.Text) + 1).ToString(); }));
-        }
-
-        public void AutoStart()
-        {
-            if (_SettingsModel.EN_AutoStart)
-                _MainWindowVM.OPDFunc();
         }
     }
 

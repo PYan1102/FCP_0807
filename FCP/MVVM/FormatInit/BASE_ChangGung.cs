@@ -18,16 +18,6 @@ namespace FCP.MVVM.FormatInit
             InitFindFileMode(FindFileModeEnum.根據檔名開頭);
         }
 
-        public override void ShowAdvancedSettings()
-        {
-            base.ShowAdvancedSettings();
-        }
-
-        public override void AutoStart()
-        {
-            base.AutoStart();
-        }
-
         public override void Save()
         {
             base.Save();
@@ -109,7 +99,7 @@ namespace FCP.MVVM.FormatInit
             {
                 base.FilePath = MergeFilesAndGetNewFilePath(Path.GetDirectoryName(base.FilePath), "藥來速", 0, 1, "0");
             }
-            else if (!WD._IsStat && CurrentDepartment == DepartmentEnum.UDBatch)
+            else if (!MainWindowVM.StatChecked && CurrentDepartment == DepartmentEnum.UDBatch)
             {
                 base.FilePath = MergeFilesAndGetNewFilePath(Path.GetDirectoryName(base.FilePath), "住院批次", 0, 5, "udpkg");
             }

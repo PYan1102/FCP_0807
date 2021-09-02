@@ -14,17 +14,6 @@ namespace FCP.MVVM.FormatInit
             MainWindow.Tgl_OPD1.IsChecked = true;
             InitFindFileMode(FindFileModeEnum.根據檔名開頭);
         }
-
-        public override void ShowAdvancedSettings()
-        {
-            base.ShowAdvancedSettings();
-        }
-
-        public override void AutoStart()
-        {
-            base.AutoStart();
-        }
-
         public override void Save()
         {
             base.Save();

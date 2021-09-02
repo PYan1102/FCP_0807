@@ -6,7 +6,7 @@ using System.IO;
 using System.Data;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.Models;
-using FCP.MVVM.Helper;
+using Helper;
 
 namespace FCP.MVVM.FormatControl
 {

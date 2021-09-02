@@ -6,9 +6,9 @@ namespace FCP.MVVM.Models
 {
     class SimpleWindowModel
     {
-        public Visibility Visibility { get; set; } = Visibility.Hidden;
+        public Visibility Visibility { get; set; } = Visibility.Visible;
         public bool Topmost { get; set; }
-        public bool Enabled { get; set; } = true;
+        public bool Enabled { get; set; } = false;
         public int Top { get; set; }
         public int Left { get; set; }
         public bool MultiChecked { get; set; }
@@ -17,24 +17,26 @@ namespace FCP.MVVM.Models
         public bool CombiEnabled { get; set; }
         public Visibility MultiVisibility { get; set; }
         public Visibility CombiVisibility { get; set; }
-        public string OPD { get; set; }
-        public SolidColorBrush OPDBackground { get; set; }
-        public bool OPDEnalbed { get; set; }
-        public float OPDOpacity { get; set; }
-        public string UD { get; set; }
-        public SolidColorBrush UDBackground { get; set; }
-        public bool UDEnalbed { get; set; }
-        public float UDOpacity { get; set; }
-        public Visibility UDVisibility { get; set; }
-        public SolidColorBrush StopBackground { get; set; }
-        public bool StopEnalbed { get; set; }
-        public float StopOpacity { get; set; }
+        public string OPDContent { get; set; } = "開始轉檔F5";
+        public SolidColorBrush OPDBackground { get; set; } = new SolidColorBrush(Colors.White);
+        public bool OPDEnabled { get; set; } = true;
+        public float OPDOpacity { get; set; } = 1;
+        public SolidColorBrush UDBackground { get; set; } = new SolidColorBrush(Colors.White);
+        public bool UDEnabled { get; set; }
+        public float UDOpacity { get; set; } = 1;
+        public Visibility UDVisibility { get; set; } = Visibility.Hidden;
+        public SolidColorBrush StopBackground { get; set; } = new SolidColorBrush(Colors.White);
+        public bool StopEnabled { get; set; }
+        public float StopOpacity { get; set; } = 0.2f;
         public Visibility StatVisibility { get; set; }
-        public bool StatChecked { get; set; }
+        public bool StatChecked { get; set; } = true;
+        public bool StatEnabled { get; set; } = true;
         public Visibility BatchVisibility { get; set; }
-        public bool BatchChecked { get; set; }
+        public bool BatchChecked { get; set; } = false;
+        public bool BatchEnabled { get; set; } = true;
         public string Log { get; set; }
         public Visibility CloseVisibility { get; set; }
         public Visibility MinimumVisibility { get; set; }
+        public Visibility LogVisibility { get; set; } = Visibility.Hidden;
     }
 }

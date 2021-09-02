@@ -51,20 +51,11 @@
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Gesture="Ctrl+G" Command="{Binding SwitchWindow}"/>
-        <KeyBinding Gesture="F5" Command="{StaticResource StartConverter}"/>
-        <KeyBinding Gesture="F6" Command="{StaticResource UDConverter}"/>
-        <KeyBinding Gesture="F7" Command="{StaticResource StopConverter}"/>
-        <KeyBinding Gesture="Escape" Command="{StaticResource Exit}"/>
-
+        <KeyBinding Gesture="F5" Command="{Binding OPD}"/>
+        <KeyBinding Gesture="F6" Command="{Binding UD}"/>
+        <KeyBinding Gesture="F7" Command="{Binding Stop}"/>
+        <KeyBinding Gesture="Escape" Command="{Binding Close}"/>
     </Window.InputBindings>
-    <Window.CommandBindings>
-        <CommandBinding Command="{StaticResource SwitchWindow}"/>
-        <CommandBinding Command="{StaticResource StartConverter}" CanExecute="StartConverter_CanExecute" Executed="StartConverter_Executed"/>
-        <CommandBinding Command="{StaticResource UDConverter}" CanExecute="UDConverter_CanExecute" Executed="UDConverter_Executed"/>
-        <CommandBinding Command="{StaticResource StopConverter}" Executed="StopConverter_Executed"/>
-        <CommandBinding Command="{StaticResource Exit}" Executed="Exit_Executed"/>
-
-    </Window.CommandBindings>
     <Border>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -96,8 +87,7 @@
                         <ColumnDefinition Width="35"/>
                         <ColumnDefinition Width="10"/>
                     </Grid.ColumnDefinitions>
-                    <RadioButton x:Name="Rdo_Multi"
-                                 FontSize="18"
+                    <RadioButton FontSize="18"
                                  Background="White"
                                  Foreground="White"
                                  IsChecked="True"
@@ -105,30 +95,30 @@
                                  Margin="5 0 0 0"
                                  GroupName="DoseType"
                                  Visibility="Hidden"/>
-                    <RadioButton x:Name="Rdo_Combi"
-                                 FontSize="18"
+                    <RadioButton FontSize="18"
                                  Background="White"
                                  Foreground="White"
                                  Content="總包"
                                  Margin="70 0 0 0"
                                  GroupName="DoseType"
                                  Visibility="Hidden"/>
-                    <Button x:Name="Btn_Minimum" Grid.Column="1"
+                    <Button Grid.Column="1"
                             Background="Transparent"
                             BorderBrush="Transparent"
                             Foreground="White"
-                            Click="Btn_Minimum_Click">
+                            Visibility="{Binding MinimumVisibility}"
+                            Command="{Binding MinimumWindow}">
                         <materialDesign:PackIcon Kind="Minus"
                                                  Height="30"
                                                  Width="30"
                                                  Margin="-12 -5 -10 0"/>
                     </Button>
-                    <Button x:Name="Btn_Close"
-                            Grid.Column="3"
+                    <Button Grid.Column="3"
                             Background="Transparent"
                             BorderBrush="Transparent"
                             Foreground="White"
-                            Click="Btn_Close_Click">
+                            Visibility="{Binding CloseVisibility}"
+                            Command="{Binding Close}">
                         <materialDesign:PackIcon Kind="Close"
                                                  Height="30"
                                                  Width="30"
@@ -145,15 +135,16 @@
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <Button x:Name="Btn_StartConverter"
-                                FontSize="16"
+                        <Button FontSize="16"
                                 Foreground="{StaticResource DeepBlue}"
                                 Height="Auto"
                                 materialDesign:ButtonAssist.CornerRadius="5"
                                 Background="White"
                                 BorderBrush="Transparent"
                                 Margin="5"
-                                Click="Btn_StartConverter_Click"
+                                IsEnabled="{Binding OPDEnabled}"
+                                Opacity="{Binding OPDOpacity}"
+                                Command="{Binding OPD}"
                                 Style="{StaticResource ControlButton}">
                             <Grid Width="150"
                                   HorizontalAlignment="Center">
@@ -163,29 +154,29 @@
                                 <TextBlock x:Name="Txtb_StartConverter"
                                            FontSize="18"
                                            Foreground="{StaticResource DeepBlue}"
-                                           Text="開始轉檔F5"
+                                           Text="{Binding OPDContent}"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
                                            Margin="0 2 0 0"/>
                             </Grid>
                         </Button>
-                        <Button x:Name="Btn_StopConverter"
-                                Grid.Column="1"
+                        <Button Grid.Column="1"
                                 FontSize="16"
                                 Foreground="{StaticResource DeepBlue}"
                                 Height="Auto"
                                 materialDesign:ButtonAssist.CornerRadius="5"
-                                Background="White"
+                                Background="{Binding StopBackground}"
                                 BorderBrush="Transparent"
                                 Margin="5"
-                                Click=" Btn_StopConverter_Click">
+                                Opacity="{Binding StopOpacity}"
+                                IsEnabled="{Binding StopEnabled}"
+                                Command="{Binding Stop}">
                             <Grid Width="150"
                                   HorizontalAlignment="Center">
                                 <materialDesign:PackIcon Kind="Stop"
                                                          Height="35"
                                                          Width="35"/>
-                                <TextBlock x:Name="txtb_StopConverter"
-                                           FontSize="18"
+                                <TextBlock FontSize="18"
                                            Foreground="{StaticResource DeepBlue}"
                                            Text="停止轉檔F7"
                                            HorizontalAlignment="Center"
@@ -193,17 +184,18 @@
                                            Margin="0 2 0 0"/>
                             </Grid>
                         </Button>
-                        <Button x:Name="Btn_UD"
-                                Grid.Row="1"
+                        <Button Grid.Row="1"
                                 FontSize="16"
                                 Foreground="{StaticResource DeepBlue}"
                                 Height="Auto"
                                 materialDesign:ButtonAssist.CornerRadius="5"
-                                Background="White"
+                                Background="{Binding UDBackground}"
                                 BorderBrush="Transparent"
                                 Margin="5"
-                                Click="Btn_UD_Click"
-                                Visibility="Hidden"
+                                Opacity="{Binding UDOpacity}"
+                                IsEnabled="{Binding UDEnabled}"
+                                Command="{Binding UD}"
+                                Visibility="{Binding UDVisibility}"
                                 Style="{StaticResource ControlButton}">
                             <Grid Width="150"
                                   HorizontalAlignment="Center">
@@ -220,8 +212,7 @@
                                            Margin="0 2 0 0"/>
                             </Grid>
                         </Button>
-                        <Border x:Name="Bod_OnTime"
-                                Grid.Row="1"
+                        <Border Grid.Row="1"
                                 Grid.Column="1"
                                 CornerRadius="8 8 8 8"
                                 Background="White"
@@ -229,17 +220,17 @@
                                 Height="43"
                                 HorizontalAlignment="Left"
                                 Margin="5 0 0 0"
-                                Visibility="Hidden">
+                                Visibility="{Binding StatVisibility}"
+                                IsEnabled="{Binding StatEnabled}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="0.5*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <RadioButton x:Name="Rdo_OnTime"
-                                             Background="{StaticResource DeepBlue}"
+                                <RadioButton Background="{StaticResource DeepBlue}"
                                              HorizontalAlignment="Center"
                                              GroupName="UDFormat"
-                                             IsChecked="True"/>
+                                             IsChecked="{Binding StatChecked}"/>
                                 <Border Grid.Column="1"
                                         CornerRadius="0 6 6 0"
                                         Background="{StaticResource DeepBlue}"
@@ -253,8 +244,7 @@
                                 </Border>
                             </Grid>
                         </Border>
-                        <Border x:Name="Bod_Batch"
-                                Grid.Row="1"
+                        <Border Grid.Row="1"
                                 Grid.Column="1"
                                 CornerRadius="8 8 8 8"
                                 Background="White"
@@ -262,16 +252,17 @@
                                 Height="43"
                                 HorizontalAlignment="Left"
                                 Margin="90 0 0 0"
-                                Visibility="Hidden">
+                                Visibility="{Binding BatchVisibility}"
+                                IsEnabled="{Binding BatchEnabled}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="0.5*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <RadioButton x:Name="Rdo_Batch"
-                                             Background="{StaticResource DeepBlue}"
+                                <RadioButton Background="{StaticResource DeepBlue}"
                                              HorizontalAlignment="Center"
-                                             GroupName="UDFormat"/>
+                                             GroupName="UDFormat"
+                                             IsChecked="{Binding BatchChecked}"/>
                                 <Border Grid.Column="1"
                                         CornerRadius="0 6 6 0"
                                         Background="{StaticResource DeepBlue}"
@@ -287,8 +278,7 @@
                         </Border>
                     </Grid>
                 </Border>
-                <Button x:Name="Btn_Open"
-                        Grid.Row="1"
+                <Button Grid.Row="1"
                         Grid.Column="1"
                         Width="10"
                         Height="50"
@@ -296,15 +286,14 @@
                         VerticalAlignment="Center"
                         Background="White"
                         BorderBrush="Transparent"
-                        Click="Btn_Open_Click">
+                        Command="{Binding ShowAndCloseLog}">
                     <materialDesign:PackIcon Kind="Play"
                                              Margin="-16 0 0 0"
                                              Width="10"
                                              Height="10"
                                              Foreground="{StaticResource DeepBlue}"/>
                 </Button>
-                <Button x:Name="Btn_Clear"
-                        Grid.Row="1"
+                <Button Grid.Row="1"
                         Grid.Column="1"
                         Width="10"
                         Height="10"
@@ -313,7 +302,7 @@
                         Background="White"
                         BorderBrush="Transparent"
                         Margin="0 0 0 10"
-                        Click="Btn_Clear_Click">
+                        Command="{Binding ClearLog}">
                     <materialDesign:PackIcon Kind="Eraser"
                                              Margin="-16 -4 0 -3"
                                              Width="10"
@@ -321,15 +310,16 @@
                                              Foreground="{StaticResource DeepBlue}"/>
                 </Button>
             </Grid>
-            <TextBox x:Name="Txt_ProgressBox"
-                     FontSize="12"
+            <TextBox FontSize="12"
                      IsReadOnly="True"
                      Grid.Column="1"
                      Background="White"
                      Foreground="{StaticResource DeepBlue}"
                      TextWrapping="Wrap"
+                     Text="{Binding Log}"
                      ScrollViewer.VerticalScrollBarVisibility="Auto"
-                     Visibility="Hidden"/>
+                     Visibility="{Binding LogVisibility}">
+            </TextBox>
         </Grid>
     </Border>
 </Window>

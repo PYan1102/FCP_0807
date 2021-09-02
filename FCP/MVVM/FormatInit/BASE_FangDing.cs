@@ -14,16 +14,6 @@ namespace FCP.MVVM.FormatInit
             MainWindow.Tgl_OPD1.IsChecked = true;
         }
 
-        public override void ShowAdvancedSettings()
-        {
-            base.ShowAdvancedSettings();
-        }
-
-        public override void AutoStart()
-        {
-            base.AutoStart();
-        }
-
         public override void Save()
         {
             base.Save();

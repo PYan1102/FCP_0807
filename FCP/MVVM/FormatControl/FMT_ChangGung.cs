@@ -8,7 +8,7 @@ using System.Globalization;
 using FCP.MVVM.Models;
 using FCP.MVVM.Models.Enum;
 using FCP.MVVM.Factory;
-using FCP.MVVM.Helper;
+using Helper;
 
 namespace FCP.MVVM.FormatControl
 {

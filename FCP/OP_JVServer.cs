@@ -8,7 +8,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Collections.ObjectModel;
-using FCP.MVVM.Helper;
+using Helper;
 using FCP.MVVM.FormatControl;
 
 namespace FCP

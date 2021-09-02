@@ -10,7 +10,6 @@ using FCP.MVVM.Factory;
 using FCP.MVVM.Models;
 using FCP.MVVM.Control;
 using FCP.MVVM.Models.Enum;
-using FCP.MVVM.Helper;
 using FCP.MVVM.ViewModels;
 using FCP.MVVM.Factory.ViewModel;
 using MaterialDesignThemes.Wpf;

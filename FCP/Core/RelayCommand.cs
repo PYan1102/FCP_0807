@@ -50,6 +50,10 @@ namespace FCP.Core
 
         public bool CanExecute(object parameter)
         {
+            if (_CanExecute != null)
+            {
+                Console.WriteLine(_CanExecute.Method);
+            }
             return _CanExecute == null || _CanExecute();
         }
 

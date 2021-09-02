@@ -77,6 +77,19 @@ namespace FCP.MVVM.ViewModels
             window.ShowDialog();
             window.Close();
         }
+
+        public void Show(string content)
+        {
+            Content = content;
+            Title = string.Empty;
+            Kind = PackIconKind.Information;
+            KindColor = KindColors.Information;
+            var window = MsgBFactory.GenerateMsgB();
+            OKButtonFocus = true;
+            MessageBeep(1);
+            window.ShowDialog();
+            window.Close();
+        }
     }
 
     static class KindColors
