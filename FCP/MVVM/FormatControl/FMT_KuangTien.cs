@@ -69,7 +69,6 @@ namespace FCP.MVVM.FormatControl
                     {
                         if (Convert.ToInt32(ecd.GetString(ATemp, 82, 8).Trim()) % GetID1(ecd.GetString(ATemp, 2, 10).Trim()) == 0)  //總量可以被ID1整除
                         {
-                            Console.WriteLine("整除");
                             continue;
                         }
                     }

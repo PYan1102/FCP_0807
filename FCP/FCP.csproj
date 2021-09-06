@@ -149,7 +149,6 @@
     <Compile Include="MVVM\Models\SettingsPage1Model.cs" />
     <Compile Include="MVVM\Models\SettingsPage2Model.cs" />
     <Compile Include="MVVM\Models\SimpleWindowModel.cs" />
-    <Compile Include="MVVM\Models\SmallFormModel.cs" />
     <Compile Include="MVVM\Factory\SettingsFactory.cs" />
     <Compile Include="MVVM\SQL\SQLQuery.cs" />
     <Compile Include="MVVM\ViewModels\AdvancedSettingsViewModel.cs" />
@@ -169,7 +168,6 @@
     <Compile Include="MVVM\ViewModels\ReturnsResult.cs" />
     <Compile Include="MVVM\ViewModels\SettingsPage2ViewModel.cs" />
     <Compile Include="MVVM\ViewModels\SimpleWindowViewModel.cs" />
-    <Compile Include="MVVM\ViewModels\SmallFormViewModel.cs" />
     <Compile Include="Core\ViewModelBase.cs" />
     <Compile Include="MVVM\View\SettingsPage1View.xaml.cs">
       <DependentUpon>SettingsPage1View.xaml</DependentUpon>

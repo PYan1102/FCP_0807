@@ -6,7 +6,7 @@ namespace FCP.MVVM.Models
 {
     class SimpleWindowModel
     {
-        public Visibility Visibility { get; set; } = Visibility.Visible;
+        public Visibility Visibility { get; set; } = Visibility.Hidden;
         public bool Topmost { get; set; }
         public bool Enabled { get; set; } = false;
         public int Top { get; set; }
@@ -27,7 +27,7 @@ namespace FCP.MVVM.Models
         public Visibility UDVisibility { get; set; } = Visibility.Hidden;
         public SolidColorBrush StopBackground { get; set; } = new SolidColorBrush(Colors.White);
         public bool StopEnabled { get; set; }
-        public float StopOpacity { get; set; } = 0.2f;
+        public float StopOpacity { get; set; } = 0.5f;
         public Visibility StatVisibility { get; set; }
         public bool StatChecked { get; set; } = true;
         public bool StatEnabled { get; set; } = true;

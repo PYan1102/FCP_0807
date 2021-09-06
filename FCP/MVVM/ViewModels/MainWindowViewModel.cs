@@ -16,12 +16,17 @@ using FCP.MVVM.View;
 using System.Windows.Forms;
 using FCP.MVVM.Control;
 using Helper;
+using System.Diagnostics;
+using System.IO;
 
 namespace FCP.MVVM.ViewModels
 {
     class MainWindowViewModel : ViewModelBase
     {
         public bool IsOPD { get; set; }
+        public string SuccessPath { get; set; }
+        public string FailPath { get; set; }
+        public readonly string FileBackupPath = @"D:\Converter_Backup";
         public ICommand ShowAdvancedSettings { get; set; }
         public ICommand OPD { get; set; }
         public ICommand UD { get; set; }
@@ -37,12 +42,12 @@ namespace FCP.MVVM.ViewModels
         public ICommand SelectFolder { get; set; }
         public ICommand ClearPath { get; set; }
         public ICommand ClearLog { get; set; }
-        private MainWindowModel _Model;
         private FunctionCollections _Format { get; set; }
         private SettingsModel _SettingsModel { get; set; }
         private Settings _Settings { get; set; }
         private MsgBViewModel _MsgBVM { get; set; }
         private NotifyIcon _NotifyIcon;
+        private MainWindowModel _Model;
 
         public MainWindowViewModel()
         {
@@ -57,7 +62,7 @@ namespace FCP.MVVM.ViewModels
             Closing = new RelayCommand(() => Disconnect小港醫院NetDiskFunc());
             OPD = new RelayCommand(OPDFunc, CanStartConverterOrShowAdvancedSettings);
             UD = new RelayCommand(UDFunc, CanStartConverterOrShowAdvancedSettings);
-            Stop = new RelayCommand(StopFunc, CanStartConverterOrShowAdvancedSettings);
+            Stop = new RelayCommand(StopFunc);
             Save = new RelayCommand(SaveFunc, CanStartConverterOrShowAdvancedSettings);
             SwitchWindow = new RelayCommand(SwitchWindowFunc, CanStartConverterOrShowAdvancedSettings);
             Activate = new ObjectRelayCommand(o => ActivateFunc((Window)o), o => CanActivate());
@@ -437,9 +442,14 @@ namespace FCP.MVVM.ViewModels
             Properties.Settings.Default.Save();
 
             _Settings.SaveMainWidow(InputPath1, InputPath2, InputPath3, OutputPath, IsAutoStartChecked, StatChecked ? "S" : "B");
+            AddLog("儲存成功");
+        }
+
+        public void AddLog(string message)
+        {
             StringBuilder sb = new StringBuilder();
             sb.Append(Log);
-            sb.Append("儲存成功\n");
+            sb.Append($"{message}\n");
             Log = sb.ToString();
             sb = null;
         }
@@ -460,10 +470,33 @@ namespace FCP.MVVM.ViewModels
         private void LoadedFunc()
         {
             Helper.Log.SetOutputPath(@"D:\FCP\Log");
+            CheckProgramStart();
+            CheckFileBackupPath();
             RefreshUIPropertyServices.InitMainWindowUI();
             RefreshUIPropertyServices.SwitchMainWindowControlState(true);
-            JudgeCurrentFormatAsync();
             CreateNotifyIcon();
+            JudgeCurrentFormatAsync();
+        }
+
+        //檢查程式是否已開啟
+        private void CheckProgramStart()
+        {
+            if (Process.GetProcessesByName("FCP").Length >= 2)
+            {
+                _MsgBVM.Show("程式已開啟，請確認工具列", "重複開啟", PackIconKind.Error, KindColors.Error);
+                Helper.Log.Write("程式已開啟，請確認工具列");
+                Environment.Exit(0);
+            }
+        }
+
+        //檢查備份資料夾是否存在
+        private void CheckFileBackupPath()
+        {
+            string BackupPath = $@"{FileBackupPath}\{DateTime.Now:yyyy-MM-dd}";
+            if (!Directory.Exists($@"{BackupPath}\Success")) Directory.CreateDirectory($@"{BackupPath}\Success");
+            if (!Directory.Exists($@"{BackupPath}\Fail")) Directory.CreateDirectory($@"{BackupPath}\Fail");
+            SuccessPath = $@"{BackupPath}\Success";
+            FailPath = $@"{BackupPath}\Fail";
         }
 
         private async void JudgeCurrentFormatAsync()

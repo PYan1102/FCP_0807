@@ -57,7 +57,6 @@ namespace FCP.MVVM.Control
             switch (department)
             {
                 case DepartmentEnum.OPD:
-                    Console.WriteLine(int.Parse(_Json.門診.Split('^')[index].Split('|')[1]));
                     return int.Parse(_Json.門診.Split('^')[index].Split('|')[1]);
                 case DepartmentEnum.Care:
                     return int.Parse(_Json.養護.Split('^')[index].Split('|')[1]);

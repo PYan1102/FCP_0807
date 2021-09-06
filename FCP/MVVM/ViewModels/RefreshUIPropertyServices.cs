@@ -25,7 +25,7 @@ namespace FCP.MVVM.ViewModels
 
         public static void InitMainWindowUI()
         {
-            string BackupPath = $@"{FunctionCollections.FileBackupPath}\{DateTime.Now:yyyy-MM-dd}";
+            string BackupPath = $@"{_MainWindowVM.FileBackupPath}\{DateTime.Now:yyyy-MM-dd}";
             _MainWindowVM.SuccessCount = $"{Directory.GetFiles($@"{BackupPath}\Success").Length}";
             _MainWindowVM.FailCount = $"{Directory.GetFiles($@"{BackupPath}\Fail").Length}";
             _MainWindowVM.InputPath1 = _SettingsModel.InputPath1;
@@ -89,12 +89,19 @@ namespace FCP.MVVM.ViewModels
         {
             if (isOPD)
             {
-                _MainWindowVM.OPDBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("FF5255"));
-                _MainWindowVM.UDOpacity = 0.2F;
+                try
+                {
+                    _MainWindowVM.OPDBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF5255"));
+                    _MainWindowVM.UDOpacity = 0.2F;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
             }
             else
             {
-                _MainWindowVM.UDBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("FF5255"));
+                _MainWindowVM.UDBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF5255"));
                 _MainWindowVM.OPDOpacity = 0.2F;
             }
         }
@@ -147,6 +154,9 @@ namespace FCP.MVVM.ViewModels
             _SimpleWindowVM.MinimumVisibility = _SettingsModel.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
             _SimpleWindowVM.StatChecked = _SettingsModel.StatOrBatch == "S";
             _SimpleWindowVM.StopEnabled = false;
+            _SimpleWindowVM.Left = Properties.Settings.Default.X;
+            _SimpleWindowVM.Top = Properties.Settings.Default.Y;
+
         }
     }
 }

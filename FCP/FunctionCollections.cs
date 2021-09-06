@@ -32,7 +32,6 @@ namespace FCP
         public string CurrentSeconds { get; set; }
         public FindFile FindFile { get; set; }
         public MainWindow MainWindow { get; set; }
-        public readonly static string FileBackupPath = @"D:\Converter_Backup";
         public SettingsModel SettingsModel { get; set; }
         private Settings _Settings { get; set; }
         public SimpleWindowView SimpleWindow { get; set; }
@@ -41,8 +40,6 @@ namespace FCP
         public WindowsDo WD { get; set; }
         private AdvancedSettingsViewModel _AdvancedSettingsVM { get; set; }
         private System.Windows.Forms.NotifyIcon _NotifyIcon;
-        private string SuccessPath { get; set; }
-        private string FailPath { get; set; }
         private ConvertFileInformtaionModel _ConvertFileInformation { get; set; }
         protected internal DepartmentEnum CurrentDepartment { get; set; }
         private string _OPD { get; set; } = string.Empty;
@@ -114,11 +111,11 @@ namespace FCP
         //檢查備份資料夾是否存在
         public void CheckFileBackupPath()
         {
-            string BackupPath = $@"{FileBackupPath}\{DateTime.Now:yyyy-MM-dd}";
+            string BackupPath = $@"{MainWindowVM.FileBackupPath}\{DateTime.Now:yyyy-MM-dd}";
             if (!Directory.Exists($@"{BackupPath}\Success")) Directory.CreateDirectory($@"{BackupPath}\Success");
             if (!Directory.Exists($@"{BackupPath}\Fail")) Directory.CreateDirectory($@"{BackupPath}\Fail");
-            SuccessPath = $@"{BackupPath}\Success";
-            FailPath = $@"{BackupPath}\Fail";
+            MainWindowVM.SuccessPath = $@"{BackupPath}\Success";
+            MainWindowVM.FailPath = $@"{BackupPath}\Fail";
         }
 
         public virtual void Stop()
@@ -127,7 +124,6 @@ namespace FCP
             {
                 _CTS.Cancel();
             }
-            _CTS = null;
         }
 
         public virtual void Save()
@@ -456,7 +452,7 @@ namespace FCP
                 case ConvertResult.成功:
                     if (isMoveFile)
                     {
-                        File.Move(FilePath, $@"{SuccessPath}\{fileName}.ok");
+                        File.Move(FilePath, $@"{MainWindowVM.SuccessPath}\{fileName}.ok");
                         WD.SuccessCountAdd();
                     }
                     tip = $"{fileNameWithoutExtension} {nameof(ConvertResult.成功)}";
@@ -466,7 +462,7 @@ namespace FCP
                 case ConvertResult.全數過濾:
                     if (isMoveFile)
                     {
-                        File.Move(FilePath, $@"{SuccessPath}\{fileName}.ok");
+                        File.Move(FilePath, $@"{MainWindowVM.SuccessPath}\{fileName}.ok");
                         WD.SuccessCountAdd();
                     }
                     if (isReminder)
@@ -489,7 +485,7 @@ namespace FCP
                 default:
                     if (isMoveFile)
                     {
-                        File.Move(FilePath, $@"{FailPath}\{fileName}.fail");
+                        File.Move(FilePath, $@"{MainWindowVM.FailPath}\{fileName}.fail");
                         WD.FailCountAdd();
                     }
                     AddNewMessageToProgressBox($"{returnsResult.Result} {message}");
@@ -804,24 +800,24 @@ namespace FCP
             
         }
 
-        public void ProgressBoxAdd(string Result)
+        public void ProgressBoxAdd(string result)
         {
             Dispatcher.Invoke(new Action(() =>
             {
-                MainWindow.Txt_ProgressBox.AppendText($"{Result}\n");
-                MainWindow.Txt_ProgressBox.ScrollToEnd();
-                _SimpleWindowVM.AddLog(Result);
+                _MainWindowVM.AddLog(result);
+                //MainWindow.Txt_ProgressBox.ScrollToEnd();
+                _SimpleWindowVM.AddLog(result);
             }));
         }
 
         public void SuccessCountAdd()
         {
-            Dispatcher.InvokeAsync(new Action(() => { MainWindow.Txtb_Success.Text = (Convert.ToInt32(MainWindow.Txtb_Success.Text) + 1).ToString(); }));
+            Dispatcher.InvokeAsync(new Action(() => { _MainWindowVM.SuccessCount = (Convert.ToInt32(_MainWindowVM.SuccessCount) + 1).ToString(); }));
         }
 
         public void FailCountAdd()
         {
-            Dispatcher.InvokeAsync(new Action(() => { MainWindow.Txtb_Fail.Text = (Convert.ToInt32(MainWindow.Txtb_Fail.Text) + 1).ToString(); }));
+            Dispatcher.InvokeAsync(new Action(() => { _MainWindowVM.FailCount = (Convert.ToInt32(_MainWindowVM.FailCount) + 1).ToString(); }));
         }
     }
 

@@ -43,7 +43,7 @@ namespace FCP.MVVM.ViewModels
             ClearLog = new RelayCommand(() => Log = string.Empty);
             OPD = new RelayCommand(OPDFunc, CanStartConverterOrShowAdvancedSettings);
             UD = new RelayCommand(UDFunc, CanStartConverterOrShowAdvancedSettings);
-            Stop = new RelayCommand(StopFunc, CanStartConverterOrShowAdvancedSettings);
+            Stop = new RelayCommand(StopFunc);
             MinimumWindow = new RelayCommand(() => Visibility = Visibility.Hidden);
             Close = new RelayCommand(() => Environment.Exit(0));
         }
@@ -271,18 +271,17 @@ namespace FCP.MVVM.ViewModels
 
         public void OPDFunc()
         {
-            //_MainWindowVM.OPDFunc();
-            Console.WriteLine(CanStartConverterOrShowAdvancedSettings());
+            _MainWindowVM.OPDFunc();
             OPDEnabled = false;
             UDEnabled = false;
             StopEnabled = true;
             StatEnabled = false;
             BatchEnabled = false;
-            CombiEnabled = false;
             MultiEnabled = false;
+            CombiEnabled = false;
             OPDBackground = _Red;
             UDOpacity = 0.2f;
-            Console.WriteLine(CanStartConverterOrShowAdvancedSettings());
+            StopOpacity = 1;
         }
 
         public void UDFunc()
@@ -293,7 +292,7 @@ namespace FCP.MVVM.ViewModels
             if (StatChecked)
                 _MainWindowVM.StatChecked = true;
             else
-                _MainWindowVM.BatchEnabled = true;
+                _MainWindowVM.BatchChecked = true;
             OPDEnabled = false;
             UDEnabled = false;
             StopEnabled = true;
@@ -303,6 +302,7 @@ namespace FCP.MVVM.ViewModels
             MultiEnabled = false;
             UDBackground = _Red;
             OPDOpacity = 0.2f;
+            StopOpacity = 1;
         }
 
         public void StopFunc()
@@ -319,13 +319,14 @@ namespace FCP.MVVM.ViewModels
             UDBackground = _White;
             OPDOpacity = 1;
             UDOpacity = 1;
+            StopOpacity = 0.2f;
         }
 
-        public void AddLog(string content)
+        public void AddLog(string message)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append($"{Log}\n");
-            sb.Append($"{content}\n");
+            sb.Append(Log);
+            sb.Append($"{message}\n");
             Log = sb.ToString();
             sb = null;
         }
