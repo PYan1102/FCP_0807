@@ -1171,7 +1171,7 @@ namespace FCP
                         sw.Write(v.PerQty.PadRight(5));
                         sw.Write(v.MedicineCode.PadRight(20));
                         sw.Write(ECD(v.MedicineName, 50));
-                        sw.Write(v.AdminCode.PadRight(20));
+                        sw.Write(ECD(v.AdminCode, 20));
                         sw.Write(v.StartDay.ToString("yyMMdd"));
                         sw.Write(v.EndDay.ToString("yyMMdd"));
                         sw.Write("".PadRight(158));
