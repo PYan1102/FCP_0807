@@ -47,7 +47,7 @@ namespace FCP.MVVM.FormatControl
                         PerQty = Convert.ToSingle(EncodingHelper.GetString(167, 10)).ToString("0.##"),
                         AdminCode = $"S{adminCode}",
                         Days = EncodingHelper.GetString(197, 3),
-                        SumQty = EncodingHelper.GetString(200, 10),
+                        SumQty = Convert.ToSingle(EncodingHelper.GetString(200, 10)).ToString("0.##"),
                         Location = string.Empty
                     });
                     try
@@ -128,7 +128,7 @@ namespace FCP.MVVM.FormatControl
                         PerQty = perQty.ToString("0.##"),
                         AdminCode = adminCode,
                         Days = days,
-                        SumQty = sumQty.ToString(),
+                        SumQty = sumQty.ToString("0.##"),
                         Location = location
                     });
                     var lastUDBatchTemp = _UDBatch[_UDBatch.Count - 1];

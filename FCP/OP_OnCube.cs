@@ -1035,16 +1035,16 @@ namespace FCP
                 {
                     foreach (var v in UD)
                     {
-                        bool _IsInteger = !v.PerQty.Contains('.');
-                        string Qty = !_IsInteger ? Math.Ceiling(Convert.ToSingle(v.PerQty)).ToString() : v.PerQty;
-                        if (_IsInteger)
+                        bool isInteger = !v.PerQty.Contains('.');
+                        string perQty = !isInteger ? Math.Ceiling(Convert.ToSingle(v.PerQty)).ToString() : v.PerQty;
+                        if (isInteger)
                             sw.Write(ECD($"{v.PatientName} 整數", 20));
                         else
                             sw.Write(ECD($"{v.PatientName} 非整數", 20));
                         sw.Write("".PadRight(30));
                         sw.Write(ECD(v.Location, 50));
                         sw.Write("".PadRight(29));
-                        sw.Write(Qty.PadRight(5));
+                        sw.Write(perQty.PadRight(5));
                         sw.Write(ECD(v.MedicineCode, 20));
                         sw.Write(ECD(v.MedicineName, 50));
                         sw.Write(v.AdminCode.PadRight(20));
