@@ -45,7 +45,7 @@ namespace FCP.MVVM.FormatInit
         public override void SetConvertInformation()
         {
             string content = GetFileContent();
-            if (content.Contains("護理"))
+            if (content.Contains("新北護理之家"))
                 base.CurrentDepartment = DepartmentEnum.UDBatch;
             base.SetConvertInformation();
             if (_JK == null)
