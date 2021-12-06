@@ -1,5 +1,5 @@
 ﻿using System;
-using FCP.MVVM.Models.Enum;
+using FCP.src.Enum;
 
 namespace FCP.MVVM.Models
 {
@@ -9,12 +9,12 @@ namespace FCP.MVVM.Models
         public string GetOutputPath { get => _OutputPath; }
         public string GetFilePath { get => _FilePath; }
         public string GetCurrentSeconds { get => _CurrentSeconds; }
-        public DepartmentEnum GetDepartment { get => _Department; }
+        public eConvertLocation GetDepartment { get => _Department; }
         private string _InputPath { get; set; }
         private string _OutputPath { get; set; }
         private string _FilePath { get; set; }
         private string _CurrentSeconds { get; set; }
-        private DepartmentEnum _Department { get; set; }
+        private eConvertLocation _Department { get; set; }
 
         public ConvertFileInformtaionModel SetInputPath(string outputPath)
         {
@@ -40,7 +40,7 @@ namespace FCP.MVVM.Models
             return this;
         }
 
-        public ConvertFileInformtaionModel SetDepartment(DepartmentEnum department)
+        public ConvertFileInformtaionModel SetDepartment(eConvertLocation department)
         {
             _Department = department;
             return this;

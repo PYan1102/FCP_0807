@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Diagnostics;
-using FCP.MVVM.Models.Enum;
+using FCP.src.Enum;
 
 namespace FCP.MVVM.Control
 {
@@ -51,25 +51,25 @@ namespace FCP.MVVM.Control
             }
         }
 
-        public static int GetOLEDBIndex(DepartmentEnum department, string date)
+        public static int GetOLEDBIndex(eConvertLocation department, string date)
         {
             int index = GetCurrentIndexReverse(date, department);
             switch (department)
             {
-                case DepartmentEnum.OPD:
+                case eConvertLocation.OPD:
                     return int.Parse(_Json.門診.Split('^')[index].Split('|')[1]);
-                case DepartmentEnum.Care:
+                case eConvertLocation.Care:
                     return int.Parse(_Json.養護.Split('^')[index].Split('|')[1]);
-                case DepartmentEnum.Other:
+                case eConvertLocation.Other:
                     return int.Parse(_Json.大寮.Split('^')[index].Split('|')[1]);
-                case DepartmentEnum.UDBatch:
+                case eConvertLocation.UDBatch:
                     return int.Parse(_Json.住院.Split('^')[index].Split('|')[1]);
                 default:
                     return -1;
             }
         }
 
-        public static void UpdateJson(string date, DepartmentEnum department, int count)
+        public static void UpdateJson(string date, eConvertLocation department, int count)
         {
             if (count == 0)
                 return;
@@ -82,25 +82,25 @@ namespace FCP.MVVM.Control
             int num;
             switch (department)
             {
-                case DepartmentEnum.OPD:
+                case eConvertLocation.OPD:
                     A = _Json.門診.Split('^');
                     num = count;
                     WriteString(A, index, date, num, sb);
                     _Json.門診 = sb.ToString();
                     break;
-                case DepartmentEnum.Care:
+                case eConvertLocation.Care:
                     A = _Json.養護.Split('^');
                     num = count;
                     WriteString(A, index, date, num, sb);
                     _Json.養護 = sb.ToString();
                     break;
-                case DepartmentEnum.Other:
+                case eConvertLocation.Other:
                     A = _Json.大寮.Split('^');
                     num = count;
                     WriteString(A, index, date, num, sb);
                     _Json.大寮 = sb.ToString();
                     break;
-                case DepartmentEnum.UDBatch:
+                case eConvertLocation.UDBatch:
                     A = _Json.住院.Split('^');
                     num = count;
                     WriteString(A, index, date, num, sb);
@@ -112,9 +112,9 @@ namespace FCP.MVVM.Control
             Save(JObject.FromObject(_Json).ToString());
         }
 
-        private static int GetCurrentIndex(string date, DepartmentEnum department)
+        private static int GetCurrentIndex(string date, eConvertLocation department)
         {
-            string location = department == DepartmentEnum.OPD ? _Json.門診 : department == DepartmentEnum.Care ? _Json.養護 : department == DepartmentEnum.Other ? _Json.大寮 : _Json.住院;
+            string location = department == eConvertLocation.OPD ? _Json.門診 : department == eConvertLocation.Care ? _Json.養護 : department == eConvertLocation.Other ? _Json.大寮 : _Json.住院;
             string[] list = location.Split('^');
             int index = 0;
             foreach (string s in list)
@@ -130,10 +130,10 @@ namespace FCP.MVVM.Control
             return index;
         }
 
-        private static int GetCurrentIndexReverse(string date, DepartmentEnum department)
+        private static int GetCurrentIndexReverse(string date, eConvertLocation department)
         {
             int index = 1;
-            string location = department == DepartmentEnum.OPD ? _Json.門診 : department == DepartmentEnum.Care ? _Json.養護 : department == DepartmentEnum.Other ? _Json.大寮 : _Json.住院;
+            string location = department == eConvertLocation.OPD ? _Json.門診 : department == eConvertLocation.Care ? _Json.養護 : department == eConvertLocation.Other ? _Json.大寮 : _Json.住院;
             string[] list = location.Split('^');
             for (int x = list.Length - 1; x >= 0; x--)
             {

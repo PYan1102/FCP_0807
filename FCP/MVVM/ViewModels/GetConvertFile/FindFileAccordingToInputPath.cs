@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using FCP.MVVM.Models.Enum;
-using FCP.MVVM.Factory;
+using FCP.src.Enum;
 using FCP.MVVM.Models;
 using System.IO;
+using FCP.src.Factory.Models;
 
 namespace FCP.MVVM.ViewModels.GetConvertFile
 {
@@ -40,7 +38,7 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
                         if (path.Trim().Length == 0)
                             continue;
                         int index = _InputPathList.IndexOf(path);
-                        foreach (string filePath in Directory.GetFiles(path, _SettingsModel.DeputyFileName))
+                        foreach (string filePath in Directory.GetFiles(path, $"*.{_SettingsModel.FileExtensionName}"))
                         {
                             bool isCompareCompleted = IsFileCompareSuccess(filePath);
                             if (isCompareCompleted)
@@ -59,7 +57,7 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
             }
         }
 
-        public void SetDepartmentDictionary(Dictionary<Parameter, DepartmentEnum> department)
+        public void SetDepartmentDictionary(Dictionary<Parameter, eConvertLocation> department)
         {
             throw new NotImplementedException();
         }

@@ -11,10 +11,10 @@ using System.Windows.Input;
 using System.Windows.Media;
 using FCP.MVVM.Models;
 using FCP.MVVM.Control;
-using FCP.MVVM.Factory;
-using FCP.MVVM.Models.Enum;
+using FCP.src.Factory;
+using FCP.src.Enum;
 using FCP.MVVM.ViewModels;
-using FCP.MVVM.Factory.ViewModel;
+using FCP.src.Factory.ViewModel;
 
 namespace FCP.MVVM.View
 {
@@ -27,6 +27,13 @@ namespace FCP.MVVM.View
         {
             InitializeComponent();
             this.DataContext = SimpleWindowFactory.GenerateSimpleWindowViewModel();
+            var vm = this.DataContext as SimpleWindowViewModel;
+            vm.ActivateWindow += ActivateWindow;
+        }
+
+        private void ActivateWindow()
+        {
+            this.Activate();
         }
     }
 }

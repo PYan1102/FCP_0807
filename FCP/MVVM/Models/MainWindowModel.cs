@@ -2,7 +2,7 @@
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
-using FCP.MVVM.Models.Enum;
+using FCP.src.Enum;
 
 namespace FCP.MVVM.Models
 {
@@ -59,12 +59,12 @@ namespace FCP.MVVM.Models
         public bool WindowYEnabled { get; set; }
         public Visibility WindowXVisibility { get; set; }
         public Visibility WindowYVisibility { get; set; }
-        public DoseType PackType { get; set; }
+        public eDoseType PackType { get; set; }
         public Visibility MinimumAndCloseVisibility { get; set; }
         public float OPDOpacity { get; set; } = 1;
         public float UDOpacity { get; set; } = 1;
         public SolidColorBrush OPDBacground { get; set; } = new SolidColorBrush(Color.FromRgb(255, 255, 255));
         public SolidColorBrush UDBackground { get; set; } = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-        public string Log { get; set; }
+        public string ProgressBoxContent { get; set; }
     }
 }

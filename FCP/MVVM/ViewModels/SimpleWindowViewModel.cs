@@ -3,12 +3,12 @@ using System.Windows;
 using System.Windows.Media;
 using FCP.Core;
 using FCP.MVVM.Models;
-using FCP.MVVM.Factory.ViewModel;
+using FCP.src.Factory.ViewModel;
 using System.Windows.Input;
-using FCP.MVVM.View;
-using FCP.MVVM.Factory;
-using FCP.MVVM.Models.Enum;
+using FCP.src.Enum;
 using System.Text;
+using FCP.src.Factory.Models;
+using System.Collections.Generic;
 
 namespace FCP.MVVM.ViewModels
 {
@@ -23,14 +23,16 @@ namespace FCP.MVVM.ViewModels
         public ICommand Stop { get; set; }
         public ICommand MinimumWindow { get; set; }
         public ICommand Close { get; set; }
+        public ICommand Loaded { get; set; }
+        public Action ActivateWindow { get; set; }
 
-        private MainWindowViewModel _MainWindowVM { get; set; }
+        private MainWindowViewModel _MainWindowVM;
         private SimpleWindowModel _Model;
         private SolidColorBrush _DeepBlue = new SolidColorBrush((Color)Color.FromRgb(17, 68, 109));
         private SolidColorBrush _ShinyBlue = new SolidColorBrush((Color)Color.FromRgb(9, 225, 255));
         private SolidColorBrush _White = new SolidColorBrush((Color)Color.FromRgb(255, 255, 255));
         private SolidColorBrush _Red = new SolidColorBrush((Color)Color.FromRgb(255, 82, 85));
-        private SettingsModel _SettingsModel { get; set; }
+        private SettingsModel _SettingsModel;
 
         public SimpleWindowViewModel()
         {
@@ -46,6 +48,7 @@ namespace FCP.MVVM.ViewModels
             Stop = new RelayCommand(StopFunc);
             MinimumWindow = new RelayCommand(() => Visibility = Visibility.Hidden);
             Close = new RelayCommand(() => Environment.Exit(0));
+            Loaded = new RelayCommand(() => LoadedFunc());
         }
 
         public Visibility Visibility
@@ -246,7 +249,6 @@ namespace FCP.MVVM.ViewModels
             Topmost = true;
             Enabled = true;
             window.Focus();
-            RefreshUIPropertyServices.InitSimpleWindow();
         }
 
         public void SwitchWindowFunc()
@@ -329,6 +331,33 @@ namespace FCP.MVVM.ViewModels
             sb.Append($"{message}\n");
             Log = sb.ToString();
             sb = null;
+        }
+
+        private void LoadedFunc()
+        {
+            List<eFormat> hospitalCustomers = new List<eFormat>() { eFormat.小港醫院TOC, eFormat.光田醫院TOC, eFormat.民生醫院TOC, eFormat.義大醫院TOC };
+            List<eFormat> powderCustomers = new List<eFormat>() { eFormat.光田醫院TJVS, eFormat.長庚磨粉TJVS };
+            if (hospitalCustomers.Contains(_SettingsModel.Mode))
+            {
+                OPDContent = "門 診F5";
+                UDVisibility = Visibility.Visible;
+            }
+            MultiVisibility = _SettingsModel.Mode == eFormat.光田醫院TOC ? Visibility.Visible : Visibility.Hidden;
+            CombiVisibility = _SettingsModel.Mode == eFormat.光田醫院TOC ? Visibility.Visible : Visibility.Hidden;
+            MultiChecked = Properties.Settings.Default.DoseType == "M";
+            if (powderCustomers.Contains(_SettingsModel.Mode))
+            {
+                OPDContent = "磨 粉F5";
+                UDVisibility = Visibility.Hidden;
+            }
+            StatVisibility = _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
+            BatchVisibility = _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
+            CloseVisibility = _SettingsModel.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
+            MinimumVisibility = _SettingsModel.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
+            StatChecked = _SettingsModel.StatOrBatch == "S";
+            StopEnabled = false;
+            Left = Properties.Settings.Default.X;
+            Top = Properties.Settings.Default.Y;
         }
 
         private bool CanStartConverterOrShowAdvancedSettings()

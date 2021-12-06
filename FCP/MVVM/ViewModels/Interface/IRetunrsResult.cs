@@ -1,12 +1,12 @@
 ﻿using System;
 using FCP.MVVM.Models;
-using FCP.MVVM.Models.Enum;
+using FCP.src.Enum;
 
 namespace FCP.MVVM.ViewModels.Interface
 {
     interface IRetunrsResult
     {
-        void Shunt(ConvertResult result, string message);
+        void Shunt(eConvertResult result, string message);
         void SetReturnsResultFormat(ReturnsResultFormat format);
         void Success();
         void Filter(string exception);

@@ -1,23 +1,23 @@
 ﻿using FCP.Core;
 using System;
 using System.Windows;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FCP.MVVM.Factory;
+using FCP.src.Factory;
 using System.Windows.Input;
 using FCP.MVVM.Models;
-using FCP.MVVM.Models.Enum;
-using FCP.MVVM.Factory.ViewModel;
+using FCP.src.Enum;
+using FCP.src.Factory.ViewModel;
 using MaterialDesignThemes.Wpf;
 using System.Windows.Media;
-using FCP.MVVM.View;
 using System.Windows.Forms;
 using FCP.MVVM.Control;
 using Helper;
 using System.Diagnostics;
 using System.IO;
+using FCP.src.Factory.Models;
+using FCP.src;
+using System.Windows.Threading;
 
 namespace FCP.MVVM.ViewModels
 {
@@ -42,11 +42,14 @@ namespace FCP.MVVM.ViewModels
         public ICommand SelectFolder { get; set; }
         public ICommand ClearPath { get; set; }
         public ICommand ClearLog { get; set; }
+        public ICommand OpenLog { get; set; }
+        public ICommand ClearProgressBoxContent { get; set; }
+        public Action ActivateWindow { get; set; }
+        public Action DragMoveWindow { get; set; }
         private FunctionCollections _Format { get; set; }
         private SettingsModel _SettingsModel { get; set; }
         private Settings _Settings { get; set; }
         private MsgBViewModel _MsgBVM { get; set; }
-        private NotifyIcon _NotifyIcon;
         private MainWindowModel _Model;
 
         public MainWindowViewModel()
@@ -56,7 +59,7 @@ namespace FCP.MVVM.ViewModels
             _MsgBVM = MsgBFactory.GenerateMsgBViewModel();
             ShowAdvancedSettings = new RelayCommand(ShowAdvancedSettingsFunc, CanStartConverterOrShowAdvancedSettings);
             _Model = new MainWindowModel();
-            Loaded = new RelayCommand(() => LoadedFunc());
+            Loaded = new RelayCommand(() => LoadedFuncAsync());
             Close = new RelayCommand(() => Environment.Exit(0));
             MinimumWindow = new RelayCommand(() => Visibility = Visibility.Hidden);
             Closing = new RelayCommand(() => Disconnect小港醫院NetDiskFunc());
@@ -65,11 +68,32 @@ namespace FCP.MVVM.ViewModels
             Stop = new RelayCommand(StopFunc);
             Save = new RelayCommand(SaveFunc, CanStartConverterOrShowAdvancedSettings);
             SwitchWindow = new RelayCommand(SwitchWindowFunc, CanStartConverterOrShowAdvancedSettings);
-            Activate = new ObjectRelayCommand(o => ActivateFunc((Window)o), o => CanActivate());
-            DragMove = new ObjectRelayCommand(o => ((Window)o).DragMove());
+            Activate = new RelayCommand(() => ActivateWindow());
+            DragMove = new RelayCommand(() => DragMoveWindow());
             SelectFolder = new ObjectRelayCommand(o => SelectFolderFunc((string)o));
             ClearPath = new ObjectRelayCommand(o => ClearPathFunc((string)o), o => CanStartConverterOrShowAdvancedSettings());
-            ClearLog = new RelayCommand(() => ClearLogFunc());
+            OpenLog = new RelayCommand(() => OpenLogFunc());
+            ClearProgressBoxContent = new RelayCommand(() => ClearProgressBoxContentFunc());
+        }
+
+        private void ClearProgressBoxContentFunc()
+        {
+            ProgressBoxContent = string.Empty;
+            var vm = SimpleWindowFactory.GenerateSimpleWindowViewModel();
+            vm.Log = string.Empty;
+            vm = null;
+        }
+
+        private void OpenLogFunc()
+        {
+            try
+            {
+                Process.Start($@"{Environment.CurrentDirectory}\Log\{DateTime.Now:yyyy-MM-dd}\Error_Log.txt");
+            }
+            catch (Exception a)
+            {
+                FCP.src.Message.Show(a.ToString(), "錯誤", PackIconKind.Error, KindColors.Error);
+            }
         }
 
         public Visibility Visibility
@@ -406,16 +430,16 @@ namespace FCP.MVVM.ViewModels
             set => _Model.UDBackground = value;
         }
 
-        public string Log
+        public string ProgressBoxContent
         {
-            get => _Model.Log;
-            set => _Model.Log = value;
+            get => _Model.ProgressBoxContent;
+            set => _Model.ProgressBoxContent = value;
         }
         public void OPDFunc()
         {
             if ((_Model.OPDToogle1Checked | _Model.OPDToogle2Checked | _Model.OPDToogle3Checked | _Model.OPDToogle4Checked) == false)
             {
-                _MsgBVM.Show("沒有勾選任一個轉檔位置", "位置未勾選", PackIconKind.Error, KindColors.Error);
+                FCP.src.Message.Show("沒有勾選任一個轉檔位置", "位置未勾選", PackIconKind.Error, KindColors.Error);
                 return;
             }
             IsOPD = true;
@@ -448,16 +472,10 @@ namespace FCP.MVVM.ViewModels
         public void AddLog(string message)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append(Log);
+            sb.Append(ProgressBoxContent);
             sb.Append($"{message}\n");
-            Log = sb.ToString();
+            ProgressBoxContent = sb.ToString();
             sb = null;
-        }
-
-        public void ActivateFunc(Window window)
-        {
-            window.Activate();
-            window.Focus();
         }
 
         public void SwitchWindowFunc()
@@ -467,15 +485,43 @@ namespace FCP.MVVM.ViewModels
             vm.Visibility = Visibility.Visible;
         }
 
-        private void LoadedFunc()
+        public void NotifyIconDBClick()
         {
-            Helper.Log.SetOutputPath(@"D:\FCP\Log");
+            var vm = SimpleWindowFactory.GenerateSimpleWindowViewModel();
+            if (vm.Enabled)
+            {
+                vm.Visibility = Visibility.Visible;
+                SimpleWindowFactory.GenerateSimpleWindowViewModel().ActivateWindow();
+            }
+            else
+            {
+                Visibility = Visibility.Visible;
+                ActivateWindow();
+            }
+        }
+
+        public void JudgeCurrentFormat()
+        {
+            _Format = FormatFactory.GenerateFormat(_SettingsModel.Mode);
+            _Format.Init();
+        }
+
+        private async void LoadedFuncAsync()
+        {
+            Log.Path = $@"{Environment.CurrentDirectory}\Log";
             CheckProgramStart();
             CheckFileBackupPath();
-            RefreshUIPropertyServices.InitMainWindowUI();
             RefreshUIPropertyServices.SwitchMainWindowControlState(true);
-            CreateNotifyIcon();
-            JudgeCurrentFormatAsync();
+            NotifyIconHelper.Init(Properties.Resources.FCP, "轉檔");
+            NotifyIconHelper.DoubleClickAction += NotifyIconDBClick;
+            FunctionCollections.NotifyIcon = NotifyIconHelper.NotifyIcon;
+            JudgeCurrentFormat();
+            Init();
+            if (IsAutoStartChecked)
+            {
+                await Task.Delay(1000);
+                OPDFunc();
+            }
         }
 
         //檢查程式是否已開啟
@@ -483,8 +529,8 @@ namespace FCP.MVVM.ViewModels
         {
             if (Process.GetProcessesByName("FCP").Length >= 2)
             {
-                _MsgBVM.Show("程式已開啟，請確認工具列", "重複開啟", PackIconKind.Error, KindColors.Error);
-                Helper.Log.Write("程式已開啟，請確認工具列");
+                FCP.src.Message.Show("程式已開啟，請確認工具列", "重複開啟", PackIconKind.Error, KindColors.Error);
+                Log.Write("程式已開啟，請確認工具列");
                 Environment.Exit(0);
             }
         }
@@ -499,42 +545,9 @@ namespace FCP.MVVM.ViewModels
             FailPath = $@"{BackupPath}\Fail";
         }
 
-        private async void JudgeCurrentFormatAsync()
-        {
-            _Format = FormatFactory.GenerateFormat(_SettingsModel.Mode);
-            _Format.SetNotifyIcon(_NotifyIcon);
-            _Format.Init();
-            if (IsAutoStartChecked)
-            {
-                await Task.Delay(1000);
-                OPDFunc();
-            }
-        }
-
-        private void CreateNotifyIcon()
-        {
-            _NotifyIcon = new NotifyIcon();
-            _NotifyIcon.Icon = Properties.Resources.FCP;
-            _NotifyIcon.Visible = true;
-            _NotifyIcon.Text = "轉檔";
-            _NotifyIcon.DoubleClick += NotifyIconDBClick;
-        }
-
-        public void NotifyIconDBClick(object sender, EventArgs e)
-        {
-            var vm = SimpleWindowFactory.GenerateSimpleWindowViewModel();
-            if (vm.Enabled)
-            {
-                vm.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                Visibility = Visibility.Visible;
-            }
-        }
-
         private void ShowAdvancedSettingsFunc()
         {
+            AdvancedSettingsFactory.ClearAllViewModel();
             var window = AdvancedSettingsFactory.GenerateAdvancedSettings();
             window.ShowDialog();
             window = null;
@@ -544,7 +557,7 @@ namespace FCP.MVVM.ViewModels
         {
             switch (_SettingsModel.Mode)
             {
-                case Format.小港醫院TOC:
+                case eFormat.小港醫院TOC:
                     _Format.Stop();
                     break;
             }
@@ -595,25 +608,28 @@ namespace FCP.MVVM.ViewModels
                 default:
                     break;
             }
-
         }
 
-        public void ClearLogFunc()
+        private void Init()
         {
-            Log = string.Empty;
-            var vm = SimpleWindowFactory.GenerateSimpleWindowViewModel();
-            vm.Log = string.Empty;
-            vm = null;
+            string BackupPath = $@"{FileBackupPath}\{DateTime.Now:yyyy-MM-dd}";
+            SuccessCount = $"{Directory.GetFiles($@"{BackupPath}\Success").Length}";
+            FailCount = $"{Directory.GetFiles($@"{BackupPath}\Fail").Length}";
+            InputPath1 = _SettingsModel.InputPath1;
+            InputPath2 = _SettingsModel.InputPath2;
+            InputPath3 = _SettingsModel.InputPath3;
+            OutputPath = _SettingsModel.OutputPath;
+            IsAutoStartChecked = _SettingsModel.EN_AutoStart;
+            WindowX = Properties.Settings.Default.X.ToString();
+            WindowY = Properties.Settings.Default.Y.ToString();
+            StopEnabled = false;
+            StatChecked = _SettingsModel.StatOrBatch == "S";
+            BatchChecked = _SettingsModel.StatOrBatch == "B";
         }
 
         private bool CanStartConverterOrShowAdvancedSettings()
         {
             return !StopEnabled;
-        }
-
-        private bool CanActivate()
-        {
-            return Visibility == Visibility.Visible;
         }
     }
 }

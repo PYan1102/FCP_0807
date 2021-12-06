@@ -4,24 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using FCP.MVVM.Models.Enum;
+using FCP.src.Enum;
 
 namespace FCP.MVVM.ViewModels.GetConvertFile
 {
     public class FindFile : DefaultRules, IFindFile
     {
         private IFindNeedToConvertFile _FindNeedToConvertFile { get; set; }
-        public void Init(FindFileModeEnum mode)
+        public void Init(eFindFileMode mode)
         {
             switch (mode)
             {
-                case FindFileModeEnum.根據檔名開頭:
+                case eFindFileMode.根據檔名開頭:
                     _FindNeedToConvertFile = new FindFileAccordingToStartWith();
                     break;
-                case FindFileModeEnum.根據輸入路徑:
+                case eFindFileMode.根據輸入路徑:
                     _FindNeedToConvertFile = new FindFileAccordingToInputPath();
                     break;
-                case FindFileModeEnum.根據檔案內容:
+                case eFindFileMode.根據檔案內容:
                     _FindNeedToConvertFile = new FindFileAccordingToFileContent();
                     break;
             }

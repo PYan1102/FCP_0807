@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using FCP.MVVM.Models.Enum;
+using FCP.src.Enum;
 
 namespace FCP.MVVM.Models
 {
@@ -10,16 +10,15 @@ namespace FCP.MVVM.Models
         public string InputPath2 { get; set; }
         public string InputPath3 { get; set; }
         public string OutputPath { get; set; }
-        public string DeputyFileName { get; set; }
+        public string FileExtensionName { get; set; }
         public bool EN_AutoStart { get; set; }
-        public Format Mode { get; set; }
+        public eFormat Mode { get; set; }
         public int Speed { get; set; }
-        public PackMode PackMode { get; set; }
-        public List<string> AdminCodeFilter { get; set; }
-        public List<string> AdminCodeUse { get; set; }
+        public ePackMode PackMode { get; set; }
+        public List<string> FilterAdminCode { get; set; }
         public string ExtraRandom { get; set; }
-        public DoseType DoseType { get; set; }
-        public List<string> OppositeAdminCode { get; set; }
+        public eDoseType DoseType { get; set; }
+        public List<string> OutputSpecialAdminCode { get; set; }
         public string StatOrBatch { get; set; }
         public string CutTime { get; set; }
         public List<string> CrossDayAdminCode { get; set; }
@@ -30,5 +29,7 @@ namespace FCP.MVVM.Models
         public bool EN_ShowXY { get; set; }
         public bool EN_FilterMedicineCode { get; set; }
         public bool EN_OnlyCanisterIn { get; set; }
+        public bool EN_WhenCompeletedMoveFile { get; set; }
+        public bool EN_WhenCompeletedStop { get; set; }
     }
 }

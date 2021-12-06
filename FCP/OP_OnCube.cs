@@ -5,12 +5,11 @@ using System.Text;
 using System.IO;
 using System.Diagnostics;
 using System.Globalization;
-using System.Collections.ObjectModel;
 using FCP.MVVM.Models;
-using FCP.MVVM.Models.Enum;
-using FCP.MVVM.Factory;
+using FCP.src.Enum;
 using Helper;
-using FCP.MVVM.FormatControl;
+using FCP.src.Factory.Models;
+using FCP.src.FormatControl;
 
 namespace FCP
 {
@@ -26,19 +25,19 @@ namespace FCP
                 {
                     foreach (var v in OPD)
                     {
-                        DoseType doseType = GetDoseType(v.AdminCode);
+                        eDoseType doseType = GetDoseType(v.AdminCode);
                         sw.Write(ECD(basic.PatientName, 20));
                         sw.Write(basic.PatientNo.PadRight(30));
                         sw.Write(ECD(basic.LocationName, 50));
                         sw.Write("".PadRight(29));
-                        if (doseType == DoseType.餐包)
+                        if (doseType == eDoseType.餐包)
                             sw.Write(v.PerQty.PadRight(5));
                         else
                             sw.Write(v.SumQty.PadRight(5));
                         sw.Write(v.MedicineCode.PadRight(20));
                         sw.Write(ECD(v.MedicineName, 50));
                         sw.Write(v.AdminCode.PadRight(20));
-                        if (doseType == DoseType.餐包)
+                        if (doseType == eDoseType.餐包)
                         {
                             sw.Write(v.StartDay);
                             sw.Write(v.EndDay);
@@ -71,8 +70,63 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
-                throw ex;
+                Log.Write(ex);
+                throw;
+            }
+        }
+
+        public static void JVServerXML(JVServerXMLOPDBasic basic, List<JVServerXMLOPD> OPD, string filePathOutput, string fileName)
+        {
+            try
+            {
+                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                {
+                    foreach (var v in OPD)
+                    {
+                        eDoseType DoseType = GetDoseType(v.AdminCode);
+                        sw.Write(ECD($"{basic.PatientName}_{v.AdminCode}", 20));
+                        sw.Write("".PadRight(30));
+                        string temp = v.CorrectPatientName == string.Empty ? "空白" : "";
+                        sw.Write(ECD($"{basic.LocationName}{temp}", 50));
+                        sw.Write("".PadRight(29));
+                        if (DoseType == eDoseType.餐包)
+                            sw.Write(v.PerQty.PadRight(5));
+                        else
+                            sw.Write(v.SumQty.PadRight(5));
+                        sw.Write(ECD(v.MedicineCode, 20));
+                        sw.Write(ECD(v.MedicineName, 50));
+                        sw.Write(ECD(v.AdminCode, 20));
+                        if (DoseType == eDoseType.餐包)
+                        {
+                            sw.Write(v.StartDay);
+                            sw.Write(v.EndDay);
+                        }
+                        else
+                        {
+                            sw.Write(v.EndDay);
+                            sw.Write(v.EndDay);
+                        }
+                        sw.Write("3       ");
+                        sw.Write("".PadRight(50));
+                        sw.Write("".PadRight(50));
+                        sw.Write("".PadRight(50));
+                        sw.Write("1990-01-01");
+                        sw.Write("男    ");
+                        sw.Write(ECD(v.CorrectPatientName, 20));
+                        sw.Write("".PadRight(20));
+                        sw.Write("0");
+                        sw.Write(ECD(basic.HospitalName, 30));
+                        sw.Write(ECD(basic.Type, 30));
+                        sw.Write(ECD(fileName, 30));
+                        sw.Write("".PadRight(390));
+                        sw.WriteLine(ConvertDoseType(DoseType));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Write(ex);
+                throw;
             }
         }
 
@@ -84,19 +138,19 @@ namespace FCP
                 {
                     foreach (var v in OPD)
                     {
-                        DoseType doseType = GetDoseType(v.AdminCode);
+                        eDoseType doseType = GetDoseType(v.AdminCode);
                         sw.Write(ECD(v.PatientName, 20));
                         sw.Write("".PadRight(30));
                         sw.Write(ECD("門診", 50));
                         sw.Write("".PadRight(29));
-                        if (doseType == DoseType.餐包)
+                        if (doseType == eDoseType.餐包)
                             sw.Write(v.PerQty.PadRight(5));
                         else
                             sw.Write(v.SumQty.PadRight(5));
                         sw.Write(v.MedicineCode.PadRight(20));
                         sw.Write(ECD(v.MedicineName, 50));
                         sw.Write(v.AdminCode.PadRight(20));
-                        if (doseType == DoseType.餐包)
+                        if (doseType == eDoseType.餐包)
                         {
                             sw.Write(v.StartDate);
                             sw.Write(v.EndDate);
@@ -121,8 +175,8 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
-                throw ex;
+                Log.Write(ex);
+                throw;
             }
         }
 
@@ -394,7 +448,7 @@ namespace FCP
                         int r = Int32.Parse(v.Key.Substring(0, v.Key.IndexOf("_")));
                         string DateTemp = v.Key.Substring(v.Key.IndexOf("_") + 1, v.Key.Length - v.Key.IndexOf("_") - 1);
                         DateTime.TryParseExact(DateTemp, "yyMMdd", null, DateTimeStyles.None, out DateTime Date);
-                        if (Type == "即時" & _SettingsModel.DoseType == MVVM.Models.Enum.DoseType.餐包)
+                        if (Type == "即時" & _SettingsModel.DoseType == eDoseType.餐包)
                         {
                             if (Name == "")
                                 Name = PatientName[r];
@@ -411,7 +465,7 @@ namespace FCP
                             }
                         }
 
-                        if (_SettingsModel.DoseType == MVVM.Models.Enum.DoseType.種包)
+                        if (_SettingsModel.DoseType == eDoseType.種包)
                         {
                             if (Name == "")
                                 Name = PatientName[r];
@@ -541,19 +595,19 @@ namespace FCP
                 {
                     foreach (var v in OPD)
                     {
-                        DoseType doseType = GetDoseType(v.AdminCode);
+                        eDoseType doseType = GetDoseType(v.AdminCode);
                         sw.Write(ECD(v.PatientName, 20));
                         sw.Write(v.PatientNo.PadRight(30));
                         sw.Write(ECD("三杏藥局", 50));
                         sw.Write("".PadRight(29));
-                        if (doseType == DoseType.餐包)
+                        if (doseType == eDoseType.餐包)
                             sw.Write(v.PerQty.PadRight(5));
                         else
                             sw.Write(v.SumQty.PadRight(5));
                         sw.Write(v.MedicineCode.PadRight(20));
                         sw.Write(ECD(v.MedicineName, 50));
                         sw.Write(v.AdminCode.PadRight(20));
-                        if (doseType == DoseType.餐包)
+                        if (doseType == eDoseType.餐包)
                         {
                             sw.Write(v.StartDate);
                             sw.Write(v.EndDate);
@@ -594,19 +648,19 @@ namespace FCP
                     {
                         foreach (var v in OPD)
                         {
-                            DoseType doseType = GetDoseType(v.AdminCode);
+                            eDoseType doseType = GetDoseType(v.AdminCode);
                             sw.Write(ECD($"{basic.PatientName}-{v.AdminCode}", 20));
                             sw.Write(basic.PatientNo.PadRight(30));
                             sw.Write(ECD(basic.LocationName, 50));
                             sw.Write("".PadRight(29));
-                            if (doseType == DoseType.餐包)
+                            if (doseType == eDoseType.餐包)
                                 sw.Write(v.PerQty.PadRight(5));
                             else
                                 sw.Write(v.SumQty.PadRight(5));
                             sw.Write(v.MedicineCode.PadRight(20));
                             sw.Write(ECD(v.MedicineName, 50));
                             sw.Write(v.AdminCode.PadRight(20));
-                            if (doseType == DoseType.餐包)
+                            if (doseType == eDoseType.餐包)
                             {
                                 sw.Write(v.StartDay);
                                 sw.Write(v.EndDay);
@@ -628,16 +682,15 @@ namespace FCP
                             sw.Write("0");
                             sw.Write(ECD(basic.HospitalName, 30));
                             sw.Write("".PadRight(450));
-                            sw.Write(ConvertDoseType(doseType));
+                            sw.WriteLine(ConvertDoseType(doseType));
                         }
-                        throw new Exception("test");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
-                throw ex;
+                Log.Write(ex);
+                throw;
             }
         }
         public static void MinSheng_UD(Dictionary<string, List<string>> dataDic, string filePathOutput, List<MinShengUDBatch> UDBatch)
@@ -655,7 +708,7 @@ namespace FCP
                         bool isCombi = false;
                         foreach (string time in v.Value)
                         {
-                            isCombi = time == nameof(DoseType.種包);
+                            isCombi = time == nameof(eDoseType.種包);
                             sw.Write(ECD(UDBatch[index].PatientName, 20));
                             sw.Write(UDBatch[index].PrescriptionNo.PadRight(30));
                             sw.Write(ECD("住院", 50));
@@ -696,8 +749,8 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
-                throw ex;
+                Log.Write(ex);
+                throw;
             }
         }
 
@@ -739,8 +792,8 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
-                throw ex;
+                Log.Write(ex);
+                throw;
             }
         }
 
@@ -780,8 +833,8 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
-                throw ex;
+                Log.Write(ex);
+                throw;
             }
         }
 
@@ -822,7 +875,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
+                Log.Write(ex);
                 return false;
             }
         }
@@ -863,7 +916,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
+                Log.Write(ex);
                 return false;
             }
         }
@@ -927,7 +980,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
+                Log.Write(ex);
                 return false;
             }
         }
@@ -941,12 +994,12 @@ namespace FCP
                 {
                     foreach (var v in OPD)
                     {
-                        DoseType doseType = GetDoseType(v.AdminCode);
+                        eDoseType doseType = GetDoseType(v.AdminCode);
                         sw.Write(ECD(basic.PatientName, 20));
                         sw.Write(basic.PatientNo.PadRight(30));
                         sw.Write(ECD(basic.LocationName, 50));
                         sw.Write("".PadRight(29));
-                        if (doseType == DoseType.餐包)
+                        if (doseType == eDoseType.餐包)
                             sw.Write(v.PerQty.PadRight(5));
                         else
                             sw.Write(v.SumQty.PadRight(5));
@@ -981,8 +1034,8 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
-                throw ex;
+                Log.Write(ex);
+                throw;
             }
         }
 
@@ -1022,8 +1075,8 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
-                throw ex;
+                Log.Write(ex);
+                throw;
             }
         }
 
@@ -1035,16 +1088,17 @@ namespace FCP
                 {
                     foreach (var v in UD)
                     {
-                        bool isInteger = !v.PerQty.Contains('.');
-                        string perQty = !isInteger ? Math.Ceiling(Convert.ToSingle(v.PerQty)).ToString() : v.PerQty;
-                        if (isInteger)
-                            sw.Write(ECD($"{v.PatientName} 整數", 20));
-                        else
-                            sw.Write(ECD($"{v.PatientName} 非整數", 20));
+                        //bool isInteger = !v.PerQty.Contains('.');
+                        //string perQty = !isInteger ? Math.Ceiling(Convert.ToSingle(v.PerQty)).ToString() : v.PerQty;
+                        //if (isInteger)
+                        //    sw.Write(ECD($"{v.PatientName} 整數", 20));
+                        //else
+                        //    sw.Write(ECD($"{v.PatientName} 非整數", 20));
+                        sw.Write(ECD(v.PatientName, 20));
                         sw.Write("".PadRight(30));
                         sw.Write(ECD(v.Location, 50));
                         sw.Write("".PadRight(29));
-                        sw.Write(perQty.PadRight(5));
+                        sw.Write(v.PerQty.PadRight(5));
                         sw.Write(ECD(v.MedicineCode, 20));
                         sw.Write(ECD(v.MedicineName, 50));
                         sw.Write(v.AdminCode.PadRight(20));
@@ -1070,7 +1124,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
+                Log.Write(ex);
                 return false;
             }
         }
@@ -1108,8 +1162,8 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
-                throw ex;
+                Log.Write(ex);
+                throw;
             }
         }
 
@@ -1121,7 +1175,7 @@ namespace FCP
                 {
                     foreach (var v in OPD)
                     {
-                        DoseType doseType = GetDoseType(v.AdminCode);
+                        eDoseType doseType = GetDoseType(v.AdminCode);
                         sw.Write(ECD(v.PatientName, 20));
                         sw.Write("".PadRight(30));
                         sw.Write(ECD("門診", 50));
@@ -1143,15 +1197,16 @@ namespace FCP
                         sw.Write(ECD(v.Unit, 30));
                         sw.Write(v.Days.PadRight(30));
                         sw.Write(ECD(v.AdminCode, 30));
-                        sw.Write("".PadRight(360));
+                        sw.Write(ECD(v.PatientName, 30));
+                        sw.Write("".PadRight(330));
                         sw.WriteLine("M");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
-                throw ex;
+                Log.Write(ex);
+                throw;
             }
         }
 
@@ -1163,7 +1218,7 @@ namespace FCP
                 {
                     foreach (var v in OPD)
                     {
-                        DoseType doseType = GetDoseType(v.AdminCode);
+                        eDoseType doseType = GetDoseType(v.AdminCode);
                         sw.Write(ECD(v.PatientName, 20));
                         sw.Write("".PadRight(30));
                         sw.Write(ECD("門診", 50));
@@ -1189,8 +1244,8 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
-                throw ex;
+                Log.Write(ex);
+                throw;
             }
         }
 
@@ -1201,15 +1256,15 @@ namespace FCP
             return Encoding.Default.GetString(Temp, 0, Length);
         }
 
-        private static string ConvertDoseType(DoseType type)
+        private static string ConvertDoseType(eDoseType type)
         {
-            string result = type == DoseType.餐包 ? "M" : "C";
+            string result = type == eDoseType.餐包 ? "M" : "C";
             return result;
         }
 
-        private static DoseType GetDoseType(string code)
+        private static eDoseType GetDoseType(string code)
         {
-            List<string> list = AssignExtraAdminTime(_SettingsModel.OppositeAdminCode);
+            List<string> list = AssignExtraAdminTime(_SettingsModel.OutputSpecialAdminCode);
             var type = JudgeDoseType(_SettingsModel.DoseType, list, code);
             return type;
         }
@@ -1225,31 +1280,31 @@ namespace FCP
             return extraList;
         }
 
-        private static DoseType JudgeDoseType(DoseType doseType, List<string> extraList, string AdminTime)
+        private static eDoseType JudgeDoseType(eDoseType doseType, List<string> extraList, string AdminTime)
         {
-            if (doseType == DoseType.種包)
+            if (doseType == eDoseType.種包)
             {
                 if (extraList.Count >= 1)
                 {
                     if (extraList.Contains(AdminTime.Trim()))
-                        return DoseType.餐包;
+                        return eDoseType.餐包;
                     else
-                        return DoseType.種包;
+                        return eDoseType.種包;
                 }
                 else
-                    return DoseType.種包;
+                    return eDoseType.種包;
             }
             else
             {
                 if (extraList.Count >= 1)
                 {
                     if (extraList.Contains(AdminTime.Trim()))
-                        return DoseType.種包;
+                        return eDoseType.種包;
                     else
-                        return DoseType.餐包;
+                        return eDoseType.餐包;
                 }
                 else
-                    return DoseType.餐包;
+                    return eDoseType.餐包;
             }
         }
     }

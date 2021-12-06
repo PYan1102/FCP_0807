@@ -1,32 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.IO;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.ComponentModel;
-using FCP.MVVM.Factory.ViewModel;
-using FCP.MVVM.FormatInit;
-using FCP.MVVM.Models.Enum;
-using FCP.MVVM.Factory;
+using FCP.src.Factory.ViewModel;
 using FCP.MVVM.Models;
-using FCP.MVVM.Control;
 using FCP.MVVM.ViewModels;
-using MaterialDesignThemes.Wpf;
-using FCP.MVVM.Dialog;
+using FCP.src;
+using Helper;
+using FCP.src.Factory.Models;
 
 namespace FCP
 {
@@ -38,15 +19,10 @@ namespace FCP
         private FunctionCollections _Format { get; set; }
         private SettingsModel _SettingsModel { get; set; }
         private MainWindowModel _MainWindowModel { get => MainWindowFactory.GenerateMainWindowModel(); }
-        private MsgBViewModel _MsgBVM { get; set; }
         private Stopwatch _StopWatch = new Stopwatch();
         public string CurrentWindow { get; set; }
         private string _StatOrBatch = "S";
-        private string _InputPath1 = "";
-        private string _InputPath2 = "";
-        private string _InputPath3 = "";
-        private string _OutputPath = "";
-        private const int _ShowMainWindow_ID = 100;
+        private const int _ShowMainWindow = 100;
 
         public enum KeyModifilers
         {
@@ -91,13 +67,13 @@ namespace FCP
         private void RegisterHotKey()
         {
             var helper = new System.Windows.Interop.WindowInteropHelper(this);
-            RegisterHotKey(helper.Handle, _ShowMainWindow_ID, KeyModifilers.Alt, System.Windows.Forms.Keys.D);
+            RegisterHotKey(helper.Handle, _ShowMainWindow, KeyModifilers.Alt, System.Windows.Forms.Keys.D);
         }  //註冊全域熱鍵
 
         private void UnregisterHotKey()
         {
             var helper = new System.Windows.Interop.WindowInteropHelper(this);
-            UnregisterHotKey(helper.Handle, _ShowMainWindow_ID);
+            UnregisterHotKey(helper.Handle, _ShowMainWindow);
         }  //註銷全域熱鍵
 
         private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -108,8 +84,8 @@ namespace FCP
                 case WM_HOTKEY:
                     switch (wParam.ToInt32())
                     {
-                        case _ShowMainWindow_ID:
-                            MainWindowFactory.GenerateMainWindowViewModel().NotifyIconDBClick(null, null);
+                        case _ShowMainWindow:
+                            MainWindowFactory.GenerateMainWindowViewModel().NotifyIconDBClick();
                             handled = true;
                             break;
                     }
@@ -121,34 +97,26 @@ namespace FCP
         public MainWindow()
         {
             InitializeComponent();
-            MainWindowFactory.MainWindow = this;
+            WindowOwner.MainWindowOwner = this;
             SettingsFactory.GenerateSettingsControl();
             this.DataContext = MainWindowFactory.GenerateMainWindowViewModel();
             _SettingsModel = SettingsFactory.GenerateSettingsModel();
             SimpleWindowFactory.GenerateSimpleWindow();
-        }
-        
-        private void Btn_ProgressBoxClear_Click(object sender, RoutedEventArgs e)
-        {
-            _Format.ProgressBoxClear();
-        }
-
-        private void ClearListBox_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            Btn_ProgressBoxClear_Click(null, null);
+            var vm = this.DataContext as MainWindowViewModel;
+            vm.ActivateWindow += ActivateWindow;
+            vm.DragMoveWindow += DragMoveWindow;
+            MSSql.SqlInfo = "Server=.;DataBase=OnCube;User ID=sa;Password=jvm5822511";
         }
 
-        private void Log_Executed(object sender, ExecutedRoutedEventArgs e)
+        private void DragMoveWindow()
         {
-            try
-            {
-                Process.Start($@"D:\FCP\LOG\{DateTime.Now:yyyy-MM-dd}\Error_Log.txt");
-            }
-            catch (Exception a)
-            {
-                _MsgBVM.Show(a.ToString(), "錯誤", PackIconKind.Error, KindColors.Error);
-            }
-        }  //F1開啟Log
+            this.DragMove();
+        }
+
+        private void ActivateWindow()
+        {
+            this.Activate();
+        }
 
         public void ChangeUDFormatType(string Type)
         {

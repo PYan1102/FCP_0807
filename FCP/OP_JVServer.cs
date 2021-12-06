@@ -2,14 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Data;
-using System.Diagnostics;
-using System.Globalization;
-using System.Collections.ObjectModel;
 using Helper;
-using FCP.MVVM.FormatControl;
+using FCP.src.FormatControl;
 
 namespace FCP
 {
@@ -68,8 +64,8 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
-                throw ex;
+                Log.Write(ex);
+                throw;
             }
         }
 
@@ -110,8 +106,8 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex.ToString());
-                throw ex;
+                Log.Write(ex);
+                throw;
             }
         }
 

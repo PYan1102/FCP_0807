@@ -18,8 +18,8 @@
         Title="FCP"
         Height="149"
         Width="450"
-        Top="{Binding Top}"
-        Left="{Binding Left}"
+        Top="{Binding Top,Mode=TwoWay}"
+        Left="{Binding Left,Mode=TwoWay}"
         WindowStyle="None"
         ResizeMode="NoResize"
         Background="Transparent"
@@ -32,6 +32,9 @@
             <i:InvokeCommandAction Command="{Binding Activate}"
                                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"/>
         </i:DataTrigger>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding Loaded}"/>
+        </i:EventTrigger>
     </i:Interaction.Triggers>
     <Window.DataContext>
         <vm:SimpleWindowViewModel/>

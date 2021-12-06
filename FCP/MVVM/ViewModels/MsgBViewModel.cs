@@ -6,7 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using FCP.Core;
 using FCP.MVVM.Models;
-using FCP.MVVM.Factory.ViewModel;
+using FCP.src.Factory.ViewModel;
 using MaterialDesignThemes.Wpf;
 
 namespace FCP.MVVM.ViewModels
@@ -65,10 +65,10 @@ namespace FCP.MVVM.ViewModels
             set => _Model.OKButtonFocus = value;
         }
 
-        public void Show(string content, string title, PackIconKind kind, Color kindColor)
+        public void Show(object content, object title, PackIconKind kind, Color kindColor)
         {
-            Content = content;
-            Title = title;
+            Content = content.ToString();
+            Title = title.ToString();
             Kind = kind;
             KindColor = kindColor;
             var window = MsgBFactory.GenerateMsgB();
@@ -78,9 +78,9 @@ namespace FCP.MVVM.ViewModels
             window.Close();
         }
 
-        public void Show(string content)
+        public void Show(object content)
         {
-            Content = content;
+            Content = content.ToString();
             Title = string.Empty;
             Kind = PackIconKind.Information;
             KindColor = KindColors.Information;

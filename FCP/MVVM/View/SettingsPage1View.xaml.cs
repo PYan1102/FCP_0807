@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows.Controls;
+using FCP.src;
+using FCP.src.Factory.ViewModel;
 using FCP.MVVM.ViewModels;
+using System;
+using System.Collections.Generic;
 
 namespace FCP.MVVM.View
 {
@@ -24,7 +15,44 @@ namespace FCP.MVVM.View
         public SettingsPage1View()
         {
             InitializeComponent();
-            RefreshUIPropertyServices.InitSettingsPage1UI();
+            this.DataContext = AdvancedSettingsFactory.GenerateSettingsPage1ViewModel();
+            var vm = this.DataContext as SettingsPage1ViewModel;
+            vm.FocusFilterAdminCode += FocusFilterAdminCode;
+            vm.SelectAllFilterAdminCode += SelectAllFilterAdminCode;
+            vm.FocusFilterMedicineCode += FocusFilterMedicineCode;
+            vm.SelectAllFilterMedicineCode += SelectAllFilterMedicineCode;
+            vm.RefreshRandomDataGridView += RefreshRandomDataGridView;
+            vm.RefreshFilterMedicineCodeComboBox += RefreshFilterMedicineCodeComboBox;
+        }
+
+        public void FocusFilterAdminCode()
+        {
+            Txt_FilterAdminCode.Focus();
+        }
+
+        public void SelectAllFilterAdminCode()
+        {
+            Txt_FilterAdminCode.SelectAll();
+        }
+
+        private void SelectAllFilterMedicineCode()
+        {
+            Txt_FilterMedicineCode.Focus();
+        }
+
+        private void FocusFilterMedicineCode()
+        {
+            Txt_FilterMedicineCode.SelectAll();
+        }
+
+        private void RefreshRandomDataGridView()
+        {
+            Dg_JVServerRandomSetting.Items.Refresh();
+        }
+
+        private void RefreshFilterMedicineCodeComboBox()
+        {
+            Cbo_FilterMedicineCode.Items.Refresh();
         }
     }
 }

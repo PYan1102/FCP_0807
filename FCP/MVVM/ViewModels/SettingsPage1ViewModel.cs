@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FCP.Core;
 using System.Collections.ObjectModel;
 using FCP.MVVM.Models;
 using System.Windows;
 using System.Windows.Input;
-using FCP.MVVM.Factory.ViewModel;
 using MaterialDesignThemes.Wpf;
+using Helper;
+using FCP.src.Enum;
+using FCP.src.Factory;
+using FCP.src;
+using FCP.src.Factory.Models;
 
 namespace FCP.MVVM.ViewModels
 {
@@ -18,50 +20,63 @@ namespace FCP.MVVM.ViewModels
         public ICommand NormalPack { get; set; }
         public ICommand FilterAdminCode { get; set; }
         public ICommand UseAdminCode { get; set; }
-        public ICommand AddFilterMedicineCodeItem { get; set; }
-        public ICommand RemoveFilterMedicineCodeItem { get; set; }
-        public bool SelectionAll { get; set; }
+        public ICommand AddFilterMedicineCode { get; set; }
+        public ICommand RemoveFilterMedicineCode { get; set; }
+        public ICommand AddFilterAdminCode { get; set; }
+        public ICommand RemoveFilterAdminCode { get; set; }
+        public ICommand AddRandom { get; set; }
+        public ICommand RemoveRandom { get; set; }
+        public Action SelectAllFilterAdminCode { get; set; }
+        public Action FocusFilterAdminCode { get; set; }
+        public Action SelectAllFilterMedicineCode { get; set; }
+        public Action FocusFilterMedicineCode { get; set; }
+        public Action RefreshRandomDataGridView { get; set; }
+        public Action RefreshFilterMedicineCodeComboBox { get; set; }
         private SettingsPage1Model _Model;
-        private MsgBViewModel _MsgBVM { get => MsgBFactory.GenerateMsgBViewModel(); }
+        private SettingsModel _SettingsModel;
+
         public SettingsPage1ViewModel()
         {
-            _Model = new SettingsPage1Model();
-            SearchFrequency = 100;
+            _SettingsModel = SettingsFactory.GenerateSettingsModel();
+            _Model = ModelsFactory.GenerateSettingsPage1Model();
             NormalPack = new RelayCommand(() => NormalPackFunc());
             FilterAdminCode = new RelayCommand(() => FilterAdminCodeFunc());
             UseAdminCode = new RelayCommand(() => UseAdminCodeFunc());
-            AddFilterMedicineCodeItem = new RelayCommand(() => AddFilterMedicineCodeItemFunc());
-            RemoveFilterMedicineCodeItem = new RelayCommand(() => RemoveFilterMedicineCodeItemFunc());
-            var list = new ObservableCollection<string>();
-            list.Add("1");
-            list.Add("2");
-            list.Add("3");
-            list.Add("4");
-            FilterMedicineCode = list;
-            FilterMedicineCodeIndex = 2;
+            AddFilterMedicineCode = new RelayCommand(() => AddFilterMedicineCodeFunc());
+            RemoveFilterMedicineCode = new RelayCommand(() => RemoveFilterMedicineCodeFunc());
+            AddFilterAdminCode = new RelayCommand(() => AddFilterAdminCodeFunc());
+            RemoveFilterAdminCode = new RelayCommand(() => RemoveFilterAdminCodeFunc());
+            AddRandom = new RelayCommand(() => AddRandomFunc());
+            RemoveRandom = new RelayCommand(() => RemoveRandomFunc());
+
+            Init();
         }
 
         public int SearchFrequency
         {
             get => _Model.SearchFrequency;
-            set
-            {
-                _Model.SearchFrequency = value;
-            }
+            set => _Model.SearchFrequency = value;
         }
 
-        public int Mode
+        public ObservableCollection<string> Mode
         {
             get => _Model.Mode;
-            set
-            {
-                _Model.Mode = value;
-            }
+            set => _Model.Mode = value;
+        }
+
+        public int ModeIndex
+        {
+            get => _Model.ModeIndex;
+            set => _Model.ModeIndex = value;
         }
 
         public bool NormalPackChecked
         {
-            get => _Model.NormalPackChecked;
+            //get => _Model.NormalPackChecked;
+            get
+            {
+                return _Model.NormalPackChecked;
+            }
             set
             {
                 _Model.NormalPackChecked = value;
@@ -100,20 +115,26 @@ namespace FCP.MVVM.ViewModels
             get => _Model.AdminCode;
             set
             {
-                _Model.AdminCode = value;
+                _Model.AdminCode = value.Trim();
             }
         }
 
-        public ObservableCollection<string> AdminCodePackList
+        public ObservableCollection<string> FilterAdminCodeList
         {
-            get => _Model.AdminCodePackList;
+            get => _Model.FilterAdminCodeList;
             set
             {
-                _Model.AdminCodePackList = value;
+                _Model.FilterAdminCodeList = value;
             }
         }
 
-        public ObservableCollection<string> Random
+        public int FilterAdminCodeIndex
+        {
+            get => _Model.FilerAdminCodeIndex;
+            set => _Model.FilerAdminCodeIndex = value;
+        }
+
+        public ObservableCollection<RandomInfo> Random
         {
             get => _Model.Random;
             set
@@ -122,6 +143,14 @@ namespace FCP.MVVM.ViewModels
             }
         }
 
+        public int RandomIndex
+        {
+            get => _Model.RandomIndex;
+            set
+            {
+                _Model.RandomIndex = value;
+            }
+        }
         public bool MultiChecked
         {
             get => _Model.MultiChecked;
@@ -130,6 +159,7 @@ namespace FCP.MVVM.ViewModels
                 _Model.MultiChecked = value;
             }
         }
+
         public bool CombiChecked
         {
             get => _Model.CombiChecked;
@@ -153,7 +183,7 @@ namespace FCP.MVVM.ViewModels
             get => _Model.CutTime;
             set
             {
-                _Model.CutTime = value;
+                _Model.CutTime = value.Trim();
             }
         }
 
@@ -162,7 +192,7 @@ namespace FCP.MVVM.ViewModels
             get => _Model.AdminCodeOfCrossDay;
             set
             {
-                _Model.AdminCodeOfCrossDay = value;
+                _Model.AdminCodeOfCrossDay = value.Trim();
             }
         }
 
@@ -171,15 +201,16 @@ namespace FCP.MVVM.ViewModels
             get => _Model.MedicineCode;
             set
             {
-                _Model.MedicineCode = value;
+                _Model.MedicineCode = value.Trim();
             }
         }
-        public ObservableCollection<string> FilterMedicineCode
+
+        public ObservableCollection<string> FilterMedicineCodeList
         {
-            get => _Model.FilterMedicineCode;
+            get => _Model.FilterMedicineCodeList;
             set
             {
-                _Model.FilterMedicineCode = value;
+                _Model.FilterMedicineCodeList = value;
             }
         }
 
@@ -216,27 +247,145 @@ namespace FCP.MVVM.ViewModels
             PackMode = Visibility.Visible;
         }
 
-        public void AddFilterMedicineCodeItemFunc()
+        public void AddFilterMedicineCodeFunc()
         {
-            if (MedicineCode.Trim().Length == 0)
-                return;
-            if (FilterMedicineCode.Contains(MedicineCode))
+            if (MedicineCode.Length == 0)
             {
-                _MsgBVM.Show($"該藥品代碼 {MedicineCode} 已建立，請重新確認", "重複", PackIconKind.Error, KindColors.Error);
+                Message.Show("藥品代碼欄位為空白，請重新確認", "空白", PackIconKind.Error, KindColors.Error);
+                FocusFilterMedicineCode();
                 return;
             }
-            FilterMedicineCode.Add(MedicineCode);
+            if (FilterMedicineCodeList.Contains(MedicineCode))
+            {
+                Message.Show($"該藥品代碼 {MedicineCode} 已建立，請重新確認", "重複", PackIconKind.Error, KindColors.Error);
+                FocusFilterMedicineCode();
+                SelectAllFilterMedicineCode();
+                return;
+            }
+            FilterMedicineCodeList.Add(MedicineCode);
+            FilterMedicineCodeList = ListHelper.ToObservableCollection(FilterMedicineCodeList.OrderBy(x => x).ToList());
+            FilterMedicineCodeIndex = 0;
             MedicineCode = string.Empty;
+            FocusFilterMedicineCode();
         }
 
-        public void RemoveFilterMedicineCodeItemFunc()
+        public void RemoveFilterMedicineCodeFunc()
         {
-            if (FilterMedicineCodeIndex == -1)
+            if (FilterMedicineCodeList.Count == 0 || FilterMedicineCodeIndex == -1)
+            {
                 return;
-            FilterMedicineCode.RemoveAt(FilterMedicineCodeIndex);
-            if (FilterMedicineCode.Count == 0)
-                return;
-            FilterMedicineCodeIndex = 0;
+            }
+            FilterMedicineCodeList.RemoveAt(FilterMedicineCodeIndex);
+            FilterMedicineCodeIndex = FilterMedicineCodeList.Count == 0 ? -1 : 0;
+            RefreshFilterMedicineCodeComboBox();
         }
+
+        public void AddFilterAdminCodeFunc()
+        {
+            if (AdminCode.Length == 0)
+            {
+                Message.Show("頻率欄位為空白，請重新確認", "空白", PackIconKind.Error, KindColors.Error);
+                FocusFilterAdminCode();
+                return;
+            }
+            if (FilterAdminCodeList.Contains(AdminCode))
+            {
+                Message.Show($"該頻率 {AdminCode} 已建立，請重新確認", "重複", PackIconKind.Error, KindColors.Error);
+                FocusFilterAdminCode();
+                SelectAllFilterAdminCode();
+                return;
+            }
+            FilterAdminCodeList.Add(AdminCode);
+            FilterAdminCodeList = ListHelper.ToObservableCollection(FilterAdminCodeList.OrderBy(x => x).ToList());
+            FilterAdminCodeIndex = 0;
+            AdminCode = string.Empty;
+            FocusFilterAdminCode();
+        }
+
+        public void RemoveFilterAdminCodeFunc()
+        {
+            if (FilterAdminCodeList.Count == 0 || FilterAdminCodeIndex == -1)
+            {
+                return;
+            }
+            FilterAdminCodeList.RemoveAt(FilterAdminCodeIndex);
+            FilterAdminCodeIndex = FilterAdminCodeList.Count == 0 ? -1 : 0;
+        }
+
+        private void Init()
+        {
+            SearchFrequency = _SettingsModel.Speed;
+            MultiChecked = _SettingsModel.DoseType == eDoseType.餐包;
+            CombiChecked = _SettingsModel.DoseType == eDoseType.種包;
+            OutputSpecialAdminCode = string.Empty;
+            _SettingsModel.OutputSpecialAdminCode.ForEach(x => OutputSpecialAdminCode += $"{x},");
+            OutputSpecialAdminCode = OutputSpecialAdminCode.TrimEnd(',');
+            CutTime = _SettingsModel.CutTime;
+            AdminCodeOfCrossDay = string.Empty;
+            _SettingsModel.CrossDayAdminCode.ForEach(x => AdminCodeOfCrossDay += $"{x},");
+            AdminCodeOfCrossDay = AdminCodeOfCrossDay.TrimEnd(',');
+            Mode = EnumHelper.ToObservableCollection<eFormat>();
+            ModeIndex = (int)_SettingsModel.Mode;
+            FilterAdminCodeList = ListHelper.ToObservableCollection(_SettingsModel.FilterAdminCode);
+            List<string> randomList = _SettingsModel.ExtraRandom.Split('|').ToList();
+            randomList.RemoveAll(x => x.Length == 0);
+            Random.Clear();
+            foreach (var v in randomList)
+            {
+                var random = v.Split(':');
+                Random.Add(new RandomInfo()
+                {
+                    No = random[0],
+                    JVServer = random[1],
+                    OnCube = random[2]
+                });
+            }
+            FilterMedicineCodeList = ListHelper.ToObservableCollection(_SettingsModel.FilterMedicineCode);
+
+            if (_SettingsModel.PackMode == ePackMode.正常)
+            {
+                NormalPackChecked = true;
+                NormalPackFunc();
+            }
+            else if (_SettingsModel.PackMode == ePackMode.過濾特殊)
+            {
+                FilterAdminCodeChecked = true;
+                FilterAdminCodeFunc();
+            }
+            else
+            {
+                UseAdminCodeChecked = true;
+                UseAdminCodeFunc();
+            }
+        }
+
+        private void AddRandomFunc()
+        {
+            Random.Add(new RandomInfo()
+            {
+                No = $"{Random.Count}",
+                JVServer = string.Empty,
+                OnCube = string.Empty
+            });
+        }
+
+        private void RemoveRandomFunc()
+        {
+            if (Random.Count == 0 || RandomIndex == -1)
+            {
+                return;
+            }
+            Random.RemoveAt(RandomIndex);
+            RandomIndex = RandomIndex == 0 ? -1 : 0;
+            Random.ToList().ForEach(x => x.No = Random.IndexOf(x).ToString());
+            RefreshRandomDataGridView();
+        }
+    }
+
+    public class RandomInfo
+    {
+        public string No { get; set; }
+        public string JVServer { get; set; }
+        public string OnCube { get; set; }
     }
 }

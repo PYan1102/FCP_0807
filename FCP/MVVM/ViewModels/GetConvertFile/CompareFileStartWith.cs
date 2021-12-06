@@ -2,18 +2,18 @@
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-using FCP.MVVM.Models.Enum;
+using FCP.src.Enum;
 using FCP.MVVM.Models;
-using FCP.MVVM.Factory.ViewModel;
+using FCP.src.Factory.ViewModel;
 
 namespace FCP.MVVM.ViewModels.GetConvertFile
 {
     public class CompareFileStartWith
     {
-        public Dictionary<Parameter, DepartmentEnum> DepartmentDictionary { get; set; }
-        private DepartmentEnum _Department { get; set; }
+        public Dictionary<Parameter, eConvertLocation> DepartmentDictionary { get; set; }
+        private eConvertLocation _Department { get; set; }
 
-        public DepartmentEnum GetDepartment()
+        public eConvertLocation GetDepartment()
         {
             return _Department;
         }

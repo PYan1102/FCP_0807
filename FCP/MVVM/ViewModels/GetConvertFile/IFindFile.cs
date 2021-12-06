@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FCP.MVVM.Models;
-using FCP.MVVM.Models.Enum;
+using FCP.src.Enum;
 
 namespace FCP.MVVM.ViewModels.GetConvertFile
 {
@@ -32,6 +32,6 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
     {
         public string InputPath { get; set; }
         public string FilePath { get; set; }
-        public DepartmentEnum Department { get; set; }
+        public eConvertLocation Department { get; set; }
     }
 }

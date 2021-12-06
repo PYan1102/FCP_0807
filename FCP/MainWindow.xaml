@@ -60,19 +60,19 @@
         <KeyBinding Gesture="F7" Command="{Binding Stop}"/>
         <KeyBinding Gesture="Ctrl+S" Command="{Binding Save}"/>
         <KeyBinding Gesture="Escape" Command="{Binding Close}"/>
-        <KeyBinding Gesture="Ctrl+1" Command="{Binding SelectFolder}"/>
-        <KeyBinding Gesture="Ctrl+2" Command="{Binding SelectFolder}"/>
-        <KeyBinding Gesture="Ctrl+3" Command="{Binding SelectFolder}"/>
-        <KeyBinding Gesture="Ctrl+4" Command="{Binding SelectFolder}"/>
+        <KeyBinding Gesture="Ctrl+1" Command="{Binding SelectFolder}"
+                    CommandParameter="IP1"/>
+        <KeyBinding Gesture="Ctrl+2" Command="{Binding SelectFolder}"
+                    CommandParameter="IP2"/>
+        <KeyBinding Gesture="Ctrl+3" Command="{Binding SelectFolder}"
+                    CommandParameter="IP3"/>
+        <KeyBinding Gesture="Ctrl+4" Command="{Binding SelectFolder}"
+                    CommandParameter="OP"/>
         <KeyBinding Gesture="Ctrl+G" Command="{Binding SwitchWindow}"/>
         <KeyBinding Gesture="Ctrl+W" Command="{Binding ShowAdvancedSettings}"/>
-        <KeyBinding Gesture="Ctrl+E" Command="{Binding ClearLog}"/>
-        <KeyBinding Gesture="F1" Command="{StaticResource Log}"/>
+        <KeyBinding Gesture="Ctrl+E" Command="{Binding ClearProgressBoxContent}"/>
+        <KeyBinding Gesture="F1" Command="{Binding OpenLog}"/>
     </Window.InputBindings>
-    <Window.CommandBindings>
-        <CommandBinding Command="{StaticResource ClearListBox}" Executed="ClearListBox_Executed"/>
-        <CommandBinding Command="{StaticResource Log}" Executed="Log_Executed"/>
-    </Window.CommandBindings>
     <Border BorderBrush="{StaticResource DeepBlue}" BorderThickness="2">
         <Grid>
             <Grid.Background>
@@ -277,7 +277,8 @@
                                          IsReadOnly="True"
                                          Text="{Binding OutputPath}"
                                          Opacity="0.6"
-                                         Margin="0 8 0 0" />
+                                         Margin="0 8 0 0">
+                                </TextBox>
                                 <Button Grid.Row="3"
                                         Grid.Column="4"
                                         materialDesign:ButtonAssist.CornerRadius="5"
@@ -726,23 +727,19 @@
                             </Grid>
                         </Border>
                     </Grid>
-                    <TextBox x:Name="Txt_ProgressBox"
-                             Grid.Column="2"
-                             FontSize="16"
-                             Foreground="{StaticResource DeepBlue}"
-                             HorizontalScrollBarVisibility="Auto"
-                             VerticalScrollBarVisibility="Auto"
-                             TextWrapping="Wrap"
-                             IsReadOnly="True"
-                             Text="{Binding Log}"
-                             Cursor="Arrow">
-                        <TextBox.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="5"/>
-                                <Setter Property="Background" Value="White"/>
-                            </Style>
-                        </TextBox.Resources>
-                    </TextBox>
+                    <Border Grid.Column="2"
+                            CornerRadius="5"
+                            Background="White">
+                        <TextBox FontSize="16"
+                                 Foreground="{StaticResource DeepBlue}"
+                                 HorizontalScrollBarVisibility="Auto"
+                                 VerticalScrollBarVisibility="Auto"
+                                 TextWrapping="Wrap"
+                                 IsReadOnly="True"
+                                 Text="{Binding ProgressBoxContent}"
+                                 Cursor="Arrow">
+                        </TextBox>
+                    </Border>
                     <Button x:Name="Btn_ProgressBoxClear"
                             Grid.Column="2"
                             Width="30"
@@ -753,7 +750,7 @@
                             HorizontalAlignment="Right"
                             VerticalAlignment="Top"
                             materialDesign:ButtonAssist.CornerRadius="5"
-                            Command="{Binding ClearLog}">
+                            Command="{Binding ClearProgressBoxContent}">
                         <materialDesign:PackIcon Kind="Eraser"
                                                  Height="25"
                                                  Width="25"

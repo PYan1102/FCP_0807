@@ -1,12 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Windows;
 
 namespace FCP.MVVM.Models
 {
     class SettingsPage2Model
     {
+        public bool ShowStatAndBatchOptionChecked { get; set; }
+        public bool MinimizeWindowWhenProgramStartChecked { get; set; }
+        public bool ShowCloseAndMinimizeButtonChecked { get; set; }
+        public bool ShowXYChecked { get; set; }
+        public bool FilterMedicineCodeChecked { get; set; }
+        public bool OnlyCanisterInChecked { get; set; }
+        public Visibility OnlyCanisterInVisibility { get; set; }
+        public bool WhenCompeletedMoveFileChecked { get; set; }
+        public bool WhenCompeletedStopChecked { get; set; }
+        public string FileExtensionName { get; set; }
     }
 }

@@ -2,10 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using FCP.MVVM.Models;
-using FCP.MVVM.Factory;
 using System.Collections.Generic;
 using System.IO;
-using FCP.MVVM.Models.Enum;
+using FCP.src.Factory.Models;
+using FCP.src.Enum;
 
 namespace FCP.MVVM.ViewModels.GetConvertFile
 {
@@ -26,7 +26,7 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
             _InputPathList = list;
         }
 
-        public void SetDepartmentDictionary(Dictionary<Parameter, DepartmentEnum> department)
+        public void SetDepartmentDictionary(Dictionary<Parameter, eConvertLocation> department)
         {
             DepartmentDictionary = department;
         }
@@ -43,7 +43,7 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
                         if (path.Trim().Length == 0)
                             continue;
                         int index = _InputPathList.IndexOf(path);
-                        foreach (string filePath in Directory.GetFiles(path, _SettingsModel.DeputyFileName))
+                        foreach (string filePath in Directory.GetFiles(path, $"*.{_SettingsModel.FileExtensionName}"))
                         {
                             bool isCompareCompleted = IsFileCompareSuccess(filePath);
                             if (isCompareCompleted)

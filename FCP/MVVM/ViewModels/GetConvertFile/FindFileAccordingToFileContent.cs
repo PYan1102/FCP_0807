@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using FCP.MVVM.Models.Enum;
+using FCP.src.Enum;
 using FCP.MVVM.Models;
 
 namespace FCP.MVVM.ViewModels.GetConvertFile
@@ -24,7 +24,7 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
             throw new NotImplementedException();
         }
 
-        public void SetDepartmentDictionary(Dictionary<Parameter, DepartmentEnum> department)
+        public void SetDepartmentDictionary(Dictionary<Parameter, eConvertLocation> department)
         {
             throw new NotImplementedException();
         }

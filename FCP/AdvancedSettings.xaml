@@ -39,8 +39,7 @@
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Gesture="Ctrl+S" Command="{Binding Save}"/>
-        <KeyBinding Gesture="Escape" Command="{Binding Close}"
-                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"/>
+        <KeyBinding Gesture="Escape" Command="{Binding Close}"/>
     </Window.InputBindings>
     <Window.CommandBindings>
         <CommandBinding Command="{StaticResource Save}"/>
@@ -71,12 +70,11 @@
                            Foreground="White"
                            VerticalAlignment="Center"
                            Margin="10 0 0 0"/>
-                <Button x:Name="Btn_Close"
-                        Grid.Column="1"
+                <Button Grid.Column="1"
                         Foreground="White"
                         Background="Transparent"
                         BorderBrush="Transparent"
-                        Click="Btn_Close_Click">
+                        Command="{Binding Close}">
                     <materialDesign:PackIcon Kind="Close"
                                              Height="30"
                                              Width="30"
@@ -88,7 +86,8 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="0.8*"/>
                         <RowDefinition Height="10"/>
-                        <RowDefinition Height="10*"/>
+                        <RowDefinition Height="450"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -123,6 +122,31 @@
                                                      Width="30"/>
                         </Button>
                     </Grid>
+                    <DockPanel Grid.Row="3"
+                               HorizontalAlignment="Right">
+                        <Button Background="White"
+                                        Foreground="{StaticResource DeepBlue}"
+                                        BorderBrush="Transparent"
+                                        FontSize="20"
+                                        Width="150"
+                                        Height="Auto"
+                                        HorizontalAlignment="Right"
+                                        materialDesign:ButtonAssist.CornerRadius="5"
+                                        Command="{Binding Save}"
+                                Content="儲存"
+                                        Margin="0 10 10 10"/>
+                        <Button Background="White"
+                                        Foreground="{StaticResource DeepBlue}"
+                                        BorderBrush="Transparent"
+                                        FontSize="20"
+                                        Width="150"
+                                        Height="Auto"
+                                        HorizontalAlignment="Right"
+                                        materialDesign:ButtonAssist.CornerRadius="5"
+                                        Command="{Binding Cancel}"
+                                Content="取消"
+                                        Margin="0 10 10 10"/>
+                    </DockPanel>
                 </Grid>
             </Border>
             <ContentControl Name="Control"

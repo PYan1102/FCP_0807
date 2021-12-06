@@ -7,19 +7,17 @@
              xmlns:local="clr-namespace:FCP.MVVM.View"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:vm="clr-namespace:FCP.MVVM.ViewModels"
+             xmlns:core="clr-namespace:FCP.Core"
              mc:Ignorable="d"
              Height="450"
-             Width="800">
+             Width="740">
     <UserControl.DataContext>
         <vm:SettingsPage1ViewModel/>
     </UserControl.DataContext>
-    <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Loaded">
-        </i:EventTrigger>
-    </i:Interaction.Triggers>
     <Border CornerRadius="10"
             Background="White"
-            Visibility="Visible">
+            Visibility="Visible"
+            Margin="5">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="45"/>
@@ -86,7 +84,7 @@
                                  Foreground="{StaticResource DeepBlue}"
                                  VerticalAlignment="Center"
                                  Margin="0 30 0 0"
-                                 Text="{Binding SearchFrequency}"
+                                 Text="{Binding SearchFrequency,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                                  InputMethod.IsInputMethodEnabled="False"/>
                         <TextBlock Grid.Column="2"
                                    Text="轉檔格式"
@@ -99,7 +97,8 @@
                                   FontSize="16"
                                   Foreground="{StaticResource DeepBlue}"
                                   VerticalAlignment="Center"
-                                  SelectedIndex="{Binding Mode}"
+                                  ItemsSource="{Binding Mode}"
+                                  SelectedIndex="{Binding ModeIndex}"
                                   Margin="0 28 0 0"/>
                     </Grid>
                 </Border>
@@ -150,7 +149,7 @@
                                  VerticalAlignment="Center"
                                  HorizontalAlignment="Stretch"
                                  TextWrapping="NoWrap"
-                                 Text="{Binding OutputSpecialAdminCode}"
+                                 Text="{Binding OutputSpecialAdminCode,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                                  materialDesign:HintAssist.Hint="特定頻率輸出(QID,TID,QD)"
                                  UseLayoutRounding="True"
                                  InputMethod.IsInputMethodEnabled="False"/>
@@ -219,7 +218,7 @@
                                        VerticalAlignment="Center"
                                        Margin="5 0 0 0"
                                        UseLayoutRounding="True"/>
-                            <TextBox x:Name="Txt_PackFunctionAdminTime"
+                            <TextBox x:Name="Txt_FilterAdminCode"
                                      FontSize="16"
                                      Foreground="{StaticResource DeepBlue}"
                                      VerticalAlignment="Center"
@@ -228,33 +227,36 @@
                                      UseLayoutRounding="True"
                                      Text="{Binding AdminCode}"
                                      InputMethod.IsInputMethodEnabled="False"/>
-                            <Button x:Name="Btn_PackFunctionAdd"
+                            <Button x:Name="Btn_AddFilterAdminCode"
                                     Width="50"
                                     materialDesign:ButtonAssist.CornerRadius="5"
                                     Foreground="{StaticResource DeepBlue}"
                                     Background="Transparent"
                                     BorderBrush="Transparent"
+                                    Command="{Binding AddFilterAdminCode}"
                                     Margin="250 0 0 0">
                                 <materialDesign:PackIcon Kind="PlusBox"
                                                          Height="30"
                                                          Width="30"
                                                          Margin="-12 -4 -10 0"/>
                             </Button>
-                            <ComboBox x:Name="Cbo_PackFunctionAdminTime"
+                            <ComboBox x:Name="Cbo_FilterAdminCodeList"
                                       Grid.Row="1"
                                       FontSize="16"
                                       Foreground="{StaticResource DeepBlue}"
                                       Width="200"
                                       Margin="-30 0 0 0"
-                                      ItemsSource="{Binding AdminCodePackList}"
+                                      ItemsSource="{Binding FilterAdminCodeList}"
+                                      SelectedIndex="{Binding FilterAdminCodeIndex}"
                                       UseLayoutRounding="True"/>
-                            <Button x:Name="Btn_PackFunctionRemove"
+                            <Button x:Name="Btn_RemoveFilterAdminCode"
                                     Grid.Row="1"
                                     Width="50"
                                     materialDesign:ButtonAssist.CornerRadius="5"
                                     Foreground="{StaticResource DeepBlue}"
                                     Background="Transparent"
                                     BorderBrush="Transparent"
+                                    Command="{Binding RemoveFilterAdminCode}"
                                     Margin="250 0 0 0">
                                 <materialDesign:PackIcon Kind="MinusBox"
                                                          Height="30"
@@ -301,7 +303,7 @@
                                  materialDesign:HintAssist.Hint="EX：1530"
                                  UseLayoutRounding="True"
                                  Margin="0 30 0 0"
-                                 Text="{Binding CutTime}"
+                                 Text="{Binding CutTime,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                                  InputMethod.IsInputMethodEnabled="False"/>
                         <TextBlock Grid.Column="2"
                                    Text="跨日頻率"
@@ -319,7 +321,7 @@
                                  materialDesign:HintAssist.Hint="EX：QOD,Q2D"
                                  UseLayoutRounding="True"
                                  Margin="0 30 0 0"
-                                 Text="{Binding AdminCodeOfCrossDay}"
+                                 Text="{Binding AdminCodeOfCrossDay,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                                  InputMethod.IsInputMethodEnabled="False"/>
                     </Grid>
                 </Border>
@@ -358,18 +360,19 @@
                                   SelectionUnit="FullRow"
                                   Background="White"
                                   Foreground="{StaticResource DeepBlue}"
-                                  ItemsSource="{Binding Random}"
+                                  ItemsSource="{Binding Random,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                  SelectedIndex="{Binding RandomIndex}"
                                   InputMethod.IsInputMethodEnabled="False">
                             <DataGrid.ContextMenu>
                                 <ContextMenu>
-                                    <MenuItem Header="新增"/>
-                                    <MenuItem Header="刪除"/>
+                                    <MenuItem Header="新增" Command="{Binding AddRandom}"/>
+                                    <MenuItem Header="刪除" Command="{Binding RemoveRandom}"/>
                                 </ContextMenu>
                             </DataGrid.ContextMenu>
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="編號"
                                                     Width="80"
-                                                    Binding="{Binding No}"
+                                                    Binding="{Binding No,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                                                     IsReadOnly="True"/>
                                 <DataGridTextColumn Header="JVServer"
                                                     Width="100"
@@ -433,15 +436,6 @@
                                      UseLayoutRounding="True"
                                      Text="{Binding MedicineCode}"
                                      InputMethod.IsInputMethodEnabled="False">
-                                <TextBox.Style>
-                                    <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource MaterialDesignTextBox}">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SelectionAll}" Value="True">
-                                                
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBox.Style>
                             </TextBox>
                             <Button x:Name="Btn_FilterMediicneCodeAdd"
                                     Grid.Column="2"
@@ -449,7 +443,7 @@
                                     Foreground="{StaticResource DeepBlue}"
                                     Background="Transparent"
                                     BorderBrush="Transparent"
-                                    Command="{Binding AddFilterMedicineCodeItem}">
+                                    Command="{Binding AddFilterMedicineCode}">
                                 <materialDesign:PackIcon Kind="PlusBox"
                                                          Height="30"
                                                          Width="30"
@@ -459,10 +453,11 @@
                                       Grid.Row="1"
                                       Grid.Column="1"
                                       FontSize="16"
+                                      VerticalAlignment="Center"
                                       Foreground="{StaticResource DeepBlue}"
                                       Width="200"
                                       SelectedIndex="{Binding FilterMedicineCodeIndex}"
-                                      ItemsSource="{Binding FilterMedicineCode}"
+                                      ItemsSource="{Binding FilterMedicineCodeList}"
                                       UseLayoutRounding="True"/>
                             <Button x:Name="Btn_FilterMedicineCodeRemove"
                                     Grid.Row="1"
@@ -471,7 +466,7 @@
                                     Foreground="{StaticResource DeepBlue}"
                                     Background="Transparent"
                                     BorderBrush="Transparent"
-                                    Command="{Binding RemoveFilterMedicineCodeItem}">
+                                    Command="{Binding RemoveFilterMedicineCode}">
                                 <materialDesign:PackIcon Kind="MinusBox"
                                                          Height="30"
                                                          Width="30"

@@ -1,4 +1,4 @@
-﻿using FCP.MVVM.Models.Enum;
+﻿using FCP.src.Enum;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -9,7 +9,7 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
     interface IFindNeedToConvertFile
     {
         void Reset(CancellationTokenSource cts, List<string> list);
-        void SetDepartmentDictionary(Dictionary<Parameter, DepartmentEnum> department);
+        void SetDepartmentDictionary(Dictionary<Parameter, eConvertLocation> department);
         Task<FileInformation> GetFilePathTaskAsync();
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using FCP.MVVM.Models.Enum;
+using FCP.src.Enum;
 
 namespace FCP.MVVM.ViewModels.GetConvertFile
 {
@@ -12,7 +12,7 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
         public string UDStat { set => _UDStat.Rule = value; }
         public string Care { set => _Care.Rule = value; }
         public string Other { set => _Other.Rule = value; }
-        private Dictionary<Parameter, DepartmentEnum> _DepartmentDictionary = new Dictionary<Parameter, DepartmentEnum>();
+        private Dictionary<Parameter, eConvertLocation> _DepartmentDictionary = new Dictionary<Parameter, eConvertLocation>();
         private Parameter _OPD { get; set; } = new Parameter();
         private Parameter _Powder { get; set; } = new Parameter();
         private Parameter _UDBatch { get; set; } = new Parameter();
@@ -22,15 +22,15 @@ namespace FCP.MVVM.ViewModels.GetConvertFile
 
         public DefaultRules()
         {
-            _DepartmentDictionary.Add(_OPD, DepartmentEnum.OPD);
-            _DepartmentDictionary.Add(_Powder, DepartmentEnum.POWDER);
-            _DepartmentDictionary.Add(_UDBatch, DepartmentEnum.UDBatch);
-            _DepartmentDictionary.Add(_UDStat, DepartmentEnum.UDStat);
-            _DepartmentDictionary.Add(_Care, DepartmentEnum.Care);
-            _DepartmentDictionary.Add(_Other, DepartmentEnum.Other);
+            _DepartmentDictionary.Add(_OPD, eConvertLocation.OPD);
+            _DepartmentDictionary.Add(_Powder, eConvertLocation.POWDER);
+            _DepartmentDictionary.Add(_UDBatch, eConvertLocation.UDBatch);
+            _DepartmentDictionary.Add(_UDStat, eConvertLocation.UDStat);
+            _DepartmentDictionary.Add(_Care, eConvertLocation.Care);
+            _DepartmentDictionary.Add(_Other, eConvertLocation.Other);
         }
 
-        protected internal Dictionary<Parameter, DepartmentEnum> GetDepartmentDictionary()
+        protected internal Dictionary<Parameter, eConvertLocation> GetDepartmentDictionary()
         {
             return _DepartmentDictionary;
         }
