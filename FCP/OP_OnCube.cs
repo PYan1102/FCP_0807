@@ -1066,7 +1066,7 @@ namespace FCP
                         sw.Write("".PadRight(40));
                         sw.Write("0");
                         sw.Write(ECD("新北仁康醫院", 30));
-                        sw.Write(v.PerQty.PadRight(30));
+                        sw.Write(Math.Ceiling(Convert.ToSingle(v.SumQty)).ToString().PadRight(30));
                         sw.Write(ECD(v.PatientName, 30));
                         sw.Write("".PadRight(390));
                         sw.WriteLine("C");
@@ -1114,7 +1114,7 @@ namespace FCP
                         sw.Write(v.BedNo.PadRight(20));
                         sw.Write("0");
                         sw.Write(ECD("新北仁康醫院", 30));
-                        sw.Write(v.PerQty.PadRight(30));
+                        sw.Write(Math.Ceiling(Convert.ToSingle(v.PerQty)).ToString().PadRight(30));
                         sw.Write(ECD(v.PatientName, 30));
                         sw.Write("".PadRight(390));
                         sw.WriteLine("M");
