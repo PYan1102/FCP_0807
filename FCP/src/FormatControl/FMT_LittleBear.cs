@@ -33,9 +33,7 @@ namespace FCP.src.FormatControl
                         return false;
                     }
                     DateTime startDay = DateTimeHelper.Convert((Convert.ToInt32(RemoveStringDoubleQuotes(data[0])) + 19110000).ToString(), "yyyyMMdd");
-                    Console.WriteLine(startDay);
                     int days = Convert.ToInt32(RemoveStringDoubleQuotes(data[7]));
-                    Console.WriteLine(medicineCode);
                     _OPD.Add(new LittleBearOPD()
                     {
                         PatientName = RemoveStringDoubleQuotes(data[13]),
