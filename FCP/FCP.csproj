@@ -104,9 +104,11 @@
     <Compile Include="src\Factory\ViewModel\SimpleWindowFactory.cs" />
     <Compile Include="src\FormatControl\FMT_ChengYu.cs" />
     <Compile Include="src\FormatControl\FMT_JVServer_XML.cs" />
+    <Compile Include="src\FormatControl\FMT_LittleBear.cs" />
     <Compile Include="src\FormatControl\FMT_OnCube.cs" />
     <Compile Include="src\FormatInit\BASE_ChengYu.cs" />
     <Compile Include="src\FormatInit\BASE_JVServer_XML.cs" />
+    <Compile Include="src\FormatInit\BASE_LittleBear.cs" />
     <Compile Include="src\FormatInit\BASE_OnCube.cs" />
     <Compile Include="src\Factory\ConvertInfoactory.cs" />
     <Compile Include="src\FormatInit\BASE_ChangGung.cs" />

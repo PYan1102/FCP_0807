@@ -59,6 +59,8 @@ namespace FCP.src.Factory
                     return new BASE_OnCube();
                 case eFormat.JVS_XML:
                     return new BASE_JVServer_XML();
+                case eFormat.小熊藥局TOC:
+                    return new BASE_LittleBear();
                 default:
                     throw new Exception($"沒有找到適當的格式 {format}");
             }

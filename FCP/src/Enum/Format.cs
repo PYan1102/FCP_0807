@@ -17,6 +17,7 @@
         仁康醫院TOC,
         方鼎系統TOC,
         成祐中醫診所TOC,
+        小熊藥局TOC,
         OnCubeTOC,
         JVS_XML
     }

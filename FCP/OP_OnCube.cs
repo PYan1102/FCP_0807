@@ -1249,6 +1249,43 @@ namespace FCP
             }
         }
 
+        public static void LittleBear(List<LittleBearOPD> OPD, string filePathOutput)
+        {
+            try
+            {
+                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                {
+                    foreach (var v in OPD)
+                    {
+                        eDoseType doseType = GetDoseType(v.AdminCode);
+                        sw.Write(ECD(v.PatientName, 20));
+                        sw.Write("".PadRight(30));
+                        sw.Write(ECD("門診", 50));
+                        sw.Write("".PadRight(29));
+                        sw.Write($"{v.PerQty}".PadRight(5));
+                        sw.Write(v.MedicineCode.PadRight(20));
+                        sw.Write(ECD(v.MedicineName, 50));
+                        sw.Write(ECD(v.AdminCode, 20));
+                        sw.Write(v.StartDay.ToString("yyMMdd"));
+                        sw.Write(v.EndDay.ToString("yyMMdd"));
+                        sw.Write("".PadRight(158));
+                        sw.Write("1999-01-01");
+                        sw.Write("男    ");
+                        sw.Write("".PadRight(40));
+                        sw.Write("0");
+                        sw.Write(ECD("小熊藥局", 30));
+                        sw.Write("".PadRight(450));
+                        sw.WriteLine("M");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Write(ex);
+                throw;
+            }
+        }
+
         private static string ECD(string data, int Length)  //處理中文
         {
             data = data.PadRight(Length, ' ');
