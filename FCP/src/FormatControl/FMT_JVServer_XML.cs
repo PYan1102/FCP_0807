@@ -31,7 +31,16 @@ namespace FCP.src.FormatControl
                 ClearList();
                 XMLHelper.Load(FilePath);
                 DateTime startDate = DateTimeHelper.Convert(XMLHelper.GetParameterUseString("case", 0, "date"), "yyyyMMdd");
-                _Basic.PatientName = XMLHelper.GetParameterUseString("case/profile/person", 0, "name");
+                
+                //檔名開頭為XX時病患名稱設為空白
+                if (Path.GetFileNameWithoutExtension(FilePath).StartsWith("XX"))
+                {
+                    _Basic.PatientName = string.Empty;
+                }
+                else
+                {
+                    _Basic.PatientName = XMLHelper.GetParameterUseString("case/profile/person", 0, "name");
+                }
                 _Basic.Type = XMLHelper.GetParameterUseString("case/insurance", 0, "insurance_type_text") == "自費診" ? "自費-" : "健保-";
                 _Basic.Type += XMLHelper.GetParameterUseString("case/insurance", 0, "labeno_type");
                 _Basic.Type = _Basic.Type.Replace("*", "+")
@@ -115,6 +124,7 @@ namespace FCP.src.FormatControl
                 }
                 if (_OPD.Count == 0 || ComparePrescription.IsPrescriptionRepeat(FilePath, _Basic, _OPD))
                 {
+                    Console.WriteLine("A");
                     ReturnsResult.Shunt(eConvertResult.全數過濾, null);
                     return false;
                 }
