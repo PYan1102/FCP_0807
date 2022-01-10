@@ -3,6 +3,7 @@ using FCP.src.Enum;
 using Helper;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -124,7 +125,6 @@ namespace FCP.src.FormatControl
                 }
                 if (_OPD.Count == 0 || ComparePrescription.IsPrescriptionRepeat(FilePath, _Basic, _OPD))
                 {
-                    Console.WriteLine("A");
                     ReturnsResult.Shunt(eConvertResult.全數過濾, null);
                     return false;
                 }
