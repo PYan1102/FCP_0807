@@ -25,7 +25,8 @@ namespace FCP.src.FormatControl
                     string adminCode = EncodingHelper.GetString(137, 10).Replace("/", "");
                     adminCode = adminCode.Split(' ')[0];
                     string medicineCode = EncodingHelper.GetString(63, 10);
-                    if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
+                    Console.WriteLine(medicineCode);
+                    if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode) || NeedFilterMedicineCode(medicineCode))
                         continue;
                     if (!IsExistsMultiAdminCode(adminCode))
                     {

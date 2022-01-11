@@ -300,11 +300,6 @@ namespace FCP.src
             }
         }
 
-        public bool IsFilterMedicine(string code)
-        {
-            return IsFilterMedicineCode(code);
-        }
-
         public bool NeedFilterMedicineCode(string Code)
         {
             return SettingsModel.FilterMedicineCode.Contains(Code);
