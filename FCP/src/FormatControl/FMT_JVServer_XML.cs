@@ -32,16 +32,9 @@ namespace FCP.src.FormatControl
                 ClearList();
                 XMLHelper.Load(FilePath);
                 DateTime startDate = DateTimeHelper.Convert(XMLHelper.GetParameterUseString("case", 0, "date"), "yyyyMMdd");
-                
+
                 //檔名開頭為XX時病患名稱設為空白
-                if (Path.GetFileNameWithoutExtension(FilePath).StartsWith("XX"))
-                {
-                    _Basic.PatientName = string.Empty;
-                }
-                else
-                {
-                    _Basic.PatientName = XMLHelper.GetParameterUseString("case/profile/person", 0, "name");
-                }
+                _Basic.PatientName = XMLHelper.GetParameterUseString("case/profile/person", 0, "name");
                 _Basic.Type = XMLHelper.GetParameterUseString("case/insurance", 0, "insurance_type_text") == "自費診" ? "自費-" : "健保-";
                 _Basic.Type += XMLHelper.GetParameterUseString("case/insurance", 0, "labeno_type");
                 _Basic.Type = _Basic.Type.Replace("*", "+")
@@ -82,8 +75,14 @@ namespace FCP.src.FormatControl
                         days = (memoQty / adminCodeList.Count / perQty).ToString();
                         endDate = startDate.AddDays(Convert.ToInt32(days) - 1);
                     }
-                    string correctPatientName = _FilterPatientNo.Contains(XMLHelper.GetParameterUseString("case", 0, "local_id")) &&
-                        adminCode == "TID" ? "" : XMLHelper.GetParameterUseString("case/profile/person", 0, "name");  //符合輸出空白病患名稱的病歷號名單並且頻率為TID
+
+                    #region 符合輸出空白病患名稱的病歷號名單並且頻率為TID 或 檔名開頭為XX，則CorrectPatientName為空白
+
+                    string correctPatientName = (_FilterPatientNo.Contains(XMLHelper.GetParameterUseString("case", 0, "local_id")) &&
+                        adminCode == "TID") || Path.GetFileNameWithoutExtension(FilePath).StartsWith("XX") ? string.Empty : XMLHelper.GetParameterUseString("case/profile/person", 0, "name");
+
+                    #endregion
+
                     _OPD.Add(new JVServerXMLOPD()
                     {
                         MedicineCode = medicineCode,
@@ -95,7 +94,7 @@ namespace FCP.src.FormatControl
                         EndDay = endDate.ToString("yyMMdd"),
                         SumQty = Convert.ToSingle(node.Attributes["total_dose"].Value).ToString("0.###"),
                         CorrectPatientName = correctPatientName,
-                        Memo=node.Attributes["memo"].Value
+                        Memo = node.Attributes["memo"].Value
                     });
                     if (DateTime.Compare(maxEndDate, endDate) == -1)
                     {
@@ -117,8 +116,8 @@ namespace FCP.src.FormatControl
                 }
                 #endregion
                 var v2 = (from x in _OPD
-                         where (x.MedicineCode == "CIW0" || x.MedicineCode == "AC29798100") && x.AdminCode == "BID"
-                         select x).Count();
+                          where (x.MedicineCode == "CIW0" || x.MedicineCode == "AC29798100") && x.AdminCode == "BID"
+                          select x).Count();
                 if (v2 > 0 && _OPD.Where(x => x.AdminCode == "BID").Count() <= 1)
                 {
                     _OPD = _OPD.Where(x => x.AdminCode != "BID").Select(x => x).ToList();
