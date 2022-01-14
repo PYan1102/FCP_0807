@@ -122,6 +122,7 @@ namespace FCP.src.FormatControl
                 {
                     _OPD = _OPD.Where(x => x.AdminCode != "BID").Select(x => x).ToList();
                 }
+
                 if (_OPD.Count == 0 || ComparePrescription.IsPrescriptionRepeat(FilePath, _Basic, _OPD))
                 {
                     ReturnsResult.Shunt(eConvertResult.全數過濾, null);
@@ -156,6 +157,23 @@ namespace FCP.src.FormatControl
                     }
                 }
             }
+
+            #region 鄭小兒的處方如果只有vk一個品項則過濾
+
+            if (_Basic.LocationName.Contains("鄭小兒"))
+            {
+                bool result = (from a in _OPD
+                               where a.MedicineCode == "VK"
+                               select a).Count() > 0;
+                if (result && _OPD.Count == 1)
+                {
+                    ReturnsResult.Shunt(eConvertResult.全數過濾, null);
+                    return false;
+                }
+            }
+
+            #endregion
+
             string filePathOutput = $@"{OutputPath}\{_Basic.PatientName}-{_Basic.Type}_{CurrentSeconds}.txt";
             try
             {
