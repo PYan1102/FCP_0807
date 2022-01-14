@@ -49,7 +49,7 @@ namespace FCP.src.FormatControl
                     //    return false;
                     //}
                     string adminCodeDescription = EncodingHelper.GetString(235, 50);
-                    adminCodeDescription = adminCodeDescription.Replace("*", "+").Replace(":", "：");
+                    adminCodeDescription = adminCodeDescription.Replace("*", "+").Replace(":", "：").Replace("/", "／");
                     _OPD.Add(new ChengYuOPD()
                     {
                         PatientName = EncodingHelper.GetString(0, 20),

@@ -1177,7 +1177,7 @@ namespace FCP
                     foreach (var v in OPD)
                     {
                         eDoseType doseType = GetDoseType(v.AdminCode);
-                        sw.Write(ECD(v.PatientName, 20));
+                        sw.Write(ECD($"{v.PatientName}-{v.Unit}", 20));
                         sw.Write("".PadRight(30));
                         sw.Write(ECD("門診", 50));
                         sw.Write("".PadRight(29));
