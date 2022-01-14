@@ -681,7 +681,8 @@ namespace FCP
                             sw.Write("".PadRight(40));
                             sw.Write("0");
                             sw.Write(ECD(basic.HospitalName, 30));
-                            sw.Write("".PadRight(450));
+                            sw.Write("".PadRight(420));
+                            sw.Write(ECD(basic.PatientName, 30));
                             sw.WriteLine(ConvertDoseType(doseType));
                         }
                     }
@@ -1198,7 +1199,8 @@ namespace FCP
                         sw.Write(v.Days.PadRight(30));
                         sw.Write(ECD(v.AdminCode, 30));
                         sw.Write(ECD(v.PatientName, 30));
-                        sw.Write("".PadRight(330));
+                        sw.Write("".PadRight(300));
+                        sw.Write(ECD(v.PatientName, 30));
                         sw.WriteLine("M");
                     }
                 }
