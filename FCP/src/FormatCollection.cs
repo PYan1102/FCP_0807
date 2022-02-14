@@ -137,7 +137,6 @@ namespace FCP.src
         public virtual ReturnsResultFormat MethodShunt()
         {
             Init();
-            Console.WriteLine(Department);
             switch (Department)
             {
                 case eConvertLocation.OPD:

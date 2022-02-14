@@ -98,16 +98,13 @@ namespace FCP.src.FormatControl
                 _OnCubeRandom.Add("");
             if (!string.IsNullOrEmpty(SettingsModel.ExtraRandom))  //將JVServer的Random放入OnCube的Radnom
             {
-                int head;
-                int middle;
-                string[] randomList = SettingsModel.ExtraRandom.Split(',');
+                string[] randomList = SettingsModel.ExtraRandom.Split('|');
                 foreach (string s in randomList)
                 {
                     if (!string.IsNullOrEmpty(s))
                     {
-                        head = s.IndexOf(':');
-                        middle = s.IndexOf("&");
-                        _OnCubeRandom[Int32.Parse(s.Substring(middle + 1, s.Length - middle - 1)) - 1] = _JVServerRandom[Int32.Parse(s.Substring(head + 1, middle - head - 1))];
+                        string[] convertIndex = s.Split(':');
+                        _OnCubeRandom[Convert.ToInt32(convertIndex[2])] = _JVServerRandom[Convert.ToInt32(convertIndex[1])];
                     }
                 }
             }
