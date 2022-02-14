@@ -50,19 +50,19 @@ namespace FCP
                         sw.Write("3       ");
                         sw.Write("".PadRight(50));
                         sw.Write(basic.PrescriptionNo.PadRight(50));
-                        sw.Write("".PadRight(50));
+                        sw.Write(ECD(basic.Class, 50));
                         sw.Write(basic.BirthDate);
                         sw.Write(basic.Gender == "1 " ? "男    " : "女    ");
-                        sw.Write("".PadRight(20));
+                        sw.Write(ECD(basic.Mark, 20));
                         sw.Write(ECD(random, 20));
                         sw.Write("0");
                         sw.Write(ECD(basic.HospitalName, 30));
-                        for (int ran = 0; ran <= 14; ran++)
+                        for (int i = 0; i <= 14; i++)
                         {
-                            if (oncubeRandom.Count == 0 || string.IsNullOrEmpty(oncubeRandom[ran]))
+                            if (oncubeRandom.Count == 0 || string.IsNullOrEmpty(oncubeRandom[i]))
                                 sw.Write("".PadRight(30));
                             else
-                                sw.Write(ECD(oncubeRandom[ran], 30));
+                                sw.Write(ECD(oncubeRandom[i], 30));
                         }
                         sw.WriteLine(ConvertDoseType(doseType));
                     }

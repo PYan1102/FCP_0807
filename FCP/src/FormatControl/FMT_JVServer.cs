@@ -41,8 +41,11 @@ namespace FCP.src.FormatControl
                 if (_Basic.PatientName.Contains("?"))
                     _Basic.PatientName = _Basic.PatientName.Replace("?", " ");
                 _Basic.Gender = EncodingHelper.GetString(197, 2);
+                //有重疊風險
+                _Basic.Class = EncodingHelper.GetString(197, 30);
                 _Basic.HospitalName = EncodingHelper.GetString(229, 40);
                 _Basic.LocationName = EncodingHelper.GetString(229, 30);
+                _Basic.Mark = EncodingHelper.GetString(339, 20);
 
                 EncodingHelper.SetBytes(content.Substring(jvmPosition + 17, content.Length - 17 - jvmPosition));
                 List<string> list = SeparateString(EncodingHelper.GetString(0, EncodingHelper.Length), 547);  //計算有多少種藥品資料
@@ -193,6 +196,8 @@ namespace FCP.src.FormatControl
         public string PatientName { get; set; }
         public string PatientNo { get; set; }
         public string PrescriptionNo { get; set; }
+        public string Class { get; set; }
+        public string Mark { get; set; }
         public string Age { get; set; }
         public string ID { get; set; }
         public string Gender { get; set; }
