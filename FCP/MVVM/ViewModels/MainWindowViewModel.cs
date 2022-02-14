@@ -346,6 +346,15 @@ namespace FCP.MVVM.ViewModels
             set => _Model.IsAutoStartChecked = value;
         }
 
+        public bool IsSplitEachMealChecked
+        {
+            get => Properties.Settings.Default.IsSplitEachMeal;
+            set
+            {
+                Properties.Settings.Default.IsSplitEachMeal = value;
+                Properties.Settings.Default.Save();
+            }
+        }
         public string DoseType
         {
             get => _Model.DoseType;

@@ -651,6 +651,36 @@
                                              IsEnabled="{Binding BatchEnabled}"
                                              Visibility="{Binding BatchVisibility}"
                                              Margin="20 0 0 0"/>
+                                <Border Grid.Row="1"
+                                        CornerRadius="8 8 8 8"
+                                        Background="White"
+                                        Width="170"
+                                        HorizontalAlignment="Right"
+                                        Margin="0 5 0 5">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="3*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <ToggleButton x:Name="Tgl_SplitEachMeal"
+                                                      HorizontalAlignment="Left"
+                                                      Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                                      IsChecked="{Binding IsSplitEachMealChecked}"
+                                                      Margin="5 0 0 0">
+                                        </ToggleButton>
+                                        <Border Grid.Column="1"
+                                                CornerRadius="0 6 6 0"
+                                                Background="{StaticResource DeepBlue}"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="3 3 3 3">
+                                            <TextBlock Text="切割每餐(JVS)"
+                                                       FontSize="18"
+                                                       Foreground="White"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
                                 <Button x:Name="Btn_Stop"
                                         Grid.Row="2"
                                         Background="White"

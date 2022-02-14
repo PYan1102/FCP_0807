@@ -75,6 +75,75 @@ namespace FCP
             }
         }
 
+        public static void JVServer_SplitEachMeal(Dictionary<string, List<JVServerOPD>> dic, JVServerOPDBasic basic, List<string> oncubeRandom, string random, string filePathOutPutNoSeconds, string currentSeconds)
+        {
+            try
+            {
+                foreach (var x in dic)
+                {
+                    string newfilePathOutPut = $"{filePathOutPutNoSeconds}{x.Key}_{currentSeconds}.txt";
+                    using (StreamWriter sw = new StreamWriter(newfilePathOutPut, false, Encoding.Default))
+                    {
+                        foreach (var y in x.Value)
+                        {
+                            eDoseType doseType = GetDoseType(y.AdminCode);
+                            sw.Write(ECD(basic.PatientName, 20));
+                            sw.Write(basic.PatientNo.PadRight(30));
+                            sw.Write(ECD(basic.LocationName, 50));
+                            sw.Write("".PadRight(29));
+                            if (doseType == eDoseType.餐包)
+                                sw.Write(y.PerQty.PadRight(5));
+                            else
+                                sw.Write(y.SumQty.PadRight(5));
+                            sw.Write(y.MedicineCode.PadRight(20));
+                            sw.Write(ECD(y.MedicineName, 50));
+                            if (doseType == eDoseType.餐包)
+                            {
+                                sw.Write($"{y.AdminCode}{x.Key}".PadRight(20));
+                            }
+                            else
+                            {
+                                sw.Write(y.AdminCode.PadRight(20));
+                            }
+                            if (doseType == eDoseType.餐包)
+                            {
+                                sw.Write(y.StartDay);
+                                sw.Write(y.EndDay);
+                            }
+                            else
+                            {
+                                sw.Write(y.EndDay);
+                                sw.Write(y.EndDay);
+                            }
+                            sw.Write("3       ");
+                            sw.Write("".PadRight(50));
+                            sw.Write(basic.PrescriptionNo.PadRight(50));
+                            sw.Write(ECD(basic.Class, 50));
+                            sw.Write(basic.BirthDate);
+                            sw.Write(basic.Gender == "1 " ? "男    " : "女    ");
+                            sw.Write(ECD(basic.Mark, 20));
+                            sw.Write(ECD(random, 20));
+                            sw.Write("0");
+                            sw.Write(ECD(basic.HospitalName, 30));
+                            for (int i = 0; i <= 14; i++)
+                            {
+                                if (oncubeRandom.Count == 0 || string.IsNullOrEmpty(oncubeRandom[i]))
+                                    sw.Write("".PadRight(30));
+                                else
+                                    sw.Write(ECD(oncubeRandom[i], 30));
+                            }
+                            sw.WriteLine(ConvertDoseType(doseType));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Write(ex);
+                throw;
+            }
+        }
+
         public static void JVServerXML(JVServerXMLOPDBasic basic, List<JVServerXMLOPD> OPD, string filePathOutput, string fileName)
         {
             try

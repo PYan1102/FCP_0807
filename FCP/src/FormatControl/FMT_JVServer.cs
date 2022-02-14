@@ -5,6 +5,7 @@ using System.IO;
 using FCP.src.Enum;
 using FCP.MVVM.Models;
 using Helper;
+using System.Linq;
 
 namespace FCP.src.FormatControl
 {
@@ -111,12 +112,25 @@ namespace FCP.src.FormatControl
                     }
                 }
             }
+            Dictionary<string, List<JVServerOPD>> dic = null;
+            if (Properties.Settings.Default.IsSplitEachMeal)
+            {
+                dic = SplitEachMeal();
+            }
             string filePathOutput = $@"{OutputPath}\{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string filePathOutputNotSeconds = $@"{OutputPath}\{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_";
             DateTime.TryParseExact(_Basic.BirthDate, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime date);  //生日
             _Basic.BirthDate = date.ToString("yyyy-MM-dd");
             try
             {
-                OP_OnCube.JVServer(_OPD, _Basic, _OnCubeRandom, _Random, filePathOutput);
+                if (Properties.Settings.Default.IsSplitEachMeal)
+                {
+                    OP_OnCube.JVServer_SplitEachMeal(dic, _Basic, _OnCubeRandom, _Random, filePathOutputNotSeconds, CurrentSeconds);
+                }
+                else
+                {
+                    OP_OnCube.JVServer(_OPD, _Basic, _OnCubeRandom, _Random, filePathOutput);
+                }
                 return true;
             }
             catch (Exception ex)
@@ -126,6 +140,27 @@ namespace FCP.src.FormatControl
                 return false;
             }
         }
+
+        private Dictionary<string, List<JVServerOPD>> SplitEachMeal()
+        {
+            Dictionary<string, List<JVServerOPD>> dic = new Dictionary<string, List<JVServerOPD>>();
+            for (int x = 0; x <= 23; x++)
+            {
+                dic.Add(x.ToString().PadLeft(2, '0'), new List<JVServerOPD>());
+            }
+            for (int i = 0; i <= _OPD.Count - 1; i++)
+            {
+                string adminCode = _OPD[i].AdminCode;
+                List<string> adminCodeTimeList = GetMultiAdminCodeTimes(adminCode);
+                foreach (var v in adminCodeTimeList)
+                {
+                    string hour = v.Substring(0, 2);
+                    dic[hour].Add(_OPD[i]);
+                }
+            }
+            return dic;
+        }
+
 
         public override bool ProcessUDBatch()
         {
