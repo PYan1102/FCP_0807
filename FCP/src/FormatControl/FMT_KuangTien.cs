@@ -802,6 +802,7 @@ namespace FCP.src.FormatControl
                 string gender = EncodingHelper.GetString(47, 2);
                 string _class = EncodingHelper.GetString(67, EncodingHelper.Length - 67);
                 list.RemoveRange(0, 4);
+                list.RemoveRange(list.Count - 3, 3);
                 foreach (string s in list)
                 {
                     if (s.Contains("=====") || s.Trim().Length == 0)
