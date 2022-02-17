@@ -802,7 +802,7 @@ namespace FCP.src.FormatControl
                 string gender = EncodingHelper.GetString(47, 2);
                 string _class = EncodingHelper.GetString(67, EncodingHelper.Length - 67);
                 list.RemoveRange(0, 4);
-                list.RemoveRange(list.Count - 3, 3);
+                list.RemoveRange(list.Count - 2, 2);
                 foreach (string s in list)
                 {
                     if (s.Contains("=====") || s.Trim().Length == 0)
@@ -814,12 +814,6 @@ namespace FCP.src.FormatControl
                         continue;
                     if (IsFilterAdminCode(adminCode))
                         continue;
-                    if (!IsExistsMultiAdminCode(adminCode))
-                    {
-                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {adminCode}");
-                        ReturnsResult.Shunt(eConvertResult.沒有餐包頻率, adminCode);
-                        return false;
-                    }
                     var powder = new KuangTienPowder()
                     {
                         StartDate = startDate,
@@ -835,9 +829,9 @@ namespace FCP.src.FormatControl
                         Days = EncodingHelper.GetString(77, 5),
                         SumQty = EncodingHelper.GetString(82, 8),
                         GrindTable = grindTable,
-                        TimesPerDay = GetMultiAdminCodeTimes(adminCode).Count.ToString(),
                         EffectiveDate = DateTime.Now.AddDays(Convert.ToInt32(EncodingHelper.GetString(77, 5)))
                     };
+                    powder.TimesPerDay = (Convert.ToSingle(powder.SumQty) / Convert.ToInt32(powder.Days) / Convert.ToSingle(powder.PerQty)).ToString();
                     if (!_PowderDic.ContainsKey(grindTable))
                         _PowderDic[grindTable] = new List<KuangTienPowder>();
                     _PowderDic[grindTable].Add(powder);
