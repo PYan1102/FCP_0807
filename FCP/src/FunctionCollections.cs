@@ -419,7 +419,7 @@ namespace FCP.src
             FilePath = File;
         }
 
-        public virtual void SetConvertInformation()
+        public virtual async void SetConvertInformation()
         {
             CurrentSeconds = DateTime.Now.ToString("ss.ffff");
             _ConvertFileInformation.SetInputPath(InputPath)
@@ -427,6 +427,7 @@ namespace FCP.src
                  .SetFilePath(FilePath)
                  .SetDepartment(CurrentDepartment)
                  .SetCurrentSeconds(CurrentSeconds);
+            await Task.Delay(300);
         }
 
         public void Result(ReturnsResultFormat returnsResult, bool isReminder)
