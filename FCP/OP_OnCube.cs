@@ -105,7 +105,7 @@ namespace FCP
                             {
                                 sw.Write($"{y.AdminCode}{x.Key}".PadRight(20));
                             }
-                            else
+                            else if(_SettingsModel.CrossDayAdminCode.Contains(y.AdminCode))
                             {
                                 sw.Write(y.AdminCode.PadRight(20));
                             }
