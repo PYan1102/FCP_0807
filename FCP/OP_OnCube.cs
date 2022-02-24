@@ -81,6 +81,10 @@ namespace FCP
             {
                 foreach (var x in dic)
                 {
+                    if (x.Value.Count == 0)
+                    {
+                        continue;
+                    }
                     string newfilePathOutPut = $"{filePathOutPutNoSeconds}{x.Key}_{currentSeconds}.txt";
                     using (StreamWriter sw = new StreamWriter(newfilePathOutPut, false, Encoding.Default))
                     {
@@ -97,7 +101,7 @@ namespace FCP
                                 sw.Write(y.SumQty.PadRight(5));
                             sw.Write(y.MedicineCode.PadRight(20));
                             sw.Write(ECD(y.MedicineName, 50));
-                            if (doseType == eDoseType.餐包)
+                            if (doseType == eDoseType.餐包 && !_SettingsModel.CrossDayAdminCode.Contains(y.AdminCode))
                             {
                                 sw.Write($"{y.AdminCode}{x.Key}".PadRight(20));
                             }

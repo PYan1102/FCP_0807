@@ -299,6 +299,11 @@ namespace FCP.src
             }
         }
 
+        /// <summary>
+        /// 判斷指定頻率頻率是否被設為需過濾
+        /// </summary>
+        /// <param name="Code">頻率</param>
+        /// <returns>如果為 <see langword="true"/> 則為需過濾，為 <see langword="false"/> 則為不需過濾</returns>
         public bool NeedFilterMedicineCode(string Code)
         {
             return SettingsModel.FilterMedicineCode.Contains(Code);
@@ -329,6 +334,11 @@ namespace FCP.src
             return a;
         }
 
+        /// <summary>
+        /// 取得指定頻率在餐包裡的時間點
+        /// </summary>
+        /// <param name="code">頻率</param>
+        /// <returns>時間點的陣列 (ex:08,13,18)</returns>
         public List<string> GetMultiAdminCodeTimes(string code)
         {
             List<string> list = MSSql.RunSQL_List($@"SELECT
@@ -346,6 +356,11 @@ namespace FCP.src
             return newList;
         }
 
+        /// <summary>
+        /// 確認指定頻率是否存在餐包的設定裡
+        /// </summary>
+        /// <param name="code">頻率</param>
+        /// <returns>存在為 <see langword="true"/> ，不存在為 <see langword="false"/></returns>
         public bool IsExistsMultiAdminCode(string code)
         {
             int result = MSSql.RunSQL_FirstInt($@"SELECT
@@ -356,6 +371,11 @@ namespace FCP.src
             return result > 0;
         }
 
+        /// <summary>
+        /// 確認指定頻率是否存在種包的設定裡
+        /// </summary>
+        /// <param name="code">頻率</param>
+        /// <returns>存在為 <see langword="true"/> ，不存在為 <see langword="false"/></returns>
         public bool IsExistsCombiAdminCode(string code)
         {
             int result = MSSql.RunSQL_FirstInt($@"SELECT
@@ -365,6 +385,11 @@ namespace FCP.src
             return result > 0;
         }
 
+        /// <summary>
+        /// 判斷頻率在餐包及種包的集合
+        /// </summary>
+        /// <param name="code">頻率</param>
+        /// <returns>都存在為 <see langword="true"/> ，有任一個不存在為 <see langword="false"/></returns>
         public bool IsExistsMultiAndCombiAdminCode(string code)
         {
             return IsExistsMultiAdminCode(code) && IsExistsCombiAdminCode(code);
