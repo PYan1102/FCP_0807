@@ -81,6 +81,10 @@ namespace FCP
             {
                 foreach (var x in dic)
                 {
+                    if (x.Value.Count == 0)
+                    {
+                        continue;
+                    }
                     string newfilePathOutPut = $"{filePathOutPutNoSeconds}{x.Key}_{currentSeconds}.txt";
                     using (StreamWriter sw = new StreamWriter(newfilePathOutPut, false, Encoding.Default))
                     {
@@ -101,7 +105,7 @@ namespace FCP
                             {
                                 sw.Write($"{y.AdminCode}{x.Key}".PadRight(20));
                             }
-                            else
+                            else if(_SettingsModel.CrossDayAdminCode.Contains(y.AdminCode))
                             {
                                 sw.Write(y.AdminCode.PadRight(20));
                             }
