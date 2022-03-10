@@ -5,7 +5,6 @@
         JVS,
         創聖系統TOC,
         醫聖系統TOC,
-        小港醫院TOC,
         光田醫院TOC,
         光田醫院TJVS,
         民生醫院TOC,

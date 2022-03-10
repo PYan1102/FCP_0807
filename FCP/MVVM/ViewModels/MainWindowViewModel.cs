@@ -34,7 +34,6 @@ namespace FCP.MVVM.ViewModels
         public ICommand Save { get; set; }
         public ICommand Close { get; set; }
         public ICommand MinimumWindow { get; set; }
-        public ICommand Closing { get; set; }
         public ICommand Loaded { get; set; }
         public ICommand SwitchWindow { get; set; }
         public ICommand Activate { get; set; }
@@ -62,7 +61,6 @@ namespace FCP.MVVM.ViewModels
             Loaded = new RelayCommand(() => LoadedFuncAsync());
             Close = new RelayCommand(() => Environment.Exit(0));
             MinimumWindow = new RelayCommand(() => Visibility = Visibility.Hidden);
-            Closing = new RelayCommand(() => Disconnect小港醫院NetDiskFunc());
             OPD = new RelayCommand(OPDFunc, CanStartConverterOrShowAdvancedSettings);
             UD = new RelayCommand(UDFunc, CanStartConverterOrShowAdvancedSettings);
             Stop = new RelayCommand(StopFunc);
@@ -560,16 +558,6 @@ namespace FCP.MVVM.ViewModels
             var window = AdvancedSettingsFactory.GenerateAdvancedSettings();
             window.ShowDialog();
             window = null;
-        }
-
-        private void Disconnect小港醫院NetDiskFunc()
-        {
-            switch (_SettingsModel.Mode)
-            {
-                case eFormat.小港醫院TOC:
-                    _Format.Stop();
-                    break;
-            }
         }
 
         private void SelectFolderFunc(string name)

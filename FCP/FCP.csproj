@@ -135,7 +135,6 @@
     <Compile Include="src\FormatControl\FMT_KuangTien.cs" />
     <Compile Include="src\FormatControl\FMT_MinSheng.cs" />
     <Compile Include="src\FormatControl\FMT_TaipeiDetention.cs" />
-    <Compile Include="src\FormatControl\FMT_XiaoGang.cs" />
     <Compile Include="src\FormatControl\FMT_YiSheng.cs" />
     <Compile Include="src\FormatInit\BASE_JenKang.cs" />
     <Compile Include="src\FormatInit\BASE_JVServer.cs" />
@@ -194,7 +193,6 @@
       <DependentUpon>SimpleWIndowView.xaml</DependentUpon>
     </Compile>
     <Compile Include="src\FormatInit\BASE_TaipeiDetention.cs" />
-    <Compile Include="src\FormatInit\BASE_XiaoGang.cs" />
     <Compile Include="src\FormatInit\BASE_YiSheng.cs" />
     <Compile Include="src\UIRefresh.cs" />
     <Page Include="AdvancedSettings.xaml">

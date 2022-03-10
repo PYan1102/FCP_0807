@@ -210,7 +210,7 @@ namespace FCP.src.FormatControl
                         Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
                         continue;
                     }
-                    if (!IsExistsCombiAdminCode($"S{AdminCode_S}"))
+                    if (!IsExistsCombiAdminCode($"{AdminCode_S}"))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置此種包頻率 S{AdminCode_S}");
                         continue;
@@ -571,8 +571,7 @@ namespace FCP.src.FormatControl
                     }
                     else
                         CalculationDays.Add($"{GetMultiAdminCodeTimes(AdminCode_S).Count}");
-
-                    if (!IsExistsCombiAdminCode($"S{AdminCode_S}"))
+                    if (!IsExistsCombiAdminCode($"{AdminCode_S}"))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置此種包頻率 S{AdminCode_S}");
                         continue;

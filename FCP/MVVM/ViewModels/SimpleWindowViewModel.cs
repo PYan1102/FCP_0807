@@ -335,7 +335,7 @@ namespace FCP.MVVM.ViewModels
 
         private void LoadedFunc()
         {
-            List<eFormat> hospitalCustomers = new List<eFormat>() { eFormat.小港醫院TOC, eFormat.光田醫院TOC, eFormat.民生醫院TOC, eFormat.義大醫院TOC };
+            List<eFormat> hospitalCustomers = new List<eFormat>() {eFormat.光田醫院TOC, eFormat.民生醫院TOC, eFormat.義大醫院TOC };
             List<eFormat> powderCustomers = new List<eFormat>() { eFormat.光田醫院TJVS, eFormat.長庚磨粉TJVS };
             if (hospitalCustomers.Contains(_SettingsModel.Mode))
             {

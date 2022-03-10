@@ -31,8 +31,6 @@ namespace FCP.src.Factory
                     return new BASE_ChuangSheng();
                 case eFormat.醫聖系統TOC:
                     return new BASE_YiSheng();
-                case eFormat.小港醫院TOC:
-                    return new BASE_XiaoGang();
                 case eFormat.光田醫院TOC:
                     return new BASE_KuangTien();
                 case eFormat.光田醫院TJVS:
