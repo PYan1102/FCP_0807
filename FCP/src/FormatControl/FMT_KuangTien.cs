@@ -830,7 +830,7 @@ namespace FCP.src.FormatControl
                         GrindTable = grindTable,
                         EffectiveDate = DateTime.Now.AddDays(Convert.ToInt32(EncodingHelper.GetString(77, 5)))
                     };
-                    powder.TimesPerDay = (Convert.ToSingle(powder.SumQty) / Convert.ToInt32(powder.Days) / Convert.ToSingle(powder.PerQty)).ToString();
+                    powder.TimesPerDay = Math.Floor((Convert.ToSingle(powder.SumQty) / Convert.ToInt32(powder.Days) / Convert.ToSingle(powder.PerQty))).ToString();
                     if (!_PowderDic.ContainsKey(grindTable))
                         _PowderDic[grindTable] = new List<KuangTienPowder>();
                     _PowderDic[grindTable].Add(powder);
