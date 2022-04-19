@@ -19,46 +19,47 @@ namespace FCP
                 {
                     string newFilePath = filePathOutput.Insert(filePathOutput.LastIndexOf("_") + 1, grindTable);
                     newFilePath = newFilePath.Insert(newFilePath.LastIndexOf(".") - 7, "_");
+                    var firstPowder = powder.Select(x => x).First().Value[0];
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("|JVPHEAD|");
+                    sb.Append("1");
+                    sb.Append(firstPowder.PatientNo.PadRight(15));
+                    sb.Append("20   ");
+                    sb.Append(firstPowder.StartDate.ToString("yyyyMMdd"));
+                    sb.Append("00:00");
+                    sb.Append("D123456789".PadRight(40));
+                    sb.Append("19970101");
+                    sb.Append(firstPowder.GetMedicineNo.PadRight(30));
+                    sb.Append("".PadRight(45));
+                    sb.Append(ECD(firstPowder.PatientName, 20));
+                    sb.Append("1 ");
+                    sb.Append(firstPowder.EffectiveDate.ToString("yyyy/MM/dd").PadRight(30));
+                    sb.Append(ECD("光田醫院", 40));
+                    sb.Append("".PadRight(20));
+                    sb.Append("".PadRight(121));
+                    sb.Append("M  ");
+                    sb.Append("|JVPEND|");
+                    sb.Append("|JVMHEAD|");
+                    foreach (var v in powder[grindTable])
+                    {
+                        sb.Append("T");
+                        sb.Append(v.MedicineCode.PadRight(15));
+                        sb.Append(ECD(v.MedicineName, 50));
+                        sb.Append(v.AdminCode.PadRight(10));
+                        sb.Append(v.Days.PadRight(3));
+                        sb.Append(v.TimesPerDay.PadRight(2));
+                        sb.Append(v.PerQty.PadRight(6));
+                        sb.Append(v.SumQty.PadRight(8));
+                        sb.Append("".PadRight(11));
+                        sb.Append(v.StartDate.ToString("yyyy/MM/dd"));
+                        sb.Append("00:00     ");
+                        sb.Append(v.StartDate.AddDays(Convert.ToInt32(v.Days) - 1).ToString("yyyy/MM/dd"));
+                        sb.Append("00:00     ");
+                    }
+                    sb.Append("|JVMEND|");
                     using (StreamWriter sw = new StreamWriter(newFilePath, false, Encoding.Default))
                     {
-                        var firstPowder = powder.Select(x => x).First().Value[0];
-                        sw.Write("|JVPHEAD|");
-                        sw.Write("1");
-                        sw.Write(firstPowder.PatientNo.PadRight(15));
-                        sw.Write("".PadRight(20));
-                        sw.Write("20   ");
-                        sw.Write(firstPowder.StartDate.ToString("yyyyMMdd"));
-                        sw.Write("00:00");
-                        sw.Write("D123456789".PadRight(40));
-                        sw.Write("19970101");
-                        sw.Write(firstPowder.GetMedicineNo.PadRight(30));
-                        sw.Write("".PadRight(45));
-                        sw.Write(ECD(firstPowder.PatientName, 20));
-                        sw.Write("1 ");
-                        sw.Write(firstPowder.EffectiveDate.ToString("yyyy/MM/dd").PadRight(30));
-                        sw.Write(ECD("光田醫院", 40));
-                        sw.Write("".PadRight(20));
-                        sw.Write("".PadRight(121));
-                        sw.Write("M  ");
-                        sw.Write("|JVPEND|");
-                        sw.Write("|JVMHEAD|");
-                        foreach (var v in powder[grindTable])
-                        {
-                            sw.Write("T");
-                            sw.Write(v.MedicineCode.PadRight(15));
-                            sw.Write(ECD(v.MedicineName, 50));
-                            sw.Write(v.AdminCode.PadRight(10));
-                            sw.Write(v.Days.PadRight(3));
-                            sw.Write(v.TimesPerDay.PadRight(2));
-                            sw.Write(v.PerQty.PadRight(6));
-                            sw.Write(v.SumQty.PadRight(8));
-                            sw.Write("".PadRight(11));
-                            sw.Write(v.StartDate.ToString("yyyy/MM/dd"));
-                            sw.Write("00:00     ");
-                            sw.Write(v.StartDate.AddDays(Convert.ToInt32(v.Days) - 1).ToString("yyyy/MM/dd"));
-                            sw.Write("00:00     ");
-                        }
-                        sw.Write("|JVMEND|");
+                        sw.Write(sb.ToString());
                     }
                 }
             }
