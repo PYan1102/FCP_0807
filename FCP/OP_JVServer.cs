@@ -24,7 +24,8 @@ namespace FCP
                     sb.Append("|JVPHEAD|");
                     sb.Append("1");
                     sb.Append(firstPowder.PatientNo.PadRight(15));
-                    sb.Append("20   ");
+                    sb.Append("".PadRight(20));
+                    sb.Append("1".PadRight(5));
                     sb.Append(firstPowder.StartDate.ToString("yyyyMMdd"));
                     sb.Append("00:00");
                     sb.Append("D123456789".PadRight(40));
