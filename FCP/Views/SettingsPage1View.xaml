@@ -1,0 +1,481 @@
+﻿<UserControl x:Class="FCP.Views.SettingsPage1View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:FCP.Views"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:vm="clr-namespace:FCP.ViewModels"
+             xmlns:core="clr-namespace:FCP.Core"
+             mc:Ignorable="d"
+             Height="450"
+             Width="740">
+    <UserControl.DataContext>
+        <vm:SettingsPage1ViewModel/>
+    </UserControl.DataContext>
+    <Border CornerRadius="10"
+            Background="White"
+            Visibility="Visible"
+            Margin="5">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="45"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid>
+                <Border CornerRadius="7 7 0 0"
+                        Background="{StaticResource DeepBlue}"
+                        Margin="5 5 5 0">
+                    <Border.Effect>
+                        <DropShadowEffect ShadowDepth="5"
+                                           BlurRadius="10"
+                                           Direction="270"/>
+                    </Border.Effect>
+                </Border>
+                <TextBlock Text="基本設定"
+                           Foreground="White"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
+                           Margin="0 4 0 0"/>
+            </Grid>
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                </Grid.ColumnDefinitions>
+                <Border Padding="10"
+                        CornerRadius="10"
+                        Background="White"
+                        Margin="10 10 0 0">
+                    <Border.Effect>
+                        <DropShadowEffect ShadowDepth="0"
+                                          BlurRadius="10"
+                                          Direction="270"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Rectangle Grid.ColumnSpan="3"
+                                   VerticalAlignment="Top"
+                                   Height="1"
+                                   Fill="{StaticResource DeepBlue}"
+                                   Opacity="0.5" Margin="0 25 0 0"/>
+                        <TextBlock FontSize="16"
+                                   Text="速度"
+                                   Foreground="{StaticResource DeepBlue}" 
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   Margin="0 -50 0 0"/>
+                        <TextBox FontSize="16"
+                                 Foreground="{StaticResource DeepBlue}"
+                                 VerticalAlignment="Center"
+                                 Margin="0 30 0 0"
+                                 Text="{Binding SearchFrequency,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                 InputMethod.IsInputMethodEnabled="False"/>
+                        <TextBlock Grid.Column="2"
+                                   Text="轉檔格式"
+                                   FontSize="16"
+                                   Foreground="{StaticResource DeepBlue}"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   Margin="0 -50 0 0"/>
+                        <ComboBox Grid.Column="2"
+                                  FontSize="16"
+                                  Foreground="{StaticResource DeepBlue}"
+                                  VerticalAlignment="Center"
+                                  ItemsSource="{Binding Mode}"
+                                  SelectedIndex="{Binding ModeIndex}"
+                                  Margin="0 28 0 0"/>
+                    </Grid>
+                </Border>
+                <Border Grid.Column="2"
+                        Padding="10"
+                        CornerRadius="10"
+                        Background="White"
+                        Margin="0 10 0 0">
+                    <Border.Effect>
+                        <DropShadowEffect ShadowDepth="0"
+                                          BlurRadius="10"
+                                          Direction="270"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="2*"/>
+                        </Grid.RowDefinitions>
+                        <RadioButton x:Name="Rdo_MultiDose"
+                                     Content="餐  包"
+                                     FontSize="16"
+                                     Background="{StaticResource DeepBlue}"
+                                     Foreground="{StaticResource DeepBlue}"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Center"
+                                     GroupName="DoseType"
+                                     Margin="-100 0 0 0"
+                                     UseLayoutRounding="True"
+                                     IsChecked="{Binding MultiChecked}">
+                        </RadioButton>
+                        <RadioButton x:Name="Rdo_CombiDose"
+                                     Content="種  包"
+                                     Background="{StaticResource DeepBlue}"
+                                     FontSize="16" Foreground="{StaticResource DeepBlue}"
+                                     HorizontalAlignment="Center"
+                                     GroupName="DoseType"
+                                     Margin="100 0 0 0"
+                                     UseLayoutRounding="True"
+                                     IsChecked="{Binding CombiChecked}"/>
+                        <Rectangle VerticalAlignment="Bottom"
+                                   Height="1"
+                                   Fill="{StaticResource DeepBlue}"
+                                   Opacity="0.5"/>
+                        <TextBox x:Name="Txt_SpecialAdminTimeOutput"
+                                 Grid.Row="1"
+                                 FontSize="16"
+                                 Foreground="{StaticResource DeepBlue}"
+                                 VerticalAlignment="Center"
+                                 HorizontalAlignment="Stretch"
+                                 TextWrapping="NoWrap"
+                                 Text="{Binding OutputSpecialAdminCode,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                 materialDesign:HintAssist.Hint="特定頻率輸出(QID,TID,QD)"
+                                 UseLayoutRounding="True"
+                                 InputMethod.IsInputMethodEnabled="False"/>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="1"
+                        CornerRadius="10"
+                        Padding="10"
+                        Background="White"
+                        Margin="10 10 0 0">
+                    <Border.Effect>
+                        <DropShadowEffect ShadowDepth="0"
+                                          BlurRadius="10"
+                                          Direction="270"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="0.5*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <RadioButton x:Name="Rdo_UseNormalPack"
+                                     FontSize="16"
+                                     Background="{StaticResource DeepBlue}"
+                                     Foreground="{StaticResource DeepBlue}"
+                                     Content="正常包藥"
+                                     HorizontalAlignment="Center"
+                                     GroupName="PackFunction"
+                                     Margin="-240 0 0 0"
+                                     UseLayoutRounding="True"
+                                     Command="{Binding NormalPack}"
+                                     IsChecked="{Binding NormalPackChecked}"/>
+                        <RadioButton x:Name="Rdo_FilterSpecialAdminTimePack"
+                                     FontSize="16"
+                                     Background="{StaticResource DeepBlue}"
+                                     Foreground="{StaticResource DeepBlue}"
+                                     Content="過濾特定頻率"
+                                     HorizontalAlignment="Center"
+                                     GroupName="PackFunction"
+                                     Margin="-30 0 0 0"
+                                     UseLayoutRounding="True"
+                                     Command="{Binding FilterAdminCode}"
+                                     IsChecked="{Binding FilterAdminCodeChecked}"/>
+                        <RadioButton x:Name="Rdo_UseSpecialAdminTimePack"
+                                     FontSize="16"
+                                     Background="{StaticResource DeepBlue}"
+                                     Foreground="{StaticResource DeepBlue}"
+                                     Content="使用特定頻率"
+                                     HorizontalAlignment="Center"
+                                     GroupName="PackFunction"
+                                     Margin="205 0 0 0"
+                                     UseLayoutRounding="True"
+                                     Command="{Binding UseAdminCode}"
+                                     IsChecked="{Binding UseAdminCodeChecked}"/>
+                        <Rectangle VerticalAlignment="Bottom"
+                                   Height="1" Fill="{StaticResource DeepBlue}"
+                                   Opacity="0.5"/>
+                        <Grid Grid.Row="1"
+                              Visibility="{Binding PackMode}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="頻率"
+                                       FontSize="16"
+                                       Foreground="{StaticResource DeepBlue}"
+                                       VerticalAlignment="Center"
+                                       Margin="5 0 0 0"
+                                       UseLayoutRounding="True"/>
+                            <TextBox x:Name="Txt_FilterAdminCode"
+                                     FontSize="16"
+                                     Foreground="{StaticResource DeepBlue}"
+                                     VerticalAlignment="Center"
+                                     Width="200"
+                                     Margin="-30 0 0 0"
+                                     UseLayoutRounding="True"
+                                     Text="{Binding AdminCode}"
+                                     InputMethod.IsInputMethodEnabled="False"/>
+                            <Button x:Name="Btn_AddFilterAdminCode"
+                                    Width="50"
+                                    materialDesign:ButtonAssist.CornerRadius="5"
+                                    Foreground="{StaticResource DeepBlue}"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    Command="{Binding AddFilterAdminCode}"
+                                    Margin="250 0 0 0">
+                                <materialDesign:PackIcon Kind="PlusBox"
+                                                         Height="30"
+                                                         Width="30"
+                                                         Margin="-12 -4 -10 0"/>
+                            </Button>
+                            <ComboBox x:Name="Cbo_FilterAdminCodeList"
+                                      Grid.Row="1"
+                                      FontSize="16"
+                                      Foreground="{StaticResource DeepBlue}"
+                                      Width="200"
+                                      Margin="-30 0 0 0"
+                                      ItemsSource="{Binding FilterAdminCodeList}"
+                                      SelectedIndex="{Binding FilterAdminCodeIndex}"
+                                      UseLayoutRounding="True"/>
+                            <Button x:Name="Btn_RemoveFilterAdminCode"
+                                    Grid.Row="1"
+                                    Width="50"
+                                    materialDesign:ButtonAssist.CornerRadius="5"
+                                    Foreground="{StaticResource DeepBlue}"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    Command="{Binding RemoveFilterAdminCode}"
+                                    Margin="250 0 0 0">
+                                <materialDesign:PackIcon Kind="MinusBox"
+                                                         Height="30"
+                                                         Width="30"
+                                                         Margin="-12 -4 -10 0"/>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="1"
+                        Grid.Column="2"
+                        CornerRadius="10"
+                        Padding="10"
+                        Background="White"
+                        Margin="0 10 0 0">
+                    <Border.Effect>
+                        <DropShadowEffect ShadowDepth="0"
+                                          BlurRadius="10"
+                                          Direction="270"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Rectangle Grid.ColumnSpan="3"
+                                   VerticalAlignment="Top"
+                                   Height="1"
+                                   Fill="{StaticResource DeepBlue}"
+                                   Opacity="0.5"
+                                   Margin="0 25 0 0"/>
+                        <TextBlock Text="切點"
+                                   FontSize="16"
+                                   Foreground="{StaticResource DeepBlue}"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   Margin="0 -50 0 0"
+                                   UseLayoutRounding="True"/>
+                        <TextBox x:Name="Txt_CutTime"
+                                 FontSize="16"
+                                 Foreground="{StaticResource DeepBlue}"
+                                 VerticalAlignment="Center"
+                                 materialDesign:HintAssist.Hint="EX：1530"
+                                 UseLayoutRounding="True"
+                                 Margin="0 30 0 0"
+                                 Text="{Binding CutTime,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                 InputMethod.IsInputMethodEnabled="False"/>
+                        <TextBlock Grid.Column="2"
+                                   Text="跨日頻率"
+                                   FontSize="16"
+                                   Foreground="{StaticResource DeepBlue}"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   Margin="0 -50 0 0"
+                                   UseLayoutRounding="True"/>
+                        <TextBox x:Name="Txt_CrossAdminTime"
+                                 Grid.Column="2"
+                                 FontSize="16"
+                                 Foreground="{StaticResource DeepBlue}"
+                                 VerticalAlignment="Center"
+                                 materialDesign:HintAssist.Hint="EX：QOD,Q2D"
+                                 UseLayoutRounding="True"
+                                 Margin="0 30 0 0"
+                                 Text="{Binding AdminCodeOfCrossDay,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                 InputMethod.IsInputMethodEnabled="False"/>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="2"
+                        Grid.RowSpan="2"
+                        CornerRadius="10"
+                        Padding="10"
+                        Background="White"
+                        Margin="10 10 0 10">
+                    <Border.Effect>
+                        <DropShadowEffect ShadowDepth="0"
+                                          BlurRadius="10"
+                                          Direction="270"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="4*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock FontSize="16"
+                                   Foreground="{StaticResource DeepBlue}"
+                                   Text="JVServer Random設定"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"/>
+                        <Rectangle VerticalAlignment="Bottom"
+                                   Height="1"
+                                   Fill="{StaticResource DeepBlue}"
+                                   Opacity="0.5"
+                                   Margin="0 0 0 5"/>
+                        <DataGrid x:Name="Dg_JVServerRandomSetting"
+                                  Grid.Row="1"
+                                  FontSize="16"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  CanUserSortColumns="False"
+                                  SelectionUnit="FullRow"
+                                  Background="White"
+                                  Foreground="{StaticResource DeepBlue}"
+                                  ItemsSource="{Binding Random,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                  SelectedIndex="{Binding RandomIndex}"
+                                  InputMethod.IsInputMethodEnabled="False">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="新增" Command="{Binding AddRandom}"/>
+                                    <MenuItem Header="刪除" Command="{Binding RemoveRandom}"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="編號"
+                                                    Width="80"
+                                                    Binding="{Binding No,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                    IsReadOnly="True"/>
+                                <DataGridTextColumn Header="JVServer"
+                                                    Width="100"
+                                                    Binding="{Binding JVServer,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                <DataGridTextColumn Header="OnCube"
+                                                    Width="100"
+                                                    Binding="{Binding OnCube,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="2"
+                        Grid.RowSpan="2"
+                        Grid.Column="2"
+                        CornerRadius="10"
+                        Padding="10"
+                        Background="White"
+                        Margin="0 10 0 10">
+                    <Border.Effect>
+                        <DropShadowEffect ShadowDepth="0"
+                                          BlurRadius="10"
+                                          Direction="270"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="4*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock FontSize="16"
+                                   Foreground="{StaticResource DeepBlue}"
+                                   Text="過濾藥品"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"/>
+                        <Rectangle VerticalAlignment="Bottom"
+                                   Height="1"
+                                   Fill="{StaticResource DeepBlue}"
+                                   Opacity="0.5"
+                                   Margin="0 0 0 5"/>
+                        <Grid Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions> 
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="0.5*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="藥品代碼"
+                                       FontSize="16"
+                                       Foreground="{StaticResource DeepBlue}"
+                                       VerticalAlignment="Center"
+                                       Margin="5 0 0 0"
+                                       UseLayoutRounding="True"/>
+                            <TextBox x:Name="Txt_FilterMedicineCode"
+                                     Grid.Column="1"
+                                     FontSize="16"
+                                     Foreground="{StaticResource DeepBlue}"
+                                     VerticalAlignment="Center"
+                                     Width="200"
+                                     UseLayoutRounding="True"
+                                     Text="{Binding MedicineCode}"
+                                     InputMethod.IsInputMethodEnabled="False">
+                            </TextBox>
+                            <Button x:Name="Btn_FilterMediicneCodeAdd"
+                                    Grid.Column="2"
+                                    materialDesign:ButtonAssist.CornerRadius="5"
+                                    Foreground="{StaticResource DeepBlue}"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    Command="{Binding AddFilterMedicineCode}">
+                                <materialDesign:PackIcon Kind="PlusBox"
+                                                         Height="30"
+                                                         Width="30"
+                                                         Margin="-12 -4 -10 0"/>
+                            </Button>
+                            <ComboBox x:Name="Cbo_FilterMedicineCode"
+                                      Grid.Row="1"
+                                      Grid.Column="1"
+                                      FontSize="16"
+                                      VerticalAlignment="Center"
+                                      Foreground="{StaticResource DeepBlue}"
+                                      Width="200"
+                                      SelectedIndex="{Binding FilterMedicineCodeIndex}"
+                                      ItemsSource="{Binding FilterMedicineCodeList}"
+                                      UseLayoutRounding="True"/>
+                            <Button x:Name="Btn_FilterMedicineCodeRemove"
+                                    Grid.Row="1"
+                                    Grid.Column="2"
+                                    materialDesign:ButtonAssist.CornerRadius="5"
+                                    Foreground="{StaticResource DeepBlue}"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    Command="{Binding RemoveFilterMedicineCode}">
+                                <materialDesign:PackIcon Kind="MinusBox"
+                                                         Height="30"
+                                                         Width="30"
+                                                         Margin="-12 -4 -10 0"/>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

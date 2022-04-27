@@ -1,0 +1,327 @@
+﻿<Window x:Class="FCP.Views.SimpleWindowView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FCP.Views"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:vm="clr-namespace:FCP.ViewModels"
+        mc:Ignorable="d"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextElement.FontFamily="Consolas"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        Title="FCP"
+        Height="149"
+        Width="450"
+        Top="{Binding Top,Mode=TwoWay}"
+        Left="{Binding Left,Mode=TwoWay}"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        Background="Transparent"
+        AllowsTransparency="True"
+        IsEnabled="{Binding Enabled,Mode=TwoWay}"
+        Visibility="{Binding Visibility,Mode=TwoWay}"
+        Topmost="{Binding Topmost}">
+    <i:Interaction.Triggers>
+        <i:DataTrigger Binding="{Binding Visibility}" Value="Visible">
+            <i:InvokeCommandAction Command="{Binding Activate}"
+                                   CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"/>
+        </i:DataTrigger>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding Loaded}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Window.DataContext>
+        <vm:SimpleWindowViewModel/>
+    </Window.DataContext>
+    <Window.Resources>
+        <ResourceDictionary>
+            <SolidColorBrush x:Key="ShallowBlue" Color="#7B97AB"/>
+            <SolidColorBrush x:Key="NormalBlue" Color="#3797E3"/>
+            <SolidColorBrush x:Key="DeepBlue" Color="#1D6FB1"/>
+            <RoutedCommand x:Key="SwitchWindow"/>
+            <RoutedCommand x:Key="StartConverter"/>
+            <RoutedCommand x:Key="StopConverter"/>
+            <RoutedCommand x:Key="UDConverter"/>
+            <RoutedCommand x:Key="Exit"/>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Gesture="Ctrl+G" Command="{Binding SwitchWindow}"/>
+        <KeyBinding Gesture="F5" Command="{Binding OPD}"/>
+        <KeyBinding Gesture="F6" Command="{Binding UD}"/>
+        <KeyBinding Gesture="F7" Command="{Binding Stop}"/>
+        <KeyBinding Gesture="Escape" Command="{Binding Close}"/>
+    </Window.InputBindings>
+    <Border>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="348"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid>
+                <Grid.Background>
+                    <LinearGradientBrush EndPoint="0.5,1"
+                                         StartPoint="0.5,0">
+                        <GradientStop Color="#FF3694E4"/>
+                        <GradientStop Color="#FF155385" Offset="1"/>
+                    </LinearGradientBrush>
+                </Grid.Background>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                </Grid.ColumnDefinitions>
+                <Grid Background="Transparent"
+                      Grid.ColumnSpan="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="35"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="35"/>
+                        <ColumnDefinition Width="10"/>
+                    </Grid.ColumnDefinitions>
+                    <RadioButton FontSize="18"
+                                 Background="White"
+                                 Foreground="White"
+                                 IsChecked="True"
+                                 Content="餐包"
+                                 Margin="5 0 0 0"
+                                 GroupName="DoseType"
+                                 Visibility="Hidden"/>
+                    <RadioButton FontSize="18"
+                                 Background="White"
+                                 Foreground="White"
+                                 Content="總包"
+                                 Margin="70 0 0 0"
+                                 GroupName="DoseType"
+                                 Visibility="Hidden"/>
+                    <Button Grid.Column="1"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Foreground="White"
+                            Visibility="{Binding MinimumVisibility}"
+                            Command="{Binding MinimumWindow}">
+                        <materialDesign:PackIcon Kind="Minus"
+                                                 Height="30"
+                                                 Width="30"
+                                                 Margin="-12 -5 -10 0"/>
+                    </Button>
+                    <Button Grid.Column="3"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Foreground="White"
+                            Visibility="{Binding CloseVisibility}"
+                            Command="{Binding Close}">
+                        <materialDesign:PackIcon Kind="Close"
+                                                 Height="30"
+                                                 Width="30"
+                                                 Margin="-12 -5 -10 0"/>
+                    </Button>
+                </Grid>
+                <Border Grid.Row="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Button FontSize="16"
+                                Foreground="{StaticResource DeepBlue}"
+                                Height="Auto"
+                                materialDesign:ButtonAssist.CornerRadius="5"
+                                Background="{Binding OPDBackground}"
+                                BorderBrush="Transparent"
+                                Margin="5"
+                                IsEnabled="{Binding OPDEnabled}"
+                                Opacity="{Binding OPDOpacity}"
+                                Command="{Binding OPD}"
+                                Style="{StaticResource ControlButton}">
+                            <Grid Width="150"
+                                  HorizontalAlignment="Center">
+                                <materialDesign:PackIcon Kind="Play"
+                                                         Height="35"
+                                                         Width="35"/>
+                                <TextBlock x:Name="Txtb_StartConverter"
+                                           FontSize="18"
+                                           Foreground="{StaticResource DeepBlue}"
+                                           Text="{Binding OPDContent}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Margin="0 2 0 0"/>
+                            </Grid>
+                        </Button>
+                        <Button Grid.Column="1"
+                                FontSize="16"
+                                Foreground="{StaticResource DeepBlue}"
+                                Height="Auto"
+                                materialDesign:ButtonAssist.CornerRadius="5"
+                                Background="{Binding StopBackground}"
+                                BorderBrush="Transparent"
+                                Margin="5"
+                                Opacity="{Binding StopOpacity}"
+                                IsEnabled="{Binding StopEnabled}"
+                                Command="{Binding Stop}">
+                            <Grid Width="150"
+                                  HorizontalAlignment="Center">
+                                <materialDesign:PackIcon Kind="Stop"
+                                                         Height="35"
+                                                         Width="35"/>
+                                <TextBlock FontSize="18"
+                                           Foreground="{StaticResource DeepBlue}"
+                                           Text="停止轉檔F7"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Margin="0 2 0 0"/>
+                            </Grid>
+                        </Button>
+                        <Button Grid.Row="1"
+                                FontSize="16"
+                                Foreground="{StaticResource DeepBlue}"
+                                Height="Auto"
+                                materialDesign:ButtonAssist.CornerRadius="5"
+                                Background="{Binding UDBackground}"
+                                BorderBrush="Transparent"
+                                Margin="5"
+                                Opacity="{Binding UDOpacity}"
+                                IsEnabled="{Binding UDEnabled}"
+                                Command="{Binding UD}"
+                                Visibility="{Binding UDVisibility}"
+                                Style="{StaticResource ControlButton}">
+                            <Grid Width="150"
+                                  HorizontalAlignment="Center">
+                                <materialDesign:PackIcon Kind="Bed"
+                                                         Height="35"
+                                                         Width="35"
+                                                         Margin="7 0 0 0"/>
+                                <TextBlock x:Name="Txtb_UD"
+                                           FontSize="18"
+                                           Foreground="{StaticResource DeepBlue}"
+                                           Text="住 院F6"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Margin="0 2 0 0"/>
+                            </Grid>
+                        </Button>
+                        <Border Grid.Row="1"
+                                Grid.Column="1"
+                                CornerRadius="8 8 8 8"
+                                Background="White"
+                                Width="80"
+                                Height="43"
+                                HorizontalAlignment="Left"
+                                Margin="5 0 0 0"
+                                Visibility="{Binding StatVisibility}"
+                                IsEnabled="{Binding StatEnabled}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="0.5*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <RadioButton Background="{StaticResource DeepBlue}"
+                                             HorizontalAlignment="Center"
+                                             GroupName="UDFormat"
+                                             IsChecked="{Binding StatChecked}"/>
+                                <Border Grid.Column="1"
+                                        CornerRadius="0 6 6 0"
+                                        Background="{StaticResource DeepBlue}"
+                                        Margin="0 3.2 3 3"
+                                        HorizontalAlignment="Stretch">
+                                    <TextBlock FontSize="18"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Text="即時"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Row="1"
+                                Grid.Column="1"
+                                CornerRadius="8 8 8 8"
+                                Background="White"
+                                Width="80"
+                                Height="43"
+                                HorizontalAlignment="Left"
+                                Margin="90 0 0 0"
+                                Visibility="{Binding BatchVisibility}"
+                                IsEnabled="{Binding BatchEnabled}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="0.5*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <RadioButton Background="{StaticResource DeepBlue}"
+                                             HorizontalAlignment="Center"
+                                             GroupName="UDFormat"
+                                             IsChecked="{Binding BatchChecked}"/>
+                                <Border Grid.Column="1"
+                                        CornerRadius="0 6 6 0"
+                                        Background="{StaticResource DeepBlue}"
+                                        Margin="0 3.2 3 3"
+                                        HorizontalAlignment="Stretch">
+                                    <TextBlock FontSize="18"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Text="長期"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+                <Button Grid.Row="1"
+                        Grid.Column="1"
+                        Width="10"
+                        Height="50"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Background="White"
+                        BorderBrush="Transparent"
+                        Command="{Binding ShowAndCloseLog}">
+                    <materialDesign:PackIcon Kind="Play"
+                                             Margin="-16 0 0 0"
+                                             Width="10"
+                                             Height="10"
+                                             Foreground="{StaticResource DeepBlue}"/>
+                </Button>
+                <Button Grid.Row="1"
+                        Grid.Column="1"
+                        Width="10"
+                        Height="10"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Background="White"
+                        BorderBrush="Transparent"
+                        Margin="0 0 0 10"
+                        Command="{Binding ClearLog}">
+                    <materialDesign:PackIcon Kind="Eraser"
+                                             Margin="-16 -4 0 -3"
+                                             Width="10"
+                                             Height="10"
+                                             Foreground="{StaticResource DeepBlue}"/>
+                </Button>
+            </Grid>
+            <TextBox FontSize="12"
+                     IsReadOnly="True"
+                     Grid.Column="1"
+                     Background="White"
+                     Foreground="{StaticResource DeepBlue}"
+                     TextWrapping="Wrap"
+                     Text="{Binding Log}"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     Visibility="{Binding LogVisibility}">
+            </TextBox>
+        </Grid>
+    </Border>
+</Window>

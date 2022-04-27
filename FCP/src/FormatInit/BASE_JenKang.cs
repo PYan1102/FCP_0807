@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.IO;
 using FCP.src.Enum;
-using FCP.MVVM.ViewModels.GetConvertFile;
+using FCP.ViewModels.GetConvertFile;
 using FCP.src.FormatControl;
 using System.Windows;
 using System;

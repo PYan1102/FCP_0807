@@ -93,10 +93,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AdvancedSettings.xaml.cs">
+    <Compile Include="Models\CommonModel.cs" />
+    <Compile Include="Views\AdvancedSettings.xaml.cs">
       <DependentUpon>AdvancedSettings.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MVVM\Models\WindowOwner.cs" />
+    <Compile Include="Models\WindowOwner.cs" />
     <Compile Include="src\ComparePrescription.cs" />
     <Compile Include="src\Factory\ViewModel\AdvancedSettingsFactory.cs" />
     <Compile Include="src\Factory\Models\ModelsFactory.cs" />
@@ -116,7 +117,7 @@
     <Compile Include="src\FormatInit\BASE_ChuangSheng.cs" />
     <Compile Include="src\FormatInit\BASE_FangDing.cs" />
     <Compile Include="Core\RelayCommand.cs" />
-    <Compile Include="MVVM\Control\JsonService.cs" />
+    <Compile Include="Service\JsonService.cs" />
     <Compile Include="ExtraSettings.cs" />
     <Compile Include="src\FormatInit\BASE_E_DA.cs" />
     <Compile Include="src\Factory\FormatFactory.cs" />
@@ -139,67 +140,67 @@
     <Compile Include="src\FormatInit\BASE_JenKang.cs" />
     <Compile Include="src\FormatInit\BASE_JVServer.cs" />
     <Compile Include="MergeFiles.cs" />
-    <Compile Include="MVVM\Models\AdvancedSettingsModel.cs" />
-    <Compile Include="MVVM\Models\ConvertFileInformationModel.cs" />
+    <Compile Include="Models\AdvancedSettingsModel.cs" />
+    <Compile Include="Models\ConvertFileInformationModel.cs" />
     <Compile Include="src\Enum\ConvertResult.cs" />
     <Compile Include="src\Enum\Department.cs" />
     <Compile Include="src\Enum\FindFileMode.cs" />
     <Compile Include="src\Enum\Format.cs" />
     <Compile Include="src\Enum\PackMode.cs" />
     <Compile Include="src\Enum\DoseType.cs" />
-    <Compile Include="MVVM\Models\MsgBModel.cs" />
-    <Compile Include="MVVM\Models\ReturnsResultFormat.cs" />
-    <Compile Include="MVVM\Models\MainWindowModel.cs" />
-    <Compile Include="MVVM\Models\SettingsModel.cs" />
-    <Compile Include="MVVM\Models\SettingsPage1Model.cs" />
-    <Compile Include="MVVM\Models\SettingsPage2Model.cs" />
-    <Compile Include="MVVM\Models\SimpleWindowModel.cs" />
+    <Compile Include="Models\MsgBModel.cs" />
+    <Compile Include="Models\ReturnsResultFormat.cs" />
+    <Compile Include="Models\MainWindowModel.cs" />
+    <Compile Include="Models\SettingsModel.cs" />
+    <Compile Include="Models\SettingsPage1Model.cs" />
+    <Compile Include="Models\SettingsPage2Model.cs" />
+    <Compile Include="Models\SimpleWindowModel.cs" />
     <Compile Include="src\Factory\Models\SettingsFactory.cs" />
     <Compile Include="src\Message.cs" />
-    <Compile Include="MVVM\ViewModels\AdvancedSettingsViewModel.cs" />
-    <Compile Include="MVVM\ViewModels\GetConvertFile\CompareFileStartWith.cs" />
-    <Compile Include="MVVM\ViewModels\GetConvertFile\DefaultRules.cs" />
-    <Compile Include="MVVM\ViewModels\GetConvertFile\FindFile.cs" />
-    <Compile Include="MVVM\ViewModels\GetConvertFile\FindFileAccordingToFileContent.cs" />
-    <Compile Include="MVVM\ViewModels\GetConvertFile\FindFileAccordingToInputPath.cs" />
-    <Compile Include="MVVM\ViewModels\GetConvertFile\FindFileAccordingToStartWith.cs" />
-    <Compile Include="MVVM\ViewModels\GetConvertFile\IFindFile.cs" />
-    <Compile Include="MVVM\ViewModels\GetConvertFile\IFindNeedToConvertFile.cs" />
-    <Compile Include="MVVM\ViewModels\Interface\IRetunrsResult.cs" />
-    <Compile Include="MVVM\ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\AdvancedSettingsViewModel.cs" />
+    <Compile Include="ViewModels\GetConvertFile\CompareFileStartWith.cs" />
+    <Compile Include="ViewModels\GetConvertFile\DefaultRules.cs" />
+    <Compile Include="ViewModels\GetConvertFile\FindFile.cs" />
+    <Compile Include="ViewModels\GetConvertFile\FindFileAccordingToFileContent.cs" />
+    <Compile Include="ViewModels\GetConvertFile\FindFileAccordingToInputPath.cs" />
+    <Compile Include="ViewModels\GetConvertFile\FindFileAccordingToStartWith.cs" />
+    <Compile Include="ViewModels\GetConvertFile\IFindFile.cs" />
+    <Compile Include="ViewModels\GetConvertFile\IFindNeedToConvertFile.cs" />
+    <Compile Include="ViewModels\Interface\IRetunrsResult.cs" />
+    <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="src\RefreshUIPropertyServices.cs" />
-    <Compile Include="MVVM\ViewModels\SettingsPage1ViewModel.cs" />
-    <Compile Include="MVVM\ViewModels\MsgBViewModel.cs" />
+    <Compile Include="ViewModels\SettingsPage1ViewModel.cs" />
+    <Compile Include="ViewModels\MsgBViewModel.cs" />
     <Compile Include="src\ReturnsResult.cs" />
-    <Compile Include="MVVM\ViewModels\SettingsPage2ViewModel.cs" />
-    <Compile Include="MVVM\ViewModels\SimpleWindowViewModel.cs" />
+    <Compile Include="ViewModels\SettingsPage2ViewModel.cs" />
+    <Compile Include="ViewModels\SimpleWindowViewModel.cs" />
     <Compile Include="Core\ViewModelBase.cs" />
-    <Compile Include="MVVM\View\SettingsPage1View.xaml.cs">
+    <Compile Include="Views\SettingsPage1View.xaml.cs">
       <DependentUpon>SettingsPage1View.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MVVM\View\SettingsPage2View.xaml.cs">
+    <Compile Include="Views\SettingsPage2View.xaml.cs">
       <DependentUpon>SettingsPage2View.xaml</DependentUpon>
     </Compile>
     <Compile Include="OP_JVServer.cs" />
     <Compile Include="src\FormatInit\BASE_KuangTien.cs" />
     <Compile Include="src\FormatInit\BASE_MinSheng.cs" />
-    <Compile Include="MsgB.xaml.cs">
+    <Compile Include="Views\MsgB.xaml.cs">
       <DependentUpon>MsgB.xaml</DependentUpon>
     </Compile>
     <Compile Include="src\SQL\OLEDB.cs" />
     <Compile Include="OP_OnCube.cs" />
-    <Compile Include="MVVM\Control\Settings.cs" />
-    <Compile Include="MVVM\View\SimpleWIndowView.xaml.cs">
+    <Compile Include="Service\Settings.cs" />
+    <Compile Include="Views\SimpleWIndowView.xaml.cs">
       <DependentUpon>SimpleWIndowView.xaml</DependentUpon>
     </Compile>
     <Compile Include="src\FormatInit\BASE_TaipeiDetention.cs" />
     <Compile Include="src\FormatInit\BASE_YiSheng.cs" />
     <Compile Include="src\UIRefresh.cs" />
-    <Page Include="AdvancedSettings.xaml">
+    <Page Include="Views\AdvancedSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -207,23 +208,23 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="MsgB.xaml">
+    <Page Include="Views\MsgB.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MVVM\View\SettingsPage1View.xaml">
+    <Page Include="Views\SettingsPage1View.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MVVM\View\SettingsPage2View.xaml">
+    <Page Include="Views\SettingsPage2View.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MVVM\View\SimpleWIndowView.xaml">
+    <Page Include="Views\SimpleWIndowView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FCP.MVVM.Models;
-using FCP.MVVM.ViewModels;
+using FCP.Models;
+using FCP.ViewModels;
 
 namespace FCP.src.Factory.ViewModel
 {

@@ -6,11 +6,11 @@ using System.IO;
 using System.Windows;
 using System.Threading;
 using FCP.src.Factory.ViewModel;
-using FCP.MVVM.Models;
+using FCP.Models;
 using FCP.src.Factory;
 using FCP.src.Enum;
-using FCP.MVVM.ViewModels.GetConvertFile;
-using FCP.MVVM.ViewModels;
+using FCP.ViewModels.GetConvertFile;
+using FCP.ViewModels;
 using MaterialDesignThemes.Wpf;
 using Helper;
 using FCP.src.Factory.Models;
@@ -90,7 +90,7 @@ namespace FCP.src
         //檢查備份資料夾是否存在
         public void CheckFileBackupPath()
         {
-            string BackupPath = $@"{MainWindowVM.FileBackupPath}\{DateTime.Now:yyyy-MM-dd}";
+            string BackupPath = $@"{CommonModel.FileBackupDirectory}\{DateTime.Now:yyyy-MM-dd}";
             if (!Directory.Exists($@"{BackupPath}\Success")) Directory.CreateDirectory($@"{BackupPath}\Success");
             if (!Directory.Exists($@"{BackupPath}\Fail")) Directory.CreateDirectory($@"{BackupPath}\Fail");
             MainWindowVM.SuccessPath = $@"{BackupPath}\Success";

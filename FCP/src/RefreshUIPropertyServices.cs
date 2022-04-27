@@ -1,9 +1,9 @@
 ﻿using System;
 using FCP.src.Factory.ViewModel;
-using FCP.MVVM.Models;
+using FCP.Models;
 using System.Windows.Media;
 using FCP.src.Factory.Models;
-using FCP.MVVM.ViewModels;
+using FCP.ViewModels;
 
 namespace FCP.src
 {

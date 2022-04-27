@@ -2,8 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using FCP.MVVM.Models;
-using FCP.MVVM.ViewModels;
+using FCP.Models;
+using FCP.ViewModels;
 using FCP.src.Factory.Models;
 using FCP.src.Factory.ViewModel;
 using Helper;

@@ -1,5 +1,5 @@
 ﻿using System;
-using FCP.MVVM.Models;
+using FCP.Models;
 
 namespace FCP.src.Factory
 {

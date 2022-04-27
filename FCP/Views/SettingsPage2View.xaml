@@ -1,0 +1,192 @@
+﻿<UserControl x:Class="FCP.Views.SettingsPage2View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:FCP.Views"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:vm="clr-namespace:FCP.ViewModels"
+             mc:Ignorable="d" 
+             Height="450"
+             Width="740">
+    <UserControl.DataContext>
+        <vm:SettingsPage2ViewModel/>
+    </UserControl.DataContext>
+    <Border CornerRadius="10"
+            Background="White"
+            Margin="5">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="45"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid>
+                <Border CornerRadius="7 7 0 0"
+                                        Background="{StaticResource DeepBlue}"
+                                        Margin="5 5 5 0">
+                    <Border.Effect>
+                        <DropShadowEffect ShadowDepth="5"
+                                                            BlurRadius="10"
+                                                            Direction="270"/>
+                    </Border.Effect>
+                </Border>
+                <TextBlock Text="基本設定"
+                           Foreground="White"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
+                           Margin="0 4 0 0"/>
+            </Grid>
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                </Grid.ColumnDefinitions>
+                <Border Padding="10"
+                        Grid.RowSpan="3"
+                        CornerRadius="10"
+                        Background="White"
+                        Margin="10 10 0 0">
+                    <Border.Effect>
+                        <DropShadowEffect ShadowDepth="0"
+                                          BlurRadius="10"
+                                          Direction="270"/>
+                    </Border.Effect>
+                </Border>
+                <Grid Grid.RowSpan="3"
+                      Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="開關"
+                               FontSize="16"
+                               Foreground="{StaticResource DeepBlue}"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"/>
+                    <Rectangle VerticalAlignment="Bottom"
+                               Height="1"
+                               Fill="{StaticResource DeepBlue}"
+                               Opacity="0.5"
+                               Margin="0 25 0 0"/>
+                    <ToggleButton Grid.Row="1"
+                                  HorizontalAlignment="Left"
+                                  IsChecked="{Binding ShowStatAndBatchOptionChecked}"/>
+                    <TextBlock Grid.Row="1"
+                               Text="顯示住院即時與長期"
+                               Style="{StaticResource FeatureTextBlock}"/>
+                    <ToggleButton Grid.Row="2"
+                                  HorizontalAlignment="Left"
+                                  IsChecked="{Binding MinimizeWindowWhenProgramStartChecked}"/>
+                    <TextBlock Grid.Row="2"
+                               Text="程式開啟後自動縮小視窗"
+                               Style="{StaticResource FeatureTextBlock}"/>
+                    <ToggleButton Grid.Row="3"
+                                  HorizontalAlignment="Left"
+                                  IsChecked="{Binding ShowCloseAndMinimizeButtonChecked}"/>
+                    <TextBlock Grid.Row="3"
+                               Text="顯示關閉與縮小按鈕"
+                               Style="{StaticResource FeatureTextBlock}"/>
+                    <ToggleButton Grid.Row="4"
+                                  HorizontalAlignment="Left"
+                                  IsChecked="{Binding ShowXYChecked}"/>
+                    <TextBlock Grid.Row="4"
+                               Text="顯示XY軸設定"
+                               Style="{StaticResource FeatureTextBlock}"/>
+                    <ToggleButton Grid.Row="5"
+                                  HorizontalAlignment="Left"
+                                  IsChecked="{Binding FilterMedicineCodeChecked}"
+                                  Command="{Binding ShowOnlyCanisterIn}"/>
+                    <TextBlock Grid.Row="5"
+                               Text="過濾藥品代碼"
+                               Style="{StaticResource FeatureTextBlock}"/>
+                    <ToggleButton Grid.Row="5"
+                                  HorizontalAlignment="Left"
+                                  Margin="160 0 0 0"
+                                  Visibility="{Binding OnlyCanisterInVisibility}"
+                                  IsChecked="{Binding OnlyCanisterInChecked}"/>
+                    <TextBlock Grid.Row="5"
+                               Text="只讓藥盒藥進來"
+                               Visibility="{Binding OnlyCanisterInVisibility}"
+                               Style="{StaticResource FeatureTextBlock}"
+                               Margin="200 0 0 0"/>
+                    <ToggleButton Grid.Row="6"
+                                  HorizontalAlignment="Left"
+                                  IsChecked="{Binding WhenCompeletedMoveFileChecked}"/>
+                    <TextBlock Grid.Row="6"
+                               Text="轉檔完成移動檔案"
+                               Style="{StaticResource FeatureTextBlock}"/>
+                    <ToggleButton Grid.Row="7"
+                                  HorizontalAlignment="Left"
+                                  IsChecked="{Binding WhenCompeletedStopChecked}"/>
+                    <TextBlock Grid.Row="7"
+                               Text="轉檔完成停止"
+                               Style="{StaticResource FeatureTextBlock}"/>
+                </Grid>
+                <Border Grid.Column="2"
+                        Padding="10"
+                        Grid.RowSpan="3"
+                        CornerRadius="10"
+                        Background="White"
+                        Margin="0 10 0 0">
+                    <Border.Effect>
+                        <DropShadowEffect ShadowDepth="0"
+                                          BlurRadius="10"
+                                          Direction="270"/>
+                    </Border.Effect>
+                </Border>
+                <Grid Grid.Column="2"
+                      Grid.RowSpan="3"
+                      Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="其他"
+                               FontSize="16"
+                               Foreground="{StaticResource DeepBlue}"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"/>
+                    <Rectangle VerticalAlignment="Bottom"
+                               Height="1"
+                               Fill="{StaticResource DeepBlue}"
+                               Opacity="0.5"
+                               Margin="0 25 0 0"/>
+                    <TextBlock Grid.Row="1"
+                               Text="檔案副檔名"
+                               Style="{StaticResource OtherTextBlock}"/>
+                    <TextBox Grid.Row="1"
+                             Width="60"
+                             Style="{StaticResource OtherTextBox}"
+                             Text="{Binding FileExtensionName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                             InputMethod.IsInputMethodEnabled="False"
+                             Margin="90 0 0 0"/>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,5 +1,5 @@
-﻿using FCP.MVVM.Models;
-using FCP.MVVM.Control;
+﻿using FCP.Models;
+using FCP.Service;
 
 namespace FCP.src.Factory.Models
 {

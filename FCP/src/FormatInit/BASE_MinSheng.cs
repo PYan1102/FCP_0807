@@ -1,8 +1,8 @@
 ﻿using System.IO;
-using FCP.MVVM.ViewModels.GetConvertFile;
+using FCP.ViewModels.GetConvertFile;
 using FCP.src.Enum;
 using FCP.src.FormatControl;
-using FCP.MVVM.Control;
+using FCP.Service;
 using System.Windows;
 
 namespace FCP.src.FormatInit

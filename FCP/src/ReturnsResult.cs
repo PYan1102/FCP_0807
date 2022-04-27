@@ -1,7 +1,7 @@
 ﻿using System;
-using FCP.MVVM.Models;
+using FCP.Models;
 using FCP.src.Factory;
-using FCP.MVVM.ViewModels.Interface;
+using FCP.ViewModels.Interface;
 using FCP.src.Enum;
 
 namespace FCP.src

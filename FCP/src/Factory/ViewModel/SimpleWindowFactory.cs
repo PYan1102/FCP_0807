@@ -1,6 +1,6 @@
 ﻿using System;
-using FCP.MVVM.View;
-using FCP.MVVM.ViewModels;
+using FCP.Views;
+using FCP.ViewModels;
 
 namespace FCP.src.Factory.ViewModel
 {

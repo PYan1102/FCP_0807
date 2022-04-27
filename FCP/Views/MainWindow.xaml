@@ -1,0 +1,787 @@
+﻿<Window x:Class="FCP.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FCP"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:vm="clr-namespace:FCP.ViewModels"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        mc:Ignorable="d"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextElement.FontFamily="Consolas"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        Title="FCP"
+        Height="600"
+        Width="1000"
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Visibility="{Binding Visibility,Mode=TwoWay}">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding Loaded}"/>
+        </i:EventTrigger>
+        <i:DataTrigger Binding="{Binding Visibility}" Value="Visible">
+            <i:InvokeCommandAction Command="{Binding Activate}"
+                                   CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"/>
+        </i:DataTrigger>
+    </i:Interaction.Triggers>
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
+    <Window.Resources>
+        <ResourceDictionary>
+            <RoutedUICommand x:Key="OPD"/>
+            <RoutedUICommand x:Key="Stop"/>
+            <RoutedUICommand x:Key="Save"/>
+            <RoutedUICommand x:Key="Close"/>
+            <RoutedUICommand x:Key="UD"/>
+            <RoutedUICommand x:Key="InputPath1"/>
+            <RoutedUICommand x:Key="InputPath2"/>
+            <RoutedUICommand x:Key="InputPath3"/>
+            <RoutedUICommand x:Key="OutputPath"/>
+            <RoutedUICommand x:Key="SwitchWindow"/>
+            <RoutedUICommand x:Key="AdvancedSettings"/>
+            <RoutedUICommand x:Key="ClearListBox"/>
+            <RoutedUICommand x:Key="Log"/>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Gesture="F5" Command="{Binding OPD}"/>
+        <KeyBinding Gesture="F6" Command="{Binding UD}"/>
+        <KeyBinding Gesture="F7" Command="{Binding Stop}"/>
+        <KeyBinding Gesture="Ctrl+S" Command="{Binding Save}"/>
+        <KeyBinding Gesture="Escape" Command="{Binding Close}"/>
+        <KeyBinding Gesture="Ctrl+1" Command="{Binding SelectFolder}"
+                    CommandParameter="IP1"/>
+        <KeyBinding Gesture="Ctrl+2" Command="{Binding SelectFolder}"
+                    CommandParameter="IP2"/>
+        <KeyBinding Gesture="Ctrl+3" Command="{Binding SelectFolder}"
+                    CommandParameter="IP3"/>
+        <KeyBinding Gesture="Ctrl+4" Command="{Binding SelectFolder}"
+                    CommandParameter="OP"/>
+        <KeyBinding Gesture="Ctrl+G" Command="{Binding SwitchWindow}"/>
+        <KeyBinding Gesture="Ctrl+W" Command="{Binding ShowAdvancedSettings}"/>
+        <KeyBinding Gesture="Ctrl+E" Command="{Binding ClearProgressBoxContent}"/>
+        <KeyBinding Gesture="F1" Command="{Binding OpenLog}"/>
+    </Window.InputBindings>
+    <Border BorderBrush="{StaticResource DeepBlue}" BorderThickness="2">
+        <Grid>
+            <Grid.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FF3694E4"/>
+                    <GradientStop Color="#FF155385" Offset="1"/>
+                </LinearGradientBrush>
+            </Grid.Background>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid x:Name="TitleBar"
+                  Background="Transparent"
+                  MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="35"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="35"/>
+                    <ColumnDefinition Width="10"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="Txtb_Title"
+                           FontSize="16"
+                           Foreground="White"
+                           VerticalAlignment="Center"
+                           Text="{Binding WindowTitle}"
+                           Margin="10"/>
+                <Button Grid.Column="1"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        materialDesign:ButtonAssist.CornerRadius="5"
+                        Visibility="{Binding MinimumAndCloseVisibility}"
+                        Command="{Binding  MinimumWindow}">
+                    <materialDesign:PackIcon Kind="WindowMinimize"
+                                             Height="30"
+                                             Width="30"
+                                             Margin="-14 -3 -10 11"/>
+                </Button>
+                <Button Grid.Column="3"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        materialDesign:ButtonAssist.CornerRadius="5"
+                        Visibility="{Binding MinimumAndCloseVisibility}"
+                        Command="{Binding Close}">
+                    <materialDesign:PackIcon Kind="WindowClose"
+                                             Height="30"
+                                             Width="30"
+                                             Margin="-14 -4 -10 0"/>
+                </Button>
+            </Grid>
+            <Border Grid.Row="1" Padding="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.1*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="1.5*"/>
+                        </Grid.RowDefinitions>
+                        <Border x:Name="Bod_Path"
+                                Padding="10"
+                                Background="White"
+                                CornerRadius="5 5 5 5">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="4*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="0.4*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding InputPath1Title}"
+                                           Foreground="{StaticResource DeepBlue}"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           FontSize="16">
+                                    <TextBlock.InputBindings>
+                                        <MouseBinding Gesture="RightDoubleClick" Command="{Binding ClearPath}"
+                                                      CommandParameter="IP1"/>
+                                    </TextBlock.InputBindings>
+                                </TextBlock>
+                                <TextBox Grid.Column="2"
+                                         Foreground="{StaticResource DeepBlue}"
+                                         Height="35"
+                                         VerticalAlignment="Center"
+                                         FontSize="16"
+                                         IsReadOnly="True"
+                                         Text="{Binding InputPath1}"
+                                         Opacity="0.6"
+                                         Margin="0 8 0 0"/>
+                                <Button Grid.Column="4"
+                                        materialDesign:ButtonAssist.CornerRadius="5"
+                                        BorderBrush="Transparent"
+                                        Background="{StaticResource DeepBlue}"
+                                        materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                        IsEnabled="{Binding InputPath1Enabled}"
+                                        Command="{Binding SelectFolder}"
+                                        CommandParameter="IP1">
+                                    <materialDesign:PackIcon Kind="Folder"
+                                                             Height="25"
+                                                             Width="25"
+                                                             Margin="-12 -1 -10 0"/>
+                                </Button>
+                                <TextBlock Grid.Row="1"
+                                           Text="{Binding InputPath2Title}"
+                                           Foreground="{StaticResource DeepBlue}"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           FontSize="16">
+                                    <TextBlock.InputBindings>
+                                        <MouseBinding Gesture="RightDoubleClick" Command="{Binding ClearPath}"
+                                                      CommandParameter="IP2"/>
+                                    </TextBlock.InputBindings>
+                                </TextBlock>
+                                <TextBox Grid.Row="1"
+                                         Grid.Column="2"
+                                         Foreground="{StaticResource DeepBlue}"
+                                         Height="35"
+                                         VerticalAlignment="Center"
+                                         FontSize="16"
+                                         IsReadOnly="True"
+                                         Text="{Binding InputPath2}"
+                                         Opacity="0.6"
+                                         Margin="0 8 0 0"/>
+                                <Button Grid.Row="1"
+                                        Grid.Column="4"
+                                        materialDesign:ButtonAssist.CornerRadius="5"
+                                        BorderBrush="Transparent"
+                                        Background="{StaticResource DeepBlue}"
+                                        materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                        IsEnabled="{Binding InputPath2Enabled}"
+                                        Command="{Binding SelectFolder}"
+                                        CommandParameter="IP2">
+                                    <materialDesign:PackIcon Kind="Folder"
+                                                             Height="25"
+                                                             Width="25"
+                                                             Margin="-12 -1 -10 0"/>
+                                </Button>
+                                <TextBlock Grid.Row="2"
+                                           Text="{Binding InputPath3Title}"
+                                           Foreground="{StaticResource DeepBlue}"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           FontSize="16">
+                                    <TextBlock.InputBindings>
+                                        <MouseBinding Gesture="RightDoubleClick" Command="{Binding ClearPath}"
+                                                      CommandParameter="IP3"/>
+                                    </TextBlock.InputBindings>
+                                </TextBlock>
+                                <TextBox Grid.Row="2"
+                                         Grid.Column="2"
+                                         Foreground="{StaticResource DeepBlue}"
+                                         Height="35"
+                                         VerticalAlignment="Center"
+                                         FontSize="16"
+                                         IsReadOnly="True"
+                                         Text="{Binding InputPath3}"
+                                         Opacity="0.6"
+                                         Margin="0 8 0 0"/>
+                                <Button Grid.Row="2"
+                                        Grid.Column="4"
+                                        materialDesign:ButtonAssist.CornerRadius="5"
+                                        BorderBrush="Transparent"
+                                        Background="{StaticResource DeepBlue}"
+                                        materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                        IsEnabled="{Binding InputPath3Enabled}"
+                                        Command="{Binding SelectFolder}"
+                                        CommandParameter="IP3">
+                                    <materialDesign:PackIcon Kind="Folder"
+                                                             Height="25"
+                                                             Width="25"
+                                                             Margin="-12 -1 -10 0"/>
+                                </Button>
+                                <TextBlock Grid.Row="3"
+                                           Text="{Binding OutputPathTitle}"
+                                           Foreground="{StaticResource DeepBlue}"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           FontSize="16"/>
+                                <TextBox Grid.Row="3"
+                                         Grid.Column="2"
+                                         Foreground="{StaticResource DeepBlue}"
+                                         Height="35"
+                                         VerticalAlignment="Center"
+                                         FontSize="16"
+                                         IsReadOnly="True"
+                                         Text="{Binding OutputPath}"
+                                         Opacity="0.6"
+                                         Margin="0 8 0 0">
+                                </TextBox>
+                                <Button Grid.Row="3"
+                                        Grid.Column="4"
+                                        materialDesign:ButtonAssist.CornerRadius="5"
+                                        BorderBrush="Transparent"
+                                        Background="{StaticResource DeepBlue}"
+                                        materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                        IsEnabled="{Binding OutputPathEnabled}"
+                                        Command="{Binding SelectFolder}"
+                                        CommandParameter="OP">
+                                    <materialDesign:PackIcon Kind="Folder"
+                                                             Height="25"
+                                                             Width="25"
+                                                             Margin="-12 -1 -10 0"/>
+                                </Button>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Row="2">
+                            <Grid x:Name="Gd_Feature">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="2"
+                                        CornerRadius="8 8 8 8"
+                                        Background="White"
+                                        Width="120"
+                                        HorizontalAlignment="Left"
+                                        Margin="0 5 0 5">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="2.3*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <ToggleButton x:Name="Tgl_AutoStart"
+                                                      HorizontalAlignment="Left"
+                                                      Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                                      IsChecked="{Binding IsAutoStartChecked}"
+                                                      Margin="5 0 0 0">
+                                        </ToggleButton>
+                                        <Border Grid.Column="1"
+                                                CornerRadius="0 6 6 0"
+                                                Background="{StaticResource DeepBlue}"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="3 3 3 3">
+                                            <TextBlock Text="自動開始"
+                                                       FontSize="18"
+                                                       Foreground="White"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                                <Border Grid.Row="2"
+                                        CornerRadius="8 8 8 8"
+                                        Background="White"
+                                        Width="130"
+                                        Height="43"
+                                        HorizontalAlignment="Center"
+                                        Margin="-115 5 0 5">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="1.4*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock FontSize="20"
+                                                   Foreground="{StaticResource DeepBlue}"
+                                                   Text="包藥"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                        <Border Grid.Column="1"
+                                                CornerRadius="0 6 6 0"
+                                                Background="{StaticResource DeepBlue}"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="0 3.2 3 3">
+                                            <TextBlock x:Name="Txtb_PackType"
+                                                       FontSize="20"
+                                                       Foreground="White"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center" 
+                                                       Text="{Binding DoseType}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                                <Border Grid.Row="3"
+                                        Grid.RowSpan="2"
+                                        CornerRadius="8 8 8 8"
+                                        Background="White"
+                                        Width="120"
+                                        HorizontalAlignment="Left"
+                                        Margin="0 5 0 5">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="1.2*"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock FontSize="30"
+                                                   Foreground="{StaticResource DeepBlue}"
+                                                   Text="成 功"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                        <Border Grid.Row="1"
+                                                CornerRadius="0 0 6 6"
+                                                Background="{StaticResource DeepBlue}"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="3 0 3 3">
+                                            <TextBlock x:Name="Txtb_Success"
+                                                       FontSize="30"
+                                                       Foreground="White"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Text="{Binding SuccessCount}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                                <Border Grid.Row="3"
+                                        Grid.RowSpan="2"
+                                        CornerRadius="8 8 8 8"
+                                        Background="White"
+                                        Width="120"
+                                        HorizontalAlignment="Left"
+                                        Margin="130 5 0 5">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="1.2*"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock FontSize="30"
+                                                   Foreground="{StaticResource DeepBlue}"
+                                                   Text="失 敗"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                        <Border Grid.Row="1"
+                                                CornerRadius="0 0 6 6"
+                                                Background="{StaticResource DeepBlue}"
+                                                Margin="3 0 3 3"
+                                                HorizontalAlignment="Stretch">
+                                            <TextBlock x:Name="Txtb_Fail"
+                                                       FontSize="30"
+                                                       Foreground="White"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Text="{Binding FailCount}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                                <Border x:Name="Bod_X"
+                                        Grid.Row="5"
+                                        Grid.RowSpan="2"
+                                        CornerRadius="8 8 8 8"
+                                        Background="White"
+                                        Width="120"
+                                        Height="43"
+                                        HorizontalAlignment="Left"
+                                        Visibility="{Binding WindowXVisibility}"
+                                        IsEnabled="{Binding WindowXEnabled}"
+                                        Margin="0 5 0 5">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1.1*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock FontSize="20"
+                                                   Foreground="{StaticResource DeepBlue}"
+                                                   Text="X軸"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                        <Border Grid.Column="1"
+                                                CornerRadius="0 6 6 0"
+                                                Background="{StaticResource DeepBlue}"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="0 3.2 3 3">
+                                            <TextBox x:Name="Txt_X"
+                                                     FontSize="20"
+                                                     Foreground="White"
+                                                     HorizontalAlignment="Center"
+                                                     VerticalAlignment="Center"
+                                                     Text="{Binding WindowX}"
+                                                     MaxLength="4"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                                <Border x:Name="Bod_Y"
+                                        Grid.Row="5"
+                                        Grid.RowSpan="2"
+                                        CornerRadius="8 8 8 8"
+                                        Background="White"
+                                        Width="120"
+                                        Height="43" 
+                                        HorizontalAlignment="Left"
+                                        Visibility="{Binding WindowYVisibility}"
+                                        IsEnabled="{Binding WindowYEnabled}"
+                                        Margin="130 5 0 5">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1.1*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock FontSize="20"
+                                                   Foreground="{StaticResource DeepBlue}"
+                                                   Text="Y軸"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                        <Border Grid.Column="1"
+                                                CornerRadius="0 6 6 0"
+                                                Background="{StaticResource DeepBlue}"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="0 3.2 3 3">
+                                            <TextBox x:Name="Txt_Y"
+                                                     FontSize="20"
+                                                     Foreground="White"
+                                                     HorizontalAlignment="Center"
+                                                     VerticalAlignment="Center"
+                                                     Text="{Binding WindowY}"
+                                                     MaxLength="4"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.3*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button x:Name="Btn_OPD"
+                                            Foreground="{StaticResource DeepBlue}"
+                                            BorderBrush="Transparent"
+                                            FontSize="20"
+                                            Width="120"
+                                            Height="Auto"
+                                            HorizontalAlignment="Left"
+                                            materialDesign:ButtonAssist.CornerRadius="5"
+                                            IsEnabled="{Binding OPDEnabled}"
+                                            Command="{Binding OPD}"
+                                            Opacity="{Binding OPDOpacity}"
+                                            Background="{Binding OPDBackground}"
+                                            Style="{StaticResource ControlButton}"
+                                            Margin="0 5 0 5">
+                                        <Grid Width="110" Margin="-10 0 0 0">
+                                            <materialDesign:PackIcon Kind="Play"
+                                                                     Height="30"
+                                                                     Width="30"
+                                                                     Margin="0 -2 0 0"/>
+                                            <TextBlock x:Name="Txtb_OPD"
+                                                   FontSize="20" 
+                                                   Text="開始F5"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   Margin="10 1 0 0"/>
+                                        </Grid>
+                                    </Button>
+                                    <ToggleButton x:Name="Tgl_OPD1"
+                                                  Grid.Column="1"
+                                                  HorizontalAlignment="Left"
+                                                  Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                                  IsChecked="{Binding OPDToogle1Checked}"
+                                                  Visibility="{Binding OPDToogle1Visibility}"
+                                                  IsEnabled="{Binding OPDToogle1Enabled}"
+                                                  Margin="10 0 0 0">
+                                    </ToggleButton>
+                                    <TextBlock x:Name="Txt_OPD1"
+                                               Grid.Column="1"
+                                               VerticalAlignment="Center"
+                                               Foreground="White"
+                                               FontSize="16"
+                                               Text="{Binding OPDToogle1}"
+                                               Margin="50 0 0 0"/>
+                                    <ToggleButton x:Name="Tgl_OPD2"
+                                                  Grid.Column="2"
+                                                  HorizontalAlignment="Left"
+                                                  Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                                  IsChecked="{Binding OPDToogle2Checked}"
+                                                  Visibility="{Binding OPDToogle2Visibility}"
+                                                  IsEnabled="{Binding OPDToogle2Enabled}"
+                                                  Margin="10 0 0 0">
+                                    </ToggleButton>
+                                    <TextBlock x:Name="Txt_OPD2"
+                                               Grid.Column="2"
+                                               VerticalAlignment="Center"
+                                               Foreground="White"
+                                               FontSize="16"
+                                               Text="{Binding OPDToogle2}"
+                                               Margin="50 0 0 0"/>
+                                    <ToggleButton x:Name="Tgl_OPD3"
+                                                  Grid.Column="3"
+                                                  HorizontalAlignment="Left"
+                                                  Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                                  IsChecked="{Binding OPDToogle3Checked}"
+                                                  Visibility="{Binding OPDToogle3Visibility}"
+                                                  IsEnabled="{Binding OPDToogle3Enabled}"
+                                                  Margin="10 0 0 0">
+                                    </ToggleButton>
+                                    <TextBlock x:Name="Txt_OPD3"
+                                               Grid.Column="3"
+                                               VerticalAlignment="Center"
+                                               Foreground="White"
+                                               FontSize="16"
+                                               Text="{Binding OPDToogle3}"
+                                               Margin="50 0 0 0"/>
+                                    <ToggleButton x:Name="Tgl_OPD4"
+                                                  Grid.Column="4"
+                                                  HorizontalAlignment="Left"
+                                                  Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                                  IsChecked="{Binding OPDToogle4Checked}"
+                                                  Visibility="{Binding OPDToogle4Visibility}"
+                                                  IsEnabled="{Binding OPDToogle4Enabled}"
+                                                  Margin="10 0 0 0">
+                                    </ToggleButton>
+                                    <TextBlock x:Name="Txt_OPD4"
+                                               Grid.Column="4"
+                                               VerticalAlignment="Center"
+                                               Foreground="White"
+                                               FontSize="16"
+                                               Text="{Binding OPDToogle4}"
+                                               Margin="50 0 0 0"/>
+                                </Grid>
+                                <Button x:Name="Btn_UD"
+                                        Grid.Row="1"
+                                        Foreground="{StaticResource DeepBlue}"
+                                        BorderBrush="Transparent"
+                                        FontSize="20"
+                                        Width="120"
+                                        Height="Auto"
+                                        HorizontalAlignment="Left"
+                                        materialDesign:ButtonAssist.CornerRadius="5"
+                                        IsEnabled="{Binding UDEnabled}"
+                                        Opacity="{Binding UDOpacity}"
+                                        Background="{Binding UDBackground}"
+                                        Visibility="{Binding UDButtonVisibility}"
+                                        Command="{Binding UD}"
+                                        Style="{StaticResource ControlButton}"
+                                        Margin="0 5 0 5">
+                                    <Grid Width="110" Margin="-10 0 0 0">
+                                        <materialDesign:PackIcon Kind="Bed"
+                                                                 Height="30"
+                                                                 Width="30"
+                                                                 Margin="0 -2 0 0"/>
+                                        <TextBlock FontSize="20"
+                                                   Text="住院F6"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   Margin="10 1 0 0"/>
+                                    </Grid>
+                                </Button>
+                                <RadioButton x:Name="Rdo_Stat"
+                                             Grid.Row="1"
+                                             HorizontalAlignment="Center"
+                                             FontSize="20"
+                                             Foreground="White"
+                                             Content=" 即時"
+                                             Style="{StaticResource RadioButton}"
+                                             IsChecked="{Binding StatChecked}"
+                                             IsEnabled="{Binding StatEnabled}"
+                                             Visibility="{Binding StatVisibility}"
+                                             Margin="-170 0 0 0">
+                                </RadioButton>
+                                <RadioButton x:Name="Rdo_Batch"
+                                             Grid.Row="1"
+                                             HorizontalAlignment="Center"
+                                             FontSize="20"
+                                             Foreground="White"
+                                             Content=" 長期"
+                                             Style="{StaticResource RadioButton}"
+                                             IsChecked="{Binding BatchChecked}"
+                                             IsEnabled="{Binding BatchEnabled}"
+                                             Visibility="{Binding BatchVisibility}"
+                                             Margin="20 0 0 0"/>
+                                <Border Grid.Row="1"
+                                        CornerRadius="8 8 8 8"
+                                        Background="White"
+                                        Width="170"
+                                        HorizontalAlignment="Right"
+                                        Margin="0 5 0 5"
+                                        Visibility="{Binding SplitEachMealVisibility}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="3*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <ToggleButton x:Name="Tgl_SplitEachMeal"
+                                                      HorizontalAlignment="Left"
+                                                      Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                                      IsChecked="{Binding IsSplitEachMealChecked}"
+                                                      Margin="5 0 0 0">
+                                        </ToggleButton>
+                                        <Border Grid.Column="1"
+                                                CornerRadius="0 6 6 0"
+                                                Background="{StaticResource DeepBlue}"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="3 3 3 3">
+                                            <TextBlock Text="切割每餐(JVS)"
+                                                       FontSize="18"
+                                                       Foreground="White"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                                <Button x:Name="Btn_Stop"
+                                        Grid.Row="2"
+                                        Background="White"
+                                        Foreground="{StaticResource DeepBlue}"
+                                        BorderBrush="Transparent"
+                                        FontSize="20"
+                                        Width="170"
+                                        Height="Auto"
+                                        HorizontalAlignment="Right"
+                                        materialDesign:ButtonAssist.CornerRadius="5"
+                                        Command="{Binding Stop}"
+                                        IsEnabled="{Binding StopEnabled}"
+                                        Margin="0 5 0 5">
+                                    <Grid Width="130">
+                                        <materialDesign:PackIcon Kind="Stop"
+                                                                 Height="30"
+                                                                 Width="30"
+                                                                 Margin="-10 -2 0 0"/>
+                                        <TextBlock FontSize="20"
+                                                   Text="停止轉檔F7"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   Margin="20 1 0 0"/>
+                                    </Grid>
+                                </Button>
+                                <Button x:Name="Btn_Save"
+                                        Grid.Row="3"
+                                        Background="White"
+                                        Foreground="{StaticResource DeepBlue}"
+                                        BorderBrush="Transparent"
+                                        FontSize="20"
+                                        Width="170"
+                                        Height="Auto"
+                                        HorizontalAlignment="Right"
+                                        materialDesign:ButtonAssist.CornerRadius="5"
+                                        Command="{Binding Save}"
+                                        IsEnabled="{Binding SaveEnabled}"
+                                        Margin="0 5 0 5">
+                                    <Grid Width="130">
+                                        <materialDesign:PackIcon Kind="ContentSaveEdit"
+                                                                 Height="30"
+                                                                 Width="30"
+                                                                 Margin="-10 -2 0 0"/>
+                                        <TextBlock FontSize="20"
+                                                   Text="儲存Ctrl+S"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   Margin="20 1 0 0"/>
+                                    </Grid>
+                                </Button>
+                                <Button x:Name="Btn_Exit"
+                                        Grid.Row="4"
+                                        Background="White"
+                                        Foreground="{StaticResource DeepBlue}"
+                                        BorderBrush="Transparent" FontSize="20"
+                                        Width="170"
+                                        Height="Auto"
+                                        Margin="0 5 0 5"
+                                        HorizontalAlignment="Right"
+                                        materialDesign:ButtonAssist.CornerRadius="5"
+                                        Command="{Binding Close}">
+                                    <Grid Width="130">
+                                        <materialDesign:PackIcon Kind="ExitToApp"
+                                                                 Height="30"
+                                                                 Width="30"
+                                                                 Margin="-10 -2 0 0"/>
+                                        <TextBlock FontSize="20"
+                                                   Text="離開Esc"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   Margin="20 1 0 0"/>
+                                    </Grid>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                    <Border Grid.Column="2"
+                            CornerRadius="5"
+                            Background="White">
+                        <TextBox FontSize="16"
+                                 Foreground="{StaticResource DeepBlue}"
+                                 HorizontalScrollBarVisibility="Auto"
+                                 VerticalScrollBarVisibility="Auto"
+                                 TextWrapping="Wrap"
+                                 IsReadOnly="True"
+                                 Text="{Binding ProgressBoxContent}"
+                                 Cursor="Arrow">
+                        </TextBox>
+                    </Border>
+                    <Button x:Name="Btn_ProgressBoxClear"
+                            Grid.Column="2"
+                            Width="30"
+                            Height="30"
+                            Foreground="{StaticResource DeepBlue}"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            materialDesign:ButtonAssist.CornerRadius="5"
+                            Command="{Binding ClearProgressBoxContent}">
+                        <materialDesign:PackIcon Kind="Eraser"
+                                                 Height="25"
+                                                 Width="25"
+                                                 Margin="-14 -2 -10 0"/>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
