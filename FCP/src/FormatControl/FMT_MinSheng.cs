@@ -94,10 +94,10 @@ namespace FCP.src.FormatControl
         public override bool LogicOPD()
         {
             int count = _OPD.Count;
-            string filePathOutput = $@"{OutputPath}\{ Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputPath}\{ Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
             try
             {
-                OP_OnCube.MinSheng_OPD(_OPD, filePathOutput, location);
+                OP_OnCube.MinSheng_OPD(_OPD, outputDirectory, location);
                 return true;
             }
             catch (Exception ex)
@@ -171,7 +171,7 @@ namespace FCP.src.FormatControl
 
         public override bool LogicUDBatch()
         {
-            string filePathOutput = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
             try
             {
                 int count = _UDBatch.Count;
@@ -235,7 +235,7 @@ namespace FCP.src.FormatControl
             }
             try
             {
-                OP_OnCube.MinSheng_UD(DataDic, filePathOutput, _UDBatch);
+                OP_OnCube.MinSheng_UD(DataDic, outputDirectory, _UDBatch);
                 return true;
             }
             catch (Exception ex)

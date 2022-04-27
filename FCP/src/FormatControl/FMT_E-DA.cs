@@ -91,10 +91,10 @@ namespace FCP.src.FormatControl
 
         public override bool LogicUDBatch()
         {
-            string filePathOutput = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
             try
             {
-                OP_OnCube.E_DA_UD(_UDBatch, filePathOutput);
+                OP_OnCube.E_DA_UD(_UDBatch, outputDirectory);
                 return true;
             }
             catch (Exception ex)

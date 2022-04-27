@@ -76,10 +76,10 @@ namespace FCP.src.FormatControl
 
         public override bool LogicOPD()
         {
-            string filePathOutput = $@"{OutputPath}\{_OPD[0].PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputPath}\{_OPD[0].PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
             try
             {
-                OP_OnCube.YiSheng(_OPD, filePathOutput);
+                OP_OnCube.YiSheng(_OPD, outputDirectory);
                 return true;
             }
             catch (Exception ex)

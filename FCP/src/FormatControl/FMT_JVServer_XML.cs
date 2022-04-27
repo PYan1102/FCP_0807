@@ -174,10 +174,10 @@ namespace FCP.src.FormatControl
 
             #endregion
 
-            string filePathOutput = $@"{OutputPath}\{_Basic.PatientName}-{_Basic.Type}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputPath}\{_Basic.PatientName}-{_Basic.Type}_{CurrentSeconds}.txt";
             try
             {
-                OP_OnCube.JVServerXML(_Basic, _OPD, filePathOutput, Path.GetFileNameWithoutExtension(FilePath));
+                OP_OnCube.JVServerXML(_Basic, _OPD, outputDirectory, Path.GetFileNameWithoutExtension(FilePath));
                 return true;
             }
             catch (Exception ex)

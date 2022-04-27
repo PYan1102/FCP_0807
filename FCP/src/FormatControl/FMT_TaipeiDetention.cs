@@ -83,13 +83,13 @@ namespace FCP.src.FormatControl
 
         public override bool LogicOPD()
         {
-            string filePathOutput = $@"{OutputPath}\{_Basic.PatientName}-{_Basic.PatientNo}-{_Basic.Class}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputPath}\{_Basic.PatientName}-{_Basic.PatientNo}-{_Basic.Class}_{CurrentSeconds}.txt";
             DateTime.TryParseExact(_Basic.BirthDate, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime date);  //生日
             _Basic.BirthDate = date.ToString("yyyy-MM-dd");
             List<string> PutBackAdminCode = new List<string>() { "Q4H", "Q6H", "Q8H", "Q12H", "QDPRN", "QIDPRN", "PRN", "BIDPRN", "TIDPRN", "HSPRN" };
             try
             {
-                OP_OnCube.TaipeiDentention(_OPD, _Basic, filePathOutput, PutBackAdminCode);
+                OP_OnCube.TaipeiDentention(_OPD, _Basic, outputDirectory, PutBackAdminCode);
                 return true;
             }
             catch (Exception ex)

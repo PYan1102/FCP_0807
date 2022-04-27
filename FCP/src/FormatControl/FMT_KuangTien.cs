@@ -854,12 +854,12 @@ namespace FCP.src.FormatControl
         {
             int year = (Convert.ToInt32(DateTime.Now.ToString("yyyy")) - 1911);
             var firstPowder = _PowderDic.Select(x => x).First().Value[0];
-            string filePathOutput = $@"{OutputPath}\{year}{DateTime.Now:MMdd}_{firstPowder.GetMedicineNo}_{firstPowder.PatientName}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputPath}\{year}{DateTime.Now:MMdd}_{firstPowder.GetMedicineNo}_{firstPowder.PatientName}_{CurrentSeconds}.txt";
             List<string> grindTableList = new List<string>();
             grindTableList.AddRange(_PowderDic.Where(x => !grindTableList.Contains(x.Key)).Select(x => x.Key));
             try
             {
-                OP_JVServer.KuangTien_磨粉(_PowderDic, grindTableList, filePathOutput);
+                OP_JVServer.KuangTien_磨粉(_PowderDic, grindTableList, outputDirectory);
                 return true;
             }
             catch (Exception ex)

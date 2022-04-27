@@ -74,10 +74,10 @@ namespace FCP.src.FormatControl
 
         public override bool LogicOPD()
         {
-            string filePathOutput = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{_OPD[0].PatientName}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{_OPD[0].PatientName}_{CurrentSeconds}.txt";
             try
             {
-                OP_OnCube.JenKang_OPD(_OPD, filePathOutput);
+                OP_OnCube.JenKang_OPD(_OPD, outputDirectory);
                 return true;
             }
             catch (Exception ex)
@@ -177,14 +177,14 @@ namespace FCP.src.FormatControl
             {
                 v.EndDay = minStartDate.AddDays(Convert.ToInt32(v.Days) - 1);
             }
-            string filePathOutput = string.Empty;
+            string outputDirectory = string.Empty;
             if (_UDBatch[0].Location.Contains("住院"))
-                filePathOutput = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+                outputDirectory = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
             else
-                filePathOutput = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{_UDBatch[0].PatientName}_{CurrentSeconds}.txt";
+                outputDirectory = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{_UDBatch[0].PatientName}_{CurrentSeconds}.txt";
             try
             {
-                OP_OnCube.JenKang_UD(_UDBatch, filePathOutput, minStartDate);
+                OP_OnCube.JenKang_UD(_UDBatch, outputDirectory, minStartDate);
                 return true;
             }
             catch (Exception ex)

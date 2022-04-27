@@ -74,8 +74,8 @@ namespace FCP.src.FormatControl
         {
             try
             {
-                string filePathOutput = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
-                bool result = OP_OnCube.ChangGung_OPD(_OPD, filePathOutput, "門診ONLINE");
+                string outputDirectory = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+                bool result = OP_OnCube.ChangGung_OPD(_OPD, outputDirectory, "門診ONLINE");
                 if (result)
                     return true;
                 ReturnsResult.Shunt(eConvertResult.產生OCS失敗, null);
@@ -143,8 +143,8 @@ namespace FCP.src.FormatControl
         {
             try
             {
-                string filePathOutput = $@"{OutputPath}\住院批次_{CurrentSeconds}.txt";
-                bool result = OP_OnCube.ChangGung_UD_Batch(_Batch, filePathOutput, "住院批次");
+                string outputDirectory = $@"{OutputPath}\住院批次_{CurrentSeconds}.txt";
+                bool result = OP_OnCube.ChangGung_UD_Batch(_Batch, outputDirectory, "住院批次");
                 if (result)
                     return true;
                 ReturnsResult.Shunt(eConvertResult.產生OCS失敗, null);
@@ -220,8 +220,8 @@ namespace FCP.src.FormatControl
         {
             try
             {
-                string filePathOutput = $@"{OutputPath}\藥來速_{CurrentSeconds}.txt";
-                bool result = OP_OnCube.ChangGung_Other(_OPD, filePathOutput, "藥來速");
+                string outputDirectory = $@"{OutputPath}\藥來速_{CurrentSeconds}.txt";
+                bool result = OP_OnCube.ChangGung_Other(_OPD, outputDirectory, "藥來速");
                 if (result)
                     return true;
                 ReturnsResult.Shunt(eConvertResult.產生OCS失敗, null);

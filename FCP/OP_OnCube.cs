@@ -17,11 +17,11 @@ namespace FCP
     {
         private static SettingsModel _SettingsModel { get => SettingsFactory.GenerateSettingsModel(); }
 
-        public static void JVServer(List<JVServerOPD> OPD, JVServerOPDBasic basic, List<string> oncubeRandom, string random, string filePathOutput)
+        public static void JVServer(List<JVServerOPD> OPD, JVServerOPDBasic basic, List<string> oncubeRandom, string random, string outputDirectory)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
                     foreach (var v in OPD)
                     {
@@ -148,11 +148,11 @@ namespace FCP
             }
         }
 
-        public static void JVServerXML(JVServerXMLOPDBasic basic, List<JVServerXMLOPD> OPD, string filePathOutput, string fileName)
+        public static void JVServerXML(JVServerXMLOPDBasic basic, List<JVServerXMLOPD> OPD, string outputDirectory, string fileName)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
                     foreach (var v in OPD)
                     {
@@ -203,11 +203,11 @@ namespace FCP
             }
         }
 
-        public static void ChuangSheng(List<ChuangShengOPD> OPD, string filePathOutput)
+        public static void ChuangSheng(List<ChuangShengOPD> OPD, string outputDirectory)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
                     foreach (var v in OPD)
                     {
@@ -660,11 +660,11 @@ namespace FCP
                 return false;
             }
         }
-        public static bool YiSheng(List<YiShengOPD> OPD, string filePathOutput)
+        public static bool YiSheng(List<YiShengOPD> OPD, string outputDirectory)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
                     foreach (var v in OPD)
                     {
@@ -709,14 +709,14 @@ namespace FCP
                 return false;
             }
         }
-        public static void HongYen(List<HongYenOPD> OPDUp, List<HongYenOPD> OPDDown, HongYenOPDBasic basic, List<string> filePathOutput)
+        public static void HongYen(List<HongYenOPD> OPDUp, List<HongYenOPD> OPDDown, HongYenOPDBasic basic, List<string> outputDirectory)
         {
 
             try
             {
-                foreach (string filenameoutput in filePathOutput)
+                foreach (string filenameoutput in outputDirectory)
                 {
-                    List<HongYenOPD> OPD = filePathOutput.IndexOf(filenameoutput) == 0 ? OPDUp.ToList() : OPDDown.ToList();
+                    List<HongYenOPD> OPD = outputDirectory.IndexOf(filenameoutput) == 0 ? OPDUp.ToList() : OPDDown.ToList();
                     using (StreamWriter sw = new StreamWriter(filenameoutput, false, Encoding.Default))
                     {
                         foreach (var v in OPD)
@@ -767,11 +767,11 @@ namespace FCP
                 throw;
             }
         }
-        public static void MinSheng_UD(Dictionary<string, List<string>> dataDic, string filePathOutput, List<MinShengUDBatch> UDBatch)
+        public static void MinSheng_UD(Dictionary<string, List<string>> dataDic, string outputDirectory, List<MinShengUDBatch> UDBatch)
         {
             try
             {
-                string directoryName = Path.GetDirectoryName(filePathOutput);
+                string directoryName = Path.GetDirectoryName(outputDirectory);
                 foreach (var v in dataDic)
                 {
                     int index = Int32.Parse(v.Key.Substring(0, v.Key.IndexOf("_")));
@@ -828,11 +828,11 @@ namespace FCP
             }
         }
 
-        public static void MinSheng_OPD(List<MinShengOPD> MS_OPD, string filePathOutput, string location)
+        public static void MinSheng_OPD(List<MinShengOPD> MS_OPD, string outputDirectory, string location)
         {
             try
             {
-                string directoryName = Path.GetDirectoryName(filePathOutput);
+                string directoryName = Path.GetDirectoryName(outputDirectory);
                 int maxDays = MS_OPD.Select(x => Convert.ToInt32(x.Days)).ToList().Max();
                 foreach (var v in MS_OPD)
                 {
@@ -871,11 +871,11 @@ namespace FCP
             }
         }
 
-        public static void E_DA_UD(List<EDAUDBatch> UDBatch, string filePathOutput)
+        public static void E_DA_UD(List<EDAUDBatch> UDBatch, string outputDirectory)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
                     foreach (var v in UDBatch)
                     {
@@ -912,11 +912,11 @@ namespace FCP
             }
         }
 
-        public static bool ChangGung_OPD(List<FMT_ChangGung.OPD> OPD, string filePathOutput, string type)
+        public static bool ChangGung_OPD(List<FMT_ChangGung.OPD> OPD, string outputDirectory, string type)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
                     foreach (var v in OPD)
                     {
@@ -954,11 +954,11 @@ namespace FCP
             }
         }
 
-        public static bool ChangGung_Other(List<FMT_ChangGung.OPD> OPD, string filePathOutput, string type)
+        public static bool ChangGung_Other(List<FMT_ChangGung.OPD> OPD, string outputDirectory, string type)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
                     foreach (var v in OPD)
                     {
@@ -1000,11 +1000,11 @@ namespace FCP
             return false;
         }
 
-        public static bool ChangGung_UD_Batch(List<FMT_ChangGung.Batch> UDBatch, string filePathOutput, string type)
+        public static bool ChangGung_UD_Batch(List<FMT_ChangGung.Batch> UDBatch, string outputDirectory, string type)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
                     bool _isOneDay;
                     foreach (var v in UDBatch)
@@ -1059,12 +1059,12 @@ namespace FCP
             }
         }
 
-        public static void TaipeiDentention(List<TaipeiDetentionOPD> OPD, TaipeiDetentionOPDBasic basic, string filePathOutput, List<string> putBackAdminCode)
+        public static void TaipeiDentention(List<TaipeiDetentionOPD> OPD, TaipeiDetentionOPDBasic basic, string outputDirectory, List<string> putBackAdminCode)
         {
             try
             {
                 int maxDays = OPD.Select(x => Convert.ToInt32(x.Days)).Max();
-                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
                     foreach (var v in OPD)
                     {
@@ -1113,11 +1113,11 @@ namespace FCP
             }
         }
 
-        public static void JenKang_OPD(List<JenKang> OPD, string filePathOutput)
+        public static void JenKang_OPD(List<JenKang> OPD, string outputDirectory)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
                     foreach (var v in OPD)
                     {
@@ -1154,11 +1154,11 @@ namespace FCP
             }
         }
 
-        public static bool JenKang_UD(List<JenKang> UD, string filePathOutput, DateTime minStartDate)
+        public static bool JenKang_UD(List<JenKang> UD, string outputDirectory, DateTime minStartDate)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
                     foreach (var v in UD)
                     {
@@ -1203,11 +1203,11 @@ namespace FCP
             }
         }
 
-        public static void FangDing(List<FangDingOPD> OPD, string filePathOutput)
+        public static void FangDing(List<FangDingOPD> OPD, string outputDirectory)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
                     foreach (var v in OPD)
                     {
@@ -1241,11 +1241,11 @@ namespace FCP
             }
         }
 
-        public static void ChengYu(List<ChengYuOPD> OPD, string filePathOutput)
+        public static void ChengYu(List<ChengYuOPD> OPD, string outputDirectory)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
                     foreach (var v in OPD)
                     {
@@ -1285,11 +1285,11 @@ namespace FCP
             }
         }
 
-        public static void OnCube(List<OnCubeOPD> OPD, string filePathOutput)
+        public static void OnCube(List<OnCubeOPD> OPD, string outputDirectory)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
                     foreach (var v in OPD)
                     {
@@ -1324,11 +1324,11 @@ namespace FCP
             }
         }
 
-        public static void LittleBear(List<LittleBearOPD> OPD, string filePathOutput)
+        public static void LittleBear(List<LittleBearOPD> OPD, string outputDirectory)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(filePathOutput, false, Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
                     foreach (var v in OPD)
                     {

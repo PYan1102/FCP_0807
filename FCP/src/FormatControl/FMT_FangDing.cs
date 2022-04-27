@@ -67,10 +67,10 @@ namespace FCP.src.FormatControl
         {
             string patientName = _OPD[0].PatientName;
             string prescriptionNo = _OPD[0].PrescriptionNo;
-            string filePathOutput = $@"{OutputPath}\{patientName}-{prescriptionNo}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputPath}\{patientName}-{prescriptionNo}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
             try
             {
-                OP_OnCube.FangDing(_OPD, filePathOutput);
+                OP_OnCube.FangDing(_OPD, outputDirectory);
                 return true;
             }
             catch (Exception ex)

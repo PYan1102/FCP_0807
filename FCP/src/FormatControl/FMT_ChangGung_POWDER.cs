@@ -85,10 +85,10 @@ namespace FCP.src.FormatControl
 
         public override bool LogicPOWDER()
         {
-            string filePathOutput = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
             try
             {
-                OP_JVServer.ChangGung_POWDER(_Powder, filePathOutput);
+                OP_JVServer.ChangGung_POWDER(_Powder, outputDirectory);
                 return true;
             }
             catch (Exception ex)

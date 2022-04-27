@@ -160,17 +160,17 @@ namespace FCP.src.FormatControl
                     OPDUp.AddRange(OPDDown);
                     OPDDown.Clear();
                 }
-                List<string> filePathOutput = new List<string>();
-                filePathOutput.Add($@"{OutputPath}\UP-{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt");
+                List<string> outputDirectory = new List<string>();
+                outputDirectory.Add($@"{OutputPath}\UP-{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt");
                 if (OPDDown.Count > 1)
                 {
-                    filePathOutput.Add($@"{OutputPath}\DOWN-{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt");
+                    outputDirectory.Add($@"{OutputPath}\DOWN-{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt");
                 }
                 DateTime.TryParseExact(_Basic.BirthDate, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime date);  //生日
                 _Basic.BirthDate = date.ToString("yyyy-MM-dd");
                 try
                 {
-                    OP_OnCube.HongYen(OPDUp, OPDDown, _Basic, filePathOutput);
+                    OP_OnCube.HongYen(OPDUp, OPDDown, _Basic, outputDirectory);
                     return true;
                 }
                 catch (Exception ex)

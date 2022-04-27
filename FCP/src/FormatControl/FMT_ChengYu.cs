@@ -140,10 +140,10 @@ namespace FCP.src.FormatControl
             {
                 newFileName = $"(錯誤) {newFileName}";
             }
-            string filePathOutput = $@"{OutputPath}\{newFileName}";
+            string outputDirectory = $@"{OutputPath}\{newFileName}";
             try
             {
-                OP_OnCube.ChengYu(_OPD, filePathOutput);
+                OP_OnCube.ChengYu(_OPD, outputDirectory);
                 return true;
             }
             catch (Exception ex)
