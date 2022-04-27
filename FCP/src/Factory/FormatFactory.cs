@@ -41,10 +41,6 @@ namespace FCP.src.Factory
                     return new BASE_HongYen();
                 case eFormat.義大醫院TOC:
                     return new BASE_E_DA();
-                case eFormat.長庚磨粉TJVS:
-                    return new BASE_ChangGung_POWDER();
-                case eFormat.長庚醫院TOC:
-                    return new BASE_ChangGung();
                 case eFormat.台北看守所TOC:
                     return new BASE_TaipeiDetention();
                 case eFormat.仁康醫院TOC:

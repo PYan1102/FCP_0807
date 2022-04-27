@@ -71,50 +71,6 @@ namespace FCP
             }
         }
 
-        public static void ChangGung_POWDER(List<ChangGungPowder> powder, string outputDirectory)
-        {
-            try
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.Append("|JVPHEAD|");
-                sb.Append("1");
-                sb.Append(powder[0].PatientNo.PadRight(15));
-                sb.Append("".PadRight(20));
-                sb.Append("1".PadRight(5));
-                sb.Append($"{DateTime.Now:yyyyMMddHH:mm}");
-                sb.Append("A123456789".PadRight(40));
-                sb.Append("20210101");
-                sb.Append(powder[0].PrescriptionNo.PadRight(30));
-                sb.Append("".PadRight(45));
-                sb.Append(ECD(powder[0].PatientName, 20));
-                sb.Append("1 ");
-                sb.Append("".PadRight(191));
-                sb.Append(ECD(powder[0].Mediciner, 20));
-                sb.Append("   |JVPEND||JVMHEAD|");
-                foreach (var v in powder)
-                {
-                    sb.Append("T");
-                    sb.Append(v.MedicineCode.PadRight(15));
-                    sb.Append(ECD(v.MedicineName, 50));
-                    sb.Append("".PadRight(10));
-                    sb.Append("0  0 0     0       ");
-                    sb.Append("".PadRight(11));
-                    sb.Append($"{DateTime.Now:yyyy/MM/ddHH:mm}     ");
-                    sb.Append($"{DateTime.Now:yyyy/MM/ddHH:mm}     ");
-                }
-                sb.Append("|JVMEND|");
-                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
-                {
-                    sw.Write(sb.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Write(ex);
-                throw;
-            }
-        }
-
         private static string ECD(string data, int Length)  //處理byte
         {
             data = data.PadRight(Length, ' ');

@@ -118,14 +118,14 @@ namespace FCP.src.FormatControl
                 dic = SplitEachMeal();
             }
             string outputDirectory = $@"{OutputPath}\{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
-            string outputDirectoryNotSeconds = $@"{OutputPath}\{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_";
+            string outputDirectoryWithoutSeconds = $@"{OutputPath}\{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_";
             DateTime.TryParseExact(_Basic.BirthDate, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime date);  //生日
             _Basic.BirthDate = date.ToString("yyyy-MM-dd");
             try
             {
                 if (Properties.Settings.Default.IsSplitEachMeal)
                 {
-                    OP_OnCube.JVServer_SplitEachMeal(dic, _Basic, _OnCubeRandom, _Random, outputDirectoryNotSeconds, CurrentSeconds);
+                    OP_OnCube.JVServer_SplitEachMeal(dic, _Basic, _OnCubeRandom, _Random, outputDirectoryWithoutSeconds, CurrentSeconds);
                 }
                 else
                 {

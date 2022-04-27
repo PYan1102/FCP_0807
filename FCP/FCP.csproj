@@ -112,8 +112,6 @@
     <Compile Include="src\FormatInit\BASE_LittleBear.cs" />
     <Compile Include="src\FormatInit\BASE_OnCube.cs" />
     <Compile Include="src\Factory\ConvertInfoactory.cs" />
-    <Compile Include="src\FormatInit\BASE_ChangGung.cs" />
-    <Compile Include="src\FormatInit\BASE_ChangGung_POWDER.cs" />
     <Compile Include="src\FormatInit\BASE_ChuangSheng.cs" />
     <Compile Include="src\FormatInit\BASE_FangDing.cs" />
     <Compile Include="Core\RelayCommand.cs" />
@@ -127,8 +125,6 @@
     <Compile Include="src\FormatCollection.cs" />
     <Compile Include="src\FunctionCollections.cs" />
     <Compile Include="src\FormatInit\BASE_HongYen.cs" />
-    <Compile Include="src\FormatControl\FMT_ChangGung.cs" />
-    <Compile Include="src\FormatControl\FMT_ChangGung_POWDER.cs" />
     <Compile Include="src\FormatControl\FMT_ChuangSheng.cs" />
     <Compile Include="src\FormatControl\FMT_E-DA.cs" />
     <Compile Include="src\FormatControl\FMT_HongYen.cs" />

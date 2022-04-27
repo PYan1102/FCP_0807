@@ -105,8 +105,8 @@ namespace FCP.src.FormatControl
             {
                 bool yn;
                 string Year = (Convert.ToInt32(DateTime.Now.ToString("yyyy")) - 1911).ToString();
-                FileNameOutput_S = $@"{OutputPath}\{Year}{DateTime.Now:MMdd}_{GetMedicineNumber.Trim()}_{PatientName_S.Trim()}_{CurrentSeconds}.txt";
-                yn = OP_OnCube.KuangTien_OPD(MedicineCode_L, MedicineName_L, AdminCode_L, Days_L, PerQty_L, TimesPerDay, SumQty_L, PatientName_S, DoctorName_S, GetMedicineNumber, PatientNo_S, Age_S, Gender_S, Class_S, WriteDate, FileNameOutput_S);
+                string outputDirectory = $@"{OutputPath}\{Year}{DateTime.Now:MMdd}_{GetMedicineNumber.Trim()}_{PatientName_S.Trim()}_{CurrentSeconds}.txt";
+                yn = OP_OnCube.KuangTien_OPD(MedicineCode_L, MedicineName_L, AdminCode_L, Days_L, PerQty_L, TimesPerDay, SumQty_L, PatientName_S, DoctorName_S, GetMedicineNumber, PatientNo_S, Age_S, Gender_S, Class_S, WriteDate, outputDirectory);
                 if (yn)
                     return true;
                 else
@@ -457,9 +457,10 @@ namespace FCP.src.FormatControl
                     }
                 }
                 DateTime.TryParseExact(TreatmentDate[0], "yyyy-MM-dd", null, DateTimeStyles.None, out DateTime FirstDate);
-                bool yn; FileNameOutput_S = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+                bool yn;
+                string outputDirectory = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
                 yn = OP_OnCube.KuangTien_UD(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L,
-                    PatientName_L, PrescriptionNo_L, BedNo_L, BarcodeDic, FileNameOutput_S, Class_L, StayDay_L, DataDic, DoseType, CrossAdminTimeType, FirstDate.ToString("yyMMdd"), QODDescription,
+                    PatientName_L, PrescriptionNo_L, BedNo_L, BarcodeDic, outputDirectory, Class_L, StayDay_L, DataDic, DoseType, CrossAdminTimeType, FirstDate.ToString("yyMMdd"), QODDescription,
                     CurrentDate, "住院", SpecialCode);
                 if (yn)
                     return true;
@@ -765,9 +766,9 @@ namespace FCP.src.FormatControl
                 }
                 DateTime.TryParseExact(TreatmentDate[0], "yyyy-MM-dd", null, DateTimeStyles.None, out DateTime FirstDate);
                 bool yn;
-                FileNameOutput_S = $@"{OutputPath}\{PatientName_L[0]}_{PrescriptionNo_L[0]}_{CurrentSeconds}.txt";
+                string outputDirectory = $@"{OutputPath}\{PatientName_L[0]}_{PrescriptionNo_L[0]}_{CurrentSeconds}.txt";
                 yn = OP_OnCube.KuangTien_UD(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L,
-                    PatientName_L, PrescriptionNo_L, BedNo_L, BarcodeDic, FileNameOutput_S, Class_L, StayDay_L, DataDic, DoseType, CrossAdminTimeType, FirstDate.ToString("yyMMdd"), QODDescription,
+                    PatientName_L, PrescriptionNo_L, BedNo_L, BarcodeDic, outputDirectory, Class_L, StayDay_L, DataDic, DoseType, CrossAdminTimeType, FirstDate.ToString("yyMMdd"), QODDescription,
                     CurrentDate, "即時", SpecialCode);
                 if (yn)
                     return true;
