@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using System.Diagnostics;
 using System.Globalization;
 using FCP.Models;
 using FCP.src.Enum;
@@ -842,31 +841,33 @@ namespace FCP
         {
             try
             {
+                StringBuilder sb = new StringBuilder();
+                foreach (var v in OPD)
+                {
+                    sb.Append(ECD(v.PatientName, 20));
+                    sb.Append("".PadRight(30));
+                    sb.Append(ECD("門診", 50));
+                    sb.Append("".PadRight(29));
+                    sb.Append(v.PerQty.PadRight(5));
+                    sb.Append(v.MedicineCode.PadRight(20));
+                    sb.Append(ECD(v.MedicineName, 50));
+                    sb.Append(v.AdminCode.PadRight(20));
+                    sb.Append(v.StartDate);
+                    sb.Append(v.EndDate);
+                    sb.Append("".PadRight(58));
+                    sb.Append(v.PrescriptionNo.PadRight(50));
+                    sb.Append("".PadRight(50));
+                    sb.Append("1999-01-01");
+                    sb.Append("男    ");
+                    sb.Append("".PadRight(40));
+                    sb.Append("0");
+                    sb.Append(ECD("艾森曼", 30));
+                    sb.Append("".PadRight(450));
+                    sb.AppendLine("M");
+                }
                 using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
-                    foreach (var v in OPD)
-                    {
-                        sw.Write(ECD(v.PatientName, 20));
-                        sw.Write("".PadRight(30));
-                        sw.Write(ECD("門診", 50));
-                        sw.Write("".PadRight(29));
-                        sw.Write(v.PerQty.PadRight(5));
-                        sw.Write(v.MedicineCode.PadRight(20));
-                        sw.Write(ECD(v.MedicineName, 50));
-                        sw.Write(v.AdminCode.PadRight(20));
-                        sw.Write(v.StartDate);
-                        sw.Write(v.EndDate);
-                        sw.Write("".PadRight(58));
-                        sw.Write(v.PrescriptionNo.PadRight(50));
-                        sw.Write("".PadRight(50));
-                        sw.Write("1999-01-01");
-                        sw.Write("男    ");
-                        sw.Write("".PadRight(40));
-                        sw.Write("0");
-                        sw.Write(ECD("艾森曼", 30));
-                        sw.Write("".PadRight(450));
-                        sw.WriteLine("M");
-                    }
+                    sw.Write(sb.ToString());
                 }
             }
             catch (Exception ex)
@@ -880,37 +881,39 @@ namespace FCP
         {
             try
             {
+                StringBuilder sb = new StringBuilder();
+                foreach (var v in OPD)
+                {
+                    eDoseType doseType = GetDoseType(v.AdminCode);
+                    sb.Append(ECD($"{v.PatientName}-{v.Unit}", 20));
+                    sb.Append("".PadRight(30));
+                    sb.Append(ECD("門診", 50));
+                    sb.Append("".PadRight(29));
+                    sb.Append(v.PerQty.PadRight(5));
+                    sb.Append(v.MedicineCode.PadRight(20));
+                    sb.Append(ECD(v.MedicineName, 50));
+                    sb.Append(v.NumOfPackages.PadRight(20));
+                    sb.Append(v.StartDay.ToString("yyMMdd"));
+                    sb.Append(v.EndDay.ToString("yyMMdd"));
+                    sb.Append("".PadRight(8));
+                    sb.Append(ECD(v.AdminCodeDescription, 50));
+                    sb.Append("".PadRight(100));
+                    sb.Append("1999-01-01");
+                    sb.Append("男    ");
+                    sb.Append("".PadRight(40));
+                    sb.Append("0");
+                    sb.Append(ECD(v.HospitalName, 30));
+                    sb.Append(ECD(v.Unit, 30));
+                    sb.Append(v.Days.PadRight(30));
+                    sb.Append(ECD(v.AdminCode, 30));
+                    sb.Append(ECD(v.PatientName, 30));
+                    sb.Append("".PadRight(300));
+                    sb.Append(ECD(v.PatientName, 30));
+                    sb.AppendLine("M");
+                }
                 using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
-                    foreach (var v in OPD)
-                    {
-                        eDoseType doseType = GetDoseType(v.AdminCode);
-                        sw.Write(ECD($"{v.PatientName}-{v.Unit}", 20));
-                        sw.Write("".PadRight(30));
-                        sw.Write(ECD("門診", 50));
-                        sw.Write("".PadRight(29));
-                        sw.Write(v.PerQty.PadRight(5));
-                        sw.Write(v.MedicineCode.PadRight(20));
-                        sw.Write(ECD(v.MedicineName, 50));
-                        sw.Write(v.NumOfPackages.PadRight(20));
-                        sw.Write(v.StartDay.ToString("yyMMdd"));
-                        sw.Write(v.EndDay.ToString("yyMMdd"));
-                        sw.Write("".PadRight(8));
-                        sw.Write(ECD(v.AdminCodeDescription, 50));
-                        sw.Write("".PadRight(100));
-                        sw.Write("1999-01-01");
-                        sw.Write("男    ");
-                        sw.Write("".PadRight(40));
-                        sw.Write("0");
-                        sw.Write(ECD(v.HospitalName, 30));
-                        sw.Write(ECD(v.Unit, 30));
-                        sw.Write(v.Days.PadRight(30));
-                        sw.Write(ECD(v.AdminCode, 30));
-                        sw.Write(ECD(v.PatientName, 30));
-                        sw.Write("".PadRight(300));
-                        sw.Write(ECD(v.PatientName, 30));
-                        sw.WriteLine("M");
-                    }
+                    sw.Write(sb.ToString());
                 }
             }
             catch (Exception ex)
@@ -924,32 +927,34 @@ namespace FCP
         {
             try
             {
+                StringBuilder sb = new StringBuilder();
+                foreach (var v in OPD)
+                {
+                    eDoseType doseType = GetDoseType(v.AdminCode);
+                    sb.Append(ECD(v.PatientName, 20));
+                    sb.Append("".PadRight(30));
+                    sb.Append(ECD("門診", 50));
+                    sb.Append("".PadRight(29));
+                    sb.Append(v.PerQty.PadRight(5));
+                    sb.Append(v.MedicineCode.PadRight(20));
+                    sb.Append(ECD(v.MedicineName, 50));
+                    sb.Append(ECD(v.AdminCode, 20));
+                    sb.Append(v.StartDay.ToString("yyMMdd"));
+                    sb.Append(v.EndDay.ToString("yyMMdd"));
+                    sb.Append("".PadRight(158));
+                    sb.Append("1999-01-01");
+                    sb.Append("男    ");
+                    sb.Append(v.RoomNo.PadRight(20));
+                    sb.Append("".PadRight(20));
+                    sb.Append("0");
+                    sb.Append(ECD(v.Hospital, 30));
+                    sb.Append(ECD(v.Handler, 30));
+                    sb.Append("".PadRight(420));
+                    sb.AppendLine("M");
+                }
                 using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
-                    foreach (var v in OPD)
-                    {
-                        eDoseType doseType = GetDoseType(v.AdminCode);
-                        sw.Write(ECD(v.PatientName, 20));
-                        sw.Write("".PadRight(30));
-                        sw.Write(ECD("門診", 50));
-                        sw.Write("".PadRight(29));
-                        sw.Write(v.PerQty.PadRight(5));
-                        sw.Write(v.MedicineCode.PadRight(20));
-                        sw.Write(ECD(v.MedicineName, 50));
-                        sw.Write(ECD(v.AdminCode, 20));
-                        sw.Write(v.StartDay.ToString("yyMMdd"));
-                        sw.Write(v.EndDay.ToString("yyMMdd"));
-                        sw.Write("".PadRight(158));
-                        sw.Write("1999-01-01");
-                        sw.Write("男    ");
-                        sw.Write(v.RoomNo.PadRight(20));
-                        sw.Write("".PadRight(20));
-                        sw.Write("0");
-                        sw.Write(ECD(v.Hospital, 30));
-                        sw.Write(ECD(v.Handler, 30));
-                        sw.Write("".PadRight(420));
-                        sw.WriteLine("M");
-                    }
+                    sw.Write(sb.ToString());
                 }
             }
             catch (Exception ex)
@@ -963,30 +968,32 @@ namespace FCP
         {
             try
             {
+                StringBuilder sb = new StringBuilder();
+                foreach (var v in OPD)
+                {
+                    eDoseType doseType = GetDoseType(v.AdminCode);
+                    sb.Append(ECD(v.PatientName, 20));
+                    sb.Append("".PadRight(30));
+                    sb.Append(ECD("門診", 50));
+                    sb.Append("".PadRight(29));
+                    sb.Append($"{v.PerQty}".PadRight(5));
+                    sb.Append(v.MedicineCode.PadRight(20));
+                    sb.Append(ECD(v.MedicineName, 50));
+                    sb.Append(ECD(v.AdminCode, 20));
+                    sb.Append(v.StartDay.ToString("yyMMdd"));
+                    sb.Append(v.EndDay.ToString("yyMMdd"));
+                    sb.Append("".PadRight(158));
+                    sb.Append("1999-01-01");
+                    sb.Append("男    ");
+                    sb.Append("".PadRight(40));
+                    sb.Append("0");
+                    sb.Append(ECD("小熊藥局", 30));
+                    sb.Append("".PadRight(450));
+                    sb.AppendLine("M");
+                }
                 using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
-                    foreach (var v in OPD)
-                    {
-                        eDoseType doseType = GetDoseType(v.AdminCode);
-                        sw.Write(ECD(v.PatientName, 20));
-                        sw.Write("".PadRight(30));
-                        sw.Write(ECD("門診", 50));
-                        sw.Write("".PadRight(29));
-                        sw.Write($"{v.PerQty}".PadRight(5));
-                        sw.Write(v.MedicineCode.PadRight(20));
-                        sw.Write(ECD(v.MedicineName, 50));
-                        sw.Write(ECD(v.AdminCode, 20));
-                        sw.Write(v.StartDay.ToString("yyMMdd"));
-                        sw.Write(v.EndDay.ToString("yyMMdd"));
-                        sw.Write("".PadRight(158));
-                        sw.Write("1999-01-01");
-                        sw.Write("男    ");
-                        sw.Write("".PadRight(40));
-                        sw.Write("0");
-                        sw.Write(ECD("小熊藥局", 30));
-                        sw.Write("".PadRight(450));
-                        sw.WriteLine("M");
-                    }
+                    sw.Write(sb.ToString());
                 }
             }
             catch (Exception ex)

@@ -10,8 +10,6 @@
         民生醫院TOC,
         宏彥診所TOC,
         義大醫院TOC,
-        長庚磨粉TJVS,
-        長庚醫院TOC,
         台北看守所TOC,
         仁康醫院TOC,
         方鼎系統TOC,

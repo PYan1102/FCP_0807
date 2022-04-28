@@ -336,7 +336,7 @@ namespace FCP.ViewModels
         private void LoadedFunc()
         {
             List<eFormat> hospitalCustomers = new List<eFormat>() {eFormat.光田醫院TOC, eFormat.民生醫院TOC, eFormat.義大醫院TOC };
-            List<eFormat> powderCustomers = new List<eFormat>() { eFormat.光田醫院TJVS, eFormat.長庚磨粉TJVS };
+            List<eFormat> powderCustomers = new List<eFormat>() { eFormat.光田醫院TJVS };
             if (hospitalCustomers.Contains(_SettingsModel.Mode))
             {
                 OPDContent = "門 診F5";
