@@ -3,9 +3,9 @@ using FCP.src.Enum;
 
 namespace FCP.src.FormatInit
 {
-    class BASE_JVServer_XML : FunctionCollections
+    class BASE_Washinton : FunctionCollections
     {
-        private FMT_JVServer_XML _JVS { get; set; }
+        private FMT_Washinton _JVS { get; set; }
 
         public override void Init()
         {
@@ -26,7 +26,7 @@ namespace FCP.src.FormatInit
         {
             base.SetConvertInformation();
             if (_JVS == null)
-                _JVS = new FMT_JVServer_XML();
+                _JVS = new FMT_Washinton();
             var result = _JVS.MethodShunt();
             Result(result, true);
         }

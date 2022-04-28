@@ -96,7 +96,7 @@ namespace FCP.src
             CurrentSeconds = ConvertFileInformation.GetCurrentSeconds;
             Department = ConvertFileInformation.GetDepartment;
             SetAdminCode();
-            if (SettingsModel.Mode != eFormat.光田醫院TJVS)  //光田磨粉、長庚磨粉
+            if (SettingsModel.Mode != eFormat.光田醫院JVS)  //光田磨粉、長庚磨粉
                 GetMedicineCode();
             ClearList();
         }

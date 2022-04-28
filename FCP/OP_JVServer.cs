@@ -9,7 +9,7 @@ using FCP.src.FormatControl;
 
 namespace FCP
 {
-    static class OP_JVServer
+    internal static class OP_JVServer
     {
         public static void KuangTien_磨粉(Dictionary<string, List<KuangTienPowder>> powder, List<string> grindTableList, string outputDirectory)
         {

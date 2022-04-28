@@ -6,19 +6,19 @@ namespace FCP.src.Factory
 {
     static class FormatFactory
     {
-        private static FunctionCollections _Format { get; set; }
-        private static eFormat _CurrentFormat { get; set; }
+        private static FunctionCollections _format { get; set; }
+        private static eFormat _currentFormat { get; set; }
 
         public static FunctionCollections GenerateFormat(eFormat format)
         {
-            if (_CurrentFormat != format)
+            if (_currentFormat != format)
             {
-                _Format = GetFormat(format);
-                _CurrentFormat = format;
+                _format = GetFormat(format);
+                _currentFormat = format;
             }
-            if (_Format == null)
-                _Format = GetFormat(format);
-            return _Format;
+            if (_format == null)
+                _format = GetFormat(format);
+            return _format;
         }
 
         private static FunctionCollections GetFormat(eFormat format)
@@ -27,33 +27,33 @@ namespace FCP.src.Factory
             {
                 case eFormat.JVS:
                     return new BASE_JVServer();
-                case eFormat.創聖系統TOC:
+                case eFormat.創聖系統OC:
                     return new BASE_ChuangSheng();
-                case eFormat.醫聖系統TOC:
+                case eFormat.醫聖系統OC:
                     return new BASE_YiSheng();
-                case eFormat.光田醫院TOC:
+                case eFormat.光田醫院OC:
                     return new BASE_KuangTien();
-                case eFormat.光田醫院TJVS:
+                case eFormat.光田醫院JVS:
                     return new BASE_KuangTien();
-                case eFormat.民生醫院TOC:
+                case eFormat.民生醫院OC:
                     return new BASE_MinSheng();
-                case eFormat.宏彥診所TOC:
+                case eFormat.宏彥診所OC:
                     return new BASE_HongYen();
-                case eFormat.義大醫院TOC:
+                case eFormat.義大醫院OC:
                     return new BASE_E_DA();
-                case eFormat.台北看守所TOC:
+                case eFormat.台北看守所OC:
                     return new BASE_TaipeiDetention();
-                case eFormat.仁康醫院TOC:
+                case eFormat.仁康醫院OC:
                     return new BASE_JenKang();
-                case eFormat.方鼎系統TOC:
+                case eFormat.方鼎系統OC:
                     return new BASE_FangDing();
-                case eFormat.成祐中醫診所TOC:
+                case eFormat.成祐中醫診所OC:
                     return new BASE_ChengYu();
-                case eFormat.OnCubeTOC:
+                case eFormat.OC:
                     return new BASE_OnCube();
-                case eFormat.JVS_XML:
-                    return new BASE_JVServer_XML();
-                case eFormat.小熊藥局TOC:
+                case eFormat.華盛頓藥局OC:
+                    return new BASE_Washinton();
+                case eFormat.小熊藥局OC:
                     return new BASE_LittleBear();
                 default:
                     throw new Exception($"沒有找到適當的格式 {format}");

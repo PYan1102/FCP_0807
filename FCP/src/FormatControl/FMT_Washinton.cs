@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace FCP.src.FormatControl
 {
-    class FMT_JVServer_XML : FormatCollection
+    class FMT_Washinton : FormatCollection
     {
         private List<string> _FilterPatientNo = new List<string>() { "0058145","0051572", "0094562", "0069489", "0080950", "0051640", "0085193",
         "0057404", "0096220"};

@@ -12,9 +12,9 @@ using FCP.src.FormatControl;
 
 namespace FCP
 {
-    static class OP_OnCube
+    internal static class OP_OnCube
     {
-        private static SettingsModel _SettingsModel { get => SettingsFactory.GenerateSettingsModel(); }
+        private static SettingsModel _settingsModel { get => SettingsFactory.GenerateSettingsModel(); }
 
         public static void JVServer(List<JVServerOPD> opd, JVServerOPDBasic basic, List<string> oncubeRandom, string random, string outputDirectory)
         {
@@ -102,7 +102,7 @@ namespace FCP
                             sb.Append(y.SumQty.PadRight(5));
                         sb.Append(y.MedicineCode.PadRight(20));
                         sb.Append(ECD(y.MedicineName, 50));
-                        if (doseType == eDoseType.餐包 && !_SettingsModel.CrossDayAdminCode.Contains(y.AdminCode))
+                        if (doseType == eDoseType.餐包 && !_settingsModel.CrossDayAdminCode.Contains(y.AdminCode))
                         {
                             sb.Append($"{y.AdminCode}{x.Key}".PadRight(20));
                         }
@@ -277,7 +277,7 @@ namespace FCP
                     int r = Convert.ToInt32(v.Key.Substring(0, v.Key.IndexOf("_")));
                     string DateTemp = v.Key.Substring(v.Key.IndexOf("_") + 1, v.Key.Length - v.Key.IndexOf("_") - 1);
                     DateTime.TryParseExact(DateTemp, "yyMMdd", null, DateTimeStyles.None, out DateTime Date);
-                    if (Type == "即時" & _SettingsModel.DoseType == eDoseType.餐包)
+                    if (Type == "即時" & _settingsModel.DoseType == eDoseType.餐包)
                     {
                         if (Name == "")
                             Name = PatientName[r];
@@ -294,7 +294,7 @@ namespace FCP
                         }
                     }
 
-                    if (_SettingsModel.DoseType == eDoseType.種包)
+                    if (_settingsModel.DoseType == eDoseType.種包)
                     {
                         if (Name == "")
                             Name = PatientName[r];
@@ -1018,8 +1018,8 @@ namespace FCP
 
         private static eDoseType GetDoseType(string code)
         {
-            List<string> list = AssignExtraAdminTime(_SettingsModel.OutputSpecialAdminCode);
-            var type = JudgeDoseType(_SettingsModel.DoseType, list, code);
+            List<string> list = AssignExtraAdminTime(_settingsModel.OutputSpecialAdminCode);
+            var type = JudgeDoseType(_settingsModel.DoseType, list, code);
             return type;
         }
 
