@@ -14,7 +14,7 @@ namespace FCP
 {
     internal static class OP_OnCube
     {
-        private static SettingsModel _settingsModel { get => SettingsFactory.GenerateSettingsModel(); }
+        private static SettingModel _settingsModel { get => SettingFactory.GenerateSettingModel(); }
 
         public static void JVServer(List<JVServerOPD> opd, JVServerOPDBasic basic, List<string> oncubeRandom, string random, string outputDirectory)
         {
@@ -1023,13 +1023,14 @@ namespace FCP
             return type;
         }
 
-        private static List<string> AssignExtraAdminTime(List<string> OppositeAdminCode)
+        private static List<string> AssignExtraAdminTime(string adminCode)
         {
+            adminCode = adminCode.Replace(" ","");
             List<string> extraList = new List<string>();
-            foreach (string s in OppositeAdminCode)
+            foreach (string code in adminCode.Split(','))
             {
-                if (!string.IsNullOrEmpty(s.Trim()))
-                    extraList.Add(s.Trim());
+                if (!string.IsNullOrEmpty(code))
+                    extraList.Add(code);
             }
             return extraList;
         }

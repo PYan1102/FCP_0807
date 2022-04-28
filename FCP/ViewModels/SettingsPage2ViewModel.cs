@@ -11,89 +11,89 @@ namespace FCP.ViewModels
     class SettingsPage2ViewModel : ViewModelBase
     {
         public ICommand ShowOnlyCanisterIn { get; set; }
-        private SettingsPage2Model _Model;
-        private SettingsModel _SettingsModel;
+        private SettingPage2Model _model;
+        private SettingModel _settingModel;
 
         public SettingsPage2ViewModel()
         {
             ShowOnlyCanisterIn = new RelayCommand(() => ShowOnlyCanisterInFunc());
-            _Model = ModelsFactory.GenerateSettingsPage2Model();
-            _SettingsModel = SettingsFactory.GenerateSettingsModel();
+            _model = ModelsFactory.GenerateSettingPage2Model();
+            _settingModel = SettingFactory.GenerateSettingModel();
 
             Init();
         }
 
         public bool ShowStatAndBatchOptionChecked
         {
-            get => _Model.ShowStatAndBatchOptionChecked;
-            set => _Model.ShowStatAndBatchOptionChecked = value;
+            get => _model.ShowStatAndBatchOptionChecked;
+            set => _model.ShowStatAndBatchOptionChecked = value;
         }
 
         public bool MinimizeWindowWhenProgramStartChecked
         {
-            get => _Model.MinimizeWindowWhenProgramStartChecked;
-            set => _Model.MinimizeWindowWhenProgramStartChecked = value;
+            get => _model.MinimizeWindowWhenProgramStartChecked;
+            set => _model.MinimizeWindowWhenProgramStartChecked = value;
         }
 
         public bool ShowCloseAndMinimizeButtonChecked
         {
-            get => _Model.ShowCloseAndMinimizeButtonChecked;
-            set => _Model.ShowCloseAndMinimizeButtonChecked = value;
+            get => _model.ShowCloseAndMinimizeButtonChecked;
+            set => _model.ShowCloseAndMinimizeButtonChecked = value;
         }
 
         public bool ShowXYChecked
         {
-            get => _Model.ShowXYChecked;
-            set => _Model.ShowXYChecked = value;
+            get => _model.ShowXYChecked;
+            set => _model.ShowXYChecked = value;
         }
 
         public bool FilterMedicineCodeChecked
         {
-            get => _Model.FilterMedicineCodeChecked;
-            set => _Model.FilterMedicineCodeChecked = value;
+            get => _model.FilterMedicineCodeChecked;
+            set => _model.FilterMedicineCodeChecked = value;
         }
 
         public bool OnlyCanisterInChecked
         {
-            get => _Model.OnlyCanisterInChecked;
-            set => _Model.OnlyCanisterInChecked = value;
+            get => _model.OnlyCanisterInChecked;
+            set => _model.OnlyCanisterInChecked = value;
         }
 
         public Visibility OnlyCanisterInVisibility
         {
-            get => _Model.OnlyCanisterInVisibility;
-            set => _Model.OnlyCanisterInVisibility = value;
+            get => _model.OnlyCanisterInVisibility;
+            set => _model.OnlyCanisterInVisibility = value;
         }
 
         public bool WhenCompeletedMoveFileChecked
         {
-            get => _Model.WhenCompeletedMoveFileChecked;
-            set => _Model.WhenCompeletedMoveFileChecked = value;
+            get => _model.WhenCompeletedMoveFileChecked;
+            set => _model.WhenCompeletedMoveFileChecked = value;
         }
 
         public bool WhenCompeletedStopChecked
         {
-            get => _Model.WhenCompeletedStopChecked;
-            set => _Model.WhenCompeletedStopChecked = value;
+            get => _model.WhenCompeletedStopChecked;
+            set => _model.WhenCompeletedStopChecked = value;
         }
 
         public string FileExtensionName
         {
-            get => _Model.FileExtensionName;
-            set => _Model.FileExtensionName = value;
+            get => _model.FileExtensionName;
+            set => _model.FileExtensionName = value;
         }
 
         private void Init()
         {
-            ShowStatAndBatchOptionChecked = _SettingsModel.EN_StatOrBatch;
-            MinimizeWindowWhenProgramStartChecked = _SettingsModel.EN_WindowMinimumWhenOpen;
-            ShowCloseAndMinimizeButtonChecked = _SettingsModel.EN_ShowControlButton;
-            ShowXYChecked = _SettingsModel.EN_ShowXY;
-            FilterMedicineCodeChecked = _SettingsModel.EN_FilterMedicineCode;
-            OnlyCanisterInChecked = _SettingsModel.EN_OnlyCanisterIn;
-            FileExtensionName = _SettingsModel.FileExtensionName;
-            WhenCompeletedMoveFileChecked = _SettingsModel.EN_WhenCompeletedMoveFile;
-            WhenCompeletedStopChecked = _SettingsModel.EN_WhenCompeletedStop;
+            ShowStatAndBatchOptionChecked = _settingModel.UseStatOrBatch;
+            MinimizeWindowWhenProgramStartChecked = _settingModel.WindowMinimize;
+            ShowCloseAndMinimizeButtonChecked = _settingModel.ShowWindowOperationButton;
+            ShowXYChecked = _settingModel.ShowXYParameter;
+            FilterMedicineCodeChecked = _settingModel.UseFilterMedicineCode;
+            OnlyCanisterInChecked = _settingModel.FilterNoCanister;
+            FileExtensionName = _settingModel.FileExtensionName;
+            WhenCompeletedMoveFileChecked = _settingModel.MoveSourceFileToBackupDirectoryWhenDone;
+            WhenCompeletedStopChecked = _settingModel.StopWhenDone;
             ShowOnlyCanisterInFunc();
         }
 

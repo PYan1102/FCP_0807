@@ -3,24 +3,24 @@ using FCP.Service;
 
 namespace FCP.src.Factory.Models
 {
-    public static class SettingsFactory
+    public static class SettingFactory
     {
-        private static Settings _SettingsControl { get; set; }
-        private static SettingsModel _SettingsModel { get; set; }
+        private static Setting _setting { get; set; }
+        private static SettingModel _settingModel { get; set; }
 
 
-        public static Settings GenerateSettingsControl()
+        public static Setting GenerateSetting()
         {
-            if (_SettingsControl == null)
-                _SettingsControl = new Settings();
-            return _SettingsControl;
+            if (_setting == null)
+                _setting = new Setting();
+            return _setting;
         }
 
-        public static SettingsModel GenerateSettingsModel()
+        public static SettingModel GenerateSettingModel()
         {
-            if (_SettingsModel == null)
-                _SettingsModel = new SettingsModel();
-            return _SettingsModel;
+            if (_settingModel == null)
+                _settingModel = new SettingModel();
+            return _settingModel;
         }
     }
 }

@@ -11,9 +11,6 @@
              mc:Ignorable="d"
              Height="450"
              Width="740">
-    <UserControl.DataContext>
-        <vm:SettingsPage1ViewModel/>
-    </UserControl.DataContext>
     <Border CornerRadius="10"
             Background="White"
             Visibility="Visible"
@@ -84,7 +81,7 @@
                                  Foreground="{StaticResource DeepBlue}"
                                  VerticalAlignment="Center"
                                  Margin="0 30 0 0"
-                                 Text="{Binding SearchFrequency,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                 Text="{Binding SearchFrequency}"
                                  InputMethod.IsInputMethodEnabled="False"/>
                         <TextBlock Grid.Column="2"
                                    Text="轉檔格式"
@@ -98,7 +95,7 @@
                                   Foreground="{StaticResource DeepBlue}"
                                   VerticalAlignment="Center"
                                   ItemsSource="{Binding Mode}"
-                                  SelectedIndex="{Binding ModeIndex}"
+                                  SelectedIndex="{Binding FormatIndex}"
                                   Margin="0 28 0 0"/>
                     </Grid>
                 </Border>
@@ -416,7 +413,7 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions> 
+                            <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="3*"/>
                                 <ColumnDefinition Width="0.5*"/>

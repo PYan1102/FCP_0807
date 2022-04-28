@@ -146,7 +146,7 @@
     <Compile Include="Models\MsgBModel.cs" />
     <Compile Include="Models\ReturnsResultFormat.cs" />
     <Compile Include="Models\MainWindowModel.cs" />
-    <Compile Include="Models\SettingsModel.cs" />
+    <Compile Include="Models\SettingModel.cs" />
     <Compile Include="Models\SettingsPage1Model.cs" />
     <Compile Include="Models\SettingsPage2Model.cs" />
     <Compile Include="Models\SimpleWindowModel.cs" />
@@ -184,7 +184,7 @@
     </Compile>
     <Compile Include="src\SQL\OLEDB.cs" />
     <Compile Include="OP_OnCube.cs" />
-    <Compile Include="Service\Settings.cs" />
+    <Compile Include="src\Setting.cs" />
     <Compile Include="Views\SimpleWIndowView.xaml.cs">
       <DependentUpon>SimpleWIndowView.xaml</DependentUpon>
     </Compile>

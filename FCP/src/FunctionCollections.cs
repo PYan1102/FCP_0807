@@ -27,30 +27,29 @@ namespace FCP.src
         public string OutputPath { get; set; }
         public string CurrentSeconds { get; set; }
         public FindFile FindFile { get; set; }
-        public SettingsModel SettingsModel { get; set; }
+        public SettingModel SettingsModel { get; set; }
         public List<string> IPList = new List<string>();
         public UIRefresh UIRefresh { get; set; }
         public static System.Windows.Forms.NotifyIcon NotifyIcon { get; set; }
-        private AdvancedSettingsViewModel _AdvancedSettingsVM { get; set; }
-        private ConvertFileInformtaionModel _ConvertFileInformation { get; set; }
-        protected internal eConvertLocation CurrentDepartment { get; set; }
-        private string _OPD { get; set; } = string.Empty;
-        private string _Powder { get; set; } = string.Empty;
-        private string _UDBatch { get; set; } = string.Empty;
-        private string _UDStat { get; set; } = string.Empty;
-        private string _Care { get; set; } = string.Empty;
-        private string _Other { get; set; } = string.Empty;
-        private CancellationTokenSource _CTS;
-        private CancellationTokenSource _CTS1;
-        private SimpleWindowViewModel _SimpleWindowVM { get; set; }
+        private AdvancedSettingsViewModel _advancedSettingsVM;
+        private ConvertFileInformtaionModel _convertFileInformation;
+        private SimpleWindowViewModel _simpleWindowVM;
+        protected internal eDepartment CurrentDepartment;
+        private string _opd = string.Empty;
+        private string _powder = string.Empty;
+        private string _batch = string.Empty;
+        private string _stat = string.Empty;
+        private string _care = string.Empty;
+        private string _other = string.Empty;
+        private CancellationTokenSource _cts;
 
         public FunctionCollections()
         {
-            SettingsModel = SettingsFactory.GenerateSettingsModel();
-            _ConvertFileInformation = ConvertInfoactory.GenerateConvertFileInformation();
+            SettingsModel = SettingFactory.GenerateSettingModel();
+            _convertFileInformation = ConvertInfoactory.GenerateConvertFileInformation();
             FindFile = new FindFile();
             MainWindowVM = MainWindowFactory.GenerateMainWindowViewModel();
-            _SimpleWindowVM = SimpleWindowFactory.GenerateSimpleWindowViewModel();
+            _simpleWindowVM = SimpleWindowFactory.GenerateSimpleWindowViewModel();
         }
 
         public virtual void InitFindFileMode(eFindFileMode mode)
@@ -65,8 +64,7 @@ namespace FCP.src
             {
                 CheckProgramStart();
                 CheckFileBackupPath();
-                _CTS1 = new CancellationTokenSource();
-                UIRefresh = new UIRefresh() { CTS = _CTS1, UILayout = SetUILayout(new UILayout()) };
+                UIRefresh = new UIRefresh() { UILayout = SetUILayout(new UILayout()) };
                 UIRefresh.StartAsync();
             }
             catch (Exception ex)
@@ -120,9 +118,9 @@ namespace FCP.src
 
         public virtual void Stop()
         {
-            if (_CTS != null)
+            if (_cts != null)
             {
-                _CTS.Cancel();
+                _cts.Cancel();
             }
         }
 
@@ -130,13 +128,13 @@ namespace FCP.src
         {
             if ((MainWindowVM.InputPath1 + MainWindowVM.InputPath2 + MainWindowVM.InputPath3).Trim().Length == 0)
             {
-                if (_CTS != null) Stop();
+                if (_cts != null) Stop();
                 Message.Show("來源路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
                 return;
             }
             if (MainWindowVM.OutputPath.Trim().Length == 0)
             {
-                if (_CTS != null) Stop();
+                if (_cts != null) Stop();
                 Message.Show("輸出路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
                 return;
             }
@@ -152,41 +150,41 @@ namespace FCP.src
             {
                 IPList.Add(MainWindowVM.InputPath3);
             }
-            _AdvancedSettingsVM = AdvancedSettingsFactory.GenerateAdvancedSettingsViewModel();
-            _AdvancedSettingsVM.Visibility = Visibility.Hidden;
-            _CTS = null;
-            _CTS = new CancellationTokenSource();
+            _advancedSettingsVM = AdvancedSettingsFactory.GenerateAdvancedSettingsViewModel();
+            _advancedSettingsVM.Visibility = Visibility.Hidden;
+            _cts = null;
+            _cts = new CancellationTokenSource();
             FindFile.ResetRuleToEmpty();
         }
 
         public void SetOPDRule(string rule)
         {
-            _OPD = rule;
+            _opd = rule;
         }
 
         public void SetPowderRule(string rule)
         {
-            _Powder = rule;
+            _powder = rule;
         }
 
         public void SetUDBatchRule(string rule)
         {
-            _UDBatch = rule;
+            _batch = rule;
         }
 
         public void SetUDStatRule(string rule)
         {
-            _UDStat = rule;
+            _stat = rule;
         }
 
         public void SetCareRule(string rule)
         {
-            _Care = rule;
+            _care = rule;
         }
 
         public void SetOtherRule(string rule)
         {
-            _Other = rule;
+            _other = rule;
         }
 
         public void SetIntoProperty(bool isOPD)
@@ -194,33 +192,33 @@ namespace FCP.src
             if (isOPD)
             {
                 if (MainWindowVM.OPDToogle1Checked)
-                    FindFile.SetOPD(_OPD);
+                    FindFile.SetOPD(_opd);
                 if (MainWindowVM.OPDToogle2Checked)
-                    FindFile.SetPowder(_Powder);
+                    FindFile.SetPowder(_powder);
                 if (MainWindowVM.OPDToogle3Checked)
-                    FindFile.SetCare(_Care);
+                    FindFile.SetCare(_care);
                 if (MainWindowVM.OPDToogle4Checked)
-                    FindFile.SetOther(_Other);
+                    FindFile.SetOther(_other);
             }
             else
             {
                 if (MainWindowVM.StatChecked)
-                    FindFile.SetUDStat(_UDStat);
+                    FindFile.SetUDStat(_stat);
                 else
-                    FindFile.SetUDBatch(_UDBatch);
+                    FindFile.SetUDBatch(_batch);
 
             }
-            FindFile.Reset(_CTS, IPList);
+            FindFile.Reset(_cts, IPList);
         }
 
         public virtual void GetFileAsync()
         {
-            if (_CTS == null)
+            if (_cts == null)
                 return;
             FindFile.SetDepartmentDictionary();
             Task.Run(() =>
             {
-                while (!_CTS.IsCancellationRequested)
+                while (!_cts.IsCancellationRequested)
                 {
                     Clear();
                     CheckFileBackupPath();
@@ -247,19 +245,19 @@ namespace FCP.src
             OutputPath = MainWindowVM.OutputPath;
             FilePath = string.Empty;
             CurrentSeconds = string.Empty;
-            CurrentDepartment = eConvertLocation.OPD;
+            CurrentDepartment = eDepartment.OPD;
         }
 
         public virtual void Loop_OPD(int Start, int Length, string Content)
         {
-            if (_CTS == null)
+            if (_cts == null)
                 return;
             Task.Run(async () =>
             {
                 //GetFileNameTaskAsync();
                 try
                 {
-                    while (!_CTS.IsCancellationRequested)
+                    while (!_cts.IsCancellationRequested)
                     {
                         await Task.Delay(SettingsModel.Speed);
                         foreach (string IP in IPList)
@@ -309,13 +307,13 @@ namespace FCP.src
 
         public virtual void Loop_OPD_小港()
         {
-            if (_CTS == null)
+            if (_cts == null)
                 return;
             Task.Run(async () =>
             {
                 try
                 {
-                    while (!_CTS.IsCancellationRequested)
+                    while (!_cts.IsCancellationRequested)
                     {
                         await Task.Delay(SettingsModel.Speed);
                         foreach (string IP in IPList)
@@ -371,13 +369,13 @@ namespace FCP.src
 
         public virtual void Loop_UD(int Start, int Length, string Content)
         {
-            if (_CTS == null)
+            if (_cts == null)
                 return;
             Task.Run(async () =>
             {
                 try
                 {
-                    while (!_CTS.IsCancellationRequested)
+                    while (!_cts.IsCancellationRequested)
                     {
                         await Task.Delay(SettingsModel.Speed);
                         string IP = MainWindowVM.InputPath3;
@@ -385,7 +383,7 @@ namespace FCP.src
                             continue;
                         foreach (string Name in Directory.GetFiles(IP, SettingsModel.FileExtensionName))
                         {
-                            if (SettingsModel.EN_StatOrBatch)
+                            if (SettingsModel.UseStatOrBatch)
                             {
                                 if (Path.GetFileNameWithoutExtension(Name).Substring(Start, Length) == Content)
                                 {
@@ -422,7 +420,7 @@ namespace FCP.src
         public virtual async void SetConvertInformation()
         {
             CurrentSeconds = DateTime.Now.ToString("ss.ffff");
-            _ConvertFileInformation.SetInputPath(InputPath)
+            _convertFileInformation.SetInputPath(InputPath)
                  .SetOutputPath(OutputPath)
                  .SetFilePath(FilePath)
                  .SetDepartment(CurrentDepartment)
@@ -439,7 +437,7 @@ namespace FCP.src
             switch (returnsResult.Result)
             {
                 case eConvertResult.成功:
-                    if (SettingsModel.EN_WhenCompeletedMoveFile)
+                    if (SettingsModel.MoveSourceFileToBackupDirectoryWhenDone)
                     {
                         File.Move(FilePath, $@"{MainWindowVM.SuccessPath}\{fileName}.ok");
                         Dispatcher.InvokeAsync(new Action(() => { MainWindowVM.SuccessCount = (Convert.ToInt32(MainWindowVM.SuccessCount) + 1).ToString(); }));
@@ -450,7 +448,7 @@ namespace FCP.src
                     NotifyIcon.ShowBalloonTip(850, nameof(eConvertResult.成功), tip, System.Windows.Forms.ToolTipIcon.None);
                     break;
                 case eConvertResult.全數過濾:
-                    if (SettingsModel.EN_WhenCompeletedMoveFile)
+                    if (SettingsModel.MoveSourceFileToBackupDirectoryWhenDone)
                     {
                         File.Move(FilePath, $@"{MainWindowVM.SuccessPath}\{fileName}.ok");
                         Dispatcher.InvokeAsync(new Action(() => { MainWindowVM.SuccessCount = (Convert.ToInt32(MainWindowVM.SuccessCount) + 1).ToString(); }));
@@ -474,7 +472,7 @@ namespace FCP.src
                     NotifyIcon.ShowBalloonTip(850, $"缺少頻率", $"{Path.GetFileName(FilePath)} OnCube中缺少該檔案 {message} 的餐包頻率", System.Windows.Forms.ToolTipIcon.Error);
                     break;
                 default:
-                    if (SettingsModel.EN_WhenCompeletedMoveFile)
+                    if (SettingsModel.MoveSourceFileToBackupDirectoryWhenDone)
                     {
                         File.Move(FilePath, $@"{MainWindowVM.FailPath}\{fileName}.fail");
                         Dispatcher.InvokeAsync(new Action(() => { MainWindowVM.FailCount = (Convert.ToInt32(MainWindowVM.FailCount) + 1).ToString(); }));
@@ -483,7 +481,7 @@ namespace FCP.src
                     NotifyIcon.ShowBalloonTip(850, "轉檔錯誤", message, System.Windows.Forms.ToolTipIcon.Error);
                     break;
             }
-            if (SettingsModel.EN_WhenCompeletedStop)
+            if (SettingsModel.StopWhenDone)
             {
                 Dispatcher.Invoke(new Action(() => MainWindowVM.StopFunc()));
             }
@@ -495,11 +493,11 @@ namespace FCP.src
             {
                 MainWindowVM.AddLog($"{DateTime.Now:HH:mm:ss:fff} {result}");
                 //MainWindow.Txt_ProgressBox.ScrollToEnd();
-                _SimpleWindowVM.AddLog($"{DateTime.Now:HH:mm:ss:fff} {result}");
+                _simpleWindowVM.AddLog($"{DateTime.Now:HH:mm:ss:fff} {result}");
             }));
         }
 
-        public virtual void CloseSelf()
+        public virtual void StopAll()
         {
             Stop();
             UIRefresh.Stop();
@@ -507,11 +505,9 @@ namespace FCP.src
 
         public string MergeFilesAndGetNewFilePath(string inputPath, string fileName, int start, int length, string content)
         {
-            MergeFiles mf = new MergeFiles()
-                .SetInputPath(inputPath)
-                .SetFileName(fileName)
-                .Merge(start, length, content);
-            return mf._NewFilePath;
+            MergeFiles mergeFiles = new MergeFiles(inputPath, fileName);
+            mergeFiles.Merge(start, length, content);
+            return mergeFiles.GetMergedFilePath;
         }
 
         //移動檔案
@@ -519,13 +515,13 @@ namespace FCP.src
         {
             string folderName = isSuccess ? "Success" : "Fail";
             string extension = isSuccess ? "ok" : "fail";
-            string[] files = Directory.GetFiles($@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\Batch");
+            string[] files = Directory.GetFiles($@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\Temp");
             foreach (string s in files)
             {
                 File.Move(s, $@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\{folderName}\{Path.GetFileNameWithoutExtension(s)}.{extension}");
             }
-            if (_SimpleWindowVM.Visibility == Visibility.Visible)
-                _SimpleWindowVM.StopFunc();
+            if (_simpleWindowVM.Visibility == Visibility.Visible)
+                _simpleWindowVM.StopFunc();
             else
                 Stop();
         }

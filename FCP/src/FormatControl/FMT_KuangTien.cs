@@ -319,7 +319,7 @@ namespace FCP.src.FormatControl
                         continue;
                     }
                     //種包                                                                                                                                      //23521 為大甲需求
-                    if (SettingsModel.DoseType == eDoseType.種包 || !int.TryParse(PerQty_L[x], out int i) | AdminCode_L[x] == "STTS" | MedicineCode_L[x] == "23521" | BedNo_L[x].Contains("111DAY"))  //劑量為非整數
+                    if (SettingModel.DoseType == eDoseType.種包 || !int.TryParse(PerQty_L[x], out int i) | AdminCode_L[x] == "STTS" | MedicineCode_L[x] == "23521" | BedNo_L[x].Contains("111DAY"))  //劑量為非整數
                     {
                         DoseType.Add(true);
                         CrossAdminTimeType.Add(false);
@@ -333,7 +333,7 @@ namespace FCP.src.FormatControl
                                 DateTime FullDate = TMD.AddDays(Convert.ToInt32(Days_L[x]));
                                 if (d == 0)
                                 {
-                                    if (SettingsModel.DoseType == eDoseType.餐包 || !PerQty_LTemp.ToString().Contains("."))
+                                    if (SettingModel.DoseType == eDoseType.餐包 || !PerQty_LTemp.ToString().Contains("."))
                                         QODTEMP = $"{SD:MM/dd} 劑量 : {PerQty_LTemp}   ";
                                     else
                                         QODTEMP = $"{SD:MM/dd} 劑量 : {PerQty_LTemp} 非整數";
@@ -343,7 +343,7 @@ namespace FCP.src.FormatControl
                                     if (SD.AddDays(2) <= FullDate)
                                     {
                                         SD = SD.AddDays(2);
-                                        if (SettingsModel.DoseType == eDoseType.餐包 || !PerQty_LTemp.ToString().Contains("."))
+                                        if (SettingModel.DoseType == eDoseType.餐包 || !PerQty_LTemp.ToString().Contains("."))
                                             QODTEMP += $"{SD:MM/dd} 劑量 : {PerQty_LTemp}   ";
                                         else
                                             QODTEMP += $"{SD:MM/dd} 劑量 : {PerQty_LTemp} 非整數";
@@ -353,7 +353,7 @@ namespace FCP.src.FormatControl
                         }
                         else
                         {
-                            if (SettingsModel.DoseType == eDoseType.餐包 || !PerQty_LTemp.ToString().Contains("."))
+                            if (SettingModel.DoseType == eDoseType.餐包 || !PerQty_LTemp.ToString().Contains("."))
                                 QODTEMP = $"每次劑量 : {PerQty_LTemp}   ";
                             else
                                 QODTEMP = $"每次劑量 : {PerQty_LTemp} 非整數";
@@ -365,7 +365,7 @@ namespace FCP.src.FormatControl
                     }
 
                     //跨天數頻率
-                    if (SettingsModel.CrossDayAdminCode.Contains(AdminCode_L[x]))
+                    if (SettingModel.CrossDayAdminCode.Contains(AdminCode_L[x]))
                     {
                         DoseType.Add(false);
                         CrossAdminTimeType.Add(true);
@@ -664,7 +664,7 @@ namespace FCP.src.FormatControl
                     {
                         DoseType.Add(true);
                         EndDay_L[x] = SD.ToString("yyMMdd");
-                        if (SettingsModel.DoseType == eDoseType.餐包 || !PerQtyTemp.ToString().Contains("."))
+                        if (SettingModel.DoseType == eDoseType.餐包 || !PerQtyTemp.ToString().Contains("."))
                             QODDescription.Add($"每次劑量 : {PerQtyTemp}   ");
                         else
                             QODDescription.Add($"每次劑量 : {PerQtyTemp} 非整數");
@@ -672,12 +672,12 @@ namespace FCP.src.FormatControl
                         PerQty_L[x] = Math.Ceiling(Convert.ToSingle(SumQty_L[x])).ToString();
                         continue;
                     }
-                    if (SettingsModel.DoseType == eDoseType.種包 || !int.TryParse(PerQty_L[x], out int i) | STAdminTime.Contains(AdminCode_L[x]) | SettingsModel.CrossDayAdminCode.Contains(AdminCode_L[x]))  //劑量為非整數 ，輸出種包
+                    if (SettingModel.DoseType == eDoseType.種包 || !int.TryParse(PerQty_L[x], out int i) | STAdminTime.Contains(AdminCode_L[x]) | SettingModel.CrossDayAdminCode.Contains(AdminCode_L[x]))  //劑量為非整數 ，輸出種包
                     {
                         DoseType.Add(true);
                         EndDay_L[x] = SD.ToString("yyMMdd");
                         DataDic.Add($"{x}_{EndDay_L[x]}", new List<string>() { "" });
-                        if (SettingsModel.DoseType == eDoseType.餐包 || !PerQtyTemp.ToString().Contains("."))
+                        if (SettingModel.DoseType == eDoseType.餐包 || !PerQtyTemp.ToString().Contains("."))
                             QODDescription.Add($"每次劑量 : {PerQtyTemp}   ");
                         else
                             QODDescription.Add($"每次劑量 : {PerQtyTemp} 非整數");

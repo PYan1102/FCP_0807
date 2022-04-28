@@ -5,11 +5,11 @@ using FCP.ViewModels;
 
 namespace FCP.Models
 {
-    class SettingsPage1Model
+    class SettingPage1Model
     {
         public int SearchFrequency { get; set; } = 100;
         public ObservableCollection<string> Mode { get; set; }
-        public int ModeIndex { get; set; } = 0;
+        public int FormatIndex { get; set; } = 0;
         public bool NormalPackChecked { get; set; }
         public bool FilterAdminCodeChecked { get; set; }
         public bool UseAdminCodeChecked { get; set; }

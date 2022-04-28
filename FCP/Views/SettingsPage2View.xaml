@@ -10,9 +10,6 @@
              mc:Ignorable="d" 
              Height="450"
              Width="740">
-    <UserControl.DataContext>
-        <vm:SettingsPage2ViewModel/>
-    </UserControl.DataContext>
     <Border CornerRadius="10"
             Background="White"
             Margin="5">

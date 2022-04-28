@@ -116,7 +116,7 @@ namespace FCP.src.FormatControl
                     Single sumQty = Convert.ToSingle(EncodingHelper.GetString(200, 10));
                     Single perQty = Convert.ToSingle(EncodingHelper.GetString(167, 10));
                     string days = Math.Ceiling(sumQty / perQty / adminCodeTimePerDay).ToString();
-                    if (SettingsModel.CrossDayAdminCode.Contains(adminCode))
+                    if (SettingModel.CrossDayAdminCode.Contains(adminCode))
                     {
                         days = EncodingHelper.GetString(197, 3);
                     }

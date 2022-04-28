@@ -66,22 +66,22 @@ namespace FCP.src
         List<string> FilterAdminCode = new List<string>();
         public Dictionary<string, List<string>> DataDic = new Dictionary<string, List<string>>();  //切點用
         public string[][] TimesOfAdminTime_L = new string[24][];  //頻率一天次數
-        public Settings Settings { get; set; }
-        public SettingsModel SettingsModel { get; set; }
+        public Setting Settings { get; set; }
+        public SettingModel SettingModel { get; set; }
         public string ErrorContent { get; set; }
         public ConvertFileInformtaionModel ConvertFileInformation { get; set; }
         public string InputPath { get; set; }
         public string OutputPath { get; set; }
         public string FilePath { get; set; }
         public string CurrentSeconds { get; set; }
-        public eConvertLocation Department { get; set; }
+        public eDepartment Department { get; set; }
         private ReturnsResultFormat _ReturnsResultFormat { get; set; }
         public IRetunrsResult ReturnsResult { get; set; }
 
         public FormatCollection()
         {
-            Settings = SettingsFactory.GenerateSettingsControl();
-            SettingsModel = SettingsFactory.GenerateSettingsModel();
+            Settings = SettingFactory.GenerateSetting();
+            SettingModel = SettingFactory.GenerateSettingModel();
             ConvertFileInformation = ConvertInfoactory.GenerateConvertFileInformation();
         }
 
@@ -96,7 +96,7 @@ namespace FCP.src
             CurrentSeconds = ConvertFileInformation.GetCurrentSeconds;
             Department = ConvertFileInformation.GetDepartment;
             SetAdminCode();
-            if (SettingsModel.Mode != eFormat.光田醫院JVS)  //光田磨粉、長庚磨粉
+            if (SettingModel.Format != eFormat.光田醫院JVS)  //光田磨粉、長庚磨粉
                 GetMedicineCode();
             ClearList();
         }
@@ -139,31 +139,31 @@ namespace FCP.src
             Init();
             switch (Department)
             {
-                case eConvertLocation.OPD:
+                case eDepartment.OPD:
                     if (ProcessOPD())
                     {
                         LogicOPD();
                     }
                     break;
-                case eConvertLocation.POWDER:
+                case eDepartment.POWDER:
                     if (ProcessPOWDER())
                     {
                         LogicPOWDER();
                     }
                     break;
-                case eConvertLocation.UDStat:
+                case eDepartment.UDStat:
                     if (ProcessUDStat())
                     {
                         LogicUDStat();
                     }
                     break;
-                case eConvertLocation.UDBatch:
+                case eDepartment.UDBatch:
                     if (ProcessUDBatch())
                     {
                         LogicUDBatch();
                     }
                     break;
-                case eConvertLocation.Other:
+                case eDepartment.Other:
                     if (ProcessOther())
                     {
                         LogicOther();
@@ -277,7 +277,7 @@ namespace FCP.src
         public void SetAdminCode()
         {
             FilterAdminCode.Clear();
-            foreach (string s in SettingsModel.FilterAdminCode)
+            foreach (string s in SettingModel.FilterAdminCode)
             {
                 if (!string.IsNullOrEmpty(s))
                     FilterAdminCode.Add(s);
@@ -287,9 +287,9 @@ namespace FCP.src
         //判斷使用特定頻率及過濾特定頻率
         public bool IsFilterAdminCode(string code)
         {
-            if (SettingsModel.PackMode == ePackMode.正常)
+            if (SettingModel.PackMode == ePackMode.正常)
                 return false;
-            if (SettingsModel.PackMode == ePackMode.過濾特殊)
+            if (SettingModel.PackMode == ePackMode.過濾特殊)
             {
                 return FilterAdminCode.Contains(code);
             }
@@ -306,7 +306,7 @@ namespace FCP.src
         /// <returns>如果為 <see langword="true"/> 則為需過濾，為 <see langword="false"/> 則為不需過濾</returns>
         public bool NeedFilterMedicineCode(string Code)
         {
-            return SettingsModel.FilterMedicineCode.Contains(Code);
+            return SettingModel.FilterMedicineCode.Contains(Code);
         }
 
         //計算總量除以ID1的餘數
@@ -397,14 +397,14 @@ namespace FCP.src
 
         public bool IsFilterMedicineCode(string code)
         {
-            if (!SettingsModel.EN_FilterMedicineCode)
+            if (!SettingModel.UseFilterMedicineCode)
                 return false;
             return !GetMedicineCode().Contains(code);
         }
 
         private List<string> GetMedicineCode()
         {
-            List<string> list = SettingsModel.EN_OnlyCanisterIn ? GetMedicineCodeHasCanister() : GetAllMedicineCode();
+            List<string> list = SettingModel.FilterNoCanister ? GetMedicineCodeHasCanister() : GetAllMedicineCode();
             return list;
         }
 

@@ -2,77 +2,81 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 namespace FCP
 {
-    class MergeFiles
+    internal class MergeFiles
     {
-        private string _FileName { get; set; }
-        private string _InputPath { get; set; }
-        public string _NewFilePath { get; set; }
-        public MergeFiles SetInputPath(string inputPath)
+        public string GetMergedFilePath { get => _mergedFilePath; }
+        private string _fileName { get; set; }
+        private string _inputPath { get; set; }
+        private string _mergedFilePath { get; set; }
+
+        public MergeFiles(string inputPath, string fileName)
         {
-            _InputPath = inputPath;
-            return this;
+            _inputPath = inputPath;
+            _fileName = fileName;
         }
 
-        public MergeFiles SetFileName(string name)
+        /// <summary>
+        /// 合併檔案，如果檔案名稱符合輸入參數的話
+        /// </summary>
+        /// <param name="start">檔案名稱的起始位置</param>
+        /// <param name="length">檔案名稱的長度</param>
+        /// <param name="value">存在於檔案名稱內的字串</param>
+        public void Merge(int start, int length, string value)
         {
-            _FileName = name;
-            return this;
-        }
-
-        public MergeFiles Merge(int Start, int Length, string Word)
-        {
-            CheckTempFolder();
-            List<string> Files = GetFiles(Start, Length, Word);
-            if (Files.Count > 0)
+            CheckTempDirectory();
+            List<string> files = GetInputPathFiles(start, length, value);
+            if (files.Count > 0)
             {
                 StringBuilder sb = new StringBuilder();
-                foreach (string s in Files)
+                foreach (string file in files)
                 {
-                    sb.Append(GetContent(s));
+                    sb.Append(GetFileContent(file));
                 }
-                CreateFile(sb.ToString());
-                MoveFiles(Files);
+                GenerateMergedFile(sb.ToString());
+                MoveFilesToBackupDirectory(files);
             }
-            return this;
         }
 
-        public string GetContent(string Name)
+        private string GetFileContent(string fileName)
         {
-            return File.ReadAllText($@"{_InputPath}\{Name}", Encoding.Default);
+            return File.ReadAllText($@"{_inputPath}\{fileName}", Encoding.Default);
         }
 
-        private void CreateFile(string Content)
+        private void GenerateMergedFile(string content)
         {
-            _NewFilePath = $@"{_InputPath}\{_FileName}_{DateTime.Now:ss_fff}.txt";
-            using (StreamWriter sw = new StreamWriter(_NewFilePath, false, Encoding.Default))
+            _mergedFilePath = $@"{_inputPath}\{_fileName}_{DateTime.Now:ss_fff}.txt";
+            using (StreamWriter sw = new StreamWriter(_mergedFilePath, false, Encoding.Default))
             {
-                sw.Write(Content);
+                sw.Write(content);
             }
         }
 
-        private void MoveFiles(List<string>Files)
+        private void MoveFilesToBackupDirectory(List<string> files)
         {
-            foreach(string s in Files)
+            foreach (string file in files)
             {
-                File.Move($@"{_InputPath}\{s}", $@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\Batch\{Path.GetFileNameWithoutExtension(s)}_{DateTime.Now:ss_fff}.txt");
+                string destFileName = $@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\Batch\{Path.GetFileNameWithoutExtension(file)}_{DateTime.Now:ss_fff}.txt";
+                File.Move($@"{_inputPath}\{file}", destFileName);
             }
         }
 
-        private List<string> GetFiles(int Start, int Length, string Word)
+        private List<string> GetInputPathFiles(int start, int length, string value)
         {
-            var Files = Directory.GetFiles($@"{_InputPath}\");
-            return Files.ToList().Where(x => Path.GetFileName(x).Substring(Start, Length) == Word).Select(x => Path.GetFileName(x)).ToList();
+            string[] files = Directory.GetFiles($@"{_inputPath}\");
+            return (from file in files
+                    let fileName = Path.GetFileName(file)
+                    where fileName.Substring(start, length) == value
+                    select fileName).ToList();
         }
 
-        private void CheckTempFolder()
+        private void CheckTempDirectory()
         {
-            if (!Directory.Exists($@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\Batch"))
-                Directory.CreateDirectory($@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\Batch");
+            if (!Directory.Exists($@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\Temp"))
+                Directory.CreateDirectory($@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\Temp");
         }
     }
 }

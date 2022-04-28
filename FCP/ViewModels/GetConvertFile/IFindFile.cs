@@ -32,6 +32,6 @@ namespace FCP.ViewModels.GetConvertFile
     {
         public string InputPath { get; set; }
         public string FilePath { get; set; }
-        public eConvertLocation Department { get; set; }
+        public eDepartment Department { get; set; }
     }
 }

@@ -12,6 +12,7 @@ using FCP.src.Enum;
 using FCP.src.Factory;
 using FCP.src;
 using FCP.src.Factory.Models;
+using System.Text;
 
 namespace FCP.ViewModels
 {
@@ -32,13 +33,13 @@ namespace FCP.ViewModels
         public Action FocusFilterMedicineCode { get; set; }
         public Action RefreshRandomDataGridView { get; set; }
         public Action RefreshFilterMedicineCodeComboBox { get; set; }
-        private SettingsPage1Model _Model;
-        private SettingsModel _SettingsModel;
+        private SettingPage1Model _model;
+        private SettingModel _settingModel;
 
         public SettingsPage1ViewModel()
         {
-            _SettingsModel = SettingsFactory.GenerateSettingsModel();
-            _Model = ModelsFactory.GenerateSettingsPage1Model();
+            _settingModel = SettingFactory.GenerateSettingModel();
+            _model = ModelsFactory.GenerateSettingPage1Model();
             NormalPack = new RelayCommand(() => NormalPackFunc());
             FilterAdminCode = new RelayCommand(() => FilterAdminCodeFunc());
             UseAdminCode = new RelayCommand(() => UseAdminCodeFunc());
@@ -54,20 +55,44 @@ namespace FCP.ViewModels
 
         public int SearchFrequency
         {
-            get => _Model.SearchFrequency;
-            set => _Model.SearchFrequency = value;
+            get
+            {
+                Console.WriteLine($"get {_model.SearchFrequency}");
+                return _model.SearchFrequency;
+                //if (int.TryParse(_model.SearchFrequency.ToString(), out int newValue))
+                //{
+                //    return _model.SearchFrequency;
+                //}
+                //else
+                //{
+                //    return 0;
+                //}
+            }
+            set
+            {
+                Console.WriteLine($"set {_model.SearchFrequency}");
+                _model.SearchFrequency = value;
+                //if (int.TryParse(value.ToString(), out int newValue))
+                //{
+                //    _model.SearchFrequency = value;
+                //}
+                //else
+                //{
+                //    _model.SearchFrequency = 0;
+                //}
+            }
         }
 
         public ObservableCollection<string> Mode
         {
-            get => _Model.Mode;
-            set => _Model.Mode = value;
+            get => _model.Mode;
+            set => _model.Mode = value;
         }
 
-        public int ModeIndex
+        public int FormatIndex
         {
-            get => _Model.ModeIndex;
-            set => _Model.ModeIndex = value;
+            get => _model.FormatIndex;
+            set => _model.FormatIndex = value;
         }
 
         public bool NormalPackChecked
@@ -75,151 +100,145 @@ namespace FCP.ViewModels
             //get => _Model.NormalPackChecked;
             get
             {
-                return _Model.NormalPackChecked;
+                return _model.NormalPackChecked;
             }
             set
             {
-                _Model.NormalPackChecked = value;
+                _model.NormalPackChecked = value;
             }
         }
 
         public bool FilterAdminCodeChecked
         {
-            get => _Model.FilterAdminCodeChecked;
+            get => _model.FilterAdminCodeChecked;
             set
             {
-                _Model.FilterAdminCodeChecked = value;
+                _model.FilterAdminCodeChecked = value;
             }
         }
 
         public bool UseAdminCodeChecked
         {
-            get => _Model.UseAdminCodeChecked;
+            get => _model.UseAdminCodeChecked;
             set
             {
-                _Model.UseAdminCodeChecked = value;
+                _model.UseAdminCodeChecked = value;
             }
         }
 
         public Visibility PackMode
         {
-            get => _Model.PackModeVisible;
+            get => _model.PackModeVisible;
             set
             {
-                _Model.PackModeVisible = value;
+                _model.PackModeVisible = value;
             }
         }
 
         public string AdminCode
         {
-            get => _Model.AdminCode;
-            set
-            {
-                _Model.AdminCode = value.Trim();
-            }
+            get => _model.AdminCode;
+            set => _model.AdminCode = value.Trim();
         }
 
         public ObservableCollection<string> FilterAdminCodeList
         {
-            get => _Model.FilterAdminCodeList;
+            get => _model.FilterAdminCodeList;
             set
             {
-                _Model.FilterAdminCodeList = value;
+                _model.FilterAdminCodeList = value;
             }
         }
 
         public int FilterAdminCodeIndex
         {
-            get => _Model.FilerAdminCodeIndex;
-            set => _Model.FilerAdminCodeIndex = value;
+            get => _model.FilerAdminCodeIndex;
+            set => _model.FilerAdminCodeIndex = value;
         }
 
         public ObservableCollection<RandomInfo> Random
         {
-            get => _Model.Random;
+            get => _model.Random;
             set
             {
-                _Model.Random = value;
+                _model.Random = value;
             }
         }
 
         public int RandomIndex
         {
-            get => _Model.RandomIndex;
+            get => _model.RandomIndex;
             set
             {
-                _Model.RandomIndex = value;
+                _model.RandomIndex = value;
             }
         }
         public bool MultiChecked
         {
-            get => _Model.MultiChecked;
+            get => _model.MultiChecked;
             set
             {
-                _Model.MultiChecked = value;
+                _model.MultiChecked = value;
             }
         }
 
         public bool CombiChecked
         {
-            get => _Model.CombiChecked;
+            get => _model.CombiChecked;
             set
             {
-                _Model.CombiChecked = value;
+                _model.CombiChecked = value;
             }
         }
 
         public string OutputSpecialAdminCode
         {
-            get => _Model.OutputSpecialAdminCode;
-            set
-            {
-                _Model.OutputSpecialAdminCode = value;
-            }
+            get => _model.OutputSpecialAdminCode;
+            set => _model.OutputSpecialAdminCode = value;
         }
 
         public string CutTime
         {
-            get => _Model.CutTime;
+            get => _model.CutTime;
             set
             {
-                _Model.CutTime = value.Trim();
+                _model.CutTime = value.Trim();
             }
         }
 
         public string AdminCodeOfCrossDay
         {
-            get => _Model.AdminCodeOfCrossDay;
+            get => _model.AdminCodeOfCrossDay;
             set
             {
-                _Model.AdminCodeOfCrossDay = value.Trim();
+                _model.AdminCodeOfCrossDay = value.Trim();
             }
         }
 
         public string MedicineCode
         {
-            get => _Model.MedicineCode;
+            get => _model.MedicineCode;
             set
             {
-                _Model.MedicineCode = value.Trim();
+                _model.MedicineCode = value.Trim();
             }
         }
 
         public ObservableCollection<string> FilterMedicineCodeList
         {
-            get => _Model.FilterMedicineCodeList;
+            get => _model.FilterMedicineCodeList;
             set
             {
-                _Model.FilterMedicineCodeList = value;
+                _model.FilterMedicineCodeList = value;
             }
         }
 
         public int FilterMedicineCodeIndex
         {
-            get => _Model.FilterMedicineCodeIndex;
+            get => _model.FilterMedicineCodeIndex;
             set
             {
-                _Model.FilterMedicineCodeIndex = value;
+                _model.FilterMedicineCodeIndex = value;
             }
         }
 
@@ -314,40 +333,24 @@ namespace FCP.ViewModels
 
         private void Init()
         {
-            SearchFrequency = _SettingsModel.Speed;
-            MultiChecked = _SettingsModel.DoseType == eDoseType.餐包;
-            CombiChecked = _SettingsModel.DoseType == eDoseType.種包;
-            OutputSpecialAdminCode = string.Empty;
-            _SettingsModel.OutputSpecialAdminCode.ForEach(x => OutputSpecialAdminCode += $"{x},");
-            OutputSpecialAdminCode = OutputSpecialAdminCode.TrimEnd(',');
-            CutTime = _SettingsModel.CutTime;
-            AdminCodeOfCrossDay = string.Empty;
-            _SettingsModel.CrossDayAdminCode.ForEach(x => AdminCodeOfCrossDay += $"{x},");
-            AdminCodeOfCrossDay = AdminCodeOfCrossDay.TrimEnd(',');
+            SearchFrequency = _settingModel.Speed;
+            MultiChecked = _settingModel.DoseType == eDoseType.餐包;
+            CombiChecked = _settingModel.DoseType == eDoseType.種包;
+            OutputSpecialAdminCode = _settingModel.OutputSpecialAdminCode;
+            CutTime = _settingModel.CutTime;
+            AdminCodeOfCrossDay = _settingModel.CrossDayAdminCode;
             Mode = EnumHelper.ToObservableCollection<eFormat>();
-            ModeIndex = (int)_SettingsModel.Mode;
-            FilterAdminCodeList = ListHelper.ToObservableCollection(_SettingsModel.FilterAdminCode);
-            List<string> randomList = _SettingsModel.ExtraRandom.Split('|').ToList();
-            randomList.RemoveAll(x => x.Length == 0);
-            Random.Clear();
-            foreach (var v in randomList)
-            {
-                var random = v.Split(':');
-                Random.Add(new RandomInfo()
-                {
-                    No = random[0],
-                    JVServer = random[1],
-                    OnCube = random[2]
-                });
-            }
-            FilterMedicineCodeList = ListHelper.ToObservableCollection(_SettingsModel.FilterMedicineCode);
+            FormatIndex = (int)_settingModel.Format;
+            FilterAdminCodeList = ListHelper.ToObservableCollection(_settingModel.FilterAdminCode);
+            Random = ListHelper.ToObservableCollection(_settingModel.ExtraRandom);
+            FilterMedicineCodeList = ListHelper.ToObservableCollection(_settingModel.FilterMedicineCode);
 
-            if (_SettingsModel.PackMode == ePackMode.正常)
+            if (_settingModel.PackMode == ePackMode.正常)
             {
                 NormalPackChecked = true;
                 NormalPackFunc();
             }
-            else if (_SettingsModel.PackMode == ePackMode.過濾特殊)
+            else if (_settingModel.PackMode == ePackMode.過濾特殊)
             {
                 FilterAdminCodeChecked = true;
                 FilterAdminCodeFunc();
@@ -377,15 +380,8 @@ namespace FCP.ViewModels
             }
             Random.RemoveAt(RandomIndex);
             RandomIndex = RandomIndex == 0 ? -1 : 0;
-            Random.ToList().ForEach(x => x.No = Random.IndexOf(x).ToString());
+            Random.ToList().ForEach(x => x.No = Random.IndexOf(x).ToString());  //重新編排No
             RefreshRandomDataGridView();
         }
-    }
-
-    public class RandomInfo
-    {
-        public string No { get; set; }
-        public string JVServer { get; set; }
-        public string OnCube { get; set; }
     }
 }

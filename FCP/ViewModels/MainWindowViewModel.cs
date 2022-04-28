@@ -42,19 +42,19 @@ namespace FCP.ViewModels
         public ICommand OpenLog { get; set; }
         public ICommand ClearProgressBoxContent { get; set; }
         public Action ActivateWindow { get; set; }
-        private FunctionCollections _Format { get; set; }
-        private SettingsModel _SettingsModel { get; set; }
-        private Settings _Settings { get; set; }
-        private MsgBViewModel _MsgBVM { get; set; }
-        private MainWindowModel _Model;
+        private FunctionCollections _format { get; set; }
+        private SettingModel _settingModel { get; set; }
+        private Setting _setting { get; set; }
+        private MsgBViewModel _msgBVM { get; set; }
+        private MainWindowModel _model;
 
         public MainWindowViewModel()
         {
-            _SettingsModel = SettingsFactory.GenerateSettingsModel();
-            _Settings = SettingsFactory.GenerateSettingsControl();
-            _MsgBVM = MsgBFactory.GenerateMsgBViewModel();
+            _settingModel = SettingFactory.GenerateSettingModel();
+            _setting = SettingFactory.GenerateSetting();
+            _msgBVM = MsgBFactory.GenerateMsgBViewModel();
             ShowAdvancedSettings = new RelayCommand(ShowAdvancedSettingsFunc, CanStartConverterOrShowAdvancedSettings);
-            _Model = new MainWindowModel();
+            _model = new MainWindowModel();
             Loaded = new RelayCommand(() => LoadedFuncAsync());
             Close = new RelayCommand(() => Environment.Exit(0));
             MinimumWindow = new RelayCommand(() => Visibility = Visibility.Hidden);
@@ -92,258 +92,258 @@ namespace FCP.ViewModels
 
         public Visibility Visibility
         {
-            get => _Model.Visibility;
-            set => _Model.Visibility = value;
+            get => _model.Visibility;
+            set => _model.Visibility = value;
         }
 
         public string WindowTitle
         {
-            get => _Model.WindowTitle;
-            set => _Model.WindowTitle = value;
+            get => _model.WindowTitle;
+            set => _model.WindowTitle = value;
         }
 
         public string InputPath1Title
         {
-            get => _Model.InputPath1Title;
-            set => _Model.InputPath1Title = value;
+            get => _model.InputPath1Title;
+            set => _model.InputPath1Title = value;
         }
 
         public string InputPath2Title
         {
-            get => _Model.InputPath2Title;
-            set => _Model.InputPath2Title = value;
+            get => _model.InputPath2Title;
+            set => _model.InputPath2Title = value;
         }
 
         public string InputPath3Title
         {
-            get => _Model.InputPath3Title;
-            set => _Model.InputPath3Title = value;
+            get => _model.InputPath3Title;
+            set => _model.InputPath3Title = value;
         }
         public string InputPath1
         {
-            get => _Model.InputPath1;
-            set => _Model.InputPath1 = value;
+            get => _model.InputPath1;
+            set => _model.InputPath1 = value;
         }
 
         public string InputPath2
         {
-            get => _Model.InputPath2;
-            set => _Model.InputPath2 = value;
+            get => _model.InputPath2;
+            set => _model.InputPath2 = value;
         }
 
         public string InputPath3
         {
-            get => _Model.InputPath3;
-            set => _Model.InputPath3 = value;
+            get => _model.InputPath3;
+            set => _model.InputPath3 = value;
         }
 
         public bool InputPath1Enabled
         {
-            get => _Model.InputPath1Enabled;
-            set => _Model.InputPath1Enabled = value;
+            get => _model.InputPath1Enabled;
+            set => _model.InputPath1Enabled = value;
         }
 
         public bool InputPath2Enabled
         {
-            get => _Model.InputPath2Enabled;
-            set => _Model.InputPath2Enabled = value;
+            get => _model.InputPath2Enabled;
+            set => _model.InputPath2Enabled = value;
         }
 
         public bool InputPath3Enabled
         {
-            get => _Model.InputPath3Enabled;
-            set => _Model.InputPath3Enabled = value;
+            get => _model.InputPath3Enabled;
+            set => _model.InputPath3Enabled = value;
         }
 
         public string OutputPathTitle
         {
-            get => _Model.OutputPathTitle;
-            set => _Model.OutputPathTitle = value;
+            get => _model.OutputPathTitle;
+            set => _model.OutputPathTitle = value;
         }
 
         public string OutputPath
         {
-            get => _Model.OutputPath;
-            set => _Model.OutputPath = value;
+            get => _model.OutputPath;
+            set => _model.OutputPath = value;
         }
 
         public bool OutputPathEnabled
         {
-            get => _Model.OutputPathEnabled;
-            set => _Model.OutputPathEnabled = value;
+            get => _model.OutputPathEnabled;
+            set => _model.OutputPathEnabled = value;
         }
 
         public Visibility UDButtonVisibility
         {
-            get => _Model.UDButtonVisibility;
-            set => _Model.UDButtonVisibility = value;
+            get => _model.UDButtonVisibility;
+            set => _model.UDButtonVisibility = value;
         }
 
         public string OPDToogle1
         {
-            get => _Model.OPDToogle1;
-            set => _Model.OPDToogle1 = value;
+            get => _model.OPDToogle1;
+            set => _model.OPDToogle1 = value;
         }
 
         public string OPDToogle2
         {
-            get => _Model.OPDToogle2;
-            set => _Model.OPDToogle2 = value;
+            get => _model.OPDToogle2;
+            set => _model.OPDToogle2 = value;
         }
 
         public string OPDToogle3
         {
-            get => _Model.OPDToogle3;
-            set => _Model.OPDToogle3 = value;
+            get => _model.OPDToogle3;
+            set => _model.OPDToogle3 = value;
         }
 
         public string OPDToogle4
         {
-            get => _Model.OPDToogle4;
-            set => _Model.OPDToogle4 = value;
+            get => _model.OPDToogle4;
+            set => _model.OPDToogle4 = value;
         }
 
         public bool OPDToogle1Checked
         {
-            get => _Model.OPDToogle1Checked;
-            set => _Model.OPDToogle1Checked = value;
+            get => _model.OPDToogle1Checked;
+            set => _model.OPDToogle1Checked = value;
         }
         public bool OPDToogle2Checked
         {
-            get => _Model.OPDToogle2Checked;
-            set => _Model.OPDToogle2Checked = value;
+            get => _model.OPDToogle2Checked;
+            set => _model.OPDToogle2Checked = value;
         }
 
         public bool OPDToogle3Checked
         {
-            get => _Model.OPDToogle3Checked;
-            set => _Model.OPDToogle3Checked = value;
+            get => _model.OPDToogle3Checked;
+            set => _model.OPDToogle3Checked = value;
         }
 
         public bool OPDToogle4Checked
         {
-            get => _Model.OPDToogle4Checked;
-            set => _Model.OPDToogle4Checked = value;
+            get => _model.OPDToogle4Checked;
+            set => _model.OPDToogle4Checked = value;
         }
 
         public bool OPDToogle1Enabled
         {
-            get => _Model.OPDToogle1Enabled;
-            set => _Model.OPDToogle1Enabled = value;
+            get => _model.OPDToogle1Enabled;
+            set => _model.OPDToogle1Enabled = value;
         }
 
         public bool OPDToogle2Enabled
         {
-            get => _Model.OPDToogle2Enabled;
-            set => _Model.OPDToogle2Enabled = value;
+            get => _model.OPDToogle2Enabled;
+            set => _model.OPDToogle2Enabled = value;
         }
 
         public bool OPDToogle3Enabled
         {
-            get => _Model.OPDToogle3Enabled;
-            set => _Model.OPDToogle3Enabled = value;
+            get => _model.OPDToogle3Enabled;
+            set => _model.OPDToogle3Enabled = value;
         }
 
         public bool OPDToogle4Enabled
         {
-            get => _Model.OPDToogle4Enabled;
-            set => _Model.OPDToogle4Enabled = value;
+            get => _model.OPDToogle4Enabled;
+            set => _model.OPDToogle4Enabled = value;
         }
 
         public Visibility OPDToogle1Visibility
         {
-            get => _Model.OPDToogle1Visibility;
-            set => _Model.OPDToogle1Visibility = value;
+            get => _model.OPDToogle1Visibility;
+            set => _model.OPDToogle1Visibility = value;
         }
 
         public Visibility OPDToogle2Visibility
         {
-            get => _Model.OPDToogle2Visibility;
-            set => _Model.OPDToogle2Visibility = value;
+            get => _model.OPDToogle2Visibility;
+            set => _model.OPDToogle2Visibility = value;
         }
 
         public Visibility OPDToogle3Visibility
         {
-            get => _Model.OPDToogle3Visibility;
-            set => _Model.OPDToogle3Visibility = value;
+            get => _model.OPDToogle3Visibility;
+            set => _model.OPDToogle3Visibility = value;
         }
 
         public Visibility OPDToogle4Visibility
         {
-            get => _Model.OPDToogle4Visibility;
-            set => _Model.OPDToogle4Visibility = value;
+            get => _model.OPDToogle4Visibility;
+            set => _model.OPDToogle4Visibility = value;
         }
 
         public bool OPDEnabled
         {
-            get => _Model.OPDEnabled;
-            set => _Model.OPDEnabled = value;
+            get => _model.OPDEnabled;
+            set => _model.OPDEnabled = value;
         }
 
         public bool UDEnabled
         {
-            get => _Model.UDEnabled;
-            set => _Model.UDEnabled = value;
+            get => _model.UDEnabled;
+            set => _model.UDEnabled = value;
         }
 
         public bool StopEnabled
         {
-            get => _Model.StopEnabled;
-            set => _Model.StopEnabled = value;
+            get => _model.StopEnabled;
+            set => _model.StopEnabled = value;
         }
 
         public bool SaveEnabled
         {
-            get => _Model.SaveEnabled;
-            set => _Model.SaveEnabled = value;
+            get => _model.SaveEnabled;
+            set => _model.SaveEnabled = value;
         }
 
         public bool StatChecked
         {
-            get => _Model.StatChecked;
-            set => _Model.StatChecked = value;
+            get => _model.StatChecked;
+            set => _model.StatChecked = value;
         }
 
         public bool BatchChecked
         {
-            get => _Model.BatchChecked;
-            set => _Model.BatchChecked = value;
+            get => _model.BatchChecked;
+            set => _model.BatchChecked = value;
         }
 
         public bool StatEnabled
         {
-            get => _Model.StatEnabled;
-            set => _Model.StatEnabled = value;
+            get => _model.StatEnabled;
+            set => _model.StatEnabled = value;
         }
 
         public bool BatchEnabled
         {
-            get => _Model.BatchEnabled;
-            set => _Model.BatchEnabled = value;
+            get => _model.BatchEnabled;
+            set => _model.BatchEnabled = value;
         }
 
         public Visibility StatVisibility
         {
-            get => _Model.StatVisibility;
-            set => _Model.StatVisibility = value;
+            get => _model.StatVisibility;
+            set => _model.StatVisibility = value;
         }
 
         public Visibility BatchVisibility
         {
-            get => _Model.BatchVisibility;
-            set => _Model.BatchVisibility = value;
+            get => _model.BatchVisibility;
+            set => _model.BatchVisibility = value;
         }
 
         public Visibility SplitEachMealVisibility
         {
-            get => _Model.SplitEachMealVisibility;
-            set => _Model.SplitEachMealVisibility = value;
+            get => _model.SplitEachMealVisibility;
+            set => _model.SplitEachMealVisibility = value;
         }
 
         public bool IsAutoStartChecked
         {
-            get => _Model.IsAutoStartChecked;
-            set => _Model.IsAutoStartChecked = value;
+            get => _model.IsAutoStartChecked;
+            set => _model.IsAutoStartChecked = value;
         }
 
         public bool IsSplitEachMealChecked
@@ -357,113 +357,113 @@ namespace FCP.ViewModels
         }
         public string DoseType
         {
-            get => _Model.DoseType;
-            set => _Model.DoseType = value;
+            get => _model.DoseType;
+            set => _model.DoseType = value;
         }
 
         public string SuccessCount
         {
-            get => _Model.SuccessCount;
-            set => _Model.SuccessCount = value;
+            get => _model.SuccessCount;
+            set => _model.SuccessCount = value;
         }
 
         public string FailCount
         {
-            get => _Model.FailCount;
-            set => _Model.FailCount = value;
+            get => _model.FailCount;
+            set => _model.FailCount = value;
         }
 
         public string WindowX
         {
-            get => _Model.WindowX;
-            set => _Model.WindowX = value;
+            get => _model.WindowX;
+            set => _model.WindowX = value;
         }
 
         public string WindowY
         {
-            get => _Model.WindowY;
-            set => _Model.WindowY = value;
+            get => _model.WindowY;
+            set => _model.WindowY = value;
         }
 
         public bool WindowXEnabled
         {
-            get => _Model.WindowXEnabled;
-            set => _Model.WindowXEnabled = value;
+            get => _model.WindowXEnabled;
+            set => _model.WindowXEnabled = value;
         }
 
         public bool WindowYEnabled
         {
-            get => _Model.WindowYEnabled;
-            set => _Model.WindowYEnabled = value;
+            get => _model.WindowYEnabled;
+            set => _model.WindowYEnabled = value;
         }
 
         public Visibility WindowXVisibility
         {
-            get => _Model.WindowXVisibility;
-            set => _Model.WindowXVisibility = value;
+            get => _model.WindowXVisibility;
+            set => _model.WindowXVisibility = value;
         }
 
         public Visibility WindowYVisibility
         {
-            get => _Model.WindowYVisibility;
-            set => _Model.WindowYVisibility = value;
+            get => _model.WindowYVisibility;
+            set => _model.WindowYVisibility = value;
         }
 
         public Visibility MinimumAndCloseVisibility
         {
-            get => _Model.MinimumAndCloseVisibility;
-            set => _Model.MinimumAndCloseVisibility = value;
+            get => _model.MinimumAndCloseVisibility;
+            set => _model.MinimumAndCloseVisibility = value;
         }
 
         public float OPDOpacity
         {
-            get => _Model.OPDOpacity;
-            set => _Model.OPDOpacity = value;
+            get => _model.OPDOpacity;
+            set => _model.OPDOpacity = value;
         }
 
         public float UDOpacity
         {
-            get => _Model.UDOpacity;
-            set => _Model.UDOpacity = value;
+            get => _model.UDOpacity;
+            set => _model.UDOpacity = value;
         }
 
         public SolidColorBrush OPDBackground
         {
-            get => _Model.OPDBacground;
-            set => _Model.OPDBacground = value;
+            get => _model.OPDBacground;
+            set => _model.OPDBacground = value;
         }
 
         public SolidColorBrush UDBackground
         {
-            get => _Model.UDBackground;
-            set => _Model.UDBackground = value;
+            get => _model.UDBackground;
+            set => _model.UDBackground = value;
         }
 
         public string ProgressBoxContent
         {
-            get => _Model.ProgressBoxContent;
-            set => _Model.ProgressBoxContent = value;
+            get => _model.ProgressBoxContent;
+            set => _model.ProgressBoxContent = value;
         }
         public void OPDFunc()
         {
-            if ((_Model.OPDToogle1Checked | _Model.OPDToogle2Checked | _Model.OPDToogle3Checked | _Model.OPDToogle4Checked) == false)
+            if ((_model.OPDToogle1Checked | _model.OPDToogle2Checked | _model.OPDToogle3Checked | _model.OPDToogle4Checked) == false)
             {
                 FCP.src.Message.Show("沒有勾選任一個轉檔位置", "位置未勾選", PackIconKind.Error, KindColors.Error);
                 return;
             }
             IsOPD = true;
-            _Format.ConvertPrepare(IsOPD);
+            _format.ConvertPrepare(IsOPD);
         }
 
         public void UDFunc()
         {
             IsOPD = false;
-            _Format.ConvertPrepare(IsOPD);
+            _format.ConvertPrepare(IsOPD);
         }
 
         public void StopFunc()
         {
-            _Format.Stop();
+            _format.Stop();
             RefreshUIPropertyServices.SwitchMainWindowControlState(true);
             RefreshUIPropertyServices.SwitchUIStateForStop();
         }
@@ -473,8 +473,14 @@ namespace FCP.ViewModels
             Properties.Settings.Default.X = Convert.ToInt32(WindowX);
             Properties.Settings.Default.Y = Convert.ToInt32(WindowY);
             Properties.Settings.Default.Save();
-
-            _Settings.SaveMainWidow(InputPath1, InputPath2, InputPath3, OutputPath, IsAutoStartChecked, StatChecked ? "S" : "B");
+            SettingModel model = _settingModel;
+            model.InputPath1 = InputPath1;
+            model.InputPath2 = InputPath2;
+            model.InputPath3 = InputPath3;
+            model.OutputPath = OutputPath;
+            model.StatOrBatch= StatChecked ? eDepartment.UDStat : eDepartment.UDBatch;
+            model.AutoStart = IsAutoStartChecked;
+            _setting.Save(model);
             AddLog("儲存成功");
         }
 
@@ -509,10 +515,10 @@ namespace FCP.ViewModels
             }
         }
 
-        public void JudgeCurrentFormat()
+        public void GenerateCurrentFormat()
         {
-            _Format = FormatFactory.GenerateFormat(_SettingsModel.Mode);
-            _Format.Init();
+            _format = FormatFactory.GenerateFormat(_settingModel.Format);
+            _format.Init();
         }
 
         private async void LoadedFuncAsync()
@@ -524,7 +530,7 @@ namespace FCP.ViewModels
             NotifyIconHelper.Init(Properties.Resources.FCP, "轉檔");
             NotifyIconHelper.DoubleClickAction += NotifyIconDBClick;
             FunctionCollections.NotifyIcon = NotifyIconHelper.NotifyIcon;
-            JudgeCurrentFormat();
+            GenerateCurrentFormat();
             Init();
             if (IsAutoStartChecked)
             {
@@ -557,9 +563,8 @@ namespace FCP.ViewModels
         private void ShowAdvancedSettingsFunc()
         {
             AdvancedSettingsFactory.ClearAllViewModel();
-            var window = AdvancedSettingsFactory.GenerateAdvancedSettings();
-            window.ShowDialog();
-            window = null;
+            var f = AdvancedSettingsFactory.GenerateAdvancedSettings();
+            f.ShowDialog();
         }
 
         private void SelectFolderFunc(string name)
@@ -614,16 +619,16 @@ namespace FCP.ViewModels
             string BackupPath = $@"{CommonModel.FileBackupDirectory}\{DateTime.Now:yyyy-MM-dd}";
             SuccessCount = $"{Directory.GetFiles($@"{BackupPath}\Success").Length}";
             FailCount = $"{Directory.GetFiles($@"{BackupPath}\Fail").Length}";
-            InputPath1 = _SettingsModel.InputPath1;
-            InputPath2 = _SettingsModel.InputPath2;
-            InputPath3 = _SettingsModel.InputPath3;
-            OutputPath = _SettingsModel.OutputPath;
-            IsAutoStartChecked = _SettingsModel.EN_AutoStart;
+            InputPath1 = _settingModel.InputPath1;
+            InputPath2 = _settingModel.InputPath2;
+            InputPath3 = _settingModel.InputPath3;
+            OutputPath = _settingModel.OutputPath;
+            IsAutoStartChecked = _settingModel.AutoStart;
             WindowX = Properties.Settings.Default.X.ToString();
             WindowY = Properties.Settings.Default.Y.ToString();
             StopEnabled = false;
-            StatChecked = _SettingsModel.StatOrBatch == "S";
-            BatchChecked = _SettingsModel.StatOrBatch == "B";
+            StatChecked = _settingModel.StatOrBatch == eDepartment.UDStat;
+            BatchChecked = _settingModel.StatOrBatch == eDepartment.UDBatch;
         }
 
         private bool CanStartConverterOrShowAdvancedSettings()

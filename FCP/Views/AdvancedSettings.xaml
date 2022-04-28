@@ -27,10 +27,6 @@
             <i:InvokeCommandAction Command="{Binding Page1}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    <Window.DataContext>
-        <vm:AdvancedSettingsViewModel/>
-    </Window.DataContext>
-    
     <Window.Resources>
         <ResourceDictionary>
             <RoutedCommand x:Key="Save"/>

@@ -10,10 +10,10 @@ namespace FCP.ViewModels.GetConvertFile
 {
     public class CompareFileStartWith
     {
-        public Dictionary<Parameter, eConvertLocation> DepartmentDictionary { get; set; }
-        private eConvertLocation _Department { get; set; }
+        public Dictionary<Parameter, eDepartment> DepartmentDictionary { get; set; }
+        private eDepartment _Department { get; set; }
 
-        public eConvertLocation GetDepartment()
+        public eDepartment GetDepartment()
         {
             return _Department;
         }

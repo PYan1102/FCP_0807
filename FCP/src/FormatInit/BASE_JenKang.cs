@@ -32,7 +32,7 @@ namespace FCP.src.FormatInit
         {
             string content = GetFileContent();
             if (content.Contains("新北護理之家"))
-                base.CurrentDepartment = eConvertLocation.UDBatch;
+                base.CurrentDepartment = eDepartment.UDBatch;
             base.SetConvertInformation();
             if (_JK == null)
                 _JK = new FMT_JenKang();

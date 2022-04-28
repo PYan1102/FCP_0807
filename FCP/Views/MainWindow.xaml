@@ -31,9 +31,6 @@
                                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"/>
         </i:DataTrigger>
     </i:Interaction.Triggers>
-    <Window.DataContext>
-        <vm:MainWindowViewModel/>
-    </Window.DataContext>
     <Window.Resources>
         <ResourceDictionary>
             <RoutedUICommand x:Key="OPD"/>

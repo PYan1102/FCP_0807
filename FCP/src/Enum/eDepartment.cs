@@ -1,6 +1,6 @@
 ﻿namespace FCP.src.Enum
 {
-    public enum eConvertLocation
+    public enum eDepartment
     {
         OPD,
         POWDER,

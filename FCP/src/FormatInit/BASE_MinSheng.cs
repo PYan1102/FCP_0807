@@ -35,7 +35,7 @@ namespace FCP.src.FormatInit
         {
             base.SetConvertInformation();
             string fileDate = Path.GetFileNameWithoutExtension(base.FilePath).Substring(1);
-            JsonService.JudgeJsonHasBeenCreated(fileDate);
+            JsonService.JudgeJsonFileIsAlreadyCreated(fileDate);
             if (_MS == null)
                 _MS = new FMT_MinSheng();
             _MS.Index = JsonService.GetOLEDBIndex(base.CurrentDepartment, fileDate);

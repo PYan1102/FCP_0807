@@ -20,7 +20,7 @@ namespace FCP.src.FormatInit
 
         public override void ConvertPrepare(bool isOPD)
         {
-            if (SettingsModel.Mode == eFormat.光田醫院OC)
+            if (SettingsModel.Format == eFormat.光田醫院OC)
             {
                 if (SettingsModel.DoseType == eDoseType.種包)
                 {
@@ -39,7 +39,7 @@ namespace FCP.src.FormatInit
                     MSSql.RunSQL(@"update PrintFormItem set DeletedYN=0 where RawID in (120156,120172)");
                 }
             }
-            else if (SettingsModel.Mode == eFormat.光田醫院JVS)  //磨粉
+            else if (SettingsModel.Format == eFormat.光田醫院JVS)  //磨粉
             {
                 base.ConvertPrepare(isOPD);
                 SetIntoProperty(isOPD);
@@ -67,20 +67,20 @@ namespace FCP.src.FormatInit
 
         public override UILayout SetUILayout(UILayout UI)
         {
-            UI.Title = SettingsModel.Mode == eFormat.光田醫院OC ? "光田醫院 > OnCube" : "光田醫院 > JVServer";
-            UI.IP1Title = SettingsModel.Mode == eFormat.光田醫院OC ? "門   診" : "輸入路徑1";
-            UI.IP2Title = SettingsModel.Mode == eFormat.光田醫院OC ? "輸入路徑2" : "磨粉";
-            UI.IP3Title = SettingsModel.Mode == eFormat.光田醫院OC ? "住   院" : "輸入路徑3";
-            UI.OPDToogle1 = SettingsModel.Mode == eFormat.光田醫院OC ? "門診" : "";
-            UI.OPDToogle2 = SettingsModel.Mode == eFormat.光田醫院OC ? "" : "磨粉";
+            UI.Title = SettingsModel.Format == eFormat.光田醫院OC ? "光田醫院 > OnCube" : "光田醫院 > JVServer";
+            UI.IP1Title = SettingsModel.Format == eFormat.光田醫院OC ? "門   診" : "輸入路徑1";
+            UI.IP2Title = SettingsModel.Format == eFormat.光田醫院OC ? "輸入路徑2" : "磨粉";
+            UI.IP3Title = SettingsModel.Format == eFormat.光田醫院OC ? "住   院" : "輸入路徑3";
+            UI.OPDToogle1 = SettingsModel.Format == eFormat.光田醫院OC ? "門診" : "";
+            UI.OPDToogle2 = SettingsModel.Format == eFormat.光田醫院OC ? "" : "磨粉";
             UI.OPDToogle3 = "";
             UI.OPDToogle4 = "";
-            UI.IP1Enabled = SettingsModel.Mode == eFormat.光田醫院OC;
-            UI.IP2Enabled = !(SettingsModel.Mode == eFormat.光田醫院OC);
-            UI.IP3Enabled = SettingsModel.Mode == eFormat.光田醫院OC;
-            UI.UDVisibility = SettingsModel.Mode == eFormat.光田醫院OC ? Visibility.Visible : Visibility.Hidden;
-            UI.OPD1Visibility = SettingsModel.Mode == eFormat.光田醫院OC ? Visibility.Visible : Visibility.Hidden;
-            UI.OPD2Visibility = SettingsModel.Mode == eFormat.光田醫院OC ? Visibility.Hidden : Visibility.Visible;
+            UI.IP1Enabled = SettingsModel.Format == eFormat.光田醫院OC;
+            UI.IP2Enabled = !(SettingsModel.Format == eFormat.光田醫院OC);
+            UI.IP3Enabled = SettingsModel.Format == eFormat.光田醫院OC;
+            UI.UDVisibility = SettingsModel.Format == eFormat.光田醫院OC ? Visibility.Visible : Visibility.Hidden;
+            UI.OPD1Visibility = SettingsModel.Format == eFormat.光田醫院OC ? Visibility.Visible : Visibility.Hidden;
+            UI.OPD2Visibility = SettingsModel.Format == eFormat.光田醫院OC ? Visibility.Hidden : Visibility.Visible;
             UI.OPD3Visibility = Visibility.Hidden;
             UI.OPD4Visibility = Visibility.Hidden;
             return UI;

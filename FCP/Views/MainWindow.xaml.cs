@@ -18,7 +18,7 @@ namespace FCP.Views
     public partial class MainWindow : Window
     {
         private FunctionCollections _Format { get; set; }
-        private SettingsModel _SettingsModel { get; set; }
+        private SettingModel _SettingsModel { get; set; }
         private MainWindowModel _MainWindowModel { get => MainWindowFactory.GenerateMainWindowModel(); }
         private Stopwatch _StopWatch = new Stopwatch();
         public string CurrentWindow { get; set; }
@@ -95,9 +95,9 @@ namespace FCP.Views
         {
             InitializeComponent();
             WindowOwner.MainWindowOwner = this;
-            SettingsFactory.GenerateSettingsControl();
+            SettingFactory.GenerateSetting();
             this.DataContext = MainWindowFactory.GenerateMainWindowViewModel();
-            _SettingsModel = SettingsFactory.GenerateSettingsModel();
+            _SettingsModel = SettingFactory.GenerateSettingModel();
             SimpleWindowFactory.GenerateSimpleWindow();
             var vm = this.DataContext as MainWindowViewModel;
             vm.ActivateWindow += ActivateWindow;

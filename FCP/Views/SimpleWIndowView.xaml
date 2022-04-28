@@ -36,9 +36,6 @@
             <i:InvokeCommandAction Command="{Binding Loaded}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    <Window.DataContext>
-        <vm:SimpleWindowViewModel/>
-    </Window.DataContext>
     <Window.Resources>
         <ResourceDictionary>
             <SolidColorBrush x:Key="ShallowBlue" Color="#7B97AB"/>

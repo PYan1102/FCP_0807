@@ -36,10 +36,10 @@ namespace FCP.src.FormatControl
             newCount = 0;
             _UDBatch.Clear();
             _OPD.Clear();
-            location = base.ConvertFileInformation.GetDepartment == eConvertLocation.OPD || base.ConvertFileInformation.GetDepartment == eConvertLocation.Care ? "門診" : "大寮";
-            if (base.ConvertFileInformation.GetDepartment == eConvertLocation.Care || base.ConvertFileInformation.GetDepartment == eConvertLocation.Other)
+            location = base.ConvertFileInformation.GetDepartment == eDepartment.OPD || base.ConvertFileInformation.GetDepartment == eDepartment.Care ? "門診" : "大寮";
+            if (base.ConvertFileInformation.GetDepartment == eDepartment.Care || base.ConvertFileInformation.GetDepartment == eDepartment.Other)
             {
-                base.ConvertFileInformation.SetDepartment(eConvertLocation.OPD);
+                base.ConvertFileInformation.SetDepartment(eDepartment.OPD);
             }
             return base.MethodShunt();
         }
@@ -180,7 +180,7 @@ namespace FCP.src.FormatControl
                 List<string> adminCodeList = new List<string>();
                 for (int i = 0; i <= count - 1; i++)
                 {
-                    if (SettingsModel.CrossDayAdminCode.Contains(_UDBatch[i].AdminCode))
+                    if (SettingModel.CrossDayAdminCode.Contains(_UDBatch[i].AdminCode))
                     {
                         DataDic[$"{i}_{_UDBatch[i].StartDay}"] = new List<string>() { nameof(eDoseType.種包) };
                         continue;

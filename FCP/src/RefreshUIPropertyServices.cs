@@ -10,7 +10,7 @@ namespace FCP.src
     static class RefreshUIPropertyServices
     {
         private static MainWindowViewModel _MainWindowVM { get => MainWindowFactory.GenerateMainWindowViewModel(); }
-        private static SettingsModel _SettingsModel { get => SettingsFactory.GenerateSettingsModel(); }
+        private static SettingModel _SettingsModel { get => SettingFactory.GenerateSettingModel(); }
         private static SimpleWindowViewModel _SimpleWindowVM { get => SimpleWindowFactory.GenerateSimpleWindowViewModel(); }
 
         public static void RefrehMainWindowUI(UILayout UI)
@@ -40,7 +40,7 @@ namespace FCP.src
             _MainWindowVM.InputPath3Enabled = b;
             _MainWindowVM.OutputPathEnabled = b;
             _MainWindowVM.StatEnabled = b;
-            _MainWindowVM.BatchEnabled = b;
+            _MainWindowVM.BatchEnabled = b; 
             _MainWindowVM.OPDEnabled = b;
             _MainWindowVM.UDEnabled = b;
             _MainWindowVM.StopEnabled = !b;

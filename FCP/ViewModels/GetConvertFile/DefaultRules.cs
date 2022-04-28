@@ -12,7 +12,7 @@ namespace FCP.ViewModels.GetConvertFile
         public string UDStat { set => _UDStat.Rule = value; }
         public string Care { set => _Care.Rule = value; }
         public string Other { set => _Other.Rule = value; }
-        private Dictionary<Parameter, eConvertLocation> _DepartmentDictionary = new Dictionary<Parameter, eConvertLocation>();
+        private Dictionary<Parameter, eDepartment> _DepartmentDictionary = new Dictionary<Parameter, eDepartment>();
         private Parameter _OPD { get; set; } = new Parameter();
         private Parameter _Powder { get; set; } = new Parameter();
         private Parameter _UDBatch { get; set; } = new Parameter();
@@ -22,15 +22,15 @@ namespace FCP.ViewModels.GetConvertFile
 
         public DefaultRules()
         {
-            _DepartmentDictionary.Add(_OPD, eConvertLocation.OPD);
-            _DepartmentDictionary.Add(_Powder, eConvertLocation.POWDER);
-            _DepartmentDictionary.Add(_UDBatch, eConvertLocation.UDBatch);
-            _DepartmentDictionary.Add(_UDStat, eConvertLocation.UDStat);
-            _DepartmentDictionary.Add(_Care, eConvertLocation.Care);
-            _DepartmentDictionary.Add(_Other, eConvertLocation.Other);
+            _DepartmentDictionary.Add(_OPD, eDepartment.OPD);
+            _DepartmentDictionary.Add(_Powder, eDepartment.POWDER);
+            _DepartmentDictionary.Add(_UDBatch, eDepartment.UDBatch);
+            _DepartmentDictionary.Add(_UDStat, eDepartment.UDStat);
+            _DepartmentDictionary.Add(_Care, eDepartment.Care);
+            _DepartmentDictionary.Add(_Other, eDepartment.Other);
         }
 
-        protected internal Dictionary<Parameter, eConvertLocation> GetDepartmentDictionary()
+        protected internal Dictionary<Parameter, eDepartment> GetDepartmentDictionary()
         {
             return _DepartmentDictionary;
         }

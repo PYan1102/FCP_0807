@@ -13,49 +13,50 @@ namespace FCP.src
 {
     class UIRefresh
     {
-        public CancellationTokenSource CTS { get; set; }
         public UILayout UILayout { get; set; }
-        private SimpleWindowViewModel _SimpleWindowVM;
-        private MainWindowViewModel _MainWindowVM;
-        private SettingsModel _SettingsModel;
+        private SimpleWindowViewModel _simpleWindowVM;
+        private MainWindowViewModel _mainWindowVM;
+        private SettingModel _settingsModel;
+        private CancellationTokenSource _cts;
         public UIRefresh()
         {
-            _SimpleWindowVM = SimpleWindowFactory.GenerateSimpleWindowViewModel();
-            _MainWindowVM = MainWindowFactory.GenerateMainWindowViewModel();
-            _SettingsModel = SettingsFactory.GenerateSettingsModel();
+            _simpleWindowVM = SimpleWindowFactory.GenerateSimpleWindowViewModel();
+            _mainWindowVM = MainWindowFactory.GenerateMainWindowViewModel();
+            _settingsModel = SettingFactory.GenerateSettingModel();
         }
         public async void StartAsync()
         {
-            while (!CTS.IsCancellationRequested)
+            _cts = new CancellationTokenSource();
+            while (!_cts.IsCancellationRequested)
             {
                 await Task.Delay(500);
                 try
                 {
-                    _SimpleWindowVM.SetWindowPosition(Properties.Settings.Default.X, Properties.Settings.Default.Y);
-                    if (!_MainWindowVM.StopEnabled)
+                    _simpleWindowVM.SetWindowPosition(Properties.Settings.Default.X, Properties.Settings.Default.Y);
+                    if (!_mainWindowVM.StopEnabled)
                     {
                         RefreshUIPropertyServices.RefrehMainWindowUI(UILayout);
-                        _MainWindowVM.DoseType = _SettingsModel.DoseType.ToString();
+                        _mainWindowVM.DoseType = _settingsModel.DoseType.ToString();
                     }
-                    _MainWindowVM.StatVisibility = _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
-                    _MainWindowVM.BatchVisibility = _SettingsModel.EN_StatOrBatch ? Visibility.Visible : Visibility.Hidden;
-                    _MainWindowVM.MinimumAndCloseVisibility = _SettingsModel.EN_ShowControlButton ? Visibility.Visible : Visibility.Hidden;
-                    _MainWindowVM.WindowXVisibility = _SettingsModel.EN_ShowXY ? Visibility.Visible : Visibility.Hidden;
-                    _MainWindowVM.WindowYVisibility = _SettingsModel.EN_ShowXY ? Visibility.Visible : Visibility.Hidden;
+                    _mainWindowVM.StatVisibility = _settingsModel.UseStatOrBatch ? Visibility.Visible : Visibility.Hidden;
+                    _mainWindowVM.BatchVisibility = _settingsModel.UseStatOrBatch ? Visibility.Visible : Visibility.Hidden;
+                    _mainWindowVM.MinimumAndCloseVisibility = _settingsModel.ShowWindowOperationButton ? Visibility.Visible : Visibility.Hidden;
+                    _mainWindowVM.WindowXVisibility = _settingsModel.ShowXYParameter ? Visibility.Visible : Visibility.Hidden;
+                    _mainWindowVM.WindowYVisibility = _settingsModel.ShowXYParameter ? Visibility.Visible : Visibility.Hidden;
                 }
                 catch (Exception ex)
                 {
-                    Message.Show(ex, "錯誤", PackIconKind.Error, KindColors.Error);
                     Log.Write(ex);
+                    Message.Show(ex, "錯誤", PackIconKind.Error, KindColors.Error);
                 }
             }
         }
 
         public void Stop()
         {
-            if (CTS != null)
+            if (_cts != null)
             {
-                CTS.Cancel();
+                _cts.Cancel();
             }
         }
     }

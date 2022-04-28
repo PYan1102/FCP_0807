@@ -4,31 +4,31 @@ namespace FCP.src.Factory.Models
 {
     static class ModelsFactory
     {
-        private static SettingsPage1Model _SettingsPage1Model;
-        private static SettingsPage2Model _SettingsPage2Model;
+        private static SettingPage1Model _settingsPage1Model;
+        private static SettingPage2Model _settingPage2Model;
 
-        public static SettingsPage1Model GenerateSettingsPage1Model()
+        public static SettingPage1Model GenerateSettingPage1Model()
         {
-            if (_SettingsPage1Model == null)
-                _SettingsPage1Model = new SettingsPage1Model();
-            return _SettingsPage1Model;
+            if (_settingsPage1Model == null)
+                _settingsPage1Model = new SettingPage1Model();
+            return _settingsPage1Model;
         }
 
-        public static SettingsPage2Model GenerateSettingsPage2Model()
+        public static SettingPage2Model GenerateSettingPage2Model()
         {
-            if (_SettingsPage2Model == null)
-                _SettingsPage2Model = new SettingsPage2Model();
-            return _SettingsPage2Model;
+            if (_settingPage2Model == null)
+                _settingPage2Model = new SettingPage2Model();
+            return _settingPage2Model;
         }
 
-        public static void SetSettingsPage1ModelNull()
+        public static void SetSettingPage1ModelNull()
         {
-            _SettingsPage1Model = null;
+            _settingsPage1Model = null;
         }
 
-        public static void SetSettingsPage2ModelNull()
+        public static void SetSettingPage2ModelNull()
         {
-            _SettingsPage2Model = null;
+            _settingPage2Model = null;
         }
     }
 }

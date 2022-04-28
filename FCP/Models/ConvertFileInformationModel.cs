@@ -9,12 +9,12 @@ namespace FCP.Models
         public string GetOutputPath { get => _OutputPath; }
         public string GetFilePath { get => _FilePath; }
         public string GetCurrentSeconds { get => _CurrentSeconds; }
-        public eConvertLocation GetDepartment { get => _Department; }
+        public eDepartment GetDepartment { get => _Department; }
         private string _InputPath { get; set; }
         private string _OutputPath { get; set; }
         private string _FilePath { get; set; }
         private string _CurrentSeconds { get; set; }
-        private eConvertLocation _Department { get; set; }
+        private eDepartment _Department { get; set; }
 
         public ConvertFileInformtaionModel SetInputPath(string outputPath)
         {
@@ -40,7 +40,7 @@ namespace FCP.Models
             return this;
         }
 
-        public ConvertFileInformtaionModel SetDepartment(eConvertLocation department)
+        public ConvertFileInformtaionModel SetDepartment(eDepartment department)
         {
             _Department = department;
             return this;

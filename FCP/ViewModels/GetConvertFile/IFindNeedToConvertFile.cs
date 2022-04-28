@@ -9,7 +9,7 @@ namespace FCP.ViewModels.GetConvertFile
     interface IFindNeedToConvertFile
     {
         void Reset(CancellationTokenSource cts, List<string> list);
-        void SetDepartmentDictionary(Dictionary<Parameter, eConvertLocation> department);
+        void SetDepartmentDictionary(Dictionary<Parameter, eDepartment> department);
         Task<FileInformation> GetFilePathTaskAsync();
     }
 }

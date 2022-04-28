@@ -37,9 +37,6 @@
                                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    <Window.DataContext>
-        <vm:MsgBViewModel/>
-    </Window.DataContext>
     <Window.Resources>
         <ResourceDictionary>
             <RoutedCommand x:Key="Close" />

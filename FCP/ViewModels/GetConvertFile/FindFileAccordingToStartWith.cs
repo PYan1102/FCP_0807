@@ -12,12 +12,12 @@ namespace FCP.ViewModels.GetConvertFile
     public class FindFileAccordingToStartWith : CompareFileStartWith, IFindNeedToConvertFile
     {
         private CancellationTokenSource _CTS { get; set; }
-        private SettingsModel _SettingsModel { get; set; }
+        private SettingModel _SettingsModel { get; set; }
         private List<string> _InputPathList { get; set; }
 
         public FindFileAccordingToStartWith()
         {
-            _SettingsModel = SettingsFactory.GenerateSettingsModel();
+            _SettingsModel = SettingFactory.GenerateSettingModel();
         }
 
         public void Reset(CancellationTokenSource cts, List<string> list)
@@ -26,7 +26,7 @@ namespace FCP.ViewModels.GetConvertFile
             _InputPathList = list;
         }
 
-        public void SetDepartmentDictionary(Dictionary<Parameter, eConvertLocation> department)
+        public void SetDepartmentDictionary(Dictionary<Parameter, eDepartment> department)
         {
             DepartmentDictionary = department;
         }
