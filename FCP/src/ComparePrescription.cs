@@ -6,6 +6,7 @@ using FCP.src.FormatControl;
 using System.IO;
 using System.Xml;
 using System.Text;
+using FCP.Models;
 
 namespace FCP.src
 {
@@ -17,18 +18,17 @@ namespace FCP.src
             Log.Write("Washington got repeat prescriptions");
             _OPD.Clear();
             string fileName = Path.GetFileNameWithoutExtension(filePath).Substring(0, Path.GetFileNameWithoutExtension(filePath).Length - 1);
-            MSSql.SqlInfo = "server=.;database=oncube;user id=sa;password=jvm5822511";
-            int count = MSSql.RunSQL_FirstInt($@"SELECT
-	                                                 COUNT(*) AS Count
-                                                 ,	D.PrescriptionItemValue
-                                                 FROM PrescriptionItem A
-                                                 LEFT OUTER JOIN Prescription B ON B.RawID=A.PrescriptionID
-                                                 LEFT OUTER JOIN Patient C ON C.RawID=B.PatientID AND C.PatientName LIKE N'%{basic.PatientName}%'
-                                                 LEFT OUTER JOIN PrescriptionItemDetail D ON A.RawID=D.PrescriptionItemID AND D.OCSFormatItemID=66
-                                                 --WHERE B.DeletedYN=0 AND B.LastUpdatedDate BETWEEN '{DateTime.Now:yyyy-MM-dd}' AND '{DateTime.Now.AddDays(1):yyyy-MM-dd}'
-                                                 WHERE B.DeletedYN=0 AND B.LastUpdatedDate BETWEEN '2021-11-25' AND '2021-11-26'
-                                                 AND D.PrescriptionItemValue LIKE '%{fileName}%'
-                                                 GROUP BY D.PrescriptionItemValue");
+            int count = CommonModel.SqlHelper.Query_FirstInt($@"SELECT
+	                                                                 COUNT(*) AS Count
+                                                                 ,	D.PrescriptionItemValue
+                                                                 FROM PrescriptionItem A
+                                                                 LEFT OUTER JOIN Prescription B ON B.RawID=A.PrescriptionID
+                                                                 LEFT OUTER JOIN Patient C ON C.RawID=B.PatientID AND C.PatientName LIKE N'%{basic.PatientName}%'
+                                                                 LEFT OUTER JOIN PrescriptionItemDetail D ON A.RawID=D.PrescriptionItemID AND D.OCSFormatItemID=66
+                                                                 --WHERE B.DeletedYN=0 AND B.LastUpdatedDate BETWEEN '{DateTime.Now:yyyy-MM-dd}' AND '{DateTime.Now.AddDays(1):yyyy-MM-dd}'
+                                                                 WHERE B.DeletedYN=0 AND B.LastUpdatedDate BETWEEN '2021-11-25' AND '2021-11-26'
+                                                                 AND D.PrescriptionItemValue LIKE '%{fileName}%'
+                                                                 GROUP BY D.PrescriptionItemValue");
             Log.Write($"FileName:{fileName}, SearchStartDate:{DateTime.Now:yyyy-MM-dd}, SearchEndDate:{DateTime.Now.AddDays(1):yyyy-MM-dd}, SqlCount:{count}");
             if (count == 0)
                 return false;
@@ -40,8 +40,8 @@ namespace FCP.src
             {
                 Add(_OPD, v, patientName, startDate);
             }
-            List<string> files = Directory.GetFiles($@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\Success", $"*{fileName}*").ToList();
-            Log.Write($"Converter_Backup file count is {files.Count}");
+            List<string> files = Directory.GetFiles($@"{CommonModel.FileBackupRootDirectory}\{DateTime.Now:yyyy-MM-dd}\Success", $"*{fileName}*").ToList();
+            Log.Write($"{CommonModel.FileBackupRootDirectory} file count is {files.Count}");
             foreach (var file in files)
             {
                 XMLHelper.Load(file);

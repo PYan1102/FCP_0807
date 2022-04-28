@@ -110,8 +110,8 @@ namespace FCP.src.FormatControl
         public override bool LogicOPD()
         {
             string[] split = Path.GetFileNameWithoutExtension(FilePath).Split('-');
-            List<string> repeatPatientList = MSSql.RunSQL_List($@"SELECT
-	                                                    E.JobName
+            List<string> repeatPatientList = CommonModel.SqlHelper.Query_List($@"SELECT
+                                                     E.JobName
                                                    ,    C.PrescriptionItemValue
                                                    ,	D.PrescriptionItemValue
                                                    FROM Prescription A

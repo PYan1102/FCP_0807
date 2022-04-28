@@ -3,7 +3,7 @@ using FCP.src.FormatControl;
 
 namespace FCP.src.FormatInit
 {
-    class BASE_ChuangSheng : FunctionCollections
+    class BASE_ChuangSheng : FormatBase
     {
         private FMT_ChuangSheng _CS { get; set; }
 
@@ -11,7 +11,7 @@ namespace FCP.src.FormatInit
         {
             base.Init();
             MainWindowVM.OPDToogle1Checked = true;
-            InitFindFileMode(eFindFileMode.根據檔名開頭);
+            InitFindFileMode(eFileSearchMode.根據檔名開頭);
         }
 
         public override void ConvertPrepare(bool isOPD)
@@ -19,12 +19,12 @@ namespace FCP.src.FormatInit
             base.ConvertPrepare(isOPD);
             SetIntoProperty(isOPD);
             FindFile.SetOPDDefault();
-            GetFileAsync();
+            Start();
         }
 
-        public override void SetConvertInformation()
+        public override void Converter()
         {
-            base.SetConvertInformation();
+            base.Converter();
             if (_CS == null)
                 _CS = new FMT_ChuangSheng();
             var result = _CS.MethodShunt();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using FCP.Models;
 
 namespace FCP
 {
@@ -59,7 +60,7 @@ namespace FCP
         {
             foreach (string file in files)
             {
-                string destFileName = $@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\Batch\{Path.GetFileNameWithoutExtension(file)}_{DateTime.Now:ss_fff}.txt";
+                string destFileName = $@"{CommonModel.FileBackupRootDirectory}\{DateTime.Now:yyyy-MM-dd}\Batch\{Path.GetFileNameWithoutExtension(file)}_{DateTime.Now:ss_fff}.txt";
                 File.Move($@"{_inputPath}\{file}", destFileName);
             }
         }
@@ -75,8 +76,8 @@ namespace FCP
 
         private void CheckTempDirectory()
         {
-            if (!Directory.Exists($@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\Temp"))
-                Directory.CreateDirectory($@"D:\Converter_Backup\{DateTime.Now:yyyy-MM-dd}\Temp");
+            if (!Directory.Exists($@"{CommonModel.FileBackupRootDirectory}\{DateTime.Now:yyyy-MM-dd}\Temp"))
+                Directory.CreateDirectory($@"{CommonModel.FileBackupRootDirectory}\{DateTime.Now:yyyy-MM-dd}\Temp");
         }
     }
 }

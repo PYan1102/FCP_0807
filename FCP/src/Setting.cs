@@ -48,6 +48,7 @@ namespace FCP.Service
             _settingModel.InputPath1 = $"{jObject[nameof(_settingModel.InputPath1)]}";
             _settingModel.InputPath2 = $"{jObject[nameof(_settingModel.InputPath2)]}";
             _settingModel.InputPath3 = $"{jObject[nameof(_settingModel.InputPath3)]}";
+            _settingModel.InputPath4 = $"{jObject[nameof(_settingModel.InputPath4)]}";
             _settingModel.OutputPath = $"{jObject[nameof(_settingModel.OutputPath)]}";
             _settingModel.FileExtensionName = $"{jObject[nameof(_settingModel.FileExtensionName)]}";
             _settingModel.AutoStart = bool.Parse($"{jObject[nameof(_settingModel.AutoStart)]}");

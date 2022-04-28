@@ -6,10 +6,10 @@ namespace FCP.src.Factory
 {
     static class FormatFactory
     {
-        private static FunctionCollections _format { get; set; }
+        private static FormatBase _format { get; set; }
         private static eFormat _currentFormat { get; set; }
 
-        public static FunctionCollections GenerateFormat(eFormat format)
+        public static FormatBase GenerateFormat(eFormat format)
         {
             if (_currentFormat != format)
             {
@@ -21,7 +21,7 @@ namespace FCP.src.Factory
             return _format;
         }
 
-        private static FunctionCollections GetFormat(eFormat format)
+        private static FormatBase GetFormat(eFormat format)
         {
             switch(format)
             {

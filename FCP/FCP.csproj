@@ -70,6 +70,10 @@
     <Reference Include="PropertyChanged, Version=3.4.0.0, Culture=neutral, PublicKeyToken=ee3ee20bcf148ddd, processorArchitecture=MSIL">
       <HintPath>..\packages\PropertyChanged.Fody.3.4.0\lib\net40\PropertyChanged.dll</HintPath>
     </Reference>
+    <Reference Include="SqlHelper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Helper\SqlHelper\bin\Debug\SqlHelper.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -94,14 +98,16 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Models\CommonModel.cs" />
+    <Compile Include="Service\FileSearchService.cs" />
+    <Compile Include="src\InputDirectoryMatch.cs" />
     <Compile Include="Views\AdvancedSettings.xaml.cs">
       <DependentUpon>AdvancedSettings.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\WindowOwner.cs" />
     <Compile Include="src\ComparePrescription.cs" />
-    <Compile Include="src\Factory\ViewModel\AdvancedSettingsFactory.cs" />
+    <Compile Include="src\Factory\ViewModel\AdvancedSettingFactory.cs" />
     <Compile Include="src\Factory\Models\ModelsFactory.cs" />
-    <Compile Include="src\Factory\ViewModel\MsgBFactory.cs" />
+    <Compile Include="src\Factory\ViewModel\MsgFactory.cs" />
     <Compile Include="src\Factory\ViewModel\SimpleWindowFactory.cs" />
     <Compile Include="src\FormatControl\FMT_ChengYu.cs" />
     <Compile Include="src\FormatControl\FMT_Washinton.cs" />
@@ -111,7 +117,6 @@
     <Compile Include="src\FormatInit\BASE_Washinton.cs" />
     <Compile Include="src\FormatInit\BASE_LittleBear.cs" />
     <Compile Include="src\FormatInit\BASE_OnCube.cs" />
-    <Compile Include="src\Factory\ConvertInfoactory.cs" />
     <Compile Include="src\FormatInit\BASE_ChuangSheng.cs" />
     <Compile Include="src\FormatInit\BASE_FangDing.cs" />
     <Compile Include="Core\RelayCommand.cs" />
@@ -122,7 +127,7 @@
     <Compile Include="src\FormatControl\FMT_FangDing.cs" />
     <Compile Include="src\FormatControl\FMT_JenKang.cs" />
     <Compile Include="src\FormatCollection.cs" />
-    <Compile Include="src\FunctionCollections.cs" />
+    <Compile Include="src\FormatBase.cs" />
     <Compile Include="src\FormatInit\BASE_HongYen.cs" />
     <Compile Include="src\FormatControl\FMT_ChuangSheng.cs" />
     <Compile Include="src\FormatControl\FMT_E-DA.cs" />
@@ -136,36 +141,28 @@
     <Compile Include="src\FormatInit\BASE_JVServer.cs" />
     <Compile Include="MergeFiles.cs" />
     <Compile Include="Models\AdvancedSettingsModel.cs" />
-    <Compile Include="Models\ConvertFileInformationModel.cs" />
+    <Compile Include="Models\FileInfoModel.cs" />
     <Compile Include="src\Enum\eConvertResult.cs" />
     <Compile Include="src\Enum\eDepartment.cs" />
-    <Compile Include="src\Enum\eFindFileMode.cs" />
+    <Compile Include="src\Enum\eFileSearchMode.cs" />
     <Compile Include="src\Enum\eFormat.cs" />
     <Compile Include="src\Enum\ePackMode.cs" />
     <Compile Include="src\Enum\eDoseType.cs" />
-    <Compile Include="Models\MsgBModel.cs" />
+    <Compile Include="Models\MsgModel.cs" />
     <Compile Include="Models\ReturnsResultFormat.cs" />
     <Compile Include="Models\MainWindowModel.cs" />
     <Compile Include="Models\SettingModel.cs" />
     <Compile Include="Models\SettingsPage1Model.cs" />
     <Compile Include="Models\SettingsPage2Model.cs" />
     <Compile Include="Models\SimpleWindowModel.cs" />
-    <Compile Include="src\Factory\Models\SettingsFactory.cs" />
-    <Compile Include="src\Message.cs" />
+    <Compile Include="src\Factory\Models\SettingFactory.cs" />
+    <Compile Include="src\MsgCollection.cs" />
     <Compile Include="ViewModels\AdvancedSettingsViewModel.cs" />
-    <Compile Include="ViewModels\GetConvertFile\CompareFileStartWith.cs" />
-    <Compile Include="ViewModels\GetConvertFile\DefaultRules.cs" />
-    <Compile Include="ViewModels\GetConvertFile\FindFile.cs" />
-    <Compile Include="ViewModels\GetConvertFile\FindFileAccordingToFileContent.cs" />
-    <Compile Include="ViewModels\GetConvertFile\FindFileAccordingToInputPath.cs" />
-    <Compile Include="ViewModels\GetConvertFile\FindFileAccordingToStartWith.cs" />
-    <Compile Include="ViewModels\GetConvertFile\IFindFile.cs" />
-    <Compile Include="ViewModels\GetConvertFile\IFindNeedToConvertFile.cs" />
     <Compile Include="ViewModels\Interface\IRetunrsResult.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="src\RefreshUIPropertyServices.cs" />
     <Compile Include="ViewModels\SettingsPage1ViewModel.cs" />
-    <Compile Include="ViewModels\MsgBViewModel.cs" />
+    <Compile Include="ViewModels\MsgViewModel.cs" />
     <Compile Include="src\ReturnsResult.cs" />
     <Compile Include="ViewModels\SettingsPage2ViewModel.cs" />
     <Compile Include="ViewModels\SimpleWindowViewModel.cs" />
@@ -179,8 +176,8 @@
     <Compile Include="OP_JVServer.cs" />
     <Compile Include="src\FormatInit\BASE_KuangTien.cs" />
     <Compile Include="src\FormatInit\BASE_MinSheng.cs" />
-    <Compile Include="Views\MsgB.xaml.cs">
-      <DependentUpon>MsgB.xaml</DependentUpon>
+    <Compile Include="Views\Msg.xaml.cs">
+      <DependentUpon>Msg.xaml</DependentUpon>
     </Compile>
     <Compile Include="src\SQL\OLEDB.cs" />
     <Compile Include="OP_OnCube.cs" />
@@ -207,7 +204,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Views\MsgB.xaml">
+    <Page Include="Views\Msg.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -267,6 +264,9 @@
     <Content Include="lib\Helper.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="lib\Helper.pdb" />
+    <Content Include="lib\SqlHelper.dll" />
+    <Content Include="lib\SqlHelper.pdb" />
     <Content Include="OLEDB_Index.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

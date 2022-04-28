@@ -9,10 +9,8 @@ namespace FCP.src
     class ReturnsResult : IRetunrsResult
     {
         private ReturnsResultFormat _ReturnsResultFormat { get; set; }
-        private ConvertFileInformtaionModel _ConvertFileInformation { get; set; }
         public ReturnsResult()
         {
-            _ConvertFileInformation = ConvertInfoactory.GenerateConvertFileInformation();
         }
 
         public void Shunt(eConvertResult result, string message)
@@ -51,9 +49,9 @@ namespace FCP.src
         public void ReadFileFail(string exception = null)
         {
             if (exception != null)
-                _ReturnsResultFormat.Message = $"{_ConvertFileInformation.GetFilePath} 讀取處方籤時發生問題 {exception}";
+                _ReturnsResultFormat.Message = $"{FileInfoModel.SourceFilePath} 讀取處方籤時發生問題 {exception}";
             else
-                _ReturnsResultFormat.Message = $"{_ConvertFileInformation.GetFilePath} 讀取處方籤時發生問題";
+                _ReturnsResultFormat.Message = $"{FileInfoModel.SourceFilePath} 讀取處方籤時發生問題";
             _ReturnsResultFormat.Result = eConvertResult.讀取檔案失敗;
         }
 
@@ -65,7 +63,7 @@ namespace FCP.src
 
         public void NoMultiAdminCode(string adminCode)
         {
-            _ReturnsResultFormat.Message = $"{_ConvertFileInformation.GetFilePath} 在OnCube中未建置此餐包頻率 {adminCode} 的頻率";
+            _ReturnsResultFormat.Message = $"{FileInfoModel.SourceFilePath} 在OnCube中未建置此餐包頻率 {adminCode} 的頻率";
             _ReturnsResultFormat.Result = eConvertResult.沒有餐包頻率;
         }
 
@@ -77,22 +75,22 @@ namespace FCP.src
 
         public void NoCombiAdminCode(string adminCode)
         {
-            _ReturnsResultFormat.Message = $"{_ConvertFileInformation.GetFilePath} 在OnCube中未建置此種包頻率 S{adminCode} 的頻率";
+            _ReturnsResultFormat.Message = $"{FileInfoModel.SourceFilePath} 在OnCube中未建置此種包頻率 S{adminCode} 的頻率";
             _ReturnsResultFormat.Result = eConvertResult.沒有種包頻率;
         }
 
         public void GenerateOCSFileFail(string exception = null)
         {
-            _ReturnsResultFormat.Message = $"{_ConvertFileInformation.GetFilePath} 產生OCS時發生問題";
+            _ReturnsResultFormat.Message = $"{FileInfoModel.SourceFilePath} 產生OCS時發生問題";
             _ReturnsResultFormat.Result = eConvertResult.產生OCS失敗;
         }
 
         public void ProcessFileFail(string exception = null)
         {
             if (exception != null)
-                _ReturnsResultFormat.Message = $"{_ConvertFileInformation.GetFilePath} 處理邏輯時發生問題 {exception}";
+                _ReturnsResultFormat.Message = $"{FileInfoModel.SourceFilePath} 處理邏輯時發生問題 {exception}";
             else
-                _ReturnsResultFormat.Message = $"{_ConvertFileInformation.GetFilePath} 處理邏輯時發生問題";
+                _ReturnsResultFormat.Message = $"{FileInfoModel.SourceFilePath} 處理邏輯時發生問題";
             _ReturnsResultFormat.Result = eConvertResult.處理邏輯失敗;
         }
     }

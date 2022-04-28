@@ -5,7 +5,7 @@ using MaterialDesignThemes.Wpf;
 
 namespace FCP.Models
 {
-    class MsgBModel
+    class MsgModel
     {
         public string Content { get; set; }
         public string Title { get; set; }

@@ -4,7 +4,7 @@ using System;
 
 namespace FCP.src.Factory.ViewModel
 {
-    static class AdvancedSettingsFactory
+    static class AdvancedSettingFactory
     {
         private static AdvancedSettingsViewModel _AdvancedSettingsVM { get; set; }
         private static SettingsPage1ViewModel _SettingsPage1VM { get; set; }

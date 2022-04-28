@@ -47,8 +47,8 @@ namespace FCP.ViewModels
             Cancel = new RelayCommand(() => CancelFuncAsync());
             Close = new RelayCommand(() => CloseWindow());
 
-            _settingPage1VM = AdvancedSettingsFactory.GenerateSettingsPage1ViewModel();
-            _settingPage2VM = AdvancedSettingsFactory.GenerateSettingsPage2ViewModel();
+            _settingPage1VM = AdvancedSettingFactory.GenerateSettingsPage1ViewModel();
+            _settingPage2VM = AdvancedSettingFactory.GenerateSettingsPage2ViewModel();
         }
 
         public object CurrentView
@@ -92,7 +92,7 @@ namespace FCP.ViewModels
             Page1Foreground = White;
             Page2Backround = White;
             Page2Foreground = _blue;
-            AdvancedSettingsFactory.ClearSettingsPageViewModel();
+            AdvancedSettingFactory.ClearSettingsPageViewModel();
             CurrentView = _settingPage1VM;
         }
 
@@ -102,7 +102,7 @@ namespace FCP.ViewModels
             Page1Foreground = _blue;
             Page2Backround = _yellow;
             Page2Foreground = White;
-            AdvancedSettingsFactory.ClearSettingsPageViewModel();
+            AdvancedSettingFactory.ClearSettingsPageViewModel();
             CurrentView = _settingPage2VM;
         }
 
@@ -143,12 +143,12 @@ namespace FCP.ViewModels
                 {
                     MainWindowFactory.GenerateMainWindowViewModel().GenerateCurrentFormat();
                 }
-                Message.Show("儲存完成", "成功", PackIconKind.Information, KindColors.Information);
+                MsgCollection.Show("儲存完成", "成功", PackIconKind.Information, KindColors.Information);
             }
             catch (Exception ex)
             {
                 Log.Write(ex);
-                Message.Show(ex.ToString(), "錯誤", PackIconKind.Error, KindColors.Error);
+                MsgCollection.Show(ex.ToString(), "錯誤", PackIconKind.Error, KindColors.Error);
             }
         }
 
@@ -158,9 +158,9 @@ namespace FCP.ViewModels
             {
                 return;
             }
-            AdvancedSettingsFactory.ClearSettingsPageViewModel();
-            _settingPage1VM = AdvancedSettingsFactory.GenerateSettingsPage1ViewModel();
-            _settingPage2VM = AdvancedSettingsFactory.GenerateSettingsPage2ViewModel();
+            AdvancedSettingFactory.ClearSettingsPageViewModel();
+            _settingPage1VM = AdvancedSettingFactory.GenerateSettingsPage1ViewModel();
+            _settingPage2VM = AdvancedSettingFactory.GenerateSettingsPage2ViewModel();
             Page2Func();
             await System.Threading.Tasks.Task.Delay(1);
             Page1Func();

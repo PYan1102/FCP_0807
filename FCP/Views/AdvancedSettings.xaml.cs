@@ -18,7 +18,7 @@ namespace FCP.Views
         {
             InitializeComponent();
             this.Owner = WindowOwner.MainWindowOwner;
-            this.DataContext = AdvancedSettingsFactory.GenerateAdvancedSettingsViewModel();
+            this.DataContext = AdvancedSettingFactory.GenerateAdvancedSettingsViewModel();
             var vm = this.DataContext as AdvancedSettingsViewModel;
             vm.CloseWindow += CloseWindow;
         }

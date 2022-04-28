@@ -356,68 +356,6 @@
                                         </Border>
                                     </Grid>
                                 </Border>
-                                <Border Grid.Row="3"
-                                        Grid.RowSpan="2"
-                                        CornerRadius="8 8 8 8"
-                                        Background="White"
-                                        Width="120"
-                                        HorizontalAlignment="Left"
-                                        Margin="0 5 0 5">
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="*"/>
-                                            <RowDefinition Height="1.2*"/>
-                                        </Grid.RowDefinitions>
-                                        <TextBlock FontSize="30"
-                                                   Foreground="{StaticResource DeepBlue}"
-                                                   Text="成 功"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"/>
-                                        <Border Grid.Row="1"
-                                                CornerRadius="0 0 6 6"
-                                                Background="{StaticResource DeepBlue}"
-                                                HorizontalAlignment="Stretch"
-                                                Margin="3 0 3 3">
-                                            <TextBlock x:Name="Txtb_Success"
-                                                       FontSize="30"
-                                                       Foreground="White"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       Text="{Binding SuccessCount}"/>
-                                        </Border>
-                                    </Grid>
-                                </Border>
-                                <Border Grid.Row="3"
-                                        Grid.RowSpan="2"
-                                        CornerRadius="8 8 8 8"
-                                        Background="White"
-                                        Width="120"
-                                        HorizontalAlignment="Left"
-                                        Margin="130 5 0 5">
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="*"/>
-                                            <RowDefinition Height="1.2*"/>
-                                        </Grid.RowDefinitions>
-                                        <TextBlock FontSize="30"
-                                                   Foreground="{StaticResource DeepBlue}"
-                                                   Text="失 敗"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"/>
-                                        <Border Grid.Row="1"
-                                                CornerRadius="0 0 6 6"
-                                                Background="{StaticResource DeepBlue}"
-                                                Margin="3 0 3 3"
-                                                HorizontalAlignment="Stretch">
-                                            <TextBlock x:Name="Txtb_Fail"
-                                                       FontSize="30"
-                                                       Foreground="White"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       Text="{Binding FailCount}"/>
-                                        </Border>
-                                    </Grid>
-                                </Border>
                                 <Border x:Name="Bod_X"
                                         Grid.Row="5"
                                         Grid.RowSpan="2"

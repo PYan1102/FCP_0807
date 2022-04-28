@@ -1,14 +1,13 @@
 ﻿using System.Text;
 using System.IO;
 using FCP.src.Enum;
-using FCP.ViewModels.GetConvertFile;
 using FCP.src.FormatControl;
 using System.Windows;
 using System;
 
 namespace FCP.src.FormatInit
 {
-    class BASE_JenKang : FunctionCollections
+    class BASE_JenKang : FormatBase
     {
         private FMT_JenKang _JK { get; set; }
 
@@ -16,7 +15,7 @@ namespace FCP.src.FormatInit
         {
             base.Init();
             MainWindowVM.OPDToogle1Checked = true;
-            InitFindFileMode(eFindFileMode.根據檔名開頭);
+            InitFindFileMode(eFileSearchMode.根據檔名開頭);
         }
 
         public override void ConvertPrepare(bool isOPD)
@@ -25,15 +24,15 @@ namespace FCP.src.FormatInit
             SetOPDRule("A");
             SetIntoProperty(isOPD);
             FindFile.SetUDBatch("UD");
-            GetFileAsync();
+            Start();
         }
 
-        public override void SetConvertInformation()
+        public override void Converter()
         {
             string content = GetFileContent();
             if (content.Contains("新北護理之家"))
-                base.CurrentDepartment = eDepartment.UDBatch;
-            base.SetConvertInformation();
+                base.CurrentDepartment = eDepartment.Batch;
+            base.Converter();
             if (_JK == null)
                 _JK = new FMT_JenKang();
             var result = _JK.MethodShunt();
@@ -43,7 +42,7 @@ namespace FCP.src.FormatInit
         private string GetFileContent()
         {
             StringBuilder sb = new StringBuilder();
-            using (StreamReader sr = new StreamReader(FilePath, Encoding.Default))
+            using (StreamReader sr = new StreamReader(SourceFilePath, Encoding.Default))
             {
                 sb.Append(sr.ReadToEnd());
             }

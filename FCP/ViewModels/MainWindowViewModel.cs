@@ -24,8 +24,6 @@ namespace FCP.ViewModels
     class MainWindowViewModel : ViewModelBase
     {
         public bool IsOPD { get; set; }
-        public string SuccessPath { get; set; }
-        public string FailPath { get; set; }
         public ICommand ShowAdvancedSettings { get; set; }
         public ICommand OPD { get; set; }
         public ICommand UD { get; set; }
@@ -42,17 +40,17 @@ namespace FCP.ViewModels
         public ICommand OpenLog { get; set; }
         public ICommand ClearProgressBoxContent { get; set; }
         public Action ActivateWindow { get; set; }
-        private FunctionCollections _format { get; set; }
+        private FormatBase _formatBase { get; set; }
         private SettingModel _settingModel { get; set; }
         private Setting _setting { get; set; }
-        private MsgBViewModel _msgBVM { get; set; }
+        private MsgViewModel _msgVM { get; set; }
         private MainWindowModel _model;
 
         public MainWindowViewModel()
         {
             _settingModel = SettingFactory.GenerateSettingModel();
             _setting = SettingFactory.GenerateSetting();
-            _msgBVM = MsgBFactory.GenerateMsgBViewModel();
+            _msgVM = MsgFactory.GenerateMsgViewModel();
             ShowAdvancedSettings = new RelayCommand(ShowAdvancedSettingsFunc, CanStartConverterOrShowAdvancedSettings);
             _model = new MainWindowModel();
             Loaded = new RelayCommand(() => LoadedFuncAsync());
@@ -82,11 +80,11 @@ namespace FCP.ViewModels
         {
             try
             {
-                Process.Start($@"{Environment.CurrentDirectory}\Log\{DateTime.Now:yyyy-MM-dd}\Error_Log.txt");
+                Process.Start($@"{Environment.CurrentDirectory}\Log\{DateTime.Now:yyyy-MM-dd}\Log.txt");
             }
-            catch (Exception a)
+            catch
             {
-                FCP.src.Message.Show(a.ToString(), "錯誤", PackIconKind.Error, KindColors.Error);
+                MsgCollection.Show("目前尚未產生Log檔", "錯誤", PackIconKind.Error, KindColors.Error);
             }
         }
 
@@ -135,6 +133,13 @@ namespace FCP.ViewModels
         {
             get => _model.InputPath3;
             set => _model.InputPath3 = value;
+        }
+
+
+        public string InputPath4
+        {
+            get => _model.InputPath4;
+            set => _model.InputPath4 = value;
         }
 
         public bool InputPath1Enabled
@@ -361,18 +366,6 @@ namespace FCP.ViewModels
             set => _model.DoseType = value;
         }
 
-        public string SuccessCount
-        {
-            get => _model.SuccessCount;
-            set => _model.SuccessCount = value;
-        }
-
-        public string FailCount
-        {
-            get => _model.FailCount;
-            set => _model.FailCount = value;
-        }
-
         public string WindowX
         {
             get => _model.WindowX;
@@ -444,26 +437,27 @@ namespace FCP.ViewModels
             get => _model.ProgressBoxContent;
             set => _model.ProgressBoxContent = value;
         }
+
         public void OPDFunc()
         {
             if ((_model.OPDToogle1Checked | _model.OPDToogle2Checked | _model.OPDToogle3Checked | _model.OPDToogle4Checked) == false)
             {
-                FCP.src.Message.Show("沒有勾選任一個轉檔位置", "位置未勾選", PackIconKind.Error, KindColors.Error);
+                MsgCollection.Show("沒有勾選任一個模式", "模式未勾選", PackIconKind.Error, KindColors.Error);
                 return;
             }
             IsOPD = true;
-            _format.ConvertPrepare(IsOPD);
+            _formatBase.ConvertPrepare(IsOPD);
         }
 
         public void UDFunc()
         {
             IsOPD = false;
-            _format.ConvertPrepare(IsOPD);
+            _formatBase.ConvertPrepare(IsOPD);
         }
 
         public void StopFunc()
         {
-            _format.Stop();
+            _formatBase.Stop();
             RefreshUIPropertyServices.SwitchMainWindowControlState(true);
             RefreshUIPropertyServices.SwitchUIStateForStop();
         }
@@ -477,8 +471,9 @@ namespace FCP.ViewModels
             model.InputPath1 = InputPath1;
             model.InputPath2 = InputPath2;
             model.InputPath3 = InputPath3;
+            model.InputPath4 = InputPath4;
             model.OutputPath = OutputPath;
-            model.StatOrBatch= StatChecked ? eDepartment.UDStat : eDepartment.UDBatch;
+            model.StatOrBatch= StatChecked ? eDepartment.Stat : eDepartment.Batch;
             model.AutoStart = IsAutoStartChecked;
             _setting.Save(model);
             AddLog("儲存成功");
@@ -517,19 +512,18 @@ namespace FCP.ViewModels
 
         public void GenerateCurrentFormat()
         {
-            _format = FormatFactory.GenerateFormat(_settingModel.Format);
-            _format.Init();
+            _formatBase = FormatFactory.GenerateFormat(_settingModel.Format);
+            _formatBase.Init();
         }
 
         private async void LoadedFuncAsync()
         {
             Log.Path = $@"{Environment.CurrentDirectory}\Log";
-            CheckProgramStart();
-            CheckFileBackupPath();
+            CheckProgramIsAlreadyOpen();
             RefreshUIPropertyServices.SwitchMainWindowControlState(true);
             NotifyIconHelper.Init(Properties.Resources.FCP, "轉檔");
             NotifyIconHelper.DoubleClickAction += NotifyIconDBClick;
-            FunctionCollections.NotifyIcon = NotifyIconHelper.NotifyIcon;
+            FormatBase.NotifyIcon = NotifyIconHelper.NotifyIcon;
             GenerateCurrentFormat();
             Init();
             if (IsAutoStartChecked)
@@ -540,30 +534,20 @@ namespace FCP.ViewModels
         }
 
         //檢查程式是否已開啟
-        private void CheckProgramStart()
+        private void CheckProgramIsAlreadyOpen()
         {
-            if (Process.GetProcessesByName("FCP").Length >= 2)
+            if (Process.GetProcessesByName("FCP").Length > 1)
             {
-                FCP.src.Message.Show("程式已開啟，請確認工具列", "重複開啟", PackIconKind.Error, KindColors.Error);
                 Log.Write("程式已開啟，請確認工具列");
+                MsgCollection.Show("程式已開啟，請確認工具列", "重複開啟", PackIconKind.Error, KindColors.Error);
                 Environment.Exit(0);
             }
         }
 
-        //檢查備份資料夾是否存在
-        private void CheckFileBackupPath()
-        {
-            string BackupPath = $@"{CommonModel.FileBackupDirectory}\{DateTime.Now:yyyy-MM-dd}";
-            if (!Directory.Exists($@"{BackupPath}\Success")) Directory.CreateDirectory($@"{BackupPath}\Success");
-            if (!Directory.Exists($@"{BackupPath}\Fail")) Directory.CreateDirectory($@"{BackupPath}\Fail");
-            SuccessPath = $@"{BackupPath}\Success";
-            FailPath = $@"{BackupPath}\Fail";
-        }
-
         private void ShowAdvancedSettingsFunc()
         {
-            AdvancedSettingsFactory.ClearAllViewModel();
-            var f = AdvancedSettingsFactory.GenerateAdvancedSettings();
+            AdvancedSettingFactory.ClearAllViewModel();
+            var f = AdvancedSettingFactory.GenerateAdvancedSettings();
             f.ShowDialog();
         }
 
@@ -616,19 +600,17 @@ namespace FCP.ViewModels
 
         private void Init()
         {
-            string BackupPath = $@"{CommonModel.FileBackupDirectory}\{DateTime.Now:yyyy-MM-dd}";
-            SuccessCount = $"{Directory.GetFiles($@"{BackupPath}\Success").Length}";
-            FailCount = $"{Directory.GetFiles($@"{BackupPath}\Fail").Length}";
             InputPath1 = _settingModel.InputPath1;
             InputPath2 = _settingModel.InputPath2;
             InputPath3 = _settingModel.InputPath3;
+            InputPath4 = _settingModel.InputPath4;
             OutputPath = _settingModel.OutputPath;
             IsAutoStartChecked = _settingModel.AutoStart;
             WindowX = Properties.Settings.Default.X.ToString();
             WindowY = Properties.Settings.Default.Y.ToString();
             StopEnabled = false;
-            StatChecked = _settingModel.StatOrBatch == eDepartment.UDStat;
-            BatchChecked = _settingModel.StatOrBatch == eDepartment.UDBatch;
+            StatChecked = _settingModel.StatOrBatch == eDepartment.Stat;
+            BatchChecked = _settingModel.StatOrBatch == eDepartment.Batch;
         }
 
         private bool CanStartConverterOrShowAdvancedSettings()

@@ -36,10 +36,10 @@ namespace FCP.src.FormatControl
             newCount = 0;
             _UDBatch.Clear();
             _OPD.Clear();
-            location = base.ConvertFileInformation.GetDepartment == eDepartment.OPD || base.ConvertFileInformation.GetDepartment == eDepartment.Care ? "門診" : "大寮";
-            if (base.ConvertFileInformation.GetDepartment == eDepartment.Care || base.ConvertFileInformation.GetDepartment == eDepartment.Other)
+            location = FileInfoModel.Department == eDepartment.OPD || FileInfoModel.Department == eDepartment.Care ? "門診" : "大寮";
+            if (FileInfoModel.Department == eDepartment.Care || FileInfoModel.Department == eDepartment.Other)
             {
-                base.ConvertFileInformation.SetDepartment(eDepartment.OPD);
+                FileInfoModel.Department = eDepartment.OPD;
             }
             return base.MethodShunt();
         }

@@ -3,7 +3,7 @@ using FCP.src.FormatControl;
 
 namespace FCP.src.FormatInit
 {
-    class BASE_TaipeiDetention : FunctionCollections
+    class BASE_TaipeiDetention : FormatBase
     {
         private FMT_TaipeiDetention _TPD { get; set; }
 
@@ -11,7 +11,7 @@ namespace FCP.src.FormatInit
         {
             base.Init();
             MainWindowVM.OPDToogle1Checked = true;
-            InitFindFileMode(eFindFileMode.根據檔名開頭);
+            InitFindFileMode(eFileSearchMode.根據檔名開頭);
         }
 
         public override void ConvertPrepare(bool isOPD)
@@ -19,12 +19,12 @@ namespace FCP.src.FormatInit
             base.ConvertPrepare(isOPD);
             SetIntoProperty(isOPD);
             FindFile.SetOPDDefault();
-            GetFileAsync();
+            Start();
         }
 
-        public override void SetConvertInformation()
+        public override void Converter()
         {
-            base.SetConvertInformation();
+            base.Converter();
             if (_TPD == null)
                 _TPD = new FMT_TaipeiDetention();
             var result = _TPD.MethodShunt();

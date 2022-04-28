@@ -11,19 +11,19 @@ using MaterialDesignThemes.Wpf;
 
 namespace FCP.ViewModels
 {
-    class MsgBViewModel : ViewModelBase
+    class MsgViewModel : ViewModelBase
     {
         public ICommand Close { get; set; }
         public ICommand WindowClosed { get; set; }
         public ICommand DragMove { get; set; }
-        private MsgBModel _Model;
+        private MsgModel _model;
 
         [DllImport("User32.dll")]
         public static extern bool MessageBeep(uint uType);
 
-        public MsgBViewModel()
+        public MsgViewModel()
         {
-            _Model = new MsgBModel();
+            _model = new MsgModel();
             Close = new ObjectRelayCommand(o => ((Window)o).DialogResult = true);
             WindowClosed = new ObjectRelayCommand(o => ((Window)o).IsEnabled = false);
             DragMove = new ObjectRelayCommand(o => ((Window)o).DragMove());
@@ -31,38 +31,38 @@ namespace FCP.ViewModels
 
         public string Content
         {
-            get => _Model.Content;
-            set => _Model.Content = value;
+            get => _model.Content;
+            set => _model.Content = value;
         }
 
         public string Title
         {
-            get => _Model.Title;
-            set => _Model.Title = value;
+            get => _model.Title;
+            set => _model.Title = value;
         }
 
         public PackIconKind Kind
         {
-            get => _Model.Kind;
-            set => _Model.Kind = value;
+            get => _model.Kind;
+            set => _model.Kind = value;
         }
 
         public Color KindColor
         {
-            get => _Model.KindColor;
-            set => _Model.KindColor = value;
+            get => _model.KindColor;
+            set => _model.KindColor = value;
         }
 
         public Visibility WindowVisibility
         {
-            get => _Model.WindowVisibility;
-            set => _Model.WindowVisibility = value;
+            get => _model.WindowVisibility;
+            set => _model.WindowVisibility = value;
         }
 
         public bool OKButtonFocus
         {
-            get => _Model.OKButtonFocus;
-            set => _Model.OKButtonFocus = value;
+            get => _model.OKButtonFocus;
+            set => _model.OKButtonFocus = value;
         }
 
         public void Show(object content, object title, PackIconKind kind, Color kindColor)
@@ -71,7 +71,7 @@ namespace FCP.ViewModels
             Title = title.ToString();
             Kind = kind;
             KindColor = kindColor;
-            var window = MsgBFactory.GenerateMsgB();
+            var window = MsgFactory.GenerateMsg();
             OKButtonFocus = true;
             MessageBeep(1);
             window.ShowDialog();
@@ -84,7 +84,7 @@ namespace FCP.ViewModels
             Title = string.Empty;
             Kind = PackIconKind.Information;
             KindColor = KindColors.Information;
-            var window = MsgBFactory.GenerateMsgB();
+            var window = MsgFactory.GenerateMsg();
             OKButtonFocus = true;
             MessageBeep(1);
             window.ShowDialog();

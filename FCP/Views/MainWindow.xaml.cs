@@ -9,6 +9,8 @@ using FCP.ViewModels;
 using FCP.src;
 using Helper;
 using FCP.src.Factory.Models;
+using SqlHelper;
+using SqlHelper.Interface;
 
 namespace FCP.Views
 {
@@ -17,10 +19,6 @@ namespace FCP.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        private FunctionCollections _Format { get; set; }
-        private SettingModel _SettingsModel { get; set; }
-        private MainWindowModel _MainWindowModel { get => MainWindowFactory.GenerateMainWindowModel(); }
-        private Stopwatch _StopWatch = new Stopwatch();
         public string CurrentWindow { get; set; }
         private string _StatOrBatch = "S";
         private const int _ShowMainWindow = 100;
@@ -96,12 +94,14 @@ namespace FCP.Views
             InitializeComponent();
             WindowOwner.MainWindowOwner = this;
             SettingFactory.GenerateSetting();
+            SettingFactory.GenerateSettingModel();
             this.DataContext = MainWindowFactory.GenerateMainWindowViewModel();
-            _SettingsModel = SettingFactory.GenerateSettingModel();
             SimpleWindowFactory.GenerateSimpleWindow();
             var vm = this.DataContext as MainWindowViewModel;
             vm.ActivateWindow += ActivateWindow;
-            MSSql.SqlInfo = CommonModel.SqlConnection;
+            CommonModel.SqlHelper = SqlConnectionFactory.GetConnection(eConnectionType.MsSql);
+            CommonModel.SqlHelper.ConnectionStr = CommonModel.SqlConnection;
+            CommonModel.SqlHelper.InitDb();
         }
 
         private void ActivateWindow()

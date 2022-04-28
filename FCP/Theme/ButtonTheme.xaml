@@ -53,7 +53,7 @@
         </Style.Triggers>
     </Style>
  
-    <Style x:Key="MsgBOKButton"
+    <Style x:Key="MsgOKButton"
            TargetType="Button"
            BasedOn="{StaticResource MaterialDesignRaisedButton}">
         <Setter Property="Foreground"

@@ -47,7 +47,7 @@ namespace FCP.src
                 catch (Exception ex)
                 {
                     Log.Write(ex);
-                    Message.Show(ex, "錯誤", PackIconKind.Error, KindColors.Error);
+                    MsgCollection.Show(ex, "錯誤", PackIconKind.Error, KindColors.Error);
                 }
             }
         }

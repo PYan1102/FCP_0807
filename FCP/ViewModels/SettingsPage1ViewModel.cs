@@ -270,13 +270,13 @@ namespace FCP.ViewModels
         {
             if (MedicineCode.Length == 0)
             {
-                Message.Show("藥品代碼欄位為空白，請重新確認", "空白", PackIconKind.Error, KindColors.Error);
+                MsgCollection.Show("藥品代碼欄位為空白，請重新確認", "空白", PackIconKind.Error, KindColors.Error);
                 FocusFilterMedicineCode();
                 return;
             }
             if (FilterMedicineCodeList.Contains(MedicineCode))
             {
-                Message.Show($"該藥品代碼 {MedicineCode} 已建立，請重新確認", "重複", PackIconKind.Error, KindColors.Error);
+                MsgCollection.Show($"該藥品代碼 {MedicineCode} 已建立，請重新確認", "重複", PackIconKind.Error, KindColors.Error);
                 FocusFilterMedicineCode();
                 SelectAllFilterMedicineCode();
                 return;
@@ -303,13 +303,13 @@ namespace FCP.ViewModels
         {
             if (AdminCode.Length == 0)
             {
-                Message.Show("頻率欄位為空白，請重新確認", "空白", PackIconKind.Error, KindColors.Error);
+                MsgCollection.Show("頻率欄位為空白，請重新確認", "空白", PackIconKind.Error, KindColors.Error);
                 FocusFilterAdminCode();
                 return;
             }
             if (FilterAdminCodeList.Contains(AdminCode))
             {
-                Message.Show($"該頻率 {AdminCode} 已建立，請重新確認", "重複", PackIconKind.Error, KindColors.Error);
+                MsgCollection.Show($"該頻率 {AdminCode} 已建立，請重新確認", "重複", PackIconKind.Error, KindColors.Error);
                 FocusFilterAdminCode();
                 SelectAllFilterAdminCode();
                 return;

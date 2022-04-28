@@ -4,9 +4,10 @@
     {
         OPD,
         POWDER,
-        UDBatch,
-        UDStat,
         Other,
-        Care
+        Care,
+        UD,
+        Batch,
+        Stat
     }
 }

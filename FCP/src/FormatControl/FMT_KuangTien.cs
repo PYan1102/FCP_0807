@@ -8,6 +8,7 @@ using System.Globalization;
 using FCP.src.Enum;
 using Helper;
 using FCP.src.SQL;
+using FCP.Models;
 
 namespace FCP.src.FormatControl
 {
@@ -312,10 +313,10 @@ namespace FCP.src.FormatControl
                         QODDescription.Add(QODTEMP);
                         PerQty_L[x] = SumQty_L[x];
                         //沙鹿
-                        //MSSql.RunSQL("update PrintFormItem set DeletedYN=1 where RawID in (120180,120195)");
+                        //CommonModel.SqlHelper.Execute("update PrintFormItem set DeletedYN=1 where RawID in (120180,120195)");
 
                         //大甲
-                        MSSql.RunSQL("update PrintFormItem set DeletedYN=1 where RawID in (120156,120172)");
+                        CommonModel.SqlHelper.Execute("update PrintFormItem set DeletedYN=1 where RawID in (120156,120172)");
                         continue;
                     }
                     //種包                                                                                                                                      //23521 為大甲需求

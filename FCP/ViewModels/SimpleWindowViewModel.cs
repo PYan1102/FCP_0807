@@ -354,7 +354,7 @@ namespace FCP.ViewModels
             BatchVisibility = _SettingsModel.UseStatOrBatch ? Visibility.Visible : Visibility.Hidden;
             CloseVisibility = _SettingsModel.ShowWindowOperationButton ? Visibility.Visible : Visibility.Hidden;
             MinimumVisibility = _SettingsModel.ShowWindowOperationButton ? Visibility.Visible : Visibility.Hidden;
-            StatChecked = _SettingsModel.StatOrBatch == eDepartment.UDStat;
+            StatChecked = _SettingsModel.StatOrBatch == eDepartment.Stat;
             StopEnabled = false;
             Left = Properties.Settings.Default.X;
             Top = Properties.Settings.Default.Y;

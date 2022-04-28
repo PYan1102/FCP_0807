@@ -69,7 +69,6 @@ namespace FCP.src
         public Setting Settings { get; set; }
         public SettingModel SettingModel { get; set; }
         public string ErrorContent { get; set; }
-        public ConvertFileInformtaionModel ConvertFileInformation { get; set; }
         public string InputPath { get; set; }
         public string OutputPath { get; set; }
         public string FilePath { get; set; }
@@ -82,7 +81,6 @@ namespace FCP.src
         {
             Settings = SettingFactory.GenerateSetting();
             SettingModel = SettingFactory.GenerateSettingModel();
-            ConvertFileInformation = ConvertInfoactory.GenerateConvertFileInformation();
         }
 
         public virtual void Init()
@@ -90,13 +88,13 @@ namespace FCP.src
             _ReturnsResultFormat = new ReturnsResultFormat();
             ReturnsResult = new ReturnsResult();
             ReturnsResult.SetReturnsResultFormat(_ReturnsResultFormat);
-            InputPath = ConvertFileInformation.GetInputPath;
-            OutputPath = ConvertFileInformation.GetOutputPath;
-            FilePath = ConvertFileInformation.GetFilePath;
-            CurrentSeconds = ConvertFileInformation.GetCurrentSeconds;
-            Department = ConvertFileInformation.GetDepartment;
+            InputPath = FileInfoModel.InputDirectory;
+            OutputPath = SettingModel.OutputPath;
+            FilePath = FileInfoModel.SourceFilePath;
+            CurrentSeconds = FileInfoModel.CurrentDateTime.ToString("ss_fff");
+            Department = FileInfoModel.Department;
             SetAdminCode();
-            if (SettingModel.Format != eFormat.光田醫院JVS)  //光田磨粉、長庚磨粉
+            if (SettingModel.Format != eFormat.光田醫院JVS)  //光田磨粉
                 GetMedicineCode();
             ClearList();
         }
@@ -151,13 +149,13 @@ namespace FCP.src
                         LogicPOWDER();
                     }
                     break;
-                case eDepartment.UDStat:
+                case eDepartment.Stat:
                     if (ProcessUDStat())
                     {
                         LogicUDStat();
                     }
                     break;
-                case eDepartment.UDBatch:
+                case eDepartment.Batch:
                     if (ProcessUDBatch())
                     {
                         LogicUDBatch();
@@ -341,17 +339,17 @@ namespace FCP.src
         /// <returns>時間點的陣列 (ex:08,13,18)</returns>
         public List<string> GetMultiAdminCodeTimes(string code)
         {
-            List<string> list = MSSql.RunSQL_List($@"SELECT
-	                                                     LEFT(CONVERT(VARCHAR,A.StandardTime,108), 5) AS Time
-                                                     ,	A.RawID
-                                                     FROM AdminTime A,
-                                                     (
-                                                         SELECT
-	                                                         RawID
-                                                         FROM AdminTime A
-                                                         WHERE A.AdminCode=N'{code}' AND DeletedYN=0 AND A.UpperAdminTimeID is null
-                                                     ) #UpperAdminTime
-                                                     WHERE A.UpperAdminTimeID=#UpperAdminTime.RawID AND A.DeletedYN=0", "Time");
+            List<string> list = CommonModel.SqlHelper.Query_List($@"SELECT
+	                                                                    LEFT(CONVERT(VARCHAR,A.StandardTime,108), 5) AS Time
+                                                                    ,	A.RawID
+                                                                    FROM AdminTime A,
+                                                                    (
+                                                                        SELECT
+	                                                                        RawID
+                                                                        FROM AdminTime A
+                                                                        WHERE A.AdminCode=N'{code}' AND DeletedYN=0 AND A.UpperAdminTimeID is null
+                                                                    ) #UpperAdminTime
+                                                                    WHERE A.UpperAdminTimeID=#UpperAdminTime.RawID AND A.DeletedYN=0", "Time");
             var newList = list.Where(x => x.Length != 0).Select(x => x).ToList();
             return newList;
         }
@@ -363,10 +361,10 @@ namespace FCP.src
         /// <returns>存在為 <see langword="true"/> ，不存在為 <see langword="false"/></returns>
         public bool IsExistsMultiAdminCode(string code)
         {
-            int result = MSSql.RunSQL_FirstInt($@"SELECT
-	                                                   TOP 1 COUNT(RawID)
-                                                   FROM AdminTime A
-                                                   WHERE A.AdminCode=N'{code}' AND DeletedYN=0 AND A.UpperAdminTimeID is null");
+            int result = CommonModel.SqlHelper.Query_FirstInt($@"SELECT
+	                                                                 TOP 1 COUNT(RawID)
+                                                                 FROM AdminTime A
+                                                                 WHERE A.AdminCode=N'{code}' AND DeletedYN=0 AND A.UpperAdminTimeID is null");
 
             return result > 0;
         }
@@ -378,10 +376,10 @@ namespace FCP.src
         /// <returns>存在為 <see langword="true"/> ，不存在為 <see langword="false"/></returns>
         public bool IsExistsCombiAdminCode(string code)
         {
-            int result = MSSql.RunSQL_FirstInt($@"SELECT
-	                                                  TOP 1 COUNT(RawID)
-                                                  FROM AdminTime A
-                                                  WHERE A.AdminCode=N'S{code}' AND DeletedYN=0");
+            int result = CommonModel.SqlHelper.Query_FirstInt($@"SELECT
+	                                                                 TOP 1 COUNT(RawID)
+                                                                 FROM AdminTime A
+                                                                 WHERE A.AdminCode=N'S{code}' AND DeletedYN=0");
             return result > 0;
         }
 
@@ -410,11 +408,11 @@ namespace FCP.src
 
         private List<string> GetMedicineCodeHasCanister()
         {
-            List<string> list = MSSql.RunSQL_List(@"SELECT
-                                                        A.Mnemonic + ',' + ISNULL(C.MultiMnemonic, '') AS Mnemonic
-                                                    FROM Item A
-                                                    INNER JOIN InventoryContainer B ON A.DeletedYN = 0 AND A.UseYN = 1 AND B.ContainerID IS NOT NULL AND A.RawID = B.ItemID
-                                                    LEFT OUTER JOIN ItemMultiCode C ON A.RawID = C.ItemID AND C.DeletedYN = 0", "Mnemonic");
+            List<string> list = CommonModel.SqlHelper.Query_List(@"SELECT
+                                                                       A.Mnemonic + ',' + ISNULL(C.MultiMnemonic, '') AS Mnemonic
+                                                                   FROM Item A
+                                                                   INNER JOIN InventoryContainer B ON A.DeletedYN = 0 AND A.UseYN = 1 AND B.ContainerID IS NOT NULL AND A.RawID = B.ItemID
+                                                                   LEFT OUTER JOIN ItemMultiCode C ON A.RawID = C.ItemID AND C.DeletedYN = 0", "Mnemonic");
             List<string> newList = new List<string>();
             foreach (string s in list)
             {
@@ -428,11 +426,11 @@ namespace FCP.src
 
         private List<string> GetAllMedicineCode()
         {
-            List<string> list = MSSql.RunSQL_List(@"SELECT
-                                                        A.Mnemonic + ',' + ISNULL(B.MultiMnemonic, '') AS Mnemonic
-                                                    FROM Item A
-                                                    LEFT OUTER JOIN ItemMultiCode B ON A.RawID = B.ItemID AND B.DeletedYN = 0
-                                                    WHERE A.DeletedYN = 0 AND A.UseYN = 1", "Mnemonic");
+            List<string> list = CommonModel.SqlHelper.Query_List(@"SELECT
+                                                                       A.Mnemonic + ',' + ISNULL(B.MultiMnemonic, '') AS Mnemonic
+                                                                   FROM Item A
+                                                                   LEFT OUTER JOIN ItemMultiCode B ON A.RawID = B.ItemID AND B.DeletedYN = 0
+                                                                   WHERE A.DeletedYN = 0 AND A.UseYN = 1", "Mnemonic");
             List<string> newList = new List<string>();
             foreach (string s in list)
             {
@@ -446,11 +444,11 @@ namespace FCP.src
 
         public List<string> GetMedicineCodeWhenWeightIs10g()
         {
-            List<string> list = MSSql.RunSQL_List(@"SELECT
-	                                                    B.Mnemonic + ',' + ISNULL(D.MultiMnemonic, '') AS Mnemonic
-                                                    FROM Medicine A
-                                                    INNER JOIN Item B ON A.RawID=B.RawID AND A.DeletedYN=0 AND A.WeightMedicine=10
-                                                    LEFT OUTER JOIN ItemMultiCode D ON B.RawID=D.ItemID AND D.DeletedYN=0", "Mnemonic");
+            List<string> list = CommonModel.SqlHelper.Query_List(@"SELECT
+	                                                                   B.Mnemonic + ',' + ISNULL(D.MultiMnemonic, '') AS Mnemonic
+                                                                   FROM Medicine A
+                                                                   INNER JOIN Item B ON A.RawID=B.RawID AND A.DeletedYN=0 AND A.WeightMedicine=10
+                                                                   LEFT OUTER JOIN ItemMultiCode D ON B.RawID=D.ItemID AND D.DeletedYN=0", "Mnemonic");
             List<string> newList = new List<string>();
             foreach (string s in list)
             {

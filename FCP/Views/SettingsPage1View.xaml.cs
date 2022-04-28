@@ -15,7 +15,7 @@ namespace FCP.Views
         public SettingsPage1View()
         {
             InitializeComponent();
-            this.DataContext = AdvancedSettingsFactory.GenerateSettingsPage1ViewModel();
+            this.DataContext = AdvancedSettingFactory.GenerateSettingsPage1ViewModel();
             var vm = this.DataContext as SettingsPage1ViewModel;
             vm.FocusFilterAdminCode += FocusFilterAdminCode;
             vm.SelectAllFilterAdminCode += SelectAllFilterAdminCode;

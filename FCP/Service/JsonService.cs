@@ -61,7 +61,7 @@ namespace FCP.Service
                     return int.Parse(_json.養護.Split('^')[index].Split('|')[1]);
                 case eDepartment.Other:
                     return int.Parse(_json.大寮.Split('^')[index].Split('|')[1]);
-                case eDepartment.UDBatch:
+                case eDepartment.Batch:
                     return int.Parse(_json.住院.Split('^')[index].Split('|')[1]);
                 default:
                     return -1;
@@ -91,7 +91,7 @@ namespace FCP.Service
                     list = _json.大寮.Split('^').ToList();
                     _json.大寮 = AppendDepartmentInfo(list, index, date, count);
                     break;
-                case eDepartment.UDBatch:
+                case eDepartment.Batch:
                     list = _json.住院.Split('^').ToList();
                     _json.住院 = AppendDepartmentInfo(list, index, date, count);
                     break;

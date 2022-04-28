@@ -12,7 +12,7 @@ namespace FCP.Views
         public SettingsPage2View()
         {
             InitializeComponent();
-            this.DataContext = AdvancedSettingsFactory.GenerateSettingsPage2ViewModel();
+            this.DataContext = AdvancedSettingFactory.GenerateSettingsPage2ViewModel();
         }
     }
 }

@@ -9,6 +9,7 @@ namespace FCP.Models
         public string InputPath1 { get; set; } = string.Empty;
         public string InputPath2 { get; set; } = string.Empty;
         public string InputPath3 { get; set; } = string.Empty;
+        public string InputPath4 { get; set; } = string.Empty;
         public string OutputPath { get; set; } = string.Empty;
         public string FileExtensionName { get; set; } = "txt";
         public bool AutoStart { get; set; } = false;
@@ -19,7 +20,7 @@ namespace FCP.Models
         public List<RandomInfo> ExtraRandom { get; set; } = new List<RandomInfo>();
         public eDoseType DoseType { get; set; } = eDoseType.餐包;
         public string OutputSpecialAdminCode { get; set; } = string.Empty;
-        public eDepartment StatOrBatch { get; set; } = eDepartment.UDStat;
+        public eDepartment StatOrBatch { get; set; } = eDepartment.Stat;
         public string CutTime { get; set; } = string.Empty;
         public string CrossDayAdminCode { get; set; } = string.Empty;
         public List<string> FilterMedicineCode { get; set; } = new List<string>();

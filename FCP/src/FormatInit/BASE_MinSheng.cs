@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using FCP.ViewModels.GetConvertFile;
 using FCP.src.Enum;
 using FCP.src.FormatControl;
 using FCP.Service;
@@ -7,7 +6,7 @@ using System.Windows;
 
 namespace FCP.src.FormatInit
 {
-    class BASE_MinSheng : FunctionCollections
+    class BASE_MinSheng : FormatBase
     {
         private FMT_MinSheng _MS { get; set; }
 
@@ -17,7 +16,6 @@ namespace FCP.src.FormatInit
             MainWindowVM.OPDToogle1Checked = true;
             MainWindowVM.OPDToogle3Checked = true;
             MainWindowVM.OPDToogle4Checked = true;
-            InitFindFileMode(eFindFileMode.根據檔名開頭);
         }
 
         public override void ConvertPrepare(bool isOPD)
@@ -28,13 +26,13 @@ namespace FCP.src.FormatInit
             SetOtherRule("K");
             SetUDBatchRule(nameof(DefaultEnum.Default));
             SetIntoProperty(isOPD);
-            GetFileAsync();
+            Start();
         }
 
-        public override void SetConvertInformation()
+        public override void Converter()
         {
-            base.SetConvertInformation();
-            string fileDate = Path.GetFileNameWithoutExtension(base.FilePath).Substring(1);
+            base.Converter();
+            string fileDate = Path.GetFileNameWithoutExtension(base.SourceFilePath).Substring(1);
             JsonService.JudgeJsonFileIsAlreadyCreated(fileDate);
             if (_MS == null)
                 _MS = new FMT_MinSheng();

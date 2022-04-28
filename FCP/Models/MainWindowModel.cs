@@ -16,6 +16,7 @@ namespace FCP.Models
         public string InputPath1 { get; set; }
         public string InputPath2 { get; set; }
         public string InputPath3 { get; set; }
+        public string InputPath4 { get; set; }
         public bool InputPath1Enabled { get; set; }
         public bool InputPath2Enabled { get; set; }
         public bool InputPath3Enabled { get; set; }
@@ -52,8 +53,6 @@ namespace FCP.Models
         public Visibility SplitEachMealVisibility { get; set; }
         public bool IsAutoStartChecked { get; set; }
         public string DoseType { get; set; }
-        public string SuccessCount { get; set; }
-        public string FailCount { get; set; }
         public string WindowX { get; set; }
         public string WindowY { get; set; }
         public bool WindowXEnabled { get; set; }
