@@ -6,7 +6,7 @@ using FCP.Core;
 using System.Windows.Media;
 using FCP.Models;
 using System.Windows;
-using FCP.Service;
+using FCP.Services;
 using FCP.src.Factory.ViewModel;
 using Helper;
 using FCP.src;
@@ -37,7 +37,6 @@ namespace FCP.ViewModels
 
         public AdvancedSettingsViewModel()
         {
-            Console.WriteLine("A");
             _setting = SettingFactory.GenerateSetting();
             _settingModel = SettingFactory.GenerateSettingModel();
             _model = new AdvancedSettingsModel();

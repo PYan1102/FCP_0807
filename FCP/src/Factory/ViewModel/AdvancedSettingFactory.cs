@@ -23,8 +23,6 @@ namespace FCP.src.Factory.ViewModel
 
         public static SettingsPage1ViewModel GenerateSettingsPage1ViewModel()
         {
-            Console.WriteLine("B");
-            Console.WriteLine(_SettingsPage1VM == null);
             if (_SettingsPage1VM == null)
                 _SettingsPage1VM = new SettingsPage1ViewModel();
             return _SettingsPage1VM;

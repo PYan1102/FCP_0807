@@ -5,10 +5,10 @@ using System.Text;
 using System.Data.SqlClient;
 using System.IO;
 using FCP.src.Factory;
-using FCP.Service;
+using FCP.Services;
 using FCP.Models;
 using FCP.src.Enum;
-using FCP.ViewModels.Interface;
+using FCP.src.Interface;
 using FCP.src.Factory.Models;
 using Helper;
 
@@ -69,8 +69,8 @@ namespace FCP.src
         public Setting Settings { get; set; }
         public SettingModel SettingModel { get; set; }
         public string ErrorContent { get; set; }
-        public string InputPath { get; set; }
-        public string OutputPath { get; set; }
+        public string InputDirectory { get; set; }
+        public string OutputDirectory { get; set; }
         public string FilePath { get; set; }
         public string CurrentSeconds { get; set; }
         public eDepartment Department { get; set; }
@@ -88,8 +88,8 @@ namespace FCP.src
             _ReturnsResultFormat = new ReturnsResultFormat();
             ReturnsResult = new ReturnsResult();
             ReturnsResult.SetReturnsResultFormat(_ReturnsResultFormat);
-            InputPath = FileInfoModel.InputDirectory;
-            OutputPath = SettingModel.OutputPath;
+            InputDirectory = FileInfoModel.InputDirectory;
+            OutputDirectory = SettingModel.OutputDirectory;
             FilePath = FileInfoModel.SourceFilePath;
             CurrentSeconds = FileInfoModel.CurrentDateTime.ToString("ss_fff");
             Department = FileInfoModel.Department;

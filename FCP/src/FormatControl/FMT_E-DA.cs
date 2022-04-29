@@ -91,7 +91,7 @@ namespace FCP.src.FormatControl
 
         public override bool LogicUDBatch()
         {
-            string outputDirectory = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputDirectory}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
             try
             {
                 OP_OnCube.E_DA_UD(_UDBatch, outputDirectory);

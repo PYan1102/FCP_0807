@@ -98,8 +98,13 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Models\CommonModel.cs" />
-    <Compile Include="Service\FileSearchService.cs" />
+    <Compile Include="Models\MatchModel.cs" />
+    <Compile Include="Services\FileSearchService\FileNameHead.cs" />
+    <Compile Include="Services\FileSearchService\FileSearchService.cs" />
+    <Compile Include="Services\FileSearchService\InputDirectory.cs" />
+    <Compile Include="Services\FileSearchService\MatchDepartment.cs" />
     <Compile Include="src\InputDirectoryMatch.cs" />
+    <Compile Include="src\Interface\IGetFIle.cs" />
     <Compile Include="Views\AdvancedSettings.xaml.cs">
       <DependentUpon>AdvancedSettings.xaml</DependentUpon>
     </Compile>
@@ -120,7 +125,7 @@
     <Compile Include="src\FormatInit\BASE_ChuangSheng.cs" />
     <Compile Include="src\FormatInit\BASE_FangDing.cs" />
     <Compile Include="Core\RelayCommand.cs" />
-    <Compile Include="Service\JsonService.cs" />
+    <Compile Include="Services\JsonService.cs" />
     <Compile Include="src\FormatInit\BASE_E_DA.cs" />
     <Compile Include="src\Factory\FormatFactory.cs" />
     <Compile Include="src\Factory\ViewModel\MainWindowFactory.cs" />
@@ -158,7 +163,7 @@
     <Compile Include="src\Factory\Models\SettingFactory.cs" />
     <Compile Include="src\MsgCollection.cs" />
     <Compile Include="ViewModels\AdvancedSettingsViewModel.cs" />
-    <Compile Include="ViewModels\Interface\IRetunrsResult.cs" />
+    <Compile Include="src\Interface\IRetunrsResult.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="src\RefreshUIPropertyServices.cs" />
     <Compile Include="ViewModels\SettingsPage1ViewModel.cs" />

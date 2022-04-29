@@ -55,32 +55,8 @@ namespace FCP.ViewModels
 
         public int SearchFrequency
         {
-            get
-            {
-                Console.WriteLine($"get {_model.SearchFrequency}");
-                return _model.SearchFrequency;
-                //if (int.TryParse(_model.SearchFrequency.ToString(), out int newValue))
-                //{
-                //    return _model.SearchFrequency;
-                //}
-                //else
-                //{
-                //    return 0;
-                //}
-            }
-            set
-            {
-                Console.WriteLine($"set {_model.SearchFrequency}");
-                _model.SearchFrequency = value;
-                //if (int.TryParse(value.ToString(), out int newValue))
-                //{
-                //    _model.SearchFrequency = value;
-                //}
-                //else
-                //{
-                //    _model.SearchFrequency = 0;
-                //}
-            }
+            get => _model.SearchFrequency;
+            set => _model.SearchFrequency = value;
         }
 
         public ObservableCollection<string> Mode

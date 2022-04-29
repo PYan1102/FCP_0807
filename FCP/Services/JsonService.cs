@@ -6,7 +6,7 @@ using System.IO;
 using FCP.src.Enum;
 using System.Collections.Generic;
 
-namespace FCP.Service
+namespace FCP.Services
 {
     static class JsonService
     {

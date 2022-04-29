@@ -13,7 +13,8 @@ using FCP.ViewModels;
 using MaterialDesignThemes.Wpf;
 using Helper;
 using FCP.src.Factory.Models;
-using FCP.Service;
+using FCP.Services.FileSearchService;
+using System.Linq;
 
 namespace FCP.src
 {
@@ -24,30 +25,24 @@ namespace FCP.src
         public string PackedType;
         public string SourceFilePath { get; set; }
         public string InputDirectory { get; set; }
-        public string OutputPath { get; set; }
+        public string OutputDirectory { get; set; }
         public string CurrentSeconds { get; set; }
-        public FileSearchService FileSearchService { get; set; }
         public SettingModel SettingModel { get; set; }
-        public List<string> IPList = new List<string>();
         public UIRefresh UIRefresh { get; set; }
         public static System.Windows.Forms.NotifyIcon NotifyIcon { get; set; }
         private AdvancedSettingsViewModel _advancedSettingsVM;
         private SimpleWindowViewModel _simpleWindowVM;
         protected internal eDepartment CurrentDepartment;
-        private string _opd = string.Empty;
-        private string _powder = string.Empty;
-        private string _batch = string.Empty;
-        private string _stat = string.Empty;
-        private string _care = string.Empty;
-        private string _other = string.Empty;
         private string _successDirectory = string.Empty;
         private string _failDirectory = string.Empty;
         private CancellationTokenSource _cts;
+        private List<MatchModel> _matchModel = null;
+        private List<string> _opdDirectory = null;
+        private List<string> _udDirectory = null;
 
         public FormatBase()
         {
             SettingModel = SettingFactory.GenerateSettingModel();
-            FileSearchService = new FileSearchService();
             MainWindowVM = MainWindowFactory.GenerateMainWindowViewModel();
             _simpleWindowVM = SimpleWindowFactory.GenerateSimpleWindowViewModel();
         }
@@ -58,6 +53,10 @@ namespace FCP.src
             {
                 UIRefresh = new UIRefresh() { UILayout = SetUILayout(new UILayout()) };
                 UIRefresh.StartAsync();
+                _matchModel = new List<MatchModel>();
+                _opdDirectory = new List<string>();
+                _udDirectory = new List<string>();
+
             }
             catch (Exception ex)
             {
@@ -72,6 +71,9 @@ namespace FCP.src
             UI.IP1Title = "輸入路徑1";
             UI.IP2Title = "輸入路徑2";
             UI.IP3Title = "輸入路徑3";
+            UI.IP4Title = "輸入路徑4";
+            UI.IP5Title = "Batch";
+            UI.IP6Title = "Stat";
             UI.OPDToogle1 = "門診";
             UI.OPDToogle2 = "";
             UI.OPDToogle3 = "";
@@ -79,6 +81,9 @@ namespace FCP.src
             UI.IP1Enabled = true;
             UI.IP2Enabled = true;
             UI.IP3Enabled = true;
+            UI.IP4Enabled = true;
+            UI.IP5Enabled = false;
+            UI.IP6Enabled = false;
             UI.UDVisibility = Visibility.Hidden;
             UI.OPD1Visibility = Visibility.Visible;
             UI.OPD2Visibility = Visibility.Hidden;
@@ -95,85 +100,82 @@ namespace FCP.src
             }
         }
 
-        public virtual void ConvertPrepare(bool isOPD)
+        public virtual void ConvertPrepare()
         {
-            if ((SettingModel.InputPath1 + SettingModel.InputPath2 + SettingModel.InputPath3 + SettingModel.InputPath4).Trim().Length == 0)
+            _opdDirectory.Add(SettingModel.InputDirectory1);
+            _opdDirectory.Add(SettingModel.InputDirectory2);
+            _opdDirectory.Add(SettingModel.InputDirectory3);
+            _opdDirectory.Add(SettingModel.InputDirectory4);
+            _udDirectory.Add(SettingModel.InputDirectory5);
+            _udDirectory.Add(SettingModel.InputDirectory6);
+            if (CommonModel.CurrentDepartment == eDepartment.OPD)
             {
-                MsgCollection.Show("來源路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
-                return;
+                if (_opdDirectory.Where(x => x.Trim().Length == 0).Count() == _opdDirectory.Count)
+                {
+                    MsgCollection.Show("來源路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
+                    return;
+                }
             }
-            if (SettingModel.OutputPath.Trim().Length == 0)
+            else
+            {
+                if (_udDirectory.Where(x => x.Trim().Length == 0).Count() == _udDirectory.Count)
+                {
+                    MsgCollection.Show("住院路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
+                    return;
+                }
+            }
+            if (SettingModel.OutputDirectory.Trim().Length == 0)
             {
                 MsgCollection.Show("輸出路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
                 return;
             }
-            RefreshUIPropertyServices.SwitchUIStateForStart(isOPD);
+            RefreshUIPropertyServices.SwitchUIStateForStart();
             RefreshUIPropertyServices.SwitchMainWindowControlState(false);
-            var dictionary = CommonModel.CurrentDepartment == eDepartment.OPD ? InputDirectoryMatch.MatchOPD(MainWindowVM.OPDToogle1Checked, MainWindowVM.OPDToogle2Checked, MainWindowVM.OPDToogle3Checked, MainWindowVM.OPDToogle4Checked) : InputDirectoryMatch.MatchUD();
-            FileSearchService.Init(eFileSearchMode.根據檔名開頭, dictionary);
             _advancedSettingsVM = AdvancedSettingFactory.GenerateAdvancedSettingsViewModel();
             _advancedSettingsVM.Visibility = Visibility.Hidden;
             _cts = new CancellationTokenSource();
         }
 
-        public void SetOPDRule(string rule)
+        public void SetFileSearchMode(eFileSearchMode fileSearchMode)
         {
-            _opd = rule;
+            FileSearchService.SetFileSearchMode(fileSearchMode);
         }
 
-        public void SetPowderRule(string rule)
+        public void SetOPDRule(string rule = null)
         {
-            _powder = rule;
+            _matchModel.Add(new MatchModel() { Department = eDepartment.OPD, Rule = rule, Enabled = MainWindowVM.OPDToogle1Checked });
         }
 
-        public void SetUDBatchRule(string rule)
+        public void SetPowderRule(string rule = null)
         {
-            _batch = rule;
+            _matchModel.Add(new MatchModel() { Department = eDepartment.POWDER, Rule = rule, Enabled = MainWindowVM.OPDToogle2Checked });
         }
 
-        public void SetUDStatRule(string rule)
+        public void SetCareRule(string rule = null)
         {
-            _stat = rule;
+            _matchModel.Add(new MatchModel() { Department = eDepartment.Care, Rule = rule, Enabled = MainWindowVM.OPDToogle3Checked });
         }
 
-        public void SetCareRule(string rule)
+        public void SetOtherRule(string rule = null)
         {
-            _care = rule;
+            _matchModel.Add(new MatchModel() { Department = eDepartment.Other, Rule = rule, Enabled = MainWindowVM.OPDToogle4Checked });
         }
 
-        public void SetOtherRule(string rule)
+        public void SetBatchRule(string rule = null)
         {
-            _other = rule;
+            _matchModel.Add(new MatchModel() { Department = eDepartment.Batch, Rule = rule, Enabled = SettingModel.UseStatOrBatch && SettingModel.StatOrBatch == eDepartment.Batch });
         }
 
-        public void SetIntoProperty(bool isOPD)
+        public void SetStatRule(string rule = null)
         {
-            if (isOPD)
-            {
-                if (MainWindowVM.OPDToogle1Checked)
-                    FindFile.SetOPD(_opd);
-                if (MainWindowVM.OPDToogle2Checked)
-                    FindFile.SetPowder(_powder);
-                if (MainWindowVM.OPDToogle3Checked)
-                    FindFile.SetCare(_care);
-                if (MainWindowVM.OPDToogle4Checked)
-                    FindFile.SetOther(_other);
-            }
-            else
-            {
-                if (MainWindowVM.StatChecked)
-                    FindFile.SetUDStat(_stat);
-                else
-                    FindFile.SetUDBatch(_batch);
-
-            }
-            FindFile.Reset(_cts, IPList);
+            _matchModel.Add(new MatchModel() { Department = eDepartment.Stat, Rule = rule, Enabled = SettingModel.UseStatOrBatch && SettingModel.StatOrBatch == eDepartment.Stat });
         }
 
         public virtual void Start()
         {
             if (_cts == null)
                 return;
+            FileSearchService.Init();
             Task.Run(() =>
             {
                 while (!_cts.IsCancellationRequested)
@@ -182,7 +184,7 @@ namespace FCP.src
                     CheckBackupDirectory();
                     try
                     {
-                        FileSearchService.GetFileInfo();
+                        FileSearchService.GetFileInfo(_matchModel, CommonModel.CurrentDepartment == eDepartment.OPD ? _opdDirectory : _udDirectory);
                         if (!string.IsNullOrEmpty(FileInfoModel.SourceFilePath))
                         {
                             Converter();
@@ -263,9 +265,9 @@ namespace FCP.src
             UIRefresh.Stop();
         }
 
-        public string MergeFilesAndGetNewFilePath(string inputPath, string fileName, int start, int length, string content)
+        public string MergeFilesAndGetNewFilePath(string InputDirectory, string fileName, int start, int length, string content)
         {
-            MergeFiles mergeFiles = new MergeFiles(inputPath, fileName);
+            MergeFiles mergeFiles = new MergeFiles(InputDirectory, fileName);
             mergeFiles.Merge(start, length, content);
             return mergeFiles.GetMergedFilePath;
         }
@@ -289,7 +291,7 @@ namespace FCP.src
         private void Clear()
         {
             InputDirectory = string.Empty;
-            OutputPath = MainWindowVM.OutputPath;
+            OutputDirectory = MainWindowVM.OutputDirectory;
             SourceFilePath = string.Empty;
             CurrentSeconds = string.Empty;
             CurrentDepartment = eDepartment.OPD;
@@ -311,13 +313,13 @@ namespace FCP.src
             _failDirectory = $@"{backupDirectory}\Fail";
         }
 
-        
+
 
         private void SetConvertValue(int MethodID, string IP, string OP, string File)
         {
             int MethodID1 = MethodID;
             InputDirectory = IP;
-            OutputPath = OP;
+            OutputDirectory = OP;
             SourceFilePath = File;
         }
 

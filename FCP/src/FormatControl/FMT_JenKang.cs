@@ -74,7 +74,7 @@ namespace FCP.src.FormatControl
 
         public override bool LogicOPD()
         {
-            string outputDirectory = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{_OPD[0].PatientName}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputDirectory}\{Path.GetFileNameWithoutExtension(FilePath)}_{_OPD[0].PatientName}_{CurrentSeconds}.txt";
             try
             {
                 OP_OnCube.JenKang_OPD(_OPD, outputDirectory);
@@ -179,9 +179,9 @@ namespace FCP.src.FormatControl
             }
             string outputDirectory = string.Empty;
             if (_UDBatch[0].Location.Contains("住院"))
-                outputDirectory = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+                outputDirectory = $@"{OutputDirectory}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
             else
-                outputDirectory = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{_UDBatch[0].PatientName}_{CurrentSeconds}.txt";
+                outputDirectory = $@"{OutputDirectory}\{Path.GetFileNameWithoutExtension(FilePath)}_{_UDBatch[0].PatientName}_{CurrentSeconds}.txt";
             try
             {
                 OP_OnCube.JenKang_UD(_UDBatch, outputDirectory, minStartDate);

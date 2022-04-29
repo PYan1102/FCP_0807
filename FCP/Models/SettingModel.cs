@@ -6,11 +6,13 @@ namespace FCP.Models
 {
     public class SettingModel
     {
-        public string InputPath1 { get; set; } = string.Empty;
-        public string InputPath2 { get; set; } = string.Empty;
-        public string InputPath3 { get; set; } = string.Empty;
-        public string InputPath4 { get; set; } = string.Empty;
-        public string OutputPath { get; set; } = string.Empty;
+        public string InputDirectory1 { get; set; } = string.Empty;
+        public string InputDirectory2 { get; set; } = string.Empty;
+        public string InputDirectory3 { get; set; } = string.Empty;
+        public string InputDirectory4 { get; set; } = string.Empty;
+        public string InputDirectory5 { get; set; } = string.Empty;
+        public string InputDirectory6 { get; set; } = string.Empty;
+        public string OutputDirectory { get; set; } = string.Empty;
         public string FileExtensionName { get; set; } = "txt";
         public bool AutoStart { get; set; } = false;
         public eFormat Format { get; set; } = eFormat.JVS;

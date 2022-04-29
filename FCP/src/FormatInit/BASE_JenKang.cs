@@ -15,15 +15,14 @@ namespace FCP.src.FormatInit
         {
             base.Init();
             MainWindowVM.OPDToogle1Checked = true;
-            InitFindFileMode(eFileSearchMode.根據檔名開頭);
         }
 
-        public override void ConvertPrepare(bool isOPD)
+        public override void ConvertPrepare()
         {
-            base.ConvertPrepare(isOPD);
+            base.ConvertPrepare();
+            SetFileSearchMode(eFileSearchMode.根據檔名開頭);
             SetOPDRule("A");
-            SetIntoProperty(isOPD);
-            FindFile.SetUDBatch("UD");
+            SetBatchRule("UD");
             Start();
         }
 

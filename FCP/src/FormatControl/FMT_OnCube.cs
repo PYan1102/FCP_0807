@@ -92,7 +92,7 @@ namespace FCP.src.FormatControl
         public override bool LogicOPD()
         {
 
-            string outputDirectory = $@"{OutputPath}\{Path.GetFileName(FilePath)}";
+            string outputDirectory = $@"{OutputDirectory}\{Path.GetFileName(FilePath)}";
             try
             {
                 OP_OnCube.OnCube(_OPD, outputDirectory);

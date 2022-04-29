@@ -15,11 +15,11 @@ namespace FCP.src.FormatInit
         {
             base.Init();
             MainWindowVM.OPDToogle2Checked = true;
-            InitFindFileMode(eFileSearchMode.根據檔名開頭);
         }
 
-        public override void ConvertPrepare(bool isOPD)
+        public override void ConvertPrepare()
         {
+            SetFileSearchMode(eFileSearchMode.根據檔名開頭);
             if (SettingModel.Format == eFormat.光田醫院OC)
             {
                 if (SettingModel.DoseType == eDoseType.種包)
@@ -41,17 +41,15 @@ namespace FCP.src.FormatInit
             }
             else if (SettingModel.Format == eFormat.光田醫院JVS)  //磨粉
             {
-                base.ConvertPrepare(isOPD);
-                SetIntoProperty(isOPD);
-                FindFile.SetPowderDefault();
+                base.ConvertPrepare();
+                SetPowderRule();
                 Start();
                 return;
             }
-            base.ConvertPrepare(isOPD);
-            SetOPDRule(nameof(DefaultEnum.Default));
-            SetUDStatRule("uds3200");
-            SetUDBatchRule("uds9100");
-            SetIntoProperty(isOPD);
+            base.ConvertPrepare();
+            SetOPDRule();
+            SetStatRule("uds3200");
+            SetBatchRule("uds9100");
             Start();
         }
 

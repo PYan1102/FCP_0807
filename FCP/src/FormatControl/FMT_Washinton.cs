@@ -165,7 +165,7 @@ namespace FCP.src.FormatControl
 
             #endregion
 
-            string outputDirectory = $@"{OutputPath}\{_basic.PatientName}-{_basic.Type}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputDirectory}\{_basic.PatientName}-{_basic.Type}_{CurrentSeconds}.txt";
             try
             {
                 OP_OnCube.JVServerXML(_basic, _opd, outputDirectory, Path.GetFileNameWithoutExtension(FilePath));

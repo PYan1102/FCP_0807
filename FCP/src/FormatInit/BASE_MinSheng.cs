@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using FCP.src.Enum;
 using FCP.src.FormatControl;
-using FCP.Service;
+using FCP.Services;
 using System.Windows;
 
 namespace FCP.src.FormatInit
@@ -18,14 +18,14 @@ namespace FCP.src.FormatInit
             MainWindowVM.OPDToogle4Checked = true;
         }
 
-        public override void ConvertPrepare(bool isOPD)
+        public override void ConvertPrepare()
         {
-            base.ConvertPrepare(isOPD);
+            base.ConvertPrepare();
+            SetFileSearchMode(eFileSearchMode.根據檔名開頭);
             SetOPDRule("N");
             SetCareRule("E");
             SetOtherRule("K");
-            SetUDBatchRule(nameof(DefaultEnum.Default));
-            SetIntoProperty(isOPD);
+            SetBatchRule();
             Start();
         }
 

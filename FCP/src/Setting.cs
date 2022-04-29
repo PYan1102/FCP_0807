@@ -10,7 +10,7 @@ using Helper;
 using FCP.src.Factory.Models;
 using FCP.Models;
 
-namespace FCP.Service
+namespace FCP.Services
 {
     public class Setting
     {
@@ -45,11 +45,13 @@ namespace FCP.Service
         public void SetNewValueIntoSettingModel()
         {
             var jObject = JsonHelper.Analysis();
-            _settingModel.InputPath1 = $"{jObject[nameof(_settingModel.InputPath1)]}";
-            _settingModel.InputPath2 = $"{jObject[nameof(_settingModel.InputPath2)]}";
-            _settingModel.InputPath3 = $"{jObject[nameof(_settingModel.InputPath3)]}";
-            _settingModel.InputPath4 = $"{jObject[nameof(_settingModel.InputPath4)]}";
-            _settingModel.OutputPath = $"{jObject[nameof(_settingModel.OutputPath)]}";
+            _settingModel.InputDirectory1 = $"{jObject[nameof(_settingModel.InputDirectory1)]}";
+            _settingModel.InputDirectory2 = $"{jObject[nameof(_settingModel.InputDirectory2)]}";
+            _settingModel.InputDirectory3 = $"{jObject[nameof(_settingModel.InputDirectory3)]}";
+            _settingModel.InputDirectory4 = $"{jObject[nameof(_settingModel.InputDirectory4)]}";
+            _settingModel.InputDirectory5 = $"{jObject[nameof(_settingModel.InputDirectory5)]}";
+            _settingModel.InputDirectory6 = $"{jObject[nameof(_settingModel.InputDirectory6)]}";
+            _settingModel.OutputDirectory = $"{jObject[nameof(_settingModel.OutputDirectory)]}";
             _settingModel.FileExtensionName = $"{jObject[nameof(_settingModel.FileExtensionName)]}";
             _settingModel.AutoStart = bool.Parse($"{jObject[nameof(_settingModel.AutoStart)]}");
             _settingModel.Format = (eFormat)Enum.Parse(typeof(eFormat), $"{jObject[nameof(_settingModel.Format)]}");

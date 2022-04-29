@@ -15,14 +15,13 @@ namespace FCP.src.FormatInit
         {
             base.Init();
             MainWindowVM.OPDToogle1Checked = true;
-            InitFindFileMode(eFileSearchMode.根據檔名開頭);
         }
 
-        public override void ConvertPrepare(bool isOPD)
+        public override void ConvertPrepare()
         {
-            base.ConvertPrepare(isOPD);
-            SetIntoProperty(isOPD);
-            FindFile.SetOPDDefault();
+            base.ConvertPrepare();
+            SetFileSearchMode(eFileSearchMode.根據檔名開頭);
+            SetOPDRule();
             CommonModel.SqlHelper.Execute($"UPDATE Job Set DeletedYN=1 WHERE DeletedYN=0 and LastUpdatedDate between '{DateTime.Now.AddDays(-1):yyyy/MM/dd 00:00:00:000}' and '{DateTime.Now.AddDays(-1):yyyy/MM/dd 23:59:59:999}'");
             Start();
         }

@@ -11,12 +11,12 @@ namespace FCP
     {
         public string GetMergedFilePath { get => _mergedFilePath; }
         private string _fileName { get; set; }
-        private string _inputPath { get; set; }
+        private string _InputDirectory { get; set; }
         private string _mergedFilePath { get; set; }
 
-        public MergeFiles(string inputPath, string fileName)
+        public MergeFiles(string InputDirectory, string fileName)
         {
-            _inputPath = inputPath;
+            _InputDirectory = InputDirectory;
             _fileName = fileName;
         }
 
@@ -29,7 +29,7 @@ namespace FCP
         public void Merge(int start, int length, string value)
         {
             CheckTempDirectory();
-            List<string> files = GetInputPathFiles(start, length, value);
+            List<string> files = GetInputDirectoryFiles(start, length, value);
             if (files.Count > 0)
             {
                 StringBuilder sb = new StringBuilder();
@@ -44,12 +44,12 @@ namespace FCP
 
         private string GetFileContent(string fileName)
         {
-            return File.ReadAllText($@"{_inputPath}\{fileName}", Encoding.Default);
+            return File.ReadAllText($@"{_InputDirectory}\{fileName}", Encoding.Default);
         }
 
         private void GenerateMergedFile(string content)
         {
-            _mergedFilePath = $@"{_inputPath}\{_fileName}_{DateTime.Now:ss_fff}.txt";
+            _mergedFilePath = $@"{_InputDirectory}\{_fileName}_{DateTime.Now:ss_fff}.txt";
             using (StreamWriter sw = new StreamWriter(_mergedFilePath, false, Encoding.Default))
             {
                 sw.Write(content);
@@ -61,13 +61,13 @@ namespace FCP
             foreach (string file in files)
             {
                 string destFileName = $@"{CommonModel.FileBackupRootDirectory}\{DateTime.Now:yyyy-MM-dd}\Batch\{Path.GetFileNameWithoutExtension(file)}_{DateTime.Now:ss_fff}.txt";
-                File.Move($@"{_inputPath}\{file}", destFileName);
+                File.Move($@"{_InputDirectory}\{file}", destFileName);
             }
         }
 
-        private List<string> GetInputPathFiles(int start, int length, string value)
+        private List<string> GetInputDirectoryFiles(int start, int length, string value)
         {
-            string[] files = Directory.GetFiles($@"{_inputPath}\");
+            string[] files = Directory.GetFiles($@"{_InputDirectory}\");
             return (from file in files
                     let fileName = Path.GetFileName(file)
                     where fileName.Substring(start, length) == value

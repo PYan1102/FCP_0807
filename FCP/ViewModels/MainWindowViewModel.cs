@@ -11,7 +11,7 @@ using FCP.src.Factory.ViewModel;
 using MaterialDesignThemes.Wpf;
 using System.Windows.Media;
 using System.Windows.Forms;
-using FCP.Service;
+using FCP.Services;
 using Helper;
 using System.Diagnostics;
 using System.IO;
@@ -100,82 +100,131 @@ namespace FCP.ViewModels
             set => _model.WindowTitle = value;
         }
 
-        public string InputPath1Title
+        public string InputDirectory1Title
         {
-            get => _model.InputPath1Title;
-            set => _model.InputPath1Title = value;
+            get => _model.InputDirectory1Title;
+            set => _model.InputDirectory1Title = value;
         }
 
-        public string InputPath2Title
+        public string InputDirectory2Title
         {
-            get => _model.InputPath2Title;
-            set => _model.InputPath2Title = value;
+            get => _model.InputDirectory2Title;
+            set => _model.InputDirectory2Title = value;
         }
 
-        public string InputPath3Title
+        public string InputDirectory3Title
         {
-            get => _model.InputPath3Title;
-            set => _model.InputPath3Title = value;
-        }
-        public string InputPath1
-        {
-            get => _model.InputPath1;
-            set => _model.InputPath1 = value;
+            get => _model.InputDirectory3Title;
+            set => _model.InputDirectory3Title = value;
         }
 
-        public string InputPath2
+        public string InputDirectory4Title
         {
-            get => _model.InputPath2;
-            set => _model.InputPath2 = value;
+            get => _model.InputDirectory4Title;
+            set => _model.InputDirectory4Title = value;
         }
 
-        public string InputPath3
+        public string InputDirectory5Title
         {
-            get => _model.InputPath3;
-            set => _model.InputPath3 = value;
+            get => _model.InputDirectory5Title;
+            set => _model.InputDirectory5Title = value;
+        }
+
+        public string InputDirectory6Title
+        {
+            get => _model.InputDirectory6Title;
+            set => _model.InputDirectory6Title = value;
+        }
+
+        public string InputDirectory1
+        {
+            get => _model.InputDirectory1;
+            set => _model.InputDirectory1 = value;
+        }
+
+        public string InputDirectory2
+        {
+            get => _model.InputDirectory2;
+            set => _model.InputDirectory2 = value;
+        }
+
+        public string InputDirectory3
+        {
+            get => _model.InputDirectory3;
+            set => _model.InputDirectory3 = value;
         }
 
 
-        public string InputPath4
+        public string InputDirectory4
         {
-            get => _model.InputPath4;
-            set => _model.InputPath4 = value;
+            get => _model.InputDirectory4;
+            set => _model.InputDirectory4 = value;
         }
 
-        public bool InputPath1Enabled
+        public string InputDirectory5
         {
-            get => _model.InputPath1Enabled;
-            set => _model.InputPath1Enabled = value;
+            get => _model.InputDirectory5;
+            set => _model.InputDirectory5 = value;
         }
 
-        public bool InputPath2Enabled
+        public string InputDirectory6
         {
-            get => _model.InputPath2Enabled;
-            set => _model.InputPath2Enabled = value;
+            get => _model.InputDirectory6;
+            set => _model.InputDirectory6 = value;
         }
 
-        public bool InputPath3Enabled
+        public bool InputDirectory1Enabled
         {
-            get => _model.InputPath3Enabled;
-            set => _model.InputPath3Enabled = value;
+            get => _model.InputDirectory1Enabled;
+            set => _model.InputDirectory1Enabled = value;
         }
 
-        public string OutputPathTitle
+        public bool InputDirectory2Enabled
         {
-            get => _model.OutputPathTitle;
-            set => _model.OutputPathTitle = value;
+            get => _model.InputDirectory2Enabled;
+            set => _model.InputDirectory2Enabled = value;
         }
 
-        public string OutputPath
+        public bool InputDirectory3Enabled
         {
-            get => _model.OutputPath;
-            set => _model.OutputPath = value;
+            get => _model.InputDirectory3Enabled;
+            set => _model.InputDirectory3Enabled = value;
         }
 
-        public bool OutputPathEnabled
+        public bool InputDirectory4Enabled
         {
-            get => _model.OutputPathEnabled;
-            set => _model.OutputPathEnabled = value;
+            get => _model.InputDirectory4Enabled;
+            set => _model.InputDirectory4Enabled = value;
+        }
+
+        public bool InputDirectory5Enabled
+        {
+            get => _model.InputDirectory5Enabled;
+            set => _model.InputDirectory5Enabled = value;
+        }
+
+        public bool InputDirectory6Enabled
+        {
+            get => _model.InputDirectory6Enabled;
+            set => _model.InputDirectory6Enabled = value;
+        }
+
+        public string OutputDirectoryTitle
+        {
+            get => _model.OutputDirectoryTitle;
+            set => _model.OutputDirectoryTitle = value;
+        }
+
+        public string OutputDirectory
+        {
+            get => _model.OutputDirectory;
+            set => _model.OutputDirectory = value;
+        }
+
+        public bool OutputDirectoryEnabled
+        {
+            get => _model.OutputDirectoryEnabled;
+            set => _model.OutputDirectoryEnabled = value;
         }
 
         public Visibility UDButtonVisibility
@@ -446,13 +495,13 @@ namespace FCP.ViewModels
                 return;
             }
             IsOPD = true;
-            _formatBase.ConvertPrepare(IsOPD);
+            _formatBase.ConvertPrepare();
         }
 
         public void UDFunc()
         {
             IsOPD = false;
-            _formatBase.ConvertPrepare(IsOPD);
+            _formatBase.ConvertPrepare();
         }
 
         public void StopFunc()
@@ -468,11 +517,13 @@ namespace FCP.ViewModels
             Properties.Settings.Default.Y = Convert.ToInt32(WindowY);
             Properties.Settings.Default.Save();
             SettingModel model = _settingModel;
-            model.InputPath1 = InputPath1;
-            model.InputPath2 = InputPath2;
-            model.InputPath3 = InputPath3;
-            model.InputPath4 = InputPath4;
-            model.OutputPath = OutputPath;
+            model.InputDirectory1 = InputDirectory1;
+            model.InputDirectory2 = InputDirectory2;
+            model.InputDirectory3 = InputDirectory3;
+            model.InputDirectory4 = InputDirectory4;
+            model.InputDirectory5 = InputDirectory5;
+            model.InputDirectory6 = InputDirectory6;
+            model.OutputDirectory = OutputDirectory;
             model.StatOrBatch= StatChecked ? eDepartment.Stat : eDepartment.Batch;
             model.AutoStart = IsAutoStartChecked;
             _setting.Save(model);
@@ -564,16 +615,25 @@ namespace FCP.ViewModels
             switch (name)
             {
                 case "IP1":
-                    InputPath1 = path;
+                    InputDirectory1 = path;
                     break;
                 case "IP2":
-                    InputPath2 = path;
+                    InputDirectory2 = path;
                     break;
                 case "IP3":
-                    InputPath3 = path;
+                    InputDirectory3 = path;
+                    break;
+                case "IP4":
+                    InputDirectory4 = path;
+                    break;
+                case "IP5":
+                    InputDirectory5 = path;
+                    break;
+                case "IP6":
+                    InputDirectory6 = path;
                     break;
                 case "OP":
-                    OutputPath = path;
+                    OutputDirectory = path;
                     break;
                 default:
                     break;
@@ -585,13 +645,22 @@ namespace FCP.ViewModels
             switch (name)
             {
                 case "IP1":
-                    InputPath1 = string.Empty;
+                    InputDirectory1 = string.Empty;
                     break;
                 case "IP2":
-                    InputPath2 = string.Empty;
+                    InputDirectory2 = string.Empty;
                     break;
                 case "IP3":
-                    InputPath3 = string.Empty;
+                    InputDirectory3 = string.Empty;
+                    break;
+                case "IP4":
+                    InputDirectory4 = string.Empty;
+                    break;
+                case "IP5":
+                    InputDirectory5 = string.Empty;
+                    break;
+                case "IP6":
+                    InputDirectory6 = string.Empty;
                     break;
                 default:
                     break;
@@ -600,11 +669,13 @@ namespace FCP.ViewModels
 
         private void Init()
         {
-            InputPath1 = _settingModel.InputPath1;
-            InputPath2 = _settingModel.InputPath2;
-            InputPath3 = _settingModel.InputPath3;
-            InputPath4 = _settingModel.InputPath4;
-            OutputPath = _settingModel.OutputPath;
+            InputDirectory1 = _settingModel.InputDirectory1;
+            InputDirectory2 = _settingModel.InputDirectory2;
+            InputDirectory3 = _settingModel.InputDirectory3;
+            InputDirectory4 = _settingModel.InputDirectory4;
+            InputDirectory5 = _settingModel.InputDirectory5;
+            InputDirectory6 = _settingModel.InputDirectory6;
+            OutputDirectory = _settingModel.OutputDirectory;
             IsAutoStartChecked = _settingModel.AutoStart;
             WindowX = Properties.Settings.Default.X.ToString();
             WindowY = Properties.Settings.Default.Y.ToString();

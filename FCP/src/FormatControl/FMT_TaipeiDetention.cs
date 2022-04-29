@@ -83,7 +83,7 @@ namespace FCP.src.FormatControl
 
         public override bool LogicOPD()
         {
-            string outputDirectory = $@"{OutputPath}\{_Basic.PatientName}-{_Basic.PatientNo}-{_Basic.Class}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputDirectory}\{_Basic.PatientName}-{_Basic.PatientNo}-{_Basic.Class}_{CurrentSeconds}.txt";
             DateTime.TryParseExact(_Basic.BirthDate, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime date);  //生日
             _Basic.BirthDate = date.ToString("yyyy-MM-dd");
             List<string> PutBackAdminCode = new List<string>() { "Q4H", "Q6H", "Q8H", "Q12H", "QDPRN", "QIDPRN", "PRN", "BIDPRN", "TIDPRN", "HSPRN" };

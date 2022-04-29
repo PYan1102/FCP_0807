@@ -17,13 +17,13 @@ namespace FCP.src
         {
             Dictionary<eDepartment, string> dictionary = new Dictionary<eDepartment, string>();
             if (opd1)
-                dictionary.Add(eDepartment.OPD, _settingModel.InputPath1);
+                dictionary.Add(eDepartment.OPD, _settingModel.InputDirectory1);
             if (opd2)
-                dictionary.Add(eDepartment.POWDER, _settingModel.InputPath2);
+                dictionary.Add(eDepartment.POWDER, _settingModel.InputDirectory2);
             if (opd3)
-                dictionary.Add(eDepartment.Care, _settingModel.InputPath3);
+                dictionary.Add(eDepartment.Care, _settingModel.InputDirectory3);
             if (opd4)
-                dictionary.Add(eDepartment.Other, _settingModel.InputPath4);
+                dictionary.Add(eDepartment.Other, _settingModel.InputDirectory4);
             return dictionary;
         }
 
@@ -34,16 +34,16 @@ namespace FCP.src
             {
                 if (_settingModel.StatOrBatch == eDepartment.Stat)
                 {
-                    dictionary.Add(eDepartment.Stat, _settingModel.InputPath4);
+                    dictionary.Add(eDepartment.Stat, _settingModel.InputDirectory4);
                 }
                 else if (_settingModel.StatOrBatch == eDepartment.Batch)
                 {
-                    dictionary.Add(eDepartment.Batch, _settingModel.InputPath4);
+                    dictionary.Add(eDepartment.Batch, _settingModel.InputDirectory4);
                 }
             }
             else
             {
-                dictionary.Add(eDepartment.UD, _settingModel.InputPath4);
+                dictionary.Add(eDepartment.UD, _settingModel.InputDirectory4);
             }
             return dictionary;
         }

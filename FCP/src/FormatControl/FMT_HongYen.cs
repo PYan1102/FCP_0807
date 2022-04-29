@@ -161,10 +161,10 @@ namespace FCP.src.FormatControl
                     OPDDown.Clear();
                 }
                 List<string> outputDirectory = new List<string>();
-                outputDirectory.Add($@"{OutputPath}\UP-{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt");
+                outputDirectory.Add($@"{OutputDirectory}\UP-{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt");
                 if (OPDDown.Count > 1)
                 {
-                    outputDirectory.Add($@"{OutputPath}\DOWN-{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt");
+                    outputDirectory.Add($@"{OutputDirectory}\DOWN-{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt");
                 }
                 DateTime.TryParseExact(_Basic.BirthDate, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime date);  //生日
                 _Basic.BirthDate = date.ToString("yyyy-MM-dd");

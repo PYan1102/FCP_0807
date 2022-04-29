@@ -111,8 +111,8 @@ namespace FCP.src.FormatControl
             {
                 dic = SplitEachMeal();
             }
-            string outputDirectory = $@"{OutputPath}\{_basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
-            string outputDirectoryWithoutSeconds = $@"{OutputPath}\{_basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_";
+            string outputDirectory = $@"{OutputDirectory}\{_basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectoryWithoutSeconds = $@"{OutputDirectory}\{_basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_";
             DateTime.TryParseExact(_basic.BirthDate, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime date);  //生日
             _basic.BirthDate = date.ToString("yyyy-MM-dd");
             try

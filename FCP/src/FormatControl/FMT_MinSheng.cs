@@ -94,7 +94,7 @@ namespace FCP.src.FormatControl
         public override bool LogicOPD()
         {
             int count = _OPD.Count;
-            string outputDirectory = $@"{OutputPath}\{ Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputDirectory}\{ Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
             try
             {
                 OP_OnCube.MinSheng_OPD(_OPD, outputDirectory, location);
@@ -171,7 +171,7 @@ namespace FCP.src.FormatControl
 
         public override bool LogicUDBatch()
         {
-            string outputDirectory = $@"{OutputPath}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputDirectory}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
             try
             {
                 int count = _UDBatch.Count;
@@ -281,7 +281,7 @@ namespace FCP.src.FormatControl
         {
             try
             {
-                _UDBatch = OLEDB.GetMingSheng_UD(InputPath, FilePath, Index);
+                _UDBatch = OLEDB.GetMingSheng_UD(InputDirectory, FilePath, Index);
                 newCount = _UDBatch.Count > 0 ? _UDBatch[_UDBatch.Count - 1].RecNo : 0;
                 //newCount = 0;
             }
@@ -296,7 +296,7 @@ namespace FCP.src.FormatControl
         {
             try
             {
-                _OPD = OLEDB.GetMingSheng_OPD(InputPath, FilePath, Index);
+                _OPD = OLEDB.GetMingSheng_OPD(InputDirectory, FilePath, Index);
                 newCount = _OPD.Count > 0 ? _OPD[_OPD.Count - 1].RecNo + 1 : 0;
                 //Debug.WriteLine($"The number of new count is {newCount}");
                 //newCount = 0;

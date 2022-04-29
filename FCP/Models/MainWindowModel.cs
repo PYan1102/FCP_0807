@@ -10,19 +10,27 @@ namespace FCP.Models
     {
         public Visibility Visibility { get; set; }
         public string WindowTitle { get; set; }
-        public string InputPath1Title { get; set; }
-        public string InputPath2Title { get; set; }
-        public string InputPath3Title { get; set; }
-        public string InputPath1 { get; set; }
-        public string InputPath2 { get; set; }
-        public string InputPath3 { get; set; }
-        public string InputPath4 { get; set; }
-        public bool InputPath1Enabled { get; set; }
-        public bool InputPath2Enabled { get; set; }
-        public bool InputPath3Enabled { get; set; }
-        public string OutputPathTitle { get; set; } = "輸出路徑";
-        public string OutputPath { get; set; }
-        public bool OutputPathEnabled { get; set; }
+        public string InputDirectory1Title { get; set; }
+        public string InputDirectory2Title { get; set; }
+        public string InputDirectory3Title { get; set; }
+        public string InputDirectory4Title { get; set; }
+        public string InputDirectory5Title { get; set; }
+        public string InputDirectory6Title { get; set; }
+        public string InputDirectory1 { get; set; }
+        public string InputDirectory2 { get; set; }
+        public string InputDirectory3 { get; set; }
+        public string InputDirectory4 { get; set; }
+        public string InputDirectory5 { get; set; }
+        public string InputDirectory6 { get; set; }
+        public bool InputDirectory1Enabled { get; set; }
+        public bool InputDirectory2Enabled { get; set; }
+        public bool InputDirectory3Enabled { get; set; }
+        public bool InputDirectory4Enabled { get; set; }
+        public bool InputDirectory5Enabled { get; set; }
+        public bool InputDirectory6Enabled { get; set; }
+        public string OutputDirectoryTitle { get; set; } = "輸出路徑";
+        public string OutputDirectory { get; set; }
+        public bool OutputDirectoryEnabled { get; set; }
         public Visibility UDButtonVisibility { get; set; }
         public string OPDToogle1 { get; set; }
         public string OPDToogle2 { get; set; }

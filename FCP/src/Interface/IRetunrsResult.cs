@@ -2,7 +2,7 @@
 using FCP.Models;
 using FCP.src.Enum;
 
-namespace FCP.ViewModels.Interface
+namespace FCP.src.Interface
 {
     interface IRetunrsResult
     {

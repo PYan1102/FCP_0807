@@ -66,7 +66,7 @@ namespace FCP.src.FormatControl
 
         public override bool LogicOPD()
         {
-            string outputDirectory = $@"{OutputPath}\{_OPD[0].PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputDirectory}\{_OPD[0].PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
             try
             {
                 OP_OnCube.LittleBear(_OPD, outputDirectory);
