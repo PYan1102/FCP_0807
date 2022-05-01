@@ -12,20 +12,21 @@ namespace FCP.Services.FileSearchService
 {
     class FileNameHead : IGetFile
     {
-        public void GetFile(string extensionName, List<MatchModel> matchModel, List<string> inputDirectory)
+        public string GetFile(string extensionName, List<MatchModel> matchModel)
         {
-            foreach (var v in inputDirectory)
+            foreach (var model in matchModel)
             {
-                //string[] files = Directory.GetFiles(v.Value, $"*.{extensionName}");
-                //if (files.Length > 0)
-                //{
-                //    FileInfoModel.SourceFilePath = files[0];
-                //    FileInfoModel.InputDirectory = v.Value;
-                //    FileInfoModel.CurrentDateTime = DateTime.Now;
-                //    FileInfoModel.Department = v.Key;
-                //    return;
-                //}
+                if (!model.Enabled)
+                {
+                    continue;
+                }
+                string[] files = Directory.GetFiles(model.InputDirectory, $"*.{extensionName}");
+                if (files.Length > 0)
+                {
+                    return files[0];
+                }
             }
+            return string.Empty;
         }
     }
 }

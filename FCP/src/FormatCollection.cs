@@ -4,13 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
 using System.IO;
-using FCP.src.Factory;
 using FCP.Services;
 using FCP.Models;
 using FCP.src.Enum;
 using FCP.src.Interface;
 using FCP.src.Factory.Models;
-using Helper;
 
 namespace FCP.src
 {
@@ -79,8 +77,7 @@ namespace FCP.src
 
         public FormatCollection()
         {
-            Settings = SettingFactory.GenerateSetting();
-            SettingModel = SettingFactory.GenerateSettingModel();
+            SettingModel = ModelsFactory.GenerateSettingModel();
         }
 
         public virtual void Init()

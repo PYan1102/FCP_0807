@@ -1,6 +1,7 @@
 ﻿using FCP.src.FormatControl;
 using FCP.src.Enum;
 using System.Windows;
+using FCP.Models;
 
 namespace FCP.src.FormatInit
 {
@@ -31,7 +32,7 @@ namespace FCP.src.FormatInit
             Result(result, true);
         }
 
-        public override UILayout SetUILayout(UILayout UI)
+        public override MainUILayoutModel SetUILayout(MainUILayoutModel UI)
         {
             UI.Title = "義大醫院 > OnCube";
             UI.IP1Title = "輸入路徑1";

@@ -126,7 +126,7 @@ namespace FCP.Services
                     continue;
                 if (s.Contains(date))
                 {
-                    return list.IndexOf(s);
+                    return list.Count - list.IndexOf(s) - 1;
                 }
             }
             return 1;

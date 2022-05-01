@@ -1,9 +1,7 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using FCP.Core;
 using FCP.Models;
-using FCP.src.Factory;
 using FCP.src.Factory.Models;
 
 namespace FCP.ViewModels
@@ -16,17 +14,18 @@ namespace FCP.ViewModels
 
         public SettingsPage2ViewModel()
         {
-            ShowOnlyCanisterIn = new RelayCommand(() => ShowOnlyCanisterInFunc());
+            _settingModel = ModelsFactory.GenerateSettingModel();
             _model = ModelsFactory.GenerateSettingPage2Model();
-            _settingModel = SettingFactory.GenerateSettingModel();
+
+            ShowOnlyCanisterIn = new RelayCommand(() => ShowOnlyCanisterInFunc());
 
             Init();
         }
 
-        public bool ShowStatAndBatchOptionChecked
+        public bool UseStatAndBatchOptionChecked
         {
-            get => _model.ShowStatAndBatchOptionChecked;
-            set => _model.ShowStatAndBatchOptionChecked = value;
+            get => _model.UseStatAndBatchOptionChecked;
+            set => _model.UseStatAndBatchOptionChecked = value;
         }
 
         public bool MinimizeWindowWhenProgramStartChecked
@@ -85,7 +84,7 @@ namespace FCP.ViewModels
 
         private void Init()
         {
-            ShowStatAndBatchOptionChecked = _settingModel.UseStatOrBatch;
+            UseStatAndBatchOptionChecked = _settingModel.UseStatOrBatch;
             MinimizeWindowWhenProgramStartChecked = _settingModel.WindowMinimize;
             ShowCloseAndMinimizeButtonChecked = _settingModel.ShowWindowOperationButton;
             ShowXYChecked = _settingModel.ShowXYParameter;

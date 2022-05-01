@@ -3,12 +3,14 @@ using FCP.src.Enum;
 using FCP.src.FormatControl;
 using FCP.Services;
 using System.Windows;
+using FCP.Models;
+using System;
 
 namespace FCP.src.FormatInit
 {
     class BASE_MinSheng : FormatBase
     {
-        private FMT_MinSheng _MS { get; set; }
+        private FMT_MinSheng _format { get; set; }
 
         public override void Init()
         {
@@ -32,29 +34,34 @@ namespace FCP.src.FormatInit
         public override void Converter()
         {
             base.Converter();
-            string fileDate = Path.GetFileNameWithoutExtension(base.SourceFilePath).Substring(1);
+            string fileDate = Path.GetFileNameWithoutExtension(FileInfoModel.SourceFilePath).Substring(1);
             JsonService.JudgeJsonFileIsAlreadyCreated(fileDate);
-            if (_MS == null)
-                _MS = new FMT_MinSheng();
-            _MS.Index = JsonService.GetOLEDBIndex(base.CurrentDepartment, fileDate);
-            var result = _MS.MethodShunt();
+            _format = _format ?? new FMT_MinSheng();
+            _format.Index = JsonService.GetOLEDBIndex(FileInfoModel.Department, fileDate);
+            var department = FileInfoModel.Department;
+            var result = _format.MethodShunt();
             Result(result, false);
-            JsonService.UpdateJson(fileDate, base.CurrentDepartment, _MS.newCount);
+            JsonService.UpdateJson(fileDate, department, _format.newCount);
         }
 
-        public override UILayout SetUILayout(UILayout UI)
+        public override MainUILayoutModel SetUILayout(MainUILayoutModel UI)
         {
-            UI.Title = "民生醫院 > OnCube";
-            UI.IP1Title = "輸入路徑1";
-            UI.IP2Title = "輸入路徑1";
-            UI.IP3Title = "住   院";
+            UI.Title = "民生醫院";
+            UI.IP1Title = "門診";
+            UI.IP2Title = "輸入路徑2";
+            UI.IP3Title = "養護";
+            UI.IP4Title = "大寮";
+            UI.IP5Title = "UD";
             UI.OPDToogle1 = "門診";
             UI.OPDToogle2 = "";
             UI.OPDToogle3 = "養護";
             UI.OPDToogle4 = "大寮";
             UI.IP1Enabled = true;
-            UI.IP2Enabled = true;
+            UI.IP2Enabled = false;
             UI.IP3Enabled = true;
+            UI.IP4Enabled = true;
+            UI.IP5Enabled = true;
+            UI.IP6Enabled = false;
             UI.UDVisibility = Visibility.Visible;
             UI.OPD1Visibility = Visibility.Visible;
             UI.OPD2Visibility = Visibility.Hidden;

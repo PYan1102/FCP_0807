@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Windows;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Input;
 using FCP.src.Factory.ViewModel;
 using FCP.Models;
 using FCP.ViewModels;
-using FCP.src;
-using Helper;
-using FCP.src.Factory.Models;
 using SqlHelper;
-using SqlHelper.Interface;
+using FCP.Services;
 
 namespace FCP.Views
 {
@@ -92,11 +88,9 @@ namespace FCP.Views
         public MainWindow()
         {
             InitializeComponent();
-            WindowOwner.MainWindowOwner = this;
-            SettingFactory.GenerateSetting();
-            SettingFactory.GenerateSettingModel();
             this.DataContext = MainWindowFactory.GenerateMainWindowViewModel();
             SimpleWindowFactory.GenerateSimpleWindow();
+            Setting.Init();
             var vm = this.DataContext as MainWindowViewModel;
             vm.ActivateWindow += ActivateWindow;
             CommonModel.SqlHelper = SqlConnectionFactory.GetConnection(eConnectionType.MsSql);

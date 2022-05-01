@@ -74,7 +74,7 @@ namespace FCP.src.FormatControl
                     }
                     if (!IsExistsMultiAdminCode(ecd.GetString(ATemp, 57, 11).Trim() + ecd.GetString(ATemp, 68, 9).Trim()))
                     {
-                        ReturnsResult.Shunt(eConvertResult.沒有餐包頻率, AdminCode_S);
+                        ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, AdminCode_S);
                         return false;
                     }
                     MedicineCode_L.Add(ecd.GetString(ATemp, 2, 10).Trim());

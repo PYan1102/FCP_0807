@@ -38,8 +38,9 @@ namespace FCP.ViewModels
 
         public SettingsPage1ViewModel()
         {
-            _settingModel = SettingFactory.GenerateSettingModel();
             _model = ModelsFactory.GenerateSettingPage1Model();
+            _settingModel = ModelsFactory.GenerateSettingModel();
+
             NormalPack = new RelayCommand(() => NormalPackFunc());
             FilterAdminCode = new RelayCommand(() => FilterAdminCodeFunc());
             UseAdminCode = new RelayCommand(() => UseAdminCodeFunc());

@@ -42,7 +42,7 @@ namespace FCP.src.FormatControl
                     if (!IsExistsCombiAdminCode($"{data[5]}"))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置此種包頻率 S{data[5]}");
-                        ReturnsResult.Shunt(eConvertResult.沒有種包頻率, data[5]);
+                        ReturnsResult.Shunt(eConvertResult.缺少種包頻率, data[5]);
                         return false;
                     }
                     DateTime.TryParseExact($"{Convert.ToInt32(data[12]) + 19110000}", "yyyyMMdd", null, DateTimeStyles.None, out DateTime startDate);

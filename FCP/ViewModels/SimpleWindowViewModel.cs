@@ -7,8 +7,8 @@ using FCP.src.Factory.ViewModel;
 using System.Windows.Input;
 using FCP.src.Enum;
 using System.Text;
-using FCP.src.Factory.Models;
 using System.Collections.Generic;
+using FCP.src.Factory.Models;
 
 namespace FCP.ViewModels
 {
@@ -32,13 +32,13 @@ namespace FCP.ViewModels
         private SolidColorBrush _ShinyBlue = new SolidColorBrush((Color)Color.FromRgb(9, 225, 255));
         private SolidColorBrush _White = new SolidColorBrush((Color)Color.FromRgb(255, 255, 255));
         private SolidColorBrush _Red = new SolidColorBrush((Color)Color.FromRgb(255, 82, 85));
-        private SettingModel _SettingsModel;
+        private SettingModel _settingModel;
 
         public SimpleWindowViewModel()
         {
+            _settingModel = ModelsFactory.GenerateSettingModel();
             _MainWindowVM = MainWindowFactory.GenerateMainWindowViewModel();
             _Model = new SimpleWindowModel();
-            _SettingsModel = SettingFactory.GenerateSettingModel();
             Activate = new ObjectRelayCommand(o => ActivateFunc((Window)o), o => CanActivate());
             SwitchWindow = new RelayCommand(SwitchWindowFunc);
             ShowAndCloseLog = new RelayCommand(ShowAndCloseLogFunc);
@@ -337,24 +337,24 @@ namespace FCP.ViewModels
         {
             List<eFormat> hospitalCustomers = new List<eFormat>() {eFormat.光田醫院OC, eFormat.民生醫院OC, eFormat.義大醫院OC };
             List<eFormat> powderCustomers = new List<eFormat>() { eFormat.光田醫院JVS };
-            if (hospitalCustomers.Contains(_SettingsModel.Format))
+            if (hospitalCustomers.Contains(_settingModel.Format))
             {
                 OPDContent = "門 診F5";
                 UDVisibility = Visibility.Visible;
             }
-            MultiVisibility = _SettingsModel.Format == eFormat.光田醫院OC ? Visibility.Visible : Visibility.Hidden;
-            CombiVisibility = _SettingsModel.Format == eFormat.光田醫院OC ? Visibility.Visible : Visibility.Hidden;
+            MultiVisibility = _settingModel.Format == eFormat.光田醫院OC ? Visibility.Visible : Visibility.Hidden;
+            CombiVisibility = _settingModel.Format == eFormat.光田醫院OC ? Visibility.Visible : Visibility.Hidden;
             MultiChecked = Properties.Settings.Default.DoseType == "M";
-            if (powderCustomers.Contains(_SettingsModel.Format))
+            if (powderCustomers.Contains(_settingModel.Format))
             {
                 OPDContent = "磨 粉F5";
                 UDVisibility = Visibility.Hidden;
             }
-            StatVisibility = _SettingsModel.UseStatOrBatch ? Visibility.Visible : Visibility.Hidden;
-            BatchVisibility = _SettingsModel.UseStatOrBatch ? Visibility.Visible : Visibility.Hidden;
-            CloseVisibility = _SettingsModel.ShowWindowOperationButton ? Visibility.Visible : Visibility.Hidden;
-            MinimumVisibility = _SettingsModel.ShowWindowOperationButton ? Visibility.Visible : Visibility.Hidden;
-            StatChecked = _SettingsModel.StatOrBatch == eDepartment.Stat;
+            StatVisibility = _settingModel.UseStatOrBatch ? Visibility.Visible : Visibility.Hidden;
+            BatchVisibility = _settingModel.UseStatOrBatch ? Visibility.Visible : Visibility.Hidden;
+            CloseVisibility = _settingModel.ShowWindowOperationButton ? Visibility.Visible : Visibility.Hidden;
+            MinimumVisibility = _settingModel.ShowWindowOperationButton ? Visibility.Visible : Visibility.Hidden;
+            StatChecked = _settingModel.StatOrBatch == eDepartment.Stat;
             StopEnabled = false;
             Left = Properties.Settings.Default.X;
             Top = Properties.Settings.Default.Y;

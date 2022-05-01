@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using System.Windows.Input;
 using FCP.Core;
 using System.Windows.Media;
@@ -12,8 +11,8 @@ using Helper;
 using FCP.src;
 using MaterialDesignThemes.Wpf;
 using FCP.src.Enum;
-using FCP.src.Factory.Models;
 using FCP.src.Factory;
+using FCP.src.Factory.Models;
 
 namespace FCP.ViewModels
 {
@@ -29,16 +28,13 @@ namespace FCP.ViewModels
         private SettingsPage2ViewModel _settingPage2VM;
         private object _currentView;
         private AdvancedSettingsModel _model;
-        private Setting _setting;
-        private SettingModel _settingModel;
         private SolidColorBrush _yellow = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F4D03F"));
         private SolidColorBrush _blue = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1D6FB1"));
         private SolidColorBrush White = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"));
+        private SettingModel _settingModel;
 
         public AdvancedSettingsViewModel()
         {
-            _setting = SettingFactory.GenerateSetting();
-            _settingModel = SettingFactory.GenerateSettingModel();
             _model = new AdvancedSettingsModel();
             Page1 = new RelayCommand(() => Page1Func());
             Page2 = new RelayCommand(() => Page2Func());
@@ -48,6 +44,7 @@ namespace FCP.ViewModels
 
             _settingPage1VM = AdvancedSettingFactory.GenerateSettingsPage1ViewModel();
             _settingPage2VM = AdvancedSettingFactory.GenerateSettingsPage2ViewModel();
+            _settingModel = ModelsFactory.GenerateSettingModel();
         }
 
         public object CurrentView
@@ -129,7 +126,7 @@ namespace FCP.ViewModels
                 model.CutTime = _settingPage1VM.CutTime;
                 model.CrossDayAdminCode = _settingPage1VM.AdminCodeOfCrossDay;
                 model.FilterMedicineCode = _settingPage1VM.FilterMedicineCodeList.ToList();
-                model.UseStatOrBatch = _settingPage2VM.ShowStatAndBatchOptionChecked;
+                model.UseStatOrBatch = _settingPage2VM.UseStatAndBatchOptionChecked;
                 model.WindowMinimize = _settingPage2VM.MinimizeWindowWhenProgramStartChecked;
                 model.ShowWindowOperationButton = _settingPage2VM.ShowCloseAndMinimizeButtonChecked;
                 model.ShowXYParameter = _settingPage2VM.ShowXYChecked;
@@ -137,7 +134,7 @@ namespace FCP.ViewModels
                 model.FilterNoCanister = _settingPage2VM.OnlyCanisterInChecked;
                 model.MoveSourceFileToBackupDirectoryWhenDone = _settingPage2VM.WhenCompeletedMoveFileChecked;
                 model.StopWhenDone = _settingPage2VM.WhenCompeletedStopChecked;
-                _setting.Save(model);
+                Setting.Save(model);
                 if (!isSameFormat)  //若新設定的轉檔格式與舊的不同，則產生對應的格式
                 {
                     MainWindowFactory.GenerateMainWindowViewModel().GenerateCurrentFormat();

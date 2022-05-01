@@ -1,8 +1,5 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
-using System.Runtime.InteropServices;
-using FCP.Models;
 using FCP.src.Factory.ViewModel;
 using FCP.ViewModels;
 
@@ -17,7 +14,6 @@ namespace FCP.Views
         public AdvancedSettings()
         {
             InitializeComponent();
-            this.Owner = WindowOwner.MainWindowOwner;
             this.DataContext = AdvancedSettingFactory.GenerateAdvancedSettingsViewModel();
             var vm = this.DataContext as AdvancedSettingsViewModel;
             vm.CloseWindow += CloseWindow;

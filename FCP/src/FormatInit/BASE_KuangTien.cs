@@ -63,7 +63,7 @@ namespace FCP.src.FormatInit
             Result(result, true);
         }
 
-        public override UILayout SetUILayout(UILayout UI)
+        public override MainUILayoutModel SetUILayout(MainUILayoutModel UI)
         {
             UI.Title = SettingModel.Format == eFormat.光田醫院OC ? "光田醫院 > OnCube" : "光田醫院 > JVServer";
             UI.IP1Title = SettingModel.Format == eFormat.光田醫院OC ? "門   診" : "輸入路徑1";

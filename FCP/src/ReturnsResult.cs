@@ -23,10 +23,10 @@ namespace FCP.src
                 case eConvertResult.全數過濾:
                     Filter();
                     break;
-                case eConvertResult.沒有餐包頻率:
+                case eConvertResult.缺少餐包頻率:
                     NoMultiAdminCode(message);
                     break;
-                case eConvertResult.沒有種包頻率:
+                case eConvertResult.缺少種包頻率:
                     NoCombiAdminCode(message);
                     break;
                 case eConvertResult.產生OCS失敗:
@@ -64,7 +64,7 @@ namespace FCP.src
         public void NoMultiAdminCode(string adminCode)
         {
             _ReturnsResultFormat.Message = $"{FileInfoModel.SourceFilePath} 在OnCube中未建置此餐包頻率 {adminCode} 的頻率";
-            _ReturnsResultFormat.Result = eConvertResult.沒有餐包頻率;
+            _ReturnsResultFormat.Result = eConvertResult.缺少餐包頻率;
         }
 
         public void Success()
@@ -76,7 +76,7 @@ namespace FCP.src
         public void NoCombiAdminCode(string adminCode)
         {
             _ReturnsResultFormat.Message = $"{FileInfoModel.SourceFilePath} 在OnCube中未建置此種包頻率 S{adminCode} 的頻率";
-            _ReturnsResultFormat.Result = eConvertResult.沒有種包頻率;
+            _ReturnsResultFormat.Result = eConvertResult.缺少種包頻率;
         }
 
         public void GenerateOCSFileFail(string exception = null)

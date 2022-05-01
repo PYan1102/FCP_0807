@@ -1,10 +1,9 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 
 namespace FCP.Models
 {
-    class SimpleWindowModel
+    public sealed class SimpleWindowModel
     {
         public Visibility Visibility { get; set; } = Visibility.Hidden;
         public bool Topmost { get; set; }

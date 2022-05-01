@@ -2,9 +2,9 @@
 
 namespace FCP.Models
 {
-    class SettingPage2Model
+    public sealed class SettingPage2Model
     {
-        public bool ShowStatAndBatchOptionChecked { get; set; }
+        public bool UseStatAndBatchOptionChecked { get; set; }
         public bool MinimizeWindowWhenProgramStartChecked { get; set; }
         public bool ShowCloseAndMinimizeButtonChecked { get; set; }
         public bool ShowXYChecked { get; set; }

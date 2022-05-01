@@ -1,12 +1,10 @@
-﻿using System;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 using FCP.src.Enum;
 
 namespace FCP.Models
 {
-    class MainWindowModel
+    public sealed class MainWindowModel
     {
         public Visibility Visibility { get; set; }
         public string WindowTitle { get; set; }

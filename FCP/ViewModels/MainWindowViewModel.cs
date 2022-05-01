@@ -14,16 +14,13 @@ using System.Windows.Forms;
 using FCP.Services;
 using Helper;
 using System.Diagnostics;
-using System.IO;
-using FCP.src.Factory.Models;
 using FCP.src;
-using System.Windows.Threading;
+using FCP.src.Factory.Models;
 
 namespace FCP.ViewModels
 {
     class MainWindowViewModel : ViewModelBase
     {
-        public bool IsOPD { get; set; }
         public ICommand ShowAdvancedSettings { get; set; }
         public ICommand OPD { get; set; }
         public ICommand UD { get; set; }
@@ -40,17 +37,16 @@ namespace FCP.ViewModels
         public ICommand OpenLog { get; set; }
         public ICommand ClearProgressBoxContent { get; set; }
         public Action ActivateWindow { get; set; }
-        private FormatBase _formatBase { get; set; }
-        private SettingModel _settingModel { get; set; }
-        private Setting _setting { get; set; }
-        private MsgViewModel _msgVM { get; set; }
+        private FormatBase _formatBase;
+        private SettingModel _settingModel;
+        private MsgViewModel _msgVM;
         private MainWindowModel _model;
 
         public MainWindowViewModel()
         {
-            _settingModel = SettingFactory.GenerateSettingModel();
-            _setting = SettingFactory.GenerateSetting();
             _msgVM = MsgFactory.GenerateMsgViewModel();
+            _settingModel = ModelsFactory.GenerateSettingModel();
+
             ShowAdvancedSettings = new RelayCommand(ShowAdvancedSettingsFunc, CanStartConverterOrShowAdvancedSettings);
             _model = new MainWindowModel();
             Loaded = new RelayCommand(() => LoadedFuncAsync());
@@ -489,18 +485,18 @@ namespace FCP.ViewModels
 
         public void OPDFunc()
         {
-            if ((_model.OPDToogle1Checked | _model.OPDToogle2Checked | _model.OPDToogle3Checked | _model.OPDToogle4Checked) == false)
+            if ((_model.OPDToogle1Checked || _model.OPDToogle2Checked || _model.OPDToogle3Checked || _model.OPDToogle4Checked) == false)
             {
                 MsgCollection.Show("沒有勾選任一個模式", "模式未勾選", PackIconKind.Error, KindColors.Error);
                 return;
             }
-            IsOPD = true;
+            CommonModel.CurrentDepartment = eDepartment.OPD;
             _formatBase.ConvertPrepare();
         }
 
         public void UDFunc()
         {
-            IsOPD = false;
+            CommonModel.CurrentDepartment = eDepartment.UD;
             _formatBase.ConvertPrepare();
         }
 
@@ -526,7 +522,7 @@ namespace FCP.ViewModels
             model.OutputDirectory = OutputDirectory;
             model.StatOrBatch= StatChecked ? eDepartment.Stat : eDepartment.Batch;
             model.AutoStart = IsAutoStartChecked;
-            _setting.Save(model);
+            Setting.Save(model);
             AddLog("儲存成功");
         }
 
@@ -574,7 +570,7 @@ namespace FCP.ViewModels
             RefreshUIPropertyServices.SwitchMainWindowControlState(true);
             NotifyIconHelper.Init(Properties.Resources.FCP, "轉檔");
             NotifyIconHelper.DoubleClickAction += NotifyIconDBClick;
-            FormatBase.NotifyIcon = NotifyIconHelper.NotifyIcon;
+            CommonModel.NotifyIcon = NotifyIconHelper.NotifyIcon;
             GenerateCurrentFormat();
             Init();
             if (IsAutoStartChecked)

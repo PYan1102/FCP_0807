@@ -1,9 +1,8 @@
-﻿using System;
-using FCP.src.Enum;
+﻿using FCP.src.Enum;
 
 namespace FCP.Models
 {
-    public class ReturnsResultFormat
+    public sealed class ReturnsResultFormat
     {
         public eConvertResult Result { get; set; }
         public string Message { get; set; }

@@ -6,19 +6,24 @@ namespace FCP.src.Factory.Models
     {
         private static SettingPage1Model _settingsPage1Model;
         private static SettingPage2Model _settingPage2Model;
+        private static SettingModel _settingModel;
 
         public static SettingPage1Model GenerateSettingPage1Model()
         {
-            if (_settingsPage1Model == null)
-                _settingsPage1Model = new SettingPage1Model();
+            _settingsPage1Model = _settingsPage1Model ?? new SettingPage1Model();
             return _settingsPage1Model;
         }
 
         public static SettingPage2Model GenerateSettingPage2Model()
         {
-            if (_settingPage2Model == null)
-                _settingPage2Model = new SettingPage2Model();
+            _settingPage2Model = _settingPage2Model ?? new SettingPage2Model();
             return _settingPage2Model;
+        }
+
+        public static SettingModel GenerateSettingModel()
+        {
+            _settingModel = _settingModel ?? new SettingModel();
+            return _settingModel;
         }
 
         public static void SetSettingPage1ModelNull()

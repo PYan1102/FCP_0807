@@ -2,7 +2,6 @@
 using FCP.src.Factory.ViewModel;
 using FCP.Models;
 using System.Windows.Media;
-using FCP.src.Factory.Models;
 using FCP.ViewModels;
 
 namespace FCP.src
@@ -10,10 +9,9 @@ namespace FCP.src
     static class RefreshUIPropertyServices
     {
         private static MainWindowViewModel _mainWindowVM { get => MainWindowFactory.GenerateMainWindowViewModel(); }
-        private static SettingModel _settingModel { get => SettingFactory.GenerateSettingModel(); }
         private static SimpleWindowViewModel _simpleWindowVM { get => SimpleWindowFactory.GenerateSimpleWindowViewModel(); }
 
-        public static void RefrehMainWindowUI(UILayout UI)
+        public static void RefrehMainWindowUI(MainUILayoutModel UI)
         {
             _mainWindowVM.WindowTitle = UI.Title;
             _mainWindowVM.InputDirectory1Title = UI.IP1Title;

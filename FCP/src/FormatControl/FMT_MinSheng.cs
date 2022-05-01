@@ -62,13 +62,12 @@ namespace FCP.src.FormatControl
                     //    Remove.Add(MS_OPD.IndexOf(v));
                     //    continue;
                     //}
-                    if (!IsExistsMultiAdminCode(v.AdminCode))
-                    {
-                        newCount = 0;
-                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {v.AdminCode}");
-                        ReturnsResult.Shunt(eConvertResult.沒有餐包頻率, v.AdminCode);
-                        return false;
-                    }
+                    //if (!IsExistsMultiAdminCode(v.AdminCode))
+                    //{
+                    //    newCount = 0;
+                    //    ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, v.AdminCode);
+                    //    return false;
+                    //}
                 }
                 for (int x = neeedRemoveList.Count - 1; x >= 0; x--)
                 {
@@ -143,8 +142,7 @@ namespace FCP.src.FormatControl
                     if (!IsExistsMultiAdminCode(v.AdminCode))
                     {
                         newCount = 0;
-                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {v.AdminCode}");
-                        ReturnsResult.Shunt(eConvertResult.沒有餐包頻率, v.AdminCode);
+                        ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, v.AdminCode);
                         return false;
                     }
                 }

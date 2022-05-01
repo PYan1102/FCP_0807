@@ -12,8 +12,9 @@ namespace FCP.Services.FileSearchService
     class InputDirectory : IGetFile
     {
 
-        public void GetFile(string extensionName, List<MatchModel> matchModel, List<string> inputDirectory)
+        public string GetFile(string extensionName, List<MatchModel> matchModel)
         {
+            return string.Empty;
         }
     }
 }

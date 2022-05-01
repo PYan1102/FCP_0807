@@ -1,35 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Threading;
 using FCP.src.Factory.ViewModel;
 using FCP.Models;
-using FCP.src.Factory;
 using FCP.src.Enum;
 using FCP.ViewModels;
 using MaterialDesignThemes.Wpf;
 using Helper;
-using FCP.src.Factory.Models;
 using FCP.Services.FileSearchService;
-using System.Linq;
+using FCP.src.Factory.Models;
+using FCP.Services;
+using System.Windows.Forms;
+using System.Windows.Threading;
 
 namespace FCP.src
 {
     abstract class FormatBase : Window
     {
         public MainWindowViewModel MainWindowVM { get; set; }
-        public string IP1, IP2, IP3, OP = "";
-        public string PackedType;
         public string SourceFilePath { get; set; }
         public string InputDirectory { get; set; }
         public string OutputDirectory { get; set; }
         public string CurrentSeconds { get; set; }
         public SettingModel SettingModel { get; set; }
         public UIRefresh UIRefresh { get; set; }
-        public static System.Windows.Forms.NotifyIcon NotifyIcon { get; set; }
         private AdvancedSettingsViewModel _advancedSettingsVM;
         private SimpleWindowViewModel _simpleWindowVM;
         protected internal eDepartment CurrentDepartment;
@@ -37,12 +34,10 @@ namespace FCP.src
         private string _failDirectory = string.Empty;
         private CancellationTokenSource _cts;
         private List<MatchModel> _matchModel = null;
-        private List<string> _opdDirectory = null;
-        private List<string> _udDirectory = null;
 
         public FormatBase()
         {
-            SettingModel = SettingFactory.GenerateSettingModel();
+            SettingModel = ModelsFactory.GenerateSettingModel();
             MainWindowVM = MainWindowFactory.GenerateMainWindowViewModel();
             _simpleWindowVM = SimpleWindowFactory.GenerateSimpleWindowViewModel();
         }
@@ -51,11 +46,9 @@ namespace FCP.src
         {
             try
             {
-                UIRefresh = new UIRefresh() { UILayout = SetUILayout(new UILayout()) };
+                UIRefresh = new UIRefresh() { UILayout = SetUILayout(new MainUILayoutModel()) };
                 UIRefresh.StartAsync();
                 _matchModel = new List<MatchModel>();
-                _opdDirectory = new List<string>();
-                _udDirectory = new List<string>();
 
             }
             catch (Exception ex)
@@ -65,7 +58,7 @@ namespace FCP.src
             }
         }
 
-        public virtual UILayout SetUILayout(UILayout UI)
+        public virtual MainUILayoutModel SetUILayout(MainUILayoutModel UI)
         {
             UI.Title = "通用格式";
             UI.IP1Title = "輸入路徑1";
@@ -98,19 +91,14 @@ namespace FCP.src
             {
                 _cts.Cancel();
             }
+            _matchModel.Clear();
         }
 
         public virtual void ConvertPrepare()
         {
-            _opdDirectory.Add(SettingModel.InputDirectory1);
-            _opdDirectory.Add(SettingModel.InputDirectory2);
-            _opdDirectory.Add(SettingModel.InputDirectory3);
-            _opdDirectory.Add(SettingModel.InputDirectory4);
-            _udDirectory.Add(SettingModel.InputDirectory5);
-            _udDirectory.Add(SettingModel.InputDirectory6);
             if (CommonModel.CurrentDepartment == eDepartment.OPD)
             {
-                if (_opdDirectory.Where(x => x.Trim().Length == 0).Count() == _opdDirectory.Count)
+                if ((SettingModel.InputDirectory1 + SettingModel.InputDirectory2 + SettingModel.InputDirectory3 + SettingModel.InputDirectory4 + SettingModel.InputDirectory5 + SettingModel.InputDirectory6).Trim().Length == 0)
                 {
                     MsgCollection.Show("來源路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
                     return;
@@ -118,7 +106,7 @@ namespace FCP.src
             }
             else
             {
-                if (_udDirectory.Where(x => x.Trim().Length == 0).Count() == _udDirectory.Count)
+                if ((SettingModel.InputDirectory5 + SettingModel.InputDirectory6).Trim().Length == 0)
                 {
                     MsgCollection.Show("住院路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
                     return;
@@ -143,32 +131,32 @@ namespace FCP.src
 
         public void SetOPDRule(string rule = null)
         {
-            _matchModel.Add(new MatchModel() { Department = eDepartment.OPD, Rule = rule, Enabled = MainWindowVM.OPDToogle1Checked });
+            _matchModel.Add(new MatchModel() { Department = eDepartment.OPD, Rule = rule, Enabled = MainWindowVM.OPDToogle1Checked, InputDirectory = SettingModel.InputDirectory1 });
         }
 
         public void SetPowderRule(string rule = null)
         {
-            _matchModel.Add(new MatchModel() { Department = eDepartment.POWDER, Rule = rule, Enabled = MainWindowVM.OPDToogle2Checked });
+            _matchModel.Add(new MatchModel() { Department = eDepartment.POWDER, Rule = rule, Enabled = MainWindowVM.OPDToogle2Checked, InputDirectory = SettingModel.InputDirectory2 });
         }
 
         public void SetCareRule(string rule = null)
         {
-            _matchModel.Add(new MatchModel() { Department = eDepartment.Care, Rule = rule, Enabled = MainWindowVM.OPDToogle3Checked });
+            _matchModel.Add(new MatchModel() { Department = eDepartment.Care, Rule = rule, Enabled = MainWindowVM.OPDToogle3Checked, InputDirectory = SettingModel.InputDirectory3 });
         }
 
         public void SetOtherRule(string rule = null)
         {
-            _matchModel.Add(new MatchModel() { Department = eDepartment.Other, Rule = rule, Enabled = MainWindowVM.OPDToogle4Checked });
+            _matchModel.Add(new MatchModel() { Department = eDepartment.Other, Rule = rule, Enabled = MainWindowVM.OPDToogle4Checked, InputDirectory = SettingModel.InputDirectory4 });
         }
 
         public void SetBatchRule(string rule = null)
         {
-            _matchModel.Add(new MatchModel() { Department = eDepartment.Batch, Rule = rule, Enabled = SettingModel.UseStatOrBatch && SettingModel.StatOrBatch == eDepartment.Batch });
+            _matchModel.Add(new MatchModel() { Department = eDepartment.Batch, Rule = rule, Enabled = SettingModel.UseStatOrBatch && SettingModel.StatOrBatch == eDepartment.Batch, InputDirectory = SettingModel.InputDirectory5 });
         }
 
         public void SetStatRule(string rule = null)
         {
-            _matchModel.Add(new MatchModel() { Department = eDepartment.Stat, Rule = rule, Enabled = SettingModel.UseStatOrBatch && SettingModel.StatOrBatch == eDepartment.Stat });
+            _matchModel.Add(new MatchModel() { Department = eDepartment.Stat, Rule = rule, Enabled = SettingModel.UseStatOrBatch && SettingModel.StatOrBatch == eDepartment.Stat, InputDirectory = SettingModel.InputDirectory6 });
         }
 
         public virtual void Start()
@@ -176,15 +164,15 @@ namespace FCP.src
             if (_cts == null)
                 return;
             FileSearchService.Init();
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 while (!_cts.IsCancellationRequested)
                 {
-                    Clear();
+                    ClearFileInfoModel();
                     CheckBackupDirectory();
                     try
                     {
-                        FileSearchService.GetFileInfo(_matchModel, CommonModel.CurrentDepartment == eDepartment.OPD ? _opdDirectory : _udDirectory);
+                        FileSearchService.GetFileInfo(_matchModel);
                         if (!string.IsNullOrEmpty(FileInfoModel.SourceFilePath))
                         {
                             Converter();
@@ -194,6 +182,7 @@ namespace FCP.src
                     {
                         Log.Write(ex);
                     }
+                    await Task.Delay(SettingModel.Speed);
                 }
             });
         }
@@ -206,51 +195,55 @@ namespace FCP.src
         public void Result(ReturnsResultFormat returnsResult, bool isReminder)
         {
             string message = returnsResult.Message;
-            string fileName = $"{Path.GetFileName(SourceFilePath)}_{ DateTime.Now:ss_fff}";
-            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(SourceFilePath);
-            string tip;
+            string sourceFilePath = FileInfoModel.SourceFilePath;
+            string fileName = $"{Path.GetFileName(sourceFilePath)}_{ DateTime.Now:ss_fff}";
+            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(sourceFilePath);
+            string tipContent;
             switch (returnsResult.Result)
             {
                 case eConvertResult.成功:
+                    Log.Write($"{fileNameWithoutExtension} {nameof(eConvertResult.成功)}");
                     if (SettingModel.MoveSourceFileToBackupDirectoryWhenDone)
                     {
-                        File.Move(SourceFilePath, $@"{_successDirectory}\{fileName}.ok");
+                        File.Move(sourceFilePath, $@"{_successDirectory}\{fileName}.ok");
                     }
-                    tip = $"{fileNameWithoutExtension} {nameof(eConvertResult.成功)}";
-                    Log.Write($"{fileNameWithoutExtension} {nameof(eConvertResult.成功)}");
-                    AddNewMessageToProgressBox(tip);
-                    NotifyIcon.ShowBalloonTip(850, nameof(eConvertResult.成功), tip, System.Windows.Forms.ToolTipIcon.None);
+                    tipContent = $"{fileNameWithoutExtension} {nameof(eConvertResult.成功)}";
+                    AddNewMessageToProgressBox(tipContent);
+                    NoticeService.Notice(nameof(eConvertResult.成功), tipContent, ToolTipIcon.None);
                     break;
                 case eConvertResult.全數過濾:
+                    Log.Write($"{fileNameWithoutExtension} {nameof(eConvertResult.全數過濾)}");
                     if (SettingModel.MoveSourceFileToBackupDirectoryWhenDone)
                     {
-                        File.Move(SourceFilePath, $@"{_successDirectory}\{fileName}.ok");
+                        File.Move(sourceFilePath, $@"{_successDirectory}\{fileName}.ok");
                     }
                     if (isReminder)
                     {
-                        tip = $"{fileNameWithoutExtension} {nameof(eConvertResult.全數過濾)}";
-                        AddNewMessageToProgressBox(tip);
-                        NotifyIcon.ShowBalloonTip(850, nameof(eConvertResult.全數過濾), tip, System.Windows.Forms.ToolTipIcon.None);
+                        tipContent = $"{fileNameWithoutExtension} {nameof(eConvertResult.全數過濾)}";
+                        AddNewMessageToProgressBox(tipContent);
+                        NoticeService.Notice(nameof(eConvertResult.全數過濾), tipContent, ToolTipIcon.None);
                     }
-                    Log.Write($"{fileNameWithoutExtension} {nameof(eConvertResult.全數過濾)}");
                     break;
-                case eConvertResult.沒有種包頻率:
+                case eConvertResult.缺少種包頻率:
+                    Log.Write($"{fileNameWithoutExtension} OnCube中缺少該檔案 {message} 的種包頻率");
                     Dispatcher.Invoke(new Action(() => MainWindowVM.StopFunc()));
                     AddNewMessageToProgressBox(message);
-                    NotifyIcon.ShowBalloonTip(850, $"缺少頻率", $"{Path.GetFileName(SourceFilePath)} OnCube中缺少該檔案 {message} 的種包頻率", System.Windows.Forms.ToolTipIcon.Error);
+                    NoticeService.Notice(nameof(eConvertResult.缺少種包頻率), $"{Path.GetFileName(sourceFilePath)} OnCube中缺少該檔案 {message} 的種包頻率", ToolTipIcon.Error);
                     break;
-                case eConvertResult.沒有餐包頻率:
+                case eConvertResult.缺少餐包頻率:
+                    Log.Write($"{fileNameWithoutExtension} OnCube中缺少該檔案 {message} 的餐包頻率");
                     Dispatcher.Invoke(new Action(() => MainWindowVM.StopFunc()));
                     AddNewMessageToProgressBox(message);
-                    NotifyIcon.ShowBalloonTip(850, $"缺少頻率", $"{Path.GetFileName(SourceFilePath)} OnCube中缺少該檔案 {message} 的餐包頻率", System.Windows.Forms.ToolTipIcon.Error);
+                    NoticeService.Notice(nameof(eConvertResult.缺少餐包頻率), $"{Path.GetFileName(sourceFilePath)} OnCube中缺少該檔案 {message} 的餐包頻率", ToolTipIcon.Error);
                     break;
                 default:
+                    Log.Write($"{fileNameWithoutExtension} {message}");
                     if (SettingModel.MoveSourceFileToBackupDirectoryWhenDone)
                     {
-                        File.Move(SourceFilePath, $@"{_failDirectory}\{fileName}.fail");
+                        File.Move(sourceFilePath, $@"{_failDirectory}\{fileName}.fail");
                     }
                     AddNewMessageToProgressBox($"{returnsResult.Result} {message}");
-                    NotifyIcon.ShowBalloonTip(850, "轉檔錯誤", message, System.Windows.Forms.ToolTipIcon.Error);
+                    NoticeService.Notice("轉檔錯誤", message, ToolTipIcon.Error);
                     break;
             }
             if (SettingModel.StopWhenDone)
@@ -267,7 +260,7 @@ namespace FCP.src
 
         public string MergeFilesAndGetNewFilePath(string InputDirectory, string fileName, int start, int length, string content)
         {
-            MergeFiles mergeFiles = new MergeFiles(InputDirectory, fileName);
+            MergeFileService mergeFiles = new MergeFileService(InputDirectory, fileName);
             mergeFiles.Merge(start, length, content);
             return mergeFiles.GetMergedFilePath;
         }
@@ -288,13 +281,9 @@ namespace FCP.src
                 Stop();
         }
 
-        private void Clear()
+        private void ClearFileInfoModel()
         {
-            InputDirectory = string.Empty;
-            OutputDirectory = MainWindowVM.OutputDirectory;
-            SourceFilePath = string.Empty;
-            CurrentSeconds = string.Empty;
-            CurrentDepartment = eDepartment.OPD;
+            FileInfoModel.Clear();
         }
 
         //檢查備份資料夾是否存在
@@ -311,16 +300,6 @@ namespace FCP.src
             }
             _successDirectory = $@"{backupDirectory}\Success";
             _failDirectory = $@"{backupDirectory}\Fail";
-        }
-
-
-
-        private void SetConvertValue(int MethodID, string IP, string OP, string File)
-        {
-            int MethodID1 = MethodID;
-            InputDirectory = IP;
-            OutputDirectory = OP;
-            SourceFilePath = File;
         }
 
         private void AddNewMessageToProgressBox(string result)

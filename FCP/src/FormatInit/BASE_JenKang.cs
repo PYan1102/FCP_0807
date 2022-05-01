@@ -4,6 +4,7 @@ using FCP.src.Enum;
 using FCP.src.FormatControl;
 using System.Windows;
 using System;
+using FCP.Models;
 
 namespace FCP.src.FormatInit
 {
@@ -47,7 +48,7 @@ namespace FCP.src.FormatInit
             }
             return sb.ToString();
         }
-        public override UILayout SetUILayout(UILayout UI)
+        public override MainUILayoutModel SetUILayout(MainUILayoutModel UI)
         {
             UI.Title = "仁康醫院 > OnCube";
             UI.IP1Title = "門診";

@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
-using FCP.ViewModels;
 
 namespace FCP.Models
 {
-    class SettingPage1Model
+    public sealed class SettingPage1Model
     {
         public int SearchFrequency { get; set; } = 100;
         public ObservableCollection<string> Mode { get; set; }

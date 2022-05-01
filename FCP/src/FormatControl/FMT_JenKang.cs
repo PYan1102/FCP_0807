@@ -33,7 +33,7 @@ namespace FCP.src.FormatControl
                     if (!IsExistsCombiAdminCode(adminCode))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置種包頻率 {adminCode}");
-                        ReturnsResult.Shunt(eConvertResult.沒有種包頻率, adminCode);
+                        ReturnsResult.Shunt(eConvertResult.缺少種包頻率, adminCode);
                         return false;
                     }
                     DateTime.TryParseExact(EncodingHelper.GetString(41, 8), "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime startDate);
@@ -106,7 +106,7 @@ namespace FCP.src.FormatControl
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置餐包頻率 {adminCode}");
-                        ReturnsResult.Shunt(eConvertResult.沒有餐包頻率, adminCode);
+                        ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, adminCode);
                         return false;
                     }
                     string location = "住院";
@@ -144,7 +144,7 @@ namespace FCP.src.FormatControl
                 }
                 if (_UDBatch.Count == 0)
                 {
-                    ReturnsResult.Shunt(eConvertResult.沒有餐包頻率, null);
+                    ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, null);
                     return false;
                 }
                 return true;

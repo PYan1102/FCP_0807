@@ -4,18 +4,17 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Globalization;
-using FCP.Models;
 using FCP.src.Enum;
 using Helper;
-using FCP.src.Factory.Models;
 using FCP.src.FormatControl;
+using FCP.src.Factory.Models;
+using FCP.Models;
 
 namespace FCP
 {
     internal static class OP_OnCube
     {
-        private static SettingModel _settingsModel { get => SettingFactory.GenerateSettingModel(); }
-
+        private static SettingModel _settingModel => ModelsFactory.GenerateSettingModel();
         public static void JVServer(List<JVServerOPD> opd, JVServerOPDBasic basic, List<string> oncubeRandom, string random, string outputDirectory)
         {
             try
@@ -102,7 +101,7 @@ namespace FCP
                             sb.Append(y.SumQty.PadRight(5));
                         sb.Append(y.MedicineCode.PadRight(20));
                         sb.Append(ECD(y.MedicineName, 50));
-                        if (doseType == eDoseType.餐包 && !_settingsModel.CrossDayAdminCode.Contains(y.AdminCode))
+                        if (doseType == eDoseType.餐包 && !_settingModel.CrossDayAdminCode.Contains(y.AdminCode))
                         {
                             sb.Append($"{y.AdminCode}{x.Key}".PadRight(20));
                         }
@@ -277,7 +276,7 @@ namespace FCP
                     int r = Convert.ToInt32(v.Key.Substring(0, v.Key.IndexOf("_")));
                     string DateTemp = v.Key.Substring(v.Key.IndexOf("_") + 1, v.Key.Length - v.Key.IndexOf("_") - 1);
                     DateTime.TryParseExact(DateTemp, "yyMMdd", null, DateTimeStyles.None, out DateTime Date);
-                    if (Type == "即時" & _settingsModel.DoseType == eDoseType.餐包)
+                    if (Type == "即時" & _settingModel.DoseType == eDoseType.餐包)
                     {
                         if (Name == "")
                             Name = PatientName[r];
@@ -294,7 +293,7 @@ namespace FCP
                         }
                     }
 
-                    if (_settingsModel.DoseType == eDoseType.種包)
+                    if (_settingModel.DoseType == eDoseType.種包)
                     {
                         if (Name == "")
                             Name = PatientName[r];
@@ -1018,8 +1017,8 @@ namespace FCP
 
         private static eDoseType GetDoseType(string code)
         {
-            List<string> list = AssignExtraAdminTime(_settingsModel.OutputSpecialAdminCode);
-            var type = JudgeDoseType(_settingsModel.DoseType, list, code);
+            List<string> list = AssignExtraAdminTime(_settingModel.OutputSpecialAdminCode);
+            var type = JudgeDoseType(_settingModel.DoseType, list, code);
             return type;
         }
 

@@ -85,9 +85,9 @@
                                Margin="0 25 0 0"/>
                     <ToggleButton Grid.Row="1"
                                   HorizontalAlignment="Left"
-                                  IsChecked="{Binding ShowStatAndBatchOptionChecked}"/>
+                                  IsChecked="{Binding UseStatAndBatchOptionChecked}"/>
                     <TextBlock Grid.Row="1"
-                               Text="顯示住院即時與長期"
+                               Text="使用住院即時與長期"
                                Style="{StaticResource FeatureTextBlock}"/>
                     <ToggleButton Grid.Row="2"
                                   HorizontalAlignment="Left"

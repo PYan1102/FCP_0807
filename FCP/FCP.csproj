@@ -55,6 +55,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\Helper.dll</HintPath>
     </Reference>
+    <Reference Include="Lierda.WPFHelper, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cbb49eab16984ff2, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lierda.WPFHelper.1.0.3\lib\net462\Lierda.WPFHelper.dll</HintPath>
+    </Reference>
     <Reference Include="MaterialDesignColors, Version=2.0.3.2, Culture=neutral, PublicKeyToken=df2a72020bd7962a, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialDesignColors.2.0.3\lib\net452\MaterialDesignColors.dll</HintPath>
     </Reference>
@@ -98,17 +101,18 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Models\CommonModel.cs" />
+    <Compile Include="Models\MainUILayoutModel.cs" />
     <Compile Include="Models\MatchModel.cs" />
     <Compile Include="Services\FileSearchService\FileNameHead.cs" />
     <Compile Include="Services\FileSearchService\FileSearchService.cs" />
     <Compile Include="Services\FileSearchService\InputDirectory.cs" />
     <Compile Include="Services\FileSearchService\MatchDepartment.cs" />
-    <Compile Include="src\InputDirectoryMatch.cs" />
+    <Compile Include="Services\MergeFileService.cs" />
+    <Compile Include="Services\NoticeService.cs" />
     <Compile Include="src\Interface\IGetFIle.cs" />
     <Compile Include="Views\AdvancedSettings.xaml.cs">
       <DependentUpon>AdvancedSettings.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Models\WindowOwner.cs" />
     <Compile Include="src\ComparePrescription.cs" />
     <Compile Include="src\Factory\ViewModel\AdvancedSettingFactory.cs" />
     <Compile Include="src\Factory\Models\ModelsFactory.cs" />
@@ -144,7 +148,6 @@
     <Compile Include="src\FormatControl\FMT_YiSheng.cs" />
     <Compile Include="src\FormatInit\BASE_JenKang.cs" />
     <Compile Include="src\FormatInit\BASE_JVServer.cs" />
-    <Compile Include="MergeFiles.cs" />
     <Compile Include="Models\AdvancedSettingsModel.cs" />
     <Compile Include="Models\FileInfoModel.cs" />
     <Compile Include="src\Enum\eConvertResult.cs" />
@@ -160,7 +163,6 @@
     <Compile Include="Models\SettingsPage1Model.cs" />
     <Compile Include="Models\SettingsPage2Model.cs" />
     <Compile Include="Models\SimpleWindowModel.cs" />
-    <Compile Include="src\Factory\Models\SettingFactory.cs" />
     <Compile Include="src\MsgCollection.cs" />
     <Compile Include="ViewModels\AdvancedSettingsViewModel.cs" />
     <Compile Include="src\Interface\IRetunrsResult.cs" />

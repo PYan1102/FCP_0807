@@ -63,7 +63,7 @@ namespace FCP.src.FormatControl
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {adminCode}");
-                        ReturnsResult.Shunt(eConvertResult.沒有餐包頻率, adminCode);
+                        ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, adminCode);
                         return false;
                     }
                     float perQty = Convert.ToSingle(node.Attributes["divided_dose"].Value);

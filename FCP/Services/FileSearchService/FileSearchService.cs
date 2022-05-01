@@ -1,16 +1,10 @@
 ﻿using FCP.Models;
-using FCP.Services.FileSearchService;
 using FCP.src.Enum;
-using FCP.src.Factory;
 using FCP.src.Factory.Models;
 using FCP.src.Interface;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace FCP.Services.FileSearchService
 {
@@ -18,7 +12,7 @@ namespace FCP.Services.FileSearchService
     {
         private static eFileSearchMode _fileSearchMode;
         private static IGetFile _getFile = null;
-        private static SettingModel _settingModel => SettingFactory.GenerateSettingModel();
+        private static SettingModel _settingModel => ModelsFactory.GenerateSettingModel();
 
         public static void SetFileSearchMode(eFileSearchMode fileSearchMode)
         {
@@ -40,9 +34,29 @@ namespace FCP.Services.FileSearchService
             }
         }
 
-        public static void GetFileInfo(List<MatchModel> matchModelList, List<string> inputDirectoryList)
+        public static void GetFileInfo(List<MatchModel> matchModel)
         {
-            _getFile.GetFile(_settingModel.FileExtensionName, matchModelList, inputDirectoryList);
+            try
+            {
+                string sourceFilePath = _getFile.GetFile(_settingModel.FileExtensionName, matchModel);
+                if (string.IsNullOrEmpty(sourceFilePath))
+                {
+                    return;
+                }
+                MatchModel model = MatchDepartment.Macth(matchModel, sourceFilePath);
+                if (model == null)
+                {
+                    return;
+                }
+                FileInfoModel.InputDirectory = Path.GetDirectoryName(sourceFilePath);
+                FileInfoModel.Department = model.Department;
+                FileInfoModel.SourceFilePath = sourceFilePath;
+                FileInfoModel.CurrentDateTime = DateTime.Now;
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }

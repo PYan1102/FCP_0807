@@ -1,11 +1,10 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 using MaterialDesignThemes.Wpf;
 
 namespace FCP.Models
 {
-    class MsgModel
+    public sealed class MsgModel
     {
         public string Content { get; set; }
         public string Title { get; set; }

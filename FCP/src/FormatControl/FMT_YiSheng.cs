@@ -31,7 +31,7 @@ namespace FCP.src.FormatControl
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
                         Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {adminCode}");
-                        ReturnsResult.Shunt(eConvertResult.沒有餐包頻率, adminCode);
+                        ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, adminCode);
                         return false;
                     }
                     string dateTemp = (Convert.ToInt32(EncodingHelper.GetString(56, 7)) + 19110000).ToString();
