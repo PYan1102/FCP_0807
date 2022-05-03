@@ -1,63 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.IO;
 using FCP.src.Enum;
 using FCP.Models;
-using System.Globalization;
 using Helper;
 
 namespace FCP.src.FormatControl
 {
     class FMT_E_DA : FormatCollection
     {
-        private List<EDAUDBatch> _UDBatch = new List<EDAUDBatch>();
-
-        public override bool ProcessOPD()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool LogicOPD()
-        {
-            throw new NotImplementedException();
-        }
+        private List<EDAUDBatch> _batch = new List<EDAUDBatch>();
 
         public override bool ProcessUDBatch()
         {
             try
             {
-                bool isExists = false;
-                List<string> list = GetContent.Split('\n').ToList();
-                foreach (string s in list)
+                bool exists = false;
+                foreach (string s in GetPrescriptionInfoList)
                 {
-                    isExists = false;
+                    exists = false;
                     List<string> data = s.Split('	').Select(x => x.Trim()).ToList();
-                    Console.WriteLine(data.Count);
                     if (data.Count <= 1 || data[5] == "BID+HS")
                         continue;
                     if (IsFilterMedicineCode(data[4]) || IsFilterAdminCode($"{data[5]}"))
                         continue;
                     if (!IsExistsCombiAdminCode($"{data[5]}"))
                     {
-                        Log.Write($"{FilePath} 在OnCube中未建置此種包頻率 S{data[5]}");
                         ReturnsResult.Shunt(eConvertResult.缺少種包頻率, data[5]);
                         return false;
                     }
-                    DateTime.TryParseExact($"{Convert.ToInt32(data[12]) + 19110000}", "yyyyMMdd", null, DateTimeStyles.None, out DateTime startDate);
-                    for (int i = _UDBatch.Count - 1; i >= 0; i--)
+                    DateTime startDate = DateTimeHelper.Convert($"{Convert.ToInt32(data[12]) + 19110000}", "yyyyMMdd");
+                    for (int i = _batch.Count - 1; i >= 0; i--)
                     {
-                        if (_UDBatch[i].PatientName == data[1] & _UDBatch[i].MedicineCode == data[4] & _UDBatch[i].AdminTime == $"S{data[5]}")
+                        if (_batch[i].PatientName == data[1] & _batch[i].MedicineCode == data[4] & _batch[i].AdminTime == $"S{data[5]}")
                         {
-                            isExists = true;
-                            _UDBatch[i].SumQty = (float.Parse(_UDBatch[i].SumQty) + float.Parse(data[10])).ToString("0.###");
+                            exists = true;
+                            _batch[i].SumQty = (float.Parse(_batch[i].SumQty) + float.Parse(data[10])).ToString("0.###");
                             break;
                         }
                     }
-                    if (!isExists)
+                    if (!exists)
                     {
-                        _UDBatch.Add(new EDAUDBatch
+                        _batch.Add(new EDAUDBatch
                         {
                             PatientName = data[1],
                             MedicineCode = data[4],
@@ -74,35 +58,43 @@ namespace FCP.src.FormatControl
                         });
                     }
                 }
-                if (_UDBatch.Count == 0)
+                if (_batch.Count == 0)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾, null);
+                    ReturnsResult.Shunt(eConvertResult.全數過濾);
                     return false;
                 }
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex.ToString());
+                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
                 return false;
             }
         }
 
         public override bool LogicUDBatch()
         {
-            string outputDirectory = $@"{OutputDirectory}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputDirectory}\{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
             try
             {
-                OP_OnCube.E_DA_UD(_UDBatch, outputDirectory);
+                OP_OnCube.E_DA_UD(_batch, outputDirectory);
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex.ToString());
+                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex);
                 return false;
             }
+        }
+
+        public override bool ProcessOPD()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool LogicOPD()
+        {
+            throw new NotImplementedException();
         }
 
         public override bool ProcessUDStat()
@@ -145,9 +137,9 @@ namespace FCP.src.FormatControl
             throw new NotImplementedException();
         }
 
-        public override ReturnsResultFormat MethodShunt()
+        public override ReturnsResultModel MethodShunt()
         {
-            _UDBatch.Clear();
+            _batch.Clear();
             return base.MethodShunt();
         }
     }

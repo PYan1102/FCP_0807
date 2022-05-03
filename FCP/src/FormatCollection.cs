@@ -69,25 +69,41 @@ namespace FCP.src
         public string ErrorContent { get; set; }
         public string InputDirectory { get; set; }
         public string OutputDirectory { get; set; }
-        public string FilePath { get; set; }
+        public string SourceFilePath { get; private set; }
+        public string SourceFileName { get; private set; }
+        public string SourceFileNameWithoutExtension { get; private set; }
+        public string CrossDayAdminCode { get; private set; }
+        public List<RandomInfo> ExtraRandom { get; private set; }
+        public eDoseType DoseType { get; private set; }
         public string CurrentSeconds { get; set; }
         public eDepartment Department { get; set; }
-        private ReturnsResultFormat _ReturnsResultFormat { get; set; }
         public IRetunrsResult ReturnsResult { get; set; }
+        private ReturnsResultModel _returnsResultFormat { get; set; }
 
         public FormatCollection()
         {
             SettingModel = ModelsFactory.GenerateSettingModel();
         }
 
+
+        public List<string> GetPrescriptionInfoList
+        {
+            get => GetFileContent.Split('\n').Where(x => x.Trim().Length > 0).ToList();
+        }
+
         public virtual void Init()
         {
-            _ReturnsResultFormat = new ReturnsResultFormat();
+            _returnsResultFormat = new ReturnsResultModel();
             ReturnsResult = new ReturnsResult();
-            ReturnsResult.SetReturnsResultFormat(_ReturnsResultFormat);
+            ReturnsResult.SetReturnsResultModel(_returnsResultFormat);
             InputDirectory = FileInfoModel.InputDirectory;
             OutputDirectory = SettingModel.OutputDirectory;
-            FilePath = FileInfoModel.SourceFilePath;
+            SourceFilePath = FileInfoModel.SourceFilePath;
+            SourceFileName = Path.GetFileName(FileInfoModel.SourceFilePath);
+            SourceFileNameWithoutExtension = Path.GetFileNameWithoutExtension(FileInfoModel.SourceFilePath);
+            ExtraRandom = SettingModel.ExtraRandom;
+            DoseType = SettingModel.DoseType;
+            CrossDayAdminCode = SettingModel.CrossDayAdminCode;
             CurrentSeconds = FileInfoModel.CurrentDateTime.ToString("ss_fff");
             Department = FileInfoModel.Department;
             SetAdminCode();
@@ -129,7 +145,7 @@ namespace FCP.src
         }
 
         //方法分流
-        public virtual ReturnsResultFormat MethodShunt()
+        public virtual ReturnsResultModel MethodShunt()
         {
             Init();
             switch (Department)
@@ -171,7 +187,7 @@ namespace FCP.src
                     }
                     break;
             }
-            return _ReturnsResultFormat;
+            return _returnsResultFormat;
         }
 
         //特控1
@@ -257,11 +273,11 @@ namespace FCP.src
         }
 
         //取得檔案內容
-        public string GetContent
+        public string GetFileContent
         {
             get
             {
-                using (StreamReader sr = new StreamReader(FilePath, Encoding.Default))
+                using (StreamReader sr = new StreamReader(SourceFilePath, Encoding.Default))
                 {
                     return sr.ReadToEnd();
                 }

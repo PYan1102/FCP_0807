@@ -5,7 +5,8 @@ namespace FCP.src.FormatInit
 {
     class BASE_OnCube : FormatBase
     {
-        private FMT_OnCube _OC;
+        private FMT_OnCube _format;
+
         public override void Init()
         {
             base.Init();
@@ -23,9 +24,8 @@ namespace FCP.src.FormatInit
         public override void Converter()
         {
             base.Converter();
-            if (_OC == null)
-                _OC = new FMT_OnCube();
-            var result = _OC.MethodShunt();
+            _format = _format ?? new FMT_OnCube();
+            var result = _format.MethodShunt();
             Result(result, true);
         }
     }

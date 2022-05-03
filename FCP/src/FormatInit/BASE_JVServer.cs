@@ -5,7 +5,7 @@ namespace FCP.src.FormatInit
 {
     class BASE_JVServer : FormatBase
     {
-        private FMT_JVServer _JVS { get; set; }
+        private FMT_JVServer _format;
 
         public override void Init()
         {
@@ -24,9 +24,8 @@ namespace FCP.src.FormatInit
         public override void Converter()
         {
             base.Converter();
-            if (_JVS == null)
-                _JVS = new FMT_JVServer();
-            var result = _JVS.MethodShunt();
+            _format = _format ?? new FMT_JVServer();
+            var result = _format.MethodShunt();
             Result(result, true);
         }
     }

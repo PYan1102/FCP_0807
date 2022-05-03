@@ -1,12 +1,11 @@
 ﻿using FCP.src.FormatControl;
 using FCP.src.Enum;
 
-
 namespace FCP.src.FormatInit
 {
     class BASE_YiSheng : FormatBase
     {
-        private FMT_YiSheng _YS { get; set; }
+        private FMT_YiSheng _format;
 
         public override void Init()
         {
@@ -25,9 +24,8 @@ namespace FCP.src.FormatInit
         public override void Converter()
         {
             base.Converter();
-            if (_YS == null)
-                _YS = new FMT_YiSheng();
-            var result = _YS.MethodShunt();
+            _format = _format ?? new FMT_YiSheng();
+            var result = _format.MethodShunt();
             Result(result, true);
         }
     }

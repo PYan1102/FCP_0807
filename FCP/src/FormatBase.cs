@@ -21,12 +21,8 @@ namespace FCP.src
     abstract class FormatBase : Window
     {
         public MainWindowViewModel MainWindowVM { get; set; }
-        public string SourceFilePath { get; set; }
-        public string InputDirectory { get; set; }
-        public string OutputDirectory { get; set; }
-        public string CurrentSeconds { get; set; }
         public SettingModel SettingModel { get; set; }
-        public UIRefresh UIRefresh { get; set; }
+        private UIRefresh _uiRefresh { get; set; }
         private AdvancedSettingsViewModel _advancedSettingsVM;
         private SimpleWindowViewModel _simpleWindowVM;
         protected internal eDepartment CurrentDepartment;
@@ -46,8 +42,8 @@ namespace FCP.src
         {
             try
             {
-                UIRefresh = new UIRefresh() { UILayout = SetUILayout(new MainUILayoutModel()) };
-                UIRefresh.StartAsync();
+                _uiRefresh = new UIRefresh() { UILayout = SetUILayout(new MainUILayoutModel()) };
+                _uiRefresh.StartAsync();
                 _matchModel = new List<MatchModel>();
 
             }
@@ -60,28 +56,6 @@ namespace FCP.src
 
         public virtual MainUILayoutModel SetUILayout(MainUILayoutModel UI)
         {
-            UI.Title = "通用格式";
-            UI.IP1Title = "輸入路徑1";
-            UI.IP2Title = "輸入路徑2";
-            UI.IP3Title = "輸入路徑3";
-            UI.IP4Title = "輸入路徑4";
-            UI.IP5Title = "Batch";
-            UI.IP6Title = "Stat";
-            UI.OPDToogle1 = "門診";
-            UI.OPDToogle2 = "";
-            UI.OPDToogle3 = "";
-            UI.OPDToogle4 = "";
-            UI.IP1Enabled = true;
-            UI.IP2Enabled = true;
-            UI.IP3Enabled = true;
-            UI.IP4Enabled = true;
-            UI.IP5Enabled = false;
-            UI.IP6Enabled = false;
-            UI.UDVisibility = Visibility.Hidden;
-            UI.OPD1Visibility = Visibility.Visible;
-            UI.OPD2Visibility = Visibility.Hidden;
-            UI.OPD3Visibility = Visibility.Hidden;
-            UI.OPD4Visibility = Visibility.Hidden;
             return UI;
         }
 
@@ -173,7 +147,7 @@ namespace FCP.src
                     try
                     {
                         FileSearchService.GetFileInfo(_matchModel);
-                        if (!string.IsNullOrEmpty(FileInfoModel.SourceFilePath))
+                        if (!string.IsNullOrEmpty(FileInfoModel.SourceFilePath) && File.Exists(FileInfoModel.SourceFilePath))
                         {
                             Converter();
                         }
@@ -192,61 +166,42 @@ namespace FCP.src
 
         }
 
-        public void Result(ReturnsResultFormat returnsResult, bool isReminder)
+        public void Result(ReturnsResultModel returnsResult, bool remind)
         {
             string message = returnsResult.Message;
             string sourceFilePath = FileInfoModel.SourceFilePath;
-            string fileName = $"{Path.GetFileName(sourceFilePath)}_{ DateTime.Now:ss_fff}";
-            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(sourceFilePath);
-            string tipContent;
+            Log.Write(message);
+            ConvertResult convertResult = new ConvertResult(sourceFilePath, _successDirectory, _failDirectory);
             switch (returnsResult.Result)
             {
                 case eConvertResult.成功:
-                    Log.Write($"{fileNameWithoutExtension} {nameof(eConvertResult.成功)}");
-                    if (SettingModel.MoveSourceFileToBackupDirectoryWhenDone)
-                    {
-                        File.Move(sourceFilePath, $@"{_successDirectory}\{fileName}.ok");
-                    }
-                    tipContent = $"{fileNameWithoutExtension} {nameof(eConvertResult.成功)}";
-                    AddNewMessageToProgressBox(tipContent);
-                    NoticeService.Notice(nameof(eConvertResult.成功), tipContent, ToolTipIcon.None);
+                    convertResult.Success();
+                    NoticeService.Notice(returnsResult.Result, message, ToolTipIcon.None);
                     break;
                 case eConvertResult.全數過濾:
-                    Log.Write($"{fileNameWithoutExtension} {nameof(eConvertResult.全數過濾)}");
-                    if (SettingModel.MoveSourceFileToBackupDirectoryWhenDone)
+                    convertResult.Pass();
+                    if (remind)
                     {
-                        File.Move(sourceFilePath, $@"{_successDirectory}\{fileName}.ok");
-                    }
-                    if (isReminder)
-                    {
-                        tipContent = $"{fileNameWithoutExtension} {nameof(eConvertResult.全數過濾)}";
-                        AddNewMessageToProgressBox(tipContent);
-                        NoticeService.Notice(nameof(eConvertResult.全數過濾), tipContent, ToolTipIcon.None);
+                        AddNewMessageToProgressBox(message);
+                        NoticeService.Notice(returnsResult.Result, message, ToolTipIcon.None);
                     }
                     break;
                 case eConvertResult.缺少種包頻率:
-                    Log.Write($"{fileNameWithoutExtension} OnCube中缺少該檔案 {message} 的種包頻率");
-                    Dispatcher.Invoke(new Action(() => MainWindowVM.StopFunc()));
-                    AddNewMessageToProgressBox(message);
-                    NoticeService.Notice(nameof(eConvertResult.缺少種包頻率), $"{Path.GetFileName(sourceFilePath)} OnCube中缺少該檔案 {message} 的種包頻率", ToolTipIcon.Error);
+                    NoticeService.Notice(returnsResult.Result, message, ToolTipIcon.Error);
                     break;
                 case eConvertResult.缺少餐包頻率:
-                    Log.Write($"{fileNameWithoutExtension} OnCube中缺少該檔案 {message} 的餐包頻率");
-                    Dispatcher.Invoke(new Action(() => MainWindowVM.StopFunc()));
-                    AddNewMessageToProgressBox(message);
-                    NoticeService.Notice(nameof(eConvertResult.缺少餐包頻率), $"{Path.GetFileName(sourceFilePath)} OnCube中缺少該檔案 {message} 的餐包頻率", ToolTipIcon.Error);
+                    NoticeService.Notice(returnsResult.Result, message, ToolTipIcon.Error);
                     break;
                 default:
-                    Log.Write($"{fileNameWithoutExtension} {message}");
-                    if (SettingModel.MoveSourceFileToBackupDirectoryWhenDone)
-                    {
-                        File.Move(sourceFilePath, $@"{_failDirectory}\{fileName}.fail");
-                    }
-                    AddNewMessageToProgressBox($"{returnsResult.Result} {message}");
-                    NoticeService.Notice("轉檔錯誤", message, ToolTipIcon.Error);
+                    convertResult.Fail();
+                    NoticeService.Notice(returnsResult.Result, message, ToolTipIcon.Error);
                     break;
             }
-            if (SettingModel.StopWhenDone)
+            if (returnsResult.Result != eConvertResult.全數過濾)
+            {
+                AddNewMessageToProgressBox(message);
+            }
+            if (returnsResult.Result == eConvertResult.缺少種包頻率 || returnsResult.Result == eConvertResult.缺少餐包頻率 || SettingModel.StopWhenDone)
             {
                 Dispatcher.Invoke(new Action(() => MainWindowVM.StopFunc()));
             }
@@ -255,7 +210,7 @@ namespace FCP.src
         public virtual void StopAll()
         {
             Stop();
-            UIRefresh.Stop();
+            _uiRefresh.Stop();
         }
 
         public string MergeFilesAndGetNewFilePath(string InputDirectory, string fileName, int start, int length, string content)

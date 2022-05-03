@@ -5,7 +5,8 @@ namespace FCP.src.FormatInit
 {
     class BASE_LittleBear:FormatBase
     {
-        private FMT_LittleBear _LB;
+        private FMT_LittleBear _format;
+
         public override void Init()
         {
             base.Init();
@@ -23,9 +24,8 @@ namespace FCP.src.FormatInit
         public override void Converter()
         {
             base.Converter();
-            if (_LB == null)
-                _LB = new FMT_LittleBear();
-            var result = _LB.MethodShunt();
+            _format = _format ?? new FMT_LittleBear();
+            var result = _format.MethodShunt();
             Result(result, true);
         }
     }

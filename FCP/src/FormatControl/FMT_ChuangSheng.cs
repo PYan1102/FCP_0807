@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.IO;
 using FCP.src.Enum;
 using FCP.Models;
 using Helper;
@@ -10,27 +8,21 @@ namespace FCP.src.FormatControl
 {
     class FMT_ChuangSheng : FormatCollection
     {
-        List<ChuangShengOPD> _OPD = new List<ChuangShengOPD>();
+        List<ChuangShengOPD> _opd = new List<ChuangShengOPD>();
 
         public override bool ProcessOPD()
         {
             try
             {
-                List<string> list = GetContent.Split('\n').ToList();
-                foreach (string s in list)
+                foreach (string s in GetPrescriptionInfoList)
                 {
-                    if (s.Trim().Length == 0)
-                        continue;
                     EncodingHelper.SetBytes(s.TrimEnd());
                     string adminCode = EncodingHelper.GetString(74, 8);
                     string medicineCode = EncodingHelper.GetString(52, 10);
-                    if (IsFilterMedicineCode(medicineCode))
-                        continue;
-                    if (IsFilterAdminCode(adminCode))
+                    if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
                         continue;
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
-                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {adminCode}");
                         ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, adminCode);
                         return false;
                     }
@@ -49,7 +41,7 @@ namespace FCP.src.FormatControl
                     }
                     DateTime startDate = DateTime.Parse(EncodingHelper.GetString(20, 10));
                     string days = EncodingHelper.GetString(82, 3);
-                    _OPD.Add(new ChuangShengOPD
+                    _opd.Add(new ChuangShengOPD
                     {
                         StartDate = startDate.ToString("yyMMdd"),
                         EndDate = startDate.AddDays(Convert.ToInt32(days) - 1).ToString("yyMMdd"),
@@ -65,33 +57,31 @@ namespace FCP.src.FormatControl
                         HospitalName = hospitalName
                     }); ;
                 }
-                if (_OPD.Count == 0)
+                if (_opd.Count == 0)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾, null);
+                    ReturnsResult.Shunt(eConvertResult.全數過濾);
                     return false;
                 }
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, null);
+                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
                 return false;
             }
         }
 
         public override bool LogicOPD()
         {
-            string outputDirectory = $@"{OutputDirectory}\{_OPD[0].PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputDirectory}\{_opd[0].PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
             try
             {
-                OP_OnCube.ChuangSheng(_OPD, outputDirectory);
+                OP_OnCube.ChuangSheng(_opd, outputDirectory);
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex.ToString());
+                ReturnsResult.Shunt(eConvertResult.產生OCS失敗);
                 return false;
             }
         }
@@ -146,9 +136,9 @@ namespace FCP.src.FormatControl
             throw new NotImplementedException();
         }
 
-        public override ReturnsResultFormat MethodShunt()
+        public override ReturnsResultModel MethodShunt()
         {
-            _OPD.Clear();
+            _opd.Clear();
             return base.MethodShunt();
         }
     }

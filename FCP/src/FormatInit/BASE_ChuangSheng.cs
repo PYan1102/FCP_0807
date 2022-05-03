@@ -5,7 +5,7 @@ namespace FCP.src.FormatInit
 {
     class BASE_ChuangSheng : FormatBase
     {
-        private FMT_ChuangSheng _CS { get; set; }
+        private FMT_ChuangSheng _format;
 
         public override void Init()
         {
@@ -24,9 +24,8 @@ namespace FCP.src.FormatInit
         public override void Converter()
         {
             base.Converter();
-            if (_CS == null)
-                _CS = new FMT_ChuangSheng();
-            var result = _CS.MethodShunt();
+            _format = _format ?? new FMT_ChuangSheng();
+            var result = _format.MethodShunt();
             Result(result, true);
         }
     }

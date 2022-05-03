@@ -11,31 +11,23 @@ namespace FCP.src.FormatControl
     class FMT_JVServer : FormatCollection
     {
         private string _random { get; set; }
-        private JVServerOPDBasic _basic { get; set; }
+        private JVServerOPDBasic _basic = new JVServerOPDBasic();
         private List<JVServerOPD> _opd = new List<JVServerOPD>();
         private List<string> _jvsRandom = new List<string>();
         private List<string> _oncubeRandom = new List<string>();
 
         public override bool ProcessOPD()
         {
-            if (!File.Exists(FilePath))
-            {
-                Log.Write(FilePath + "忽略");
-                ReturnsResult.Shunt(eConvertResult.全數過濾, null);
-                return false;
-            }
             try
             {
-                ClearList();
-                string content = GetContent.Trim();
+                string content = GetFileContent.Trim();
                 int jvmPosition = content.IndexOf("|JVPEND||JVMHEAD|");
                 EncodingHelper.SetBytes(content.Substring(9, jvmPosition - 9));
-                var ecd = Encoding.Default;
                 _basic.PatientNo = EncodingHelper.GetString(1, 15);
                 _basic.PrescriptionNo = EncodingHelper.GetString(16, 20);
                 _basic.Age = EncodingHelper.GetString(36, 5);
                 _basic.ID = EncodingHelper.GetString(54, 10);
-                _basic.BirthDate = EncodingHelper.GetString(94, 8);
+                _basic.BirthDate = DateTimeHelper.Convert(EncodingHelper.GetString(94, 8), "yyyyMMdd").ToString("yyyy-MM-dd");
                 _random = EncodingHelper.GetString(132, 30);
                 _basic.PatientName = EncodingHelper.GetString(177, 20);
                 if (_basic.PatientName.Contains("?"))
@@ -58,7 +50,6 @@ namespace FCP.src.FormatControl
                         continue;
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
-                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {adminCode}");
                         ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, adminCode);
                         return false;
                     }
@@ -82,15 +73,14 @@ namespace FCP.src.FormatControl
                 }
                 if (_opd.Count == 0)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾, null);
+                    ReturnsResult.Shunt(eConvertResult.全數過濾);
                     return false;
                 }
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex.ToString());
+                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
                 return false;
             }
         }
@@ -99,38 +89,43 @@ namespace FCP.src.FormatControl
         {
             for (int x = 0; x <= 14; x++)
                 _oncubeRandom.Add("");
-            if (SettingModel.ExtraRandom.Count != 0)  //將JVServer的Random放入OnCube的Radnom
+            if (ExtraRandom.Count != 0)  //將JVServer的Random放入OnCube的Radnom
             {
-                foreach (var random in SettingModel.ExtraRandom)
+                foreach (var random in ExtraRandom)
                 {
                     _oncubeRandom[Convert.ToInt32(random.OnCube)] = _jvsRandom[Convert.ToInt32(random.JVServer)];
                 }
             }
-            Dictionary<string, List<JVServerOPD>> dic = null;
-            if (Properties.Settings.Default.IsSplitEachMeal)
+            Dictionary<string, List<JVServerOPD>> dictionary = null;
+            var splitEachMeal = Properties.Settings.Default.IsSplitEachMeal;
+            if (splitEachMeal)
             {
-                dic = SplitEachMeal();
+                try
+                {
+                    dictionary = SplitEachMeal();
+                }
+                catch (Exception ex)
+                {
+                    ReturnsResult.Shunt(eConvertResult.處理邏輯失敗, ex);
+                }
             }
-            string outputDirectory = $@"{OutputDirectory}\{_basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
-            string outputDirectoryWithoutSeconds = $@"{OutputDirectory}\{_basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_";
-            DateTime.TryParseExact(_basic.BirthDate, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime date);  //生日
-            _basic.BirthDate = date.ToString("yyyy-MM-dd");
             try
             {
-                if (Properties.Settings.Default.IsSplitEachMeal)
+                if (splitEachMeal)
                 {
-                    OP_OnCube.JVServer_SplitEachMeal(dic, _basic, _oncubeRandom, _random, outputDirectoryWithoutSeconds, CurrentSeconds);
+                    string outputDirectoryWithoutSeconds = $@"{OutputDirectory}\{_basic.PatientName}-{SourceFileNameWithoutExtension}_";
+                    OP_OnCube.JVServer_SplitEachMeal(dictionary, _basic, _oncubeRandom, _random, outputDirectoryWithoutSeconds, CurrentSeconds);
                 }
                 else
                 {
+                    string outputDirectory = $@"{OutputDirectory}\{_basic.PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
                     OP_OnCube.JVServer(_opd, _basic, _oncubeRandom, _random, outputDirectory);
                 }
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex.ToString());
+                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex);
                 return false;
             }
         }
@@ -211,11 +206,12 @@ namespace FCP.src.FormatControl
             _oncubeRandom.Clear();
         }
 
-        public override ReturnsResultFormat MethodShunt()
+        public override ReturnsResultModel MethodShunt()
         {
             _basic = null;
             _basic = new JVServerOPDBasic();
             _opd.Clear();
+            ClearList();
             return base.MethodShunt();
         }
     }

@@ -5,7 +5,7 @@ namespace FCP.src.FormatInit
 {
     class BASE_TaipeiDetention : FormatBase
     {
-        private FMT_TaipeiDetention _TPD { get; set; }
+        private FMT_TaipeiDetention _format;
 
         public override void Init()
         {
@@ -24,9 +24,8 @@ namespace FCP.src.FormatInit
         public override void Converter()
         {
             base.Converter();
-            if (_TPD == null)
-                _TPD = new FMT_TaipeiDetention();
-            var result = _TPD.MethodShunt();
+            _format = _format ?? new FMT_TaipeiDetention();
+            var result = _format.MethodShunt();
             Result(result, true);
         }
     }

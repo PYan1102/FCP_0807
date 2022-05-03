@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.IO;
 using System.Data;
 using FCP.src.Enum;
 using FCP.Models;
@@ -12,31 +10,29 @@ namespace FCP.src.FormatControl
 {
     class FMT_HongYen : FormatCollection
     {
-        private HongYenOPDBasic _Basic { get; set; }
-        private List<HongYenOPD> _OPD = new List<HongYenOPD>();
-        private int SpaceIndex = 0;
+        private HongYenOPDBasic _basic = new HongYenOPDBasic();
+        private List<HongYenOPD> _opd = new List<HongYenOPD>();
+        private int _separateIndex = 0;  //紀錄分開上下筆的索引
 
         public override bool ProcessOPD()
         {
             try
             {
-                string content = GetContent;
+                string content = GetFileContent;
                 int jvmPosition = content.IndexOf("|JVPEND||JVMHEAD|");
-                string FileName = Path.GetFileNameWithoutExtension(FilePath);
                 EncodingHelper.SetBytes(content.Substring(9, jvmPosition - 9));
-                _Basic.PatientNo = EncodingHelper.GetString(1, 15);
-                _Basic.PrescriptionNo = EncodingHelper.GetString(16, 20);
-                _Basic.Age = EncodingHelper.GetString(36, 5);
-                _Basic.ID = EncodingHelper.GetString(54, 10);
-                _Basic.BirthDate = EncodingHelper.GetString(94, 8);
-                _Basic.PatientName = EncodingHelper.GetString(177, 20).Replace("?", " ");
-                _Basic.Gender = EncodingHelper.GetString(197, 2);
-                _Basic.HospitalName = EncodingHelper.GetString(229, 40);
-                _Basic.LocationName = EncodingHelper.GetString(229, 30);
+                _basic.PatientNo = EncodingHelper.GetString(1, 15);
+                _basic.PrescriptionNo = EncodingHelper.GetString(16, 20);
+                _basic.Age = EncodingHelper.GetString(36, 5);
+                _basic.ID = EncodingHelper.GetString(54, 10);
+                _basic.BirthDate = DateTimeHelper.Convert(EncodingHelper.GetString(94, 8), "yyyyMMdd").ToString("yyyy-MM-dd");
+                _basic.PatientName = EncodingHelper.GetString(177, 20).Replace("?", " ");
+                _basic.Gender = EncodingHelper.GetString(197, 2);
+                _basic.HospitalName = EncodingHelper.GetString(229, 40);
+                _basic.LocationName = EncodingHelper.GetString(229, 30);
 
                 EncodingHelper.SetBytes(content.Substring(jvmPosition + 17, content.Length - 17 - jvmPosition));
-                List<string> list = SeparateString((EncodingHelper.GetString(0, EncodingHelper.Length)), 547);
-                SpaceIndex = 0;
+                List<string> list = SeparateString(EncodingHelper.GetString(0, EncodingHelper.Length), 547);
                 foreach (string s in list)
                 {
                     EncodingHelper.SetBytes(s);
@@ -45,17 +41,17 @@ namespace FCP.src.FormatControl
                     string medicineName = EncodingHelper.GetString(16, 50);
                     if (medicineName == "磨粉.")
                     {
-                        ReturnsResult.Shunt(eConvertResult.全數過濾, null);
+                        ReturnsResult.Shunt(eConvertResult.全數過濾);
                         return false;
                     }
                     if (medicineCode.Length == 0 || (int.TryParse(medicineCode, out int i) && medicineCode.Length <= 4))
                     {
-                        SpaceIndex = SpaceIndex == 0 ? _OPD.Count : SpaceIndex;
+                        _separateIndex = _separateIndex == 0 ? _opd.Count : _separateIndex;
                         continue;
                     }
                     if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
                         continue;
-                    _OPD.Add(new HongYenOPD()
+                    _opd.Add(new HongYenOPD()
                     {
                         MedicineCode = medicineCode,
                         MedicineName = medicineName,
@@ -67,125 +63,123 @@ namespace FCP.src.FormatControl
                         EndDay = EncodingHelper.GetString(529, 6)
                     });
                 }
-                if (_OPD.Count == 0)
+                if (_opd.Count == 0)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾, null);
+                    ReturnsResult.Shunt(eConvertResult.全數過濾);
                     return false;
                 }
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex.ToString());
+                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
                 return false;
             }
         }
 
         public override bool LogicOPD()
         {
+            List<HongYenOPD> opdUp = new List<HongYenOPD>();
+            List<HongYenOPD> opdDown = new List<HongYenOPD>();
+            List<string> outputDirectory = new List<string>();
             try
             {
-                List<int> order = new List<int>();
-                List<string> FileNameOutputCount = new List<string>();
-                List<string> OnCubeRandom = new List<string>();
-                List<int> up = new List<int>();
-                List<int> downList = new List<int>();
-                List<HongYenOPD> OPDUp = new List<HongYenOPD>();
-                List<HongYenOPD> OPDDown = new List<HongYenOPD>();
-                OPDUp = SpaceIndex > 0 ? _OPD.Where(x => _OPD.IndexOf(x) < SpaceIndex).ToList() : _OPD;
-                OPDDown = SpaceIndex > 0 ? _OPD.Where(x => _OPD.IndexOf(x) >= SpaceIndex & x.MedicineCode.Length > 0).ToList() : OPDDown;
+                //若分離索引為 0 ，則 opdUp 為整個 _opd ，因為此處方沒有下筆
+                opdUp = _separateIndex > 0 ? _opd.Where(x => _opd.IndexOf(x) < _separateIndex).ToList() : _opd;
+                opdDown = _separateIndex > 0 ? _opd.Where(x => _opd.IndexOf(x) >= _separateIndex & x.MedicineCode.Length > 0).ToList() : opdDown;
+
                 #region 排除天數重複2以下(不含)的
-                var daysCount = from days in OPDUp.Select(x => x.Days)
-                                group days by days into g
-                                where g.Count() >= 2
-                                select new
-                                {
-                                    g.Key,
-                                    Num = g.Count()
-                                };
-                OPDUp = OPDUp.Where(x => daysCount.Select(y => y.Key).ToList().Contains(x.Days)).ToList();
-                if (OPDDown.Count > 1)
+
+                opdUp = ExcludeDaysRepeatedLessThan2Times(opdUp);
+                if (opdDown.Count > 1)
                 {
-                    daysCount = from days in OPDDown.Select(x => x.Days)
-                                group days by days into g
-                                where g.Count() >= 2
-                                select new
-                                {
-                                    g.Key,
-                                    Num = g.Count()
-                                };
-                    OPDDown = OPDDown.Where(x => daysCount.Select(y => y.Key).ToList().Contains(x.Days)).ToList();
+                    opdDown = ExcludeDaysRepeatedLessThan2Times(opdDown);
                 }
+
                 #endregion
+
                 #region 排除頻率重複2以下(不含)的
-                var adminCodesCount = from s in OPDUp.Select(x => x.AdminCode)
-                                      group s by s into g
-                                      where g.Count() >= 2
-                                      select new
-                                      {
-                                          g.Key,
-                                          Num = g.Count()
-                                      };
-                OPDUp = OPDUp.Where(x => adminCodesCount.Select(y => y.Key).ToList().Contains(x.AdminCode)).ToList();
 
-                if (OPDDown.Count > 1)
+                opdUp = ExcludeAdminCodeRepeatedLessThan2Times(opdUp);
+                if (opdDown.Count > 1)
                 {
-                    adminCodesCount = from s in OPDDown.Select(x => x.AdminCode)
-                                      group s by s into g
-                                      where g.Count() >= 2
-                                      select new
-                                      {
-                                          g.Key,
-                                          Num = g.Count()
-                                      };
-                    OPDDown = OPDDown.Where(x => adminCodesCount.Select(y => y.Key).ToList().Contains(x.AdminCode)).ToList();
+                    opdDown = ExcludeAdminCodeRepeatedLessThan2Times(opdDown);
                 }
+
                 #endregion
-                #region 排除若有藥品代碼為A037598116，並且總品項數量為2
-                if (OPDUp.Where(x => x.MedicineCode == "A037598116").Count() > 0 && OPDUp.Count <= 2)
+
+                #region 若藥品代碼為A037598116，並且上筆處方總品項數量 <= 2，則整筆過濾
+
+                if (opdUp.Where(x => x.MedicineCode == "A037598116").Count() > 0 && opdUp.Count <= 2)
+                {
+                    ReturnsResult.Shunt(eConvertResult.全數過濾);
+                    return false;
+                }
+
+                #endregion
+
+                //若上筆筆數為 0 ，並下筆筆數 <= 1 ，則整筆過濾
+                if (opdUp.Count == 0 && opdDown.Count <= 1)
                 {
                     ReturnsResult.Shunt(eConvertResult.全數過濾, null);
                     return false;
                 }
-                #endregion
 
-                if (OPDUp.Count == 0 & OPDDown.Count <= 1)
+                //若上筆筆數為 0 ，並下筆筆數 >= 2 ，則將下筆處方移至上筆
+                if (opdUp.Count == 0 && opdDown.Count >= 2)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾, null);
-                    return false;
+                    opdUp.AddRange(opdDown);
+                    opdDown.Clear();
                 }
-                if (OPDUp.Count == 0 & OPDDown.Count >= 2)
+
+                outputDirectory.Add($@"{OutputDirectory}\UP-{_basic.PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt");
+                if (opdDown.Count > 1)
                 {
-                    OPDUp.AddRange(OPDDown);
-                    OPDDown.Clear();
-                }
-                List<string> outputDirectory = new List<string>();
-                outputDirectory.Add($@"{OutputDirectory}\UP-{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt");
-                if (OPDDown.Count > 1)
-                {
-                    outputDirectory.Add($@"{OutputDirectory}\DOWN-{_Basic.PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt");
-                }
-                DateTime.TryParseExact(_Basic.BirthDate, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DateTime date);  //生日
-                _Basic.BirthDate = date.ToString("yyyy-MM-dd");
-                try
-                {
-                    OP_OnCube.HongYen(OPDUp, OPDDown, _Basic, outputDirectory);
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Log.Write($"{FilePath} {ex}");
-                    ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex.ToString());
-                    return false;
+                    outputDirectory.Add($@"{OutputDirectory}\DOWN-{_basic.PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt");
                 }
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                ReturnsResult.Shunt(eConvertResult.處理邏輯失敗, ex.ToString());
+                ReturnsResult.Shunt(eConvertResult.處理邏輯失敗, ex);
                 return false;
             }
+            try
+            {
+                OP_OnCube.HongYen(opdUp, opdDown, _basic, outputDirectory);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex);
+                return false;
+            }
+        }
+
+        private List<HongYenOPD> ExcludeDaysRepeatedLessThan2Times(List<HongYenOPD> list)
+        {
+            var daysCount = from days in list.Select(x => x.Days)
+                            group days by days into g
+                            where g.Count() >= 2
+                            select new
+                            {
+                                g.Key,
+                                Num = g.Count()
+                            };
+            list.Where(x => daysCount.Select(y => y.Key).ToList().Contains(x.Days)).ToList();
+            return list;
+        }
+
+        private List<HongYenOPD> ExcludeAdminCodeRepeatedLessThan2Times(List<HongYenOPD> list)
+        {
+            var adminCodeCount = from s in list.Select(x => x.AdminCode)
+                                 group s by s into g
+                                 where g.Count() >= 2
+                                 select new
+                                 {
+                                     g.Key,
+                                     Num = g.Count()
+                                 };
+            return list.Where(x => adminCodeCount.Select(y => y.Key).ToList().Contains(x.AdminCode)).ToList();
         }
 
         public override bool ProcessUDBatch()
@@ -238,14 +232,16 @@ namespace FCP.src.FormatControl
             throw new NotImplementedException();
         }
 
-        public override ReturnsResultFormat MethodShunt()
+        public override ReturnsResultModel MethodShunt()
         {
-            _Basic = null;
-            _Basic = new HongYenOPDBasic();
-            _OPD.Clear();
+            _basic = null;
+            _basic = new HongYenOPDBasic();
+            _opd.Clear();
+            _separateIndex = 0;
             return base.MethodShunt();
         }
     }
+
     internal class HongYenOPDBasic
     {
         public string PatientName { get; set; }

@@ -11,14 +11,13 @@ namespace FCP.src.FormatControl
 {
     class FMT_FangDing : FormatCollection
     {
-        private List<FangDingOPD> _OPD = new List<FangDingOPD>();
+        private List<FangDingOPD> _opd = new List<FangDingOPD>();
 
         public override bool ProcessOPD()
         {
             try
             {
-                List<string> list = GetContent.Split('\n').Where(x => !string.IsNullOrEmpty(x)).ToList();
-                foreach (string s in list)
+                foreach (string s in GetPrescriptionInfoList)
                 {
                     List<string> properties = s.Split('|').Where(x => !string.IsNullOrEmpty(x)).ToList();
                     string adminCode = properties[9];
@@ -27,14 +26,12 @@ namespace FCP.src.FormatControl
                         continue;
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
-                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {adminCode}");
                         ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, adminCode);
                         return false;
                     }
                     int days = Convert.ToInt32(properties[10]);
-                    DateTime.TryParseExact(properties[4], "yyyyMMdd", null, DateTimeStyles.None, out DateTime endDate);
-                    endDate = endDate.AddDays(days - 1);
-                    _OPD.Add(new FangDingOPD
+                    DateTime endDate = DateTimeHelper.Convert(properties[4], "yyyyMMdd").AddDays(days - 1);
+                    _opd.Add(new FangDingOPD
                     {
                         PrescriptionNo = properties[2],
                         PatientName = properties[3],
@@ -44,39 +41,35 @@ namespace FCP.src.FormatControl
                         MedicineName = properties[6],
                         PerQty = properties[7],
                         AdminCode = adminCode,
-                        Days = Convert.ToInt32(properties[10]),
+                        Days = days,
                         SumQty = properties[11],
                     });
                 }
-                if (_OPD.Count == 0)
+                if (_opd.Count == 0)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾, null);
+                    ReturnsResult.Shunt(eConvertResult.全數過濾);
                     return false;
                 }
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex.ToString());
+                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
                 return false;
             }
         }
 
         public override bool LogicOPD()
         {
-            string patientName = _OPD[0].PatientName;
-            string prescriptionNo = _OPD[0].PrescriptionNo;
-            string outputDirectory = $@"{OutputDirectory}\{patientName}-{prescriptionNo}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputDirectory}\{_opd[0].PatientName}-{_opd[0].PrescriptionNo}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
             try
             {
-                OP_OnCube.FangDing(_OPD, outputDirectory);
+                OP_OnCube.FangDing(_opd, outputDirectory);
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex.ToString());
+                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex);
                 return false;
             }
         }
@@ -131,9 +124,9 @@ namespace FCP.src.FormatControl
             throw new NotImplementedException();
         }
 
-        public override ReturnsResultFormat MethodShunt()
+        public override ReturnsResultModel MethodShunt()
         {
-            _OPD.Clear();
+            _opd.Clear();
             return base.MethodShunt();
         }
     }

@@ -7,7 +7,7 @@ namespace FCP.src.FormatInit
 {
     class BASE_E_DA : FormatBase
     {
-        private FMT_E_DA _EDA { get; set; }
+        private FMT_E_DA _format;
 
         public override void Init()
         {
@@ -26,25 +26,23 @@ namespace FCP.src.FormatInit
         public override void Converter()
         {
             base.Converter();
-            if (_EDA == null)
-                _EDA = new FMT_E_DA();
-            var result = _EDA.MethodShunt();
+            _format = _format ?? new FMT_E_DA();
+            var result = _format.MethodShunt();
             Result(result, true);
         }
 
         public override MainUILayoutModel SetUILayout(MainUILayoutModel UI)
         {
-            UI.Title = "義大醫院 > OnCube";
-            UI.IP1Title = "輸入路徑1";
-            UI.IP2Title = "輸入路徑2";
-            UI.IP3Title = "住   院";
-            UI.OPDToogle1 = "";
-            UI.OPDToogle2 = "";
-            UI.OPDToogle3 = "";
-            UI.OPDToogle4 = "";
+            UI.Title = "義大醫院";
             UI.IP1Enabled = false;
             UI.IP2Enabled = false;
-            UI.IP3Enabled = true;
+            UI.IP3Enabled = false;
+            UI.IP4Enabled = false;
+            UI.IP5Enabled = true;
+            UI.OPDToogle1 = string.Empty;
+            UI.OPDToogle2 = string.Empty;
+            UI.OPDToogle3 = string.Empty;
+            UI.OPDToogle4 = string.Empty;
             UI.UDVisibility = Visibility.Visible;
             UI.OPD1Visibility = Visibility.Hidden;
             UI.OPD2Visibility = Visibility.Hidden;

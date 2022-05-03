@@ -4,27 +4,27 @@ namespace FCP.Models
 {
     public sealed class MainUILayoutModel
     {
-        public string Title { get; set; }
-        public string IP1Title { get; set; }
-        public string IP2Title { get; set; }
-        public string IP3Title { get; set; }
-        public string IP4Title { get; set; }
-        public string IP5Title { get; set; }
-        public string IP6Title { get; set; }
-        public string OPDToogle1 { get; set; }
-        public string OPDToogle2 { get; set; }
-        public string OPDToogle3 { get; set; }
-        public string OPDToogle4 { get; set; }
-        public bool IP1Enabled { get; set; }
-        public bool IP2Enabled { get; set; }
-        public bool IP3Enabled { get; set; }
-        public bool IP4Enabled { get; set; }
-        public bool IP5Enabled { get; set; }
-        public bool IP6Enabled { get; set; }
-        public Visibility UDVisibility { get; set; }
-        public Visibility OPD1Visibility { get; set; }
-        public Visibility OPD2Visibility { get; set; }
-        public Visibility OPD3Visibility { get; set; }
-        public Visibility OPD4Visibility { get; set; }
+        public string Title { get; set; } = "通用格式";
+        public string IP1Title { get; set; } = "輸入路徑1";
+        public string IP2Title { get; set; } = "輸入路徑2";
+        public string IP3Title { get; set; } = "輸入路徑3";
+        public string IP4Title { get; set; } = "輸入路徑4";
+        public string IP5Title { get; set; } = "Batch";
+        public string IP6Title { get; set; } = "Stat";
+        public bool IP1Enabled { get; set; } = true;
+        public bool IP2Enabled { get; set; } = true;
+        public bool IP3Enabled { get; set; } = true;
+        public bool IP4Enabled { get; set; } = true;
+        public bool IP5Enabled { get; set; } = false;
+        public bool IP6Enabled { get; set; } = false;
+        public string OPDToogle1 { get; set; } = "輸入1";
+        public string OPDToogle2 { get; set; } = "輸入2";
+        public string OPDToogle3 { get; set; } = "輸入3";
+        public string OPDToogle4 { get; set; } = "輸入4";
+        public Visibility UDVisibility { get; set; } = Visibility.Hidden;
+        public Visibility OPD1Visibility { get; set; } = Visibility.Visible;
+        public Visibility OPD2Visibility { get; set; } = Visibility.Visible;
+        public Visibility OPD3Visibility { get; set; } = Visibility.Visible;
+        public Visibility OPD4Visibility { get; set; } = Visibility.Visible;
     }
 }

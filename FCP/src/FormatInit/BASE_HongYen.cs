@@ -1,15 +1,13 @@
 ﻿using System;
-using FCP.src.SQL;
 using FCP.src.Enum;
 using FCP.src.FormatControl;
-using Helper;
 using FCP.Models;
 
 namespace FCP.src.FormatInit
 {
     class BASE_HongYen : FormatBase
     {
-        private FMT_HongYen _HY { get; set; }
+        private FMT_HongYen _format;
 
         public override void Init()
         {
@@ -29,9 +27,8 @@ namespace FCP.src.FormatInit
         public override void Converter()
         {
             base.Converter();
-            if (_HY == null)
-                _HY = new FMT_HongYen();
-            var result = _HY.MethodShunt();
+            _format = _format ?? new FMT_HongYen();
+            var result = _format.MethodShunt();
             Result(result, true);
         }
     }

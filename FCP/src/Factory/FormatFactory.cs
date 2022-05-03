@@ -16,8 +16,7 @@ namespace FCP.src.Factory
                 _format = GetFormat(format);
                 _currentFormat = format;
             }
-            if (_format == null)
-                _format = GetFormat(format);
+            _format = _format ?? GetFormat(format);
             return _format;
         }
 
@@ -56,7 +55,7 @@ namespace FCP.src.Factory
                 case eFormat.小熊藥局OC:
                     return new BASE_LittleBear();
                 default:
-                    throw new Exception($"沒有找到適當的格式 {format}");
+                    throw new Exception($"沒有找到適配的格式 {format}");
             }
         }
     }

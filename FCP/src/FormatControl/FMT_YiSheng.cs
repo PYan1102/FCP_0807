@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Globalization;
 using FCP.src.Enum;
 using FCP.Models;
 using Helper;
@@ -12,32 +8,29 @@ namespace FCP.src.FormatControl
 {
     class FMT_YiSheng : FormatCollection
     {
-        private List<YiShengOPD> _OPD = new List<YiShengOPD>();
+        private List<YiShengOPD> _opd = new List<YiShengOPD>();
 
         public override bool ProcessOPD()
         {
             try
             {
-                List<string> list = GetContent.Split('\n').ToList();
-                foreach (string s in list)  //將藥品資料放入List<string>
+                foreach (string s in GetPrescriptionInfoList)  //將藥品資料放入List<string>
                 {
                     EncodingHelper.SetBytes(s);
                     string adminCode = EncodingHelper.GetString(137, 10).Replace("/", "");
                     adminCode = adminCode.Split(' ')[0];
                     string medicineCode = EncodingHelper.GetString(63, 10);
-                    Console.WriteLine(medicineCode);
                     if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode) || NeedFilterMedicineCode(medicineCode))
                         continue;
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
-                        Log.Write($"{FilePath} 在OnCube中未建置此餐包頻率 {adminCode}");
                         ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, adminCode);
                         return false;
                     }
                     string dateTemp = (Convert.ToInt32(EncodingHelper.GetString(56, 7)) + 19110000).ToString();
-                    DateTime.TryParseExact(dateTemp, "yyyyMMdd", null, DateTimeStyles.None, out DateTime startDate);
+                    DateTime startDate = DateTimeHelper.Convert(dateTemp, "yyyyMMdd");
                     int days = Convert.ToInt32(EncodingHelper.GetString(147, 3));
-                    _OPD.Add(new YiShengOPD()
+                    _opd.Add(new YiShengOPD()
                     {
                         PatientName = EncodingHelper.GetString(6, 20),
                         PatientNo = EncodingHelper.GetString(26, 10),
@@ -52,40 +45,37 @@ namespace FCP.src.FormatControl
                         Days = days.ToString(),
                         SumQty = EncodingHelper.GetString(150, 10),
                     });
-                    float sumQty = Convert.ToSingle(_OPD[_OPD.Count - 1].SumQty);
-                    float dyas = Convert.ToSingle(_OPD[_OPD.Count - 1].Days);
+                    float sumQty = Convert.ToSingle(_opd[_opd.Count - 1].SumQty);
                     if (adminCode == "prn")
                     {
-                        _OPD[_OPD.Count - 1].PerQty = Math.Ceiling(sumQty / days).ToString("0.###");
+                        _opd[_opd.Count - 1].PerQty = Math.Ceiling(sumQty / days).ToString("0.###");
                     }
                 }
-                if (_OPD.Count == 0)
+                if (_opd.Count == 0)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾, null);
+                    ReturnsResult.Shunt(eConvertResult.全數過濾);
                     return false;
                 }
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex.ToString());
+                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
                 return false;
             }
         }
 
         public override bool LogicOPD()
         {
-            string outputDirectory = $@"{OutputDirectory}\{_OPD[0].PatientName}-{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputDirectory}\{_opd[0].PatientName}-{SourceFileName}_{CurrentSeconds}.txt";
             try
             {
-                OP_OnCube.YiSheng(_OPD, outputDirectory);
+                OP_OnCube.YiSheng(_opd, outputDirectory);
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex.ToString());
+                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex);
                 return false;
             }
         }
@@ -140,9 +130,9 @@ namespace FCP.src.FormatControl
             throw new NotImplementedException();
         }
 
-        public override ReturnsResultFormat MethodShunt()
+        public override ReturnsResultModel MethodShunt()
         {
-            _OPD.Clear();
+            _opd.Clear();
             return base.MethodShunt();
         }
     }

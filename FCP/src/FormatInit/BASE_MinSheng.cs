@@ -4,13 +4,12 @@ using FCP.src.FormatControl;
 using FCP.Services;
 using System.Windows;
 using FCP.Models;
-using System;
 
 namespace FCP.src.FormatInit
 {
     class BASE_MinSheng : FormatBase
     {
-        private FMT_MinSheng _format { get; set; }
+        private FMT_MinSheng _format;
 
         public override void Init()
         {
@@ -41,7 +40,7 @@ namespace FCP.src.FormatInit
             var department = FileInfoModel.Department;
             var result = _format.MethodShunt();
             Result(result, false);
-            JsonService.UpdateJson(fileDate, department, _format.newCount);
+            JsonService.UpdateJson(fileDate, department, _format.NewCount);
         }
 
         public override MainUILayoutModel SetUILayout(MainUILayoutModel UI)

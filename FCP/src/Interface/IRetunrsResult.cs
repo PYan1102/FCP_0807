@@ -6,14 +6,14 @@ namespace FCP.src.Interface
 {
     interface IRetunrsResult
     {
-        void Shunt(eConvertResult result, string message);
-        void SetReturnsResultFormat(ReturnsResultFormat format);
+        void Shunt(eConvertResult result, object message = null);
+        void SetReturnsResultModel(ReturnsResultModel format);
         void Success();
-        void Filter(string exception);
-        void NoMultiAdminCode(string adminCode);
-        void NoCombiAdminCode(string adminCode);
-        void ReadFileFail(string exception);
-        void GenerateOCSFileFail(string exception);
-        void ProcessFileFail(string exception);
+        void Pass(object message);
+        void LostMultiAdminCode(string adminCode);
+        void LostCombiAdminCode(string adminCode);
+        void ReadFileFail(object message);
+        void GenerateOCSFileFail(object message);
+        void ProcessFileFail(object message);
     }
 }

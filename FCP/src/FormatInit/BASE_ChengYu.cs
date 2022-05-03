@@ -5,7 +5,8 @@ namespace FCP.src.FormatInit
 {
     class BASE_ChengYu : FormatBase
     {
-        private FMT_ChengYu _CY;
+        private FMT_ChengYu _format;
+
         public override void Init()
         {
             base.Init();
@@ -23,9 +24,8 @@ namespace FCP.src.FormatInit
         public override void Converter()
         {
             base.Converter();
-            if (_CY == null)
-                _CY = new FMT_ChengYu();
-            var result = _CY.MethodShunt();
+            _format = _format ?? new FMT_ChengYu();
+           var result = _format.MethodShunt();
             Result(result, true);
         }
     }

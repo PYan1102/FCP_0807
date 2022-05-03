@@ -5,7 +5,7 @@ namespace FCP.src.FormatInit
 {
     class BASE_FangDing : FormatBase
     {
-        private FMT_FangDing _FangDing { get; set; }
+        private FMT_FangDing _format;
 
         public override void Init()
         {
@@ -24,9 +24,8 @@ namespace FCP.src.FormatInit
         public override void Converter()
         {
             base.Converter();
-            if (_FangDing == null)
-                _FangDing = new FMT_FangDing();
-            var result = _FangDing.MethodShunt();
+            _format = _format ?? new FMT_FangDing();
+            var result = _format.MethodShunt();
             Result(result, true);
         }
     }

@@ -530,7 +530,7 @@ namespace FCP.ViewModels
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(ProgressBoxContent);
-            sb.Append($"{message}\n");
+            sb.AppendLine(message);
             ProgressBoxContent = sb.ToString();
             sb = null;
         }

@@ -365,47 +365,45 @@ namespace FCP
                 }
                 return true;
             }
-            catch (Exception a)
+            catch (Exception ex)
             {
-                Log.Write(a.ToString());
+                Log.Write(ex);
                 return false;
             }
         }
 
-        public static bool KuangTien_OPD(List<string> MedicineCode, List<string> MedicineName, List<string> AdminTime, List<string> Days, List<string> Dosage, List<string> TimesPerDay, List<string> TotalQuantity, string PatientName,
-            string DoctorName, string GetMedicineNumber, string PatientNumber, string Age, string Sex, string Class, string WriteDate, string outputDirectory)
+        public static bool KuangTien_OPD(KuangTienBasic basic, List<KuangTienOPD> _opd, string outputDirectory)
         {
             try
             {
-                string Year = (Convert.ToInt32(WriteDate.Substring(0, 3)) + 1911).ToString();
-                DateTime.TryParseExact(Year + WriteDate.Substring(3, 6), "yyyy/MM/dd", null, System.Globalization.DateTimeStyles.None, out DateTime PrescriptionDate);
-                string DateTimeNow = $"{(Convert.ToInt32(DateTime.Now.ToString("yyyy")) - 1911).ToString()}/{DateTime.Now.ToString("MM/dd")} {DateTime.Now.ToString("HH:mm")}";
-                string EffectiveDateTime = $"{Convert.ToInt32(DateTime.Now.AddDays(180).ToString("yyyy")) - 1911}/{DateTime.Now.AddDays(180).ToString("/MM/dd")}";
+                int year = (Convert.ToInt32(basic.WriteDate.Substring(0, 3)) + 1911);  //民國
+                DateTime prescriptionDate = DateTimeHelper.Convert($"{year}{basic.WriteDate.Substring(3, 6)}", "yyyy/MM/dd");
+                string currentDateTime = $"{Convert.ToInt32(DateTime.Now.ToString("yyyy")) - 1911}/{DateTime.Now:MM/dd HH:mm}";
+                string effectivedDateTime = $"{Convert.ToInt32(DateTime.Now.AddDays(180).ToString("yyyy")) - 1911}/{DateTime.Now.AddDays(180):/MM/dd}";
                 StringBuilder sb = new StringBuilder();
-                for (int r = 0; r <= MedicineCode.Count - 1; r++)
+                foreach (var v in _opd)
                 {
-                    sb.Append(ECD(PatientName, 20));
-                    sb.Append(PatientNumber.PadRight(30));
+                    sb.Append(ECD(basic.PatientName, 20));
+                    sb.Append(basic.PatientNo.PadRight(30));
                     sb.Append(ECD("門診", 50));
-                    sb.Append(ECD(DoctorName, 29));
-                    sb.Append(TotalQuantity[r].PadRight(5));
-                    sb.Append(MedicineCode[r].PadRight(20));
-                    sb.Append(ECD(MedicineName[r], 50));
-                    sb.Append(AdminTime[r].PadRight(20));
-                    sb.Append(PrescriptionDate.ToString("yyMMdd"));
-                    sb.Append(PrescriptionDate.ToString("yyMMdd"));
-                    //sb.Append(PrescriptionDate.AddDays(Int32.Parse(Days[r]) - 1).ToString("yyMMdd"));
+                    sb.Append(ECD(basic.DoctorName, 29));
+                    sb.Append(v.SumQty.PadRight(5));
+                    sb.Append(v.MedicineCode.PadRight(20));
+                    sb.Append(ECD(v.MedicineName, 50));
+                    sb.Append(v.AdminCode.PadRight(20));
+                    sb.Append(prescriptionDate.ToString("yyMMdd"));
+                    sb.Append(prescriptionDate.ToString("yyMMdd"));
                     sb.Append("".PadRight(158));
                     sb.Append("1997-01-01");
                     sb.Append("男    ");
                     sb.Append("".PadRight(40));
                     sb.Append("0");
                     sb.Append(ECD("光田綜合醫院", 30));
-                    sb.Append($"{Math.Ceiling(Convert.ToSingle(Dosage[r]))}".PadRight(30));
-                    sb.Append(TotalQuantity[r].PadRight(30));
-                    sb.Append(DateTimeNow.PadRight(30));
-                    sb.Append(EffectiveDateTime.PadRight(30));
-                    sb.Append(ECD(Class, 30));
+                    sb.Append($"{Math.Ceiling(Convert.ToSingle(v.PerQty))}".PadRight(30));
+                    sb.Append(v.SumQty.PadRight(30));
+                    sb.Append(currentDateTime.PadRight(30));
+                    sb.Append(effectivedDateTime.PadRight(30));
+                    sb.Append(ECD(basic.Class, 30));
                     sb.Append("".PadRight(300));
                     sb.AppendLine("C");
                 }
@@ -415,9 +413,9 @@ namespace FCP
                 }
                 return true;
             }
-            catch (Exception a)
+            catch (Exception ex)
             {
-                Log.Write(a.ToString());
+                Log.Write(ex);
                 return false;
             }
         }
@@ -466,9 +464,9 @@ namespace FCP
                 }
                 return true;
             }
-            catch (Exception a)
+            catch (Exception ex)
             {
-                Log.Write(a.ToString());
+                Log.Write(ex);
                 return false;
             }
         }
@@ -757,8 +755,8 @@ namespace FCP
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
                     sb.Append(v.AdminCode.PadRight(20));
-                    sb.Append(v.StartDay.ToString("yyMMdd"));
-                    sb.Append(v.StartDay.ToString("yyMMdd"));
+                    sb.Append(v.StartDate.ToString("yyMMdd"));
+                    sb.Append(v.StartDate.ToString("yyMMdd"));
                     sb.Append("3       ");
                     sb.Append("".PadRight(50));
                     sb.Append(v.PrescriptionNo.PadRight(50));
@@ -807,7 +805,7 @@ namespace FCP
                     sb.Append(ECD(v.MedicineName, 50));
                     sb.Append(v.AdminCode.PadRight(20));
                     sb.Append(minStartDate.ToString("yyMMdd"));
-                    sb.Append(v.EndDay.ToString("yyMMdd"));
+                    sb.Append(v.EndDate.ToString("yyMMdd"));
                     sb.Append("3       ");
                     sb.Append("".PadRight(50));
                     sb.Append(v.PrescriptionNo.PadRight(50));
@@ -1024,7 +1022,7 @@ namespace FCP
 
         private static List<string> AssignExtraAdminTime(string adminCode)
         {
-            adminCode = adminCode.Replace(" ","");
+            adminCode = adminCode.Replace(" ", "");
             List<string> extraList = new List<string>();
             foreach (string code in adminCode.Split(','))
             {

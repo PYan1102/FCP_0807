@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Diagnostics;
-using System.IO;
-using System.Globalization;
 using FCP.src.Enum;
 using FCP.Models;
 using FCP.src.SQL;
@@ -13,36 +9,25 @@ namespace FCP.src.FormatControl
 {
     class FMT_MinSheng : FormatCollection
     {
-        private Dictionary<string, decimal> _SumQtyOfMedicine = new Dictionary<string, decimal>();
-        private List<MinShengUDBatch> _UDBatch = new List<MinShengUDBatch>();
-        private List<MinShengOPD> _OPD = new List<MinShengOPD>();
-        private List<string> _FilterUnit = new List<string>() { "TUBE", "SUPP", "PCE", "BOT", "BTL", "FLEXPEN", "個", "IU", "適量", "CC" };
-        private int _OLEDBIndex = 1;
-        private int _OLEDBCount = 0;
-        private string location { get; set; }
         public int Index
         {
-            get { return _OLEDBIndex; }
-            set { _OLEDBIndex = value; }
-        }
-        public int newCount
-        {
-            get { return _OLEDBCount; }
-            set { _OLEDBCount = value; }
+            get => _oledbIndex;
+            set => _oledbIndex = value;
         }
 
-        public override ReturnsResultFormat MethodShunt()
+        public int NewCount
         {
-            newCount = 0;
-            _UDBatch.Clear();
-            _OPD.Clear();
-            location = FileInfoModel.Department == eDepartment.OPD || FileInfoModel.Department == eDepartment.Care ? "門診" : "大寮";
-            if (FileInfoModel.Department == eDepartment.Care || FileInfoModel.Department == eDepartment.Other)
-            {
-                FileInfoModel.Department = eDepartment.OPD;
-            }
-            return base.MethodShunt();
+            get => _oledbCount;
+            set => _oledbCount = value;
         }
+
+        private Dictionary<string, decimal> _sumQtyOfMedicine = new Dictionary<string, decimal>();
+        private List<MinShengUDBatch> _batch = new List<MinShengUDBatch>();
+        private List<MinShengOPD> _opd = new List<MinShengOPD>();
+        private List<string> _filterUnit = new List<string>() { "TUBE", "SUPP", "PCE", "BOT", "BTL", "FLEXPEN", "個", "IU", "適量", "CC" };
+        private int _oledbIndex = 1;
+        private int _oledbCount = 0;
+        private string _location;
 
         public override bool ProcessOPD()
         {
@@ -50,41 +35,35 @@ namespace FCP.src.FormatControl
             {
                 OLEDB_OPD();
                 List<int> neeedRemoveList = new List<int>();
-                foreach (var v in _OPD)
+                foreach (var v in _opd)
                 {
-                    if (IsFilterMedicineCode(v.MedicineCode) || IsFilterAdminCode(v.AdminCode) || _FilterUnit.Contains(v.Unit))
+                    if (IsFilterMedicineCode(v.MedicineCode) || IsFilterAdminCode(v.AdminCode) || _filterUnit.Contains(v.Unit))
                     {
-                        neeedRemoveList.Add(_OPD.IndexOf(v));
+                        neeedRemoveList.Add(_opd.IndexOf(v));
                         continue;
                     }
-                    //if (!int.TryParse(float.Parse(v.PerQty).ToString("0.##"), out int i))  //劑量為小數點不包
-                    //{
-                    //    Remove.Add(MS_OPD.IndexOf(v));
-                    //    continue;
-                    //}
-                    //if (!IsExistsMultiAdminCode(v.AdminCode))
-                    //{
-                    //    newCount = 0;
-                    //    ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, v.AdminCode);
-                    //    return false;
-                    //}
+                    if (!IsExistsMultiAdminCode(v.AdminCode))
+                    {
+                        NewCount = 0;
+                        ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, v.AdminCode);
+                        return false;
+                    }
                 }
                 for (int x = neeedRemoveList.Count - 1; x >= 0; x--)
                 {
-                    _OPD.RemoveAt(neeedRemoveList[x]);
+                    _opd.RemoveAt(neeedRemoveList[x]);
                 }
-                if (_OPD.Count == 0)
+                if (_opd.Count == 0)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾, null);
+                    ReturnsResult.Shunt(eConvertResult.全數過濾);
                     return false;
                 }
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                newCount = 0;
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex.ToString());
+                NewCount = 0;
+                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
                 return false;
 
             }
@@ -92,17 +71,15 @@ namespace FCP.src.FormatControl
 
         public override bool LogicOPD()
         {
-            int count = _OPD.Count;
-            string outputDirectory = $@"{OutputDirectory}\{ Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputDirectory}\{ SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
             try
             {
-                OP_OnCube.MinSheng_OPD(_OPD, outputDirectory, location);
+                OP_OnCube.MinSheng_OPD(_opd, outputDirectory, _location);
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex.ToString());
+                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex);
                 return false;
             }
         }
@@ -112,135 +89,117 @@ namespace FCP.src.FormatControl
             try
             {
                 OLEDB_UD();
-                ClearList();
                 List<int> needRemoveList = new List<int>();
-                foreach (var v in _UDBatch)
+                foreach (var v in _batch)
                 {
                     if (IsFilterMedicineCode(v.MedicineCode) || IsFilterAdminCode(v.AdminCode) || v.Unit == "BAG")
                     {
-                        needRemoveList.Add(_UDBatch.IndexOf(v));
+                        needRemoveList.Add(_batch.IndexOf(v));
                         continue;
                     }
-                    //if (!int.TryParse(float.Parse(v.Dosage).ToString("0.##"), out int i))  //劑量為小數點不包
-                    //{
-                    //    Remove.Add(MS_UD.IndexOf(v));
-                    //    continue;
-                    //}
-                    //Debug.WriteLine($"{v.PrescriptionNo}|{v.MedicineName}{v.StartDay}{v.BeginTime}");
-                    if (_SumQtyOfMedicine.Count == 0 || !_SumQtyOfMedicine.ContainsKey($"{v.PrescriptionNo}|{v.MedicineName}{v.StartDay}{v.BeginTime}"))
+                    if (_sumQtyOfMedicine.Count == 0 || !_sumQtyOfMedicine.ContainsKey($"{v.PrescriptionNo}|{v.MedicineName}{v.StartDay}{v.BeginTime}"))
                     {
-                        //Debug.WriteLine("New");
-                        _SumQtyOfMedicine[$"{v.PrescriptionNo}|{v.MedicineName}{v.StartDay}{v.BeginTime}"] = decimal.Parse(v.PerQty);
+                        _sumQtyOfMedicine[$"{v.PrescriptionNo}|{v.MedicineName}{v.StartDay}{v.BeginTime}"] = decimal.Parse(v.PerQty);
                     }
                     else
                     {
-                        //Debug.WriteLine("Old");
-                        _SumQtyOfMedicine[$"{v.PrescriptionNo}|{v.MedicineName}{v.StartDay}{v.BeginTime}"] += decimal.Parse(v.PerQty);
-                        needRemoveList.Add(_UDBatch.IndexOf(v));
+                        _sumQtyOfMedicine[$"{v.PrescriptionNo}|{v.MedicineName}{v.StartDay}{v.BeginTime}"] += decimal.Parse(v.PerQty);
+                        needRemoveList.Add(_batch.IndexOf(v));
                         continue;
                     }
                     if (!IsExistsMultiAdminCode(v.AdminCode))
                     {
-                        newCount = 0;
+                        NewCount = 0;
                         ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, v.AdminCode);
                         return false;
                     }
                 }
                 for (int x = needRemoveList.Count - 1; x >= 0; x--)
                 {
-                    _UDBatch.RemoveAt(needRemoveList[x]);
+                    _batch.RemoveAt(needRemoveList[x]);
                 }
-                if (_UDBatch.Count == 0)
+                if (_batch.Count == 0)
                 {
-                    newCount = 0;
-                    ReturnsResult.Shunt(eConvertResult.全數過濾, null);
+                    NewCount = 0;
+                    ReturnsResult.Shunt(eConvertResult.全數過濾);
                     return false;
                 }
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                newCount = 0;
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex.ToString());
+                NewCount = 0;
+                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
                 return false;
             }
         }
 
         public override bool LogicUDBatch()
         {
-            string outputDirectory = $@"{OutputDirectory}\{Path.GetFileNameWithoutExtension(FilePath)}_{CurrentSeconds}.txt";
+            string outputDirectory = $@"{OutputDirectory}\{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
             try
             {
-                int count = _UDBatch.Count;
+                int count = _batch.Count;
                 int times = 0;
                 int currentTimes = 0;
                 List<string> adminCodeList = new List<string>();
                 for (int i = 0; i <= count - 1; i++)
                 {
-                    if (SettingModel.CrossDayAdminCode.Contains(_UDBatch[i].AdminCode))
+                    if (CrossDayAdminCode.Contains(_batch[i].AdminCode))
                     {
-                        DataDic[$"{i}_{_UDBatch[i].StartDay}"] = new List<string>() { nameof(eDoseType.種包) };
+                        DataDic[$"{i}_{_batch[i].StartDay}"] = new List<string>() { nameof(eDoseType.種包) };
                         continue;
                     }
                     currentTimes = 0;
-                    if (_SumQtyOfMedicine.TryGetValue($"{_UDBatch[i].PrescriptionNo}|{_UDBatch[i].MedicineName}{_UDBatch[i].StartDay}{_UDBatch[i].BeginTime}", out decimal sumQty))
+                    if (_sumQtyOfMedicine.TryGetValue($"{_batch[i].PrescriptionNo}|{_batch[i].MedicineName}{_batch[i].StartDay}{_batch[i].BeginTime}", out decimal sumQty))
                     {
-                        times = (int)(sumQty / Convert.ToDecimal(_UDBatch[i].PerQty));
+                        times = (int)(sumQty / Convert.ToDecimal(_batch[i].PerQty));
                     }
-                    adminCodeList = GetMultiAdminCodeTimes(_UDBatch[i].AdminCode);
-                    DateTime.TryParseExact($"{_UDBatch[i].StartDay} {_UDBatch[i].BeginTime}", "yyMMdd HHmm", null, DateTimeStyles.None, out DateTime startTime);
-                    DateTime dateTemp = startTime;
-                    //Debug.WriteLine($"{MedicineName_L[i]} {AdminTime_L[i]}");
-                    //Debug.WriteLine($"日期 {DateTemp}");
+                    adminCodeList = GetMultiAdminCodeTimes(_batch[i].AdminCode);
+                    DateTime startDate = DateTimeHelper.Convert($"{_batch[i].StartDay} {_batch[i].BeginTime}", "yyMMdd HHmm");
+                    DateTime startDateTemp = startDate;
                     while (currentTimes < times)
                     {
-                        DataDic[$"{i}_{dateTemp:yyMMdd}"] = new List<string>();
-                        foreach (string s in adminCodeList)
+                        DataDic[$"{i}_{startDateTemp:yyMMdd}"] = new List<string>();
+                        foreach (string time in adminCodeList)
                         {
                             if (currentTimes == times)
                                 break;
-                            DateTime.TryParseExact($"{_UDBatch[i].StartDay} {s}", "yyMMdd HH:mm", null, DateTimeStyles.None, out DateTime adminTime);
-                            //Debug.WriteLine($"時間點 {s}");
-                            if (DateTime.Compare(startTime, adminTime) <= 0 & dateTemp == startTime)
+                            DateTime adminDate = DateTimeHelper.Convert($"{_batch[i].StartDay} {time}", "yyMMdd HH:mm");
+                            if (DateTime.Compare(startDate, adminDate) <= 0 & startDateTemp == startDate)
                             {
-                                //Debug.WriteLine($"符合 {s}");
-                                DataDic[$"{i}_{dateTemp:yyMMdd}"].Add(s.Substring(0, 2));
+                                DataDic[$"{i}_{startDateTemp:yyMMdd}"].Add(time.Substring(0, 2));
                                 currentTimes++;
                                 continue;
                             }
-                            if (startTime.CompareTo(dateTemp) == -1)
+                            if (startDate.CompareTo(startDateTemp) == -1)
                             {
-                                //Debug.WriteLine($"符合 {s}");
-                                DataDic[$"{i}_{dateTemp:yyMMdd}"].Add(s.Substring(0, 2));
+                                DataDic[$"{i}_{startDateTemp:yyMMdd}"].Add(time.Substring(0, 2));
                                 currentTimes++;
                                 continue;
                             }
                         }
-                        dateTemp = Convert.ToDateTime($"{dateTemp:yyyy/MM/dd} 00:00:00");
-                        dateTemp = dateTemp.AddDays(1);
-                        //Debug.WriteLine($"日期 {DateTemp}");
+                        startDateTemp = Convert.ToDateTime($"{startDateTemp:yyyy/MM/dd} 00:00:00");
+                        startDateTemp = startDateTemp.AddDays(1);
                     }
                 }
 
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                newCount = 0;
-                ReturnsResult.Shunt(eConvertResult.處理邏輯失敗, ex.ToString());
+                NewCount = 0;
+                ReturnsResult.Shunt(eConvertResult.處理邏輯失敗, ex);
                 return false;
             }
             try
             {
-                OP_OnCube.MinSheng_UD(DataDic, outputDirectory, _UDBatch);
+                OP_OnCube.MinSheng_UD(DataDic, outputDirectory, _batch);
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Write($"{FilePath} {ex}");
-                newCount = 0;
-                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, null);
+                NewCount = 0;
+                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex);
                 return false;
             }
         }
@@ -279,9 +238,8 @@ namespace FCP.src.FormatControl
         {
             try
             {
-                _UDBatch = OLEDB.GetMingSheng_UD(InputDirectory, FilePath, Index);
-                newCount = _UDBatch.Count > 0 ? _UDBatch[_UDBatch.Count - 1].RecNo : 0;
-                //newCount = 0;
+                _batch = OLEDB.GetMingSheng_UD(InputDirectory, SourceFilePath, Index);
+                NewCount = _batch.Count > 0 ? _batch[_batch.Count - 1].RecNo : 0;
             }
             catch (Exception ex)
             {
@@ -290,14 +248,22 @@ namespace FCP.src.FormatControl
             }
         }
 
+        public override bool ProcessCare()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool LogicCare()
+        {
+            throw new NotImplementedException();
+        }
+
         private void OLEDB_OPD()
         {
             try
             {
-                _OPD = OLEDB.GetMingSheng_OPD(InputDirectory, FilePath, Index);
-                newCount = _OPD.Count > 0 ? _OPD[_OPD.Count - 1].RecNo + 1 : 0;
-                //Debug.WriteLine($"The number of new count is {newCount}");
-                //newCount = 0;
+                _opd = OLEDB.GetMingSheng_OPD(InputDirectory, SourceFilePath, Index);
+                NewCount = _opd.Count > 0 ? _opd[_opd.Count - 1].RecNo + 1 : 0;
             }
             catch (Exception ex)
             {
@@ -309,17 +275,21 @@ namespace FCP.src.FormatControl
         private void ClearList()
         {
             DataDic.Clear();
-            _SumQtyOfMedicine.Clear();
+            _sumQtyOfMedicine.Clear();
         }
 
-        public override bool ProcessCare()
+        public override ReturnsResultModel MethodShunt()
         {
-            throw new NotImplementedException();
-        }
-
-        public override bool LogicCare()
-        {
-            throw new NotImplementedException();
+            NewCount = 0;
+            _batch.Clear();
+            _opd.Clear();
+            ClearList();
+            _location = FileInfoModel.Department == eDepartment.OPD || FileInfoModel.Department == eDepartment.Care ? "門診" : "大寮";
+            if (FileInfoModel.Department == eDepartment.Care || FileInfoModel.Department == eDepartment.Other)
+            {
+                FileInfoModel.Department = eDepartment.OPD;
+            }
+            return base.MethodShunt();
         }
     }
 
