@@ -372,7 +372,7 @@ namespace FCP
             }
         }
 
-        public static bool KuangTien_OPD(KuangTienBasic basic, List<KuangTienOPD> _opd, string outputDirectory)
+        public static bool KuangTien_OPD(KuangTienOPDBasic basic, List<KuangTienOPD> _opd, string outputDirectory)
         {
             try
             {

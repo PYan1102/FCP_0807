@@ -71,6 +71,7 @@ namespace FCP.src.FormatInit
             UI.IP3Enabled = false;
             UI.IP4Enabled = false;
             UI.IP5Enabled = oncube;
+            UI.IP6Enabled = oncube;
             UI.OPDToogle1 = oncube ? "門診" : string.Empty; ;
             UI.OPDToogle2 = oncube ? string.Empty : "磨粉";
             UI.OPDToogle3 = string.Empty;

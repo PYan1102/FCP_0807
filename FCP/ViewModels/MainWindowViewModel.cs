@@ -350,7 +350,11 @@ namespace FCP.ViewModels
 
         public bool StatChecked
         {
-            get => _model.StatChecked;
+            get
+            {
+                _settingModel.StatOrBatch = _model.StatChecked ? eDepartment.Stat : eDepartment.Batch;
+                return _model.StatChecked;
+            }
             set => _model.StatChecked = value;
         }
 
@@ -520,7 +524,6 @@ namespace FCP.ViewModels
             model.InputDirectory5 = InputDirectory5;
             model.InputDirectory6 = InputDirectory6;
             model.OutputDirectory = OutputDirectory;
-            model.StatOrBatch= StatChecked ? eDepartment.Stat : eDepartment.Batch;
             model.AutoStart = IsAutoStartChecked;
             Setting.Save(model);
             AddLog("儲存成功");
