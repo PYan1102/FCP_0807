@@ -12,7 +12,7 @@ namespace FCP.src.FormatControl
         private TaipeiDetentionOPDBasic _basic = new TaipeiDetentionOPDBasic();
         private List<TaipeiDetentionOPD> _opd = new List<TaipeiDetentionOPD>();
 
-        public override bool ProcessOPD()
+        public override void ProcessOPD()
         {
             try
             {
@@ -44,8 +44,8 @@ namespace FCP.src.FormatControl
                         continue;
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
-                        ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, adminCode);
-                        return false;
+                        LostMultiAdminCode(adminCode);
+                        return;
                     }
                     _opd.Add(new TaipeiDetentionOPD()
                     {
@@ -59,90 +59,88 @@ namespace FCP.src.FormatControl
                 }
                 if (_opd.Count == 0)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾);
-                    return false;
+                    Pass();
+                    return;
                 }
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
-                return false;
+                ReadFileFail(ex);
             }
         }
 
-        public override bool LogicOPD()
+        public override void LogicOPD()
         {
             string outputDirectory = $@"{OutputDirectory}\{_basic.PatientName}-{_basic.PatientNo}-{_basic.Class}_{CurrentSeconds}.txt";
             List<string> putBackAdminCode = new List<string>() { "Q4H", "Q6H", "Q8H", "Q12H", "QDPRN", "QIDPRN", "PRN", "BIDPRN", "TIDPRN", "HSPRN" };
             try
             {
                 OP_OnCube.TaipeiDentention(_opd, _basic, outputDirectory, putBackAdminCode);
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
-                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex);
-                return false;
+                GenerateOCSFileFail(ex);
             }
         }
 
-        public override bool ProcessUDBatch()
+        public override void ProcessUDBatch()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicUDBatch()
+        public override void LogicUDBatch()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessUDStat()
+        public override void ProcessUDStat()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicUDStat()
+        public override void LogicUDStat()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessPOWDER()
+        public override void ProcessPowder()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicPOWDER()
+        public override void LogicPowder()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessOther()
+        public override void ProcessOther()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicOther()
+        public override void LogicOther()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessCare()
+        public override void ProcessCare()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicCare()
+        public override void LogicCare()
         {
             throw new NotImplementedException();
         }
 
-        public override ReturnsResultModel MethodShunt()
+        public override ReturnsResultModel DepartmentShunt()
         {
             _basic = null;
             _basic = new TaipeiDetentionOPDBasic();
             _opd.Clear();
-            return base.MethodShunt();
+            return base.DepartmentShunt();
         }
     }
     internal class TaipeiDetentionOPDBasic

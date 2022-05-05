@@ -38,7 +38,7 @@ namespace FCP.src.FormatInit
             _format = _format ?? new FMT_MinSheng();
             _format.Index = JsonService.GetOLEDBIndex(FileInfoModel.Department, fileDate);
             var department = FileInfoModel.Department;
-            var result = _format.MethodShunt();
+            var result = _format.DepartmentShunt();
             Result(result, false);
             JsonService.UpdateJson(fileDate, department, _format.NewCount);
         }

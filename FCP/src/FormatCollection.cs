@@ -144,50 +144,91 @@ namespace FCP.src
             StayDay_L.Clear();
         }
 
-        //方法分流
-        public virtual ReturnsResultModel MethodShunt()
+        //分流
+        public virtual ReturnsResultModel DepartmentShunt()
         {
             Init();
             switch (Department)
             {
                 case eDepartment.OPD:
-                    if (ProcessOPD())
+                    ProcessOPD();
+                    if (_returnsResultFormat.Result == eConvertResult.成功)
                     {
                         LogicOPD();
                     }
                     break;
                 case eDepartment.POWDER:
-                    if (ProcessPOWDER())
+                    ProcessPowder();
+                    if (_returnsResultFormat.Result == eConvertResult.成功)
                     {
-                        LogicPOWDER();
+                        LogicPowder();
                     }
                     break;
                 case eDepartment.Stat:
-                    if (ProcessUDStat())
+                    ProcessUDStat();
+                    if (_returnsResultFormat.Result == eConvertResult.成功)
                     {
                         LogicUDStat();
                     }
                     break;
                 case eDepartment.Batch:
-                    if (ProcessUDBatch())
+                    ProcessUDBatch();
+                    if (_returnsResultFormat.Result == eConvertResult.成功)
                     {
                         LogicUDBatch();
                     }
                     break;
                 case eDepartment.Other:
-                    if (ProcessOther())
+                    ProcessOther();
+                    if (_returnsResultFormat.Result == eConvertResult.成功)
                     {
                         LogicOther();
                     }
                     break;
                 default:
-                    if (ProcessCare())
+                    ProcessCare();
+                    if (_returnsResultFormat.Result == eConvertResult.成功)
                     {
                         LogicCare();
                     }
                     break;
             }
             return _returnsResultFormat;
+        }
+
+        public void Success()
+        {
+            ReturnsResult.Shunt(eConvertResult.成功);
+        }
+
+        public void Pass()
+        {
+            ReturnsResult.Shunt(eConvertResult.全數過濾);
+        }
+
+        public void LostMultiAdminCode(string adminCode)
+        {
+            ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, adminCode);
+        }
+
+        public void LostCombiAdminCode(string adminCode)
+        {
+            ReturnsResult.Shunt(eConvertResult.缺少種包頻率, adminCode);
+        }
+
+        public void ReadFileFail(object message = null)
+        {
+            ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, message);
+        }
+
+        public void ProgressLogicFail(object message = null)
+        {
+            ReturnsResult.Shunt(eConvertResult.處理邏輯失敗, message);
+        }
+
+        public void GenerateOCSFileFail(object message = null)
+        {
+            ReturnsResult.Shunt(eConvertResult.產生OCS失敗, message);
         }
 
         //特控1
@@ -473,17 +514,36 @@ namespace FCP.src
             return newList;
         }
 
-        public abstract bool ProcessOPD();
-        public abstract bool LogicOPD();
-        public abstract bool ProcessUDBatch();
-        public abstract bool LogicUDBatch();
-        public abstract bool ProcessUDStat();
-        public abstract bool LogicUDStat();
-        public abstract bool ProcessPOWDER();
-        public abstract bool LogicPOWDER();
-        public abstract bool ProcessOther();
-        public abstract bool LogicOther();
-        public abstract bool ProcessCare();
-        public abstract bool LogicCare();
+        public Dictionary<string, int> GetCrossDayAdminCodeTimes()
+        {
+            string value = CommonModel.SqlHelper.Query_FirstString("SELECT Value FROM SettingValue WHERE Name = 'OCS_DispensePeriodByAdminCode'");
+            string[] split1 = value.Split('|');
+            Dictionary<string, int> dictionary = new Dictionary<string, int>();
+            foreach (var v in split1)
+            {
+                string[] split2 = v.Split('^');
+                string rawID = split2[0];
+                int times = Convert.ToInt32(split2[2]);
+                string adminCode = CommonModel.SqlHelper.Query_FirstString($"SELECT AdminCode FROM AdminTime WHERE RawID={rawID}");
+                if (times != 0)
+                {
+                    dictionary.Add(adminCode, times);
+                }
+            }
+            return dictionary;
+        }
+
+        public abstract void ProcessOPD();
+        public abstract void LogicOPD();
+        public abstract void ProcessUDBatch();
+        public abstract void LogicUDBatch();
+        public abstract void ProcessUDStat();
+        public abstract void LogicUDStat();
+        public abstract void ProcessPowder();
+        public abstract void LogicPowder();
+        public abstract void ProcessOther();
+        public abstract void LogicOther();
+        public abstract void ProcessCare();
+        public abstract void LogicCare();
     }
 }

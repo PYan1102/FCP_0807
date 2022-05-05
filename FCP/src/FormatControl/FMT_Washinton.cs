@@ -19,7 +19,7 @@ namespace FCP.src.FormatControl
         private List<string> _jvsRandom = new List<string>();
         private List<string> _oncubeRandom = new List<string>();
 
-        public override bool ProcessOPD()
+        public override void ProcessOPD()
         {
             try
             {
@@ -48,16 +48,16 @@ namespace FCP.src.FormatControl
                     bool needToPack = Convert.ToSingle(node.Attributes["divided_dose"].Value) % 0.5 == 0 || medicineCode == "BRO";  //單次劑量被0.5整除則包出，否則不包
                     if (!needToPack)
                     {
-                        ReturnsResult.Shunt(eConvertResult.全數過濾);
-                        return false;
+                        Pass();
+                        return;
                     }
                     bool powder = node.Attributes["memo"].Value == "P";  //P為磨粉
                     if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode) || powder || NeedFilterMedicineCode(medicineCode))
                         continue;
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
-                        ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, adminCode);
-                        return false;
+                        LostMultiAdminCode(adminCode);
+                        return;
                     }
                     float perQty = Convert.ToSingle(node.Attributes["divided_dose"].Value);
                     int memoQty = node.Attributes["memo"].Value.ToString().Length == 0 ? 0 : Int32.TryParse(node.Attributes["memo"].Value, out int qty) ? qty : 0;
@@ -117,19 +117,18 @@ namespace FCP.src.FormatControl
 
                 if (_opd.Count == 0 || ComparePrescription.IsPrescriptionRepeat(SourceFilePath, _basic, _opd))
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾);
-                    return false;
+                    Pass();
+                    return;
                 }
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
-                return false;
+                ReadFileFail(ex);
             }
         }
 
-        public override bool LogicOPD()
+        public override void LogicOPD()
         {
             for (int x = 0; x <= 14; x++)
                 _oncubeRandom.Add("");
@@ -150,8 +149,8 @@ namespace FCP.src.FormatControl
                                select a).Count() > 0;
                 if (result && _opd.Count == 1)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾);
-                    return false;
+                    Pass();
+                    return;
                 }
             }
 
@@ -161,61 +160,60 @@ namespace FCP.src.FormatControl
             try
             {
                 OP_OnCube.JVServerXML(_basic, _opd, outputDirectory, SourceFileNameWithoutExtension);
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
-                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex);
-                return false;
+                GenerateOCSFileFail(ex);
             }
         }
 
-        public override bool ProcessUDBatch()
+        public override void ProcessUDBatch()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicUDBatch()
+        public override void LogicUDBatch()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessUDStat()
+        public override void ProcessUDStat()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicUDStat()
+        public override void LogicUDStat()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessPOWDER()
+        public override void ProcessPowder()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicPOWDER()
+        public override void LogicPowder()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessOther()
+        public override void ProcessOther()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicOther()
+        public override void LogicOther()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessCare()
+        public override void ProcessCare()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicCare()
+        public override void LogicCare()
         {
             throw new NotImplementedException();
         }
@@ -226,13 +224,13 @@ namespace FCP.src.FormatControl
             _oncubeRandom.Clear();
         }
 
-        public override ReturnsResultModel MethodShunt()
+        public override ReturnsResultModel DepartmentShunt()
         {
             _basic = null;
             _basic = new JVServerXMLOPDBasic();
             _opd.Clear();
             ClearList();
-            return base.MethodShunt();
+            return base.DepartmentShunt();
         }
     }
 

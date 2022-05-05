@@ -28,7 +28,7 @@ namespace FCP.src.FormatInit
         {
             base.Converter();
             _format = _format ?? new FMT_HongYen();
-            var result = _format.MethodShunt();
+            var result = _format.DepartmentShunt();
             Result(result, true);
         }
     }

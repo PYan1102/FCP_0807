@@ -11,12 +11,12 @@ namespace FCP.src.FormatControl
     {
         private List<ChengYuOPD> _opd = new List<ChengYuOPD>();
         private bool _initialized;
-        public override bool ProcessCare()
+        public override void ProcessCare()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessOPD()
+        public override void ProcessOPD()
         {
             _initialized = true;
             try
@@ -61,19 +61,18 @@ namespace FCP.src.FormatControl
                 }
                 if (_opd.Count == 0)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾);
-                    return false;
+                    Pass();
+                    return;
                 }
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
-                return false;
+                ReadFileFail(ex);
             }
         }
 
-        public override bool LogicOPD()
+        public override void LogicOPD()
         {
             #region 比對當天處方中是否有病患姓名及頻率(自一、自二)重複者，若重複則在檔名加上index
             string[] split = SourceFileNameWithoutExtension.Split('-');
@@ -115,64 +114,63 @@ namespace FCP.src.FormatControl
             try
             {
                 OP_OnCube.ChengYu(_opd, outputDirectory);
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
-                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex);
-                return false;
+                GenerateOCSFileFail(ex);
             }
         }
 
-        public override bool ProcessOther()
+        public override void ProcessOther()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessPOWDER()
+        public override void ProcessPowder()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessUDBatch()
+        public override void ProcessUDBatch()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessUDStat()
+        public override void ProcessUDStat()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicCare()
+        public override void LogicCare()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicOther()
+        public override void LogicOther()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicPOWDER()
+        public override void LogicPowder()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicUDBatch()
+        public override void LogicUDBatch()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicUDStat()
+        public override void LogicUDStat()
         {
             throw new NotImplementedException();
         }
 
-        public override ReturnsResultModel MethodShunt()
+        public override ReturnsResultModel DepartmentShunt()
         {
             _opd.Clear();
-            return base.MethodShunt();
+            return base.DepartmentShunt();
         }
     }
     internal class ChengYuOPD

@@ -29,7 +29,7 @@ namespace FCP.src.FormatControl
         private int _oledbCount = 0;
         private string _location;
 
-        public override bool ProcessOPD()
+        public override void ProcessOPD()
         {
             try
             {
@@ -45,8 +45,8 @@ namespace FCP.src.FormatControl
                     if (!IsExistsMultiAdminCode(v.AdminCode))
                     {
                         NewCount = 0;
-                        ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, v.AdminCode);
-                        return false;
+                        LostMultiAdminCode(v.AdminCode);
+                        return;
                     }
                 }
                 for (int x = neeedRemoveList.Count - 1; x >= 0; x--)
@@ -55,36 +55,34 @@ namespace FCP.src.FormatControl
                 }
                 if (_opd.Count == 0)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾);
-                    return false;
+                    Pass();
+                    return;
                 }
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
                 NewCount = 0;
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
-                return false;
+                ReadFileFail(ex);
 
             }
         }
 
-        public override bool LogicOPD()
+        public override void LogicOPD()
         {
             string outputDirectory = $@"{OutputDirectory}\{ SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
             try
             {
                 OP_OnCube.MinSheng_OPD(_opd, outputDirectory, _location);
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
-                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex);
-                return false;
+                GenerateOCSFileFail(ex);
             }
         }
 
-        public override bool ProcessUDBatch()
+        public override void ProcessUDBatch()
         {
             try
             {
@@ -110,8 +108,8 @@ namespace FCP.src.FormatControl
                     if (!IsExistsMultiAdminCode(v.AdminCode))
                     {
                         NewCount = 0;
-                        ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, v.AdminCode);
-                        return false;
+                        LostMultiAdminCode(v.AdminCode);
+                        return;
                     }
                 }
                 for (int x = needRemoveList.Count - 1; x >= 0; x--)
@@ -121,20 +119,19 @@ namespace FCP.src.FormatControl
                 if (_batch.Count == 0)
                 {
                     NewCount = 0;
-                    ReturnsResult.Shunt(eConvertResult.全數過濾);
-                    return false;
+                    Pass();
+                    return;
                 }
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
                 NewCount = 0;
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
-                return false;
+                ReadFileFail(ex);
             }
         }
 
-        public override bool LogicUDBatch()
+        public override void LogicUDBatch()
         {
             string outputDirectory = $@"{OutputDirectory}\{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
             try
@@ -188,48 +185,46 @@ namespace FCP.src.FormatControl
             catch (Exception ex)
             {
                 NewCount = 0;
-                ReturnsResult.Shunt(eConvertResult.處理邏輯失敗, ex);
-                return false;
+                ProgressLogicFail(ex);
             }
             try
             {
                 OP_OnCube.MinSheng_UD(DataDic, outputDirectory, _batch);
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
                 NewCount = 0;
-                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex);
-                return false;
+                GenerateOCSFileFail(ex);
             }
         }
 
-        public override bool ProcessUDStat()
+        public override void ProcessUDStat()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicUDStat()
+        public override void LogicUDStat()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessPOWDER()
+        public override void ProcessPowder()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicPOWDER()
+        public override void LogicPowder()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessOther()
+        public override void ProcessOther()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicOther()
+        public override void LogicOther()
         {
             throw new NotImplementedException();
         }
@@ -248,12 +243,12 @@ namespace FCP.src.FormatControl
             }
         }
 
-        public override bool ProcessCare()
+        public override void ProcessCare()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicCare()
+        public override void LogicCare()
         {
             throw new NotImplementedException();
         }
@@ -278,7 +273,7 @@ namespace FCP.src.FormatControl
             _sumQtyOfMedicine.Clear();
         }
 
-        public override ReturnsResultModel MethodShunt()
+        public override ReturnsResultModel DepartmentShunt()
         {
             NewCount = 0;
             _batch.Clear();
@@ -289,7 +284,7 @@ namespace FCP.src.FormatControl
             {
                 FileInfoModel.Department = eDepartment.OPD;
             }
-            return base.MethodShunt();
+            return base.DepartmentShunt();
         }
     }
 

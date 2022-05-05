@@ -14,7 +14,7 @@ namespace FCP.src.FormatControl
         private List<HongYenOPD> _opd = new List<HongYenOPD>();
         private int _separateIndex = 0;  //紀錄分開上下筆的索引
 
-        public override bool ProcessOPD()
+        public override void ProcessOPD()
         {
             try
             {
@@ -41,8 +41,8 @@ namespace FCP.src.FormatControl
                     string medicineName = EncodingHelper.GetString(16, 50);
                     if (medicineName == "磨粉.")
                     {
-                        ReturnsResult.Shunt(eConvertResult.全數過濾);
-                        return false;
+                        Pass();
+                        return;
                     }
                     if (medicineCode.Length == 0 || (int.TryParse(medicineCode, out int i) && medicineCode.Length <= 4))
                     {
@@ -65,19 +65,18 @@ namespace FCP.src.FormatControl
                 }
                 if (_opd.Count == 0)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾);
-                    return false;
+                    Pass();
+                    return;
                 }
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
-                return false;
+                ReadFileFail(ex);
             }
         }
 
-        public override bool LogicOPD()
+        public override void LogicOPD()
         {
             List<HongYenOPD> opdUp = new List<HongYenOPD>();
             List<HongYenOPD> opdDown = new List<HongYenOPD>();
@@ -112,8 +111,8 @@ namespace FCP.src.FormatControl
 
                 if (opdUp.Where(x => x.MedicineCode == "A037598116").Count() > 0 && opdUp.Count <= 2)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾);
-                    return false;
+                    Pass();
+                    return;
                 }
 
                 #endregion
@@ -121,8 +120,8 @@ namespace FCP.src.FormatControl
                 //若上筆筆數為 0 ，並下筆筆數 <= 1 ，則整筆過濾
                 if (opdUp.Count == 0 && opdDown.Count <= 1)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾, null);
-                    return false;
+                    Pass();
+                    return;
                 }
 
                 //若上筆筆數為 0 ，並下筆筆數 >= 2 ，則將下筆處方移至上筆
@@ -140,18 +139,17 @@ namespace FCP.src.FormatControl
             }
             catch (Exception ex)
             {
-                ReturnsResult.Shunt(eConvertResult.處理邏輯失敗, ex);
-                return false;
+                ProgressLogicFail(ex);
+                return;
             }
             try
             {
                 OP_OnCube.HongYen(opdUp, opdDown, _basic, outputDirectory);
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
-                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex);
-                return false;
+                GenerateOCSFileFail(ex);
             }
         }
 
@@ -182,63 +180,63 @@ namespace FCP.src.FormatControl
             return list.Where(x => adminCodeCount.Select(y => y.Key).ToList().Contains(x.AdminCode)).ToList();
         }
 
-        public override bool ProcessUDBatch()
+        public override void ProcessUDBatch()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicUDBatch()
+        public override void LogicUDBatch()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessUDStat()
+        public override void ProcessUDStat()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicUDStat()
+        public override void LogicUDStat()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessPOWDER()
+        public override void ProcessPowder()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicPOWDER()
+        public override void LogicPowder()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessOther()
+        public override void ProcessOther()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicOther()
+        public override void LogicOther()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessCare()
+        public override void ProcessCare()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicCare()
+        public override void LogicCare()
         {
             throw new NotImplementedException();
         }
 
-        public override ReturnsResultModel MethodShunt()
+        public override ReturnsResultModel DepartmentShunt()
         {
             _basic = null;
             _basic = new HongYenOPDBasic();
             _opd.Clear();
             _separateIndex = 0;
-            return base.MethodShunt();
+            return base.DepartmentShunt();
         }
     }
 

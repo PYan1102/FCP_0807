@@ -12,7 +12,7 @@ namespace FCP.src.FormatControl
         private List<JenKang> _opd = new List<JenKang>();
         private List<JenKang> _batch = new List<JenKang>();
 
-        public override bool ProcessOPD()
+        public override void ProcessOPD()
         {
             try
             {
@@ -29,8 +29,8 @@ namespace FCP.src.FormatControl
                         continue;
                     if (!IsExistsCombiAdminCode(adminCode))
                     {
-                        ReturnsResult.Shunt(eConvertResult.缺少種包頻率, adminCode);
-                        return false;
+                        LostCombiAdminCode(adminCode);
+                        return;
                     }
                     DateTime startDate = DateTimeHelper.Convert(EncodingHelper.GetString(41, 8), "yyyyMMdd");
                     _opd.Add(new JenKang()
@@ -55,34 +55,32 @@ namespace FCP.src.FormatControl
                 }
                 if (_opd.Count == 0)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾);
-                    return false;
+                    Pass();
+                    return;
                 }
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
-                return false;
+                ReadFileFail(ex);
             }
         }
 
-        public override bool LogicOPD()
+        public override void LogicOPD()
         {
             string outputDirectory = $@"{OutputDirectory}\{SourceFileNameWithoutExtension}-{_opd[0].PatientName}_{CurrentSeconds}.txt";
             try
             {
                 OP_OnCube.JenKang_OPD(_opd, outputDirectory);
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
-                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex);
-                return false;
+                GenerateOCSFileFail(ex);
             }
         }
 
-        public override bool ProcessUDBatch()
+        public override void ProcessUDBatch()
         {
             try
             {
@@ -99,8 +97,8 @@ namespace FCP.src.FormatControl
                         continue;
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
-                        ReturnsResult.Shunt(eConvertResult.缺少餐包頻率, adminCode);
-                        return false;
+                        LostMultiAdminCode(adminCode);
+                        return;
                     }
                     string location = "住院";
                     if (EncodingHelper.Length > 242)
@@ -137,19 +135,18 @@ namespace FCP.src.FormatControl
                 }
                 if (_batch.Count == 0)
                 {
-                    ReturnsResult.Shunt(eConvertResult.缺少餐包頻率);
-                    return false;
+                    Pass();
+                    return;
                 }
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
-                return false;
+                ReadFileFail(ex);
             }
         }
 
-        public override bool LogicUDBatch()
+        public override void LogicUDBatch()
         {
             DateTime minStartDate = DateTime.Now;
             foreach (var v in _batch)
@@ -177,60 +174,59 @@ namespace FCP.src.FormatControl
             try
             {
                 OP_OnCube.JenKang_UD(_batch, outputDirectory, minStartDate);
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
-                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex);
-                return false;
+                GenerateOCSFileFail(ex);
             }
         }
 
-        public override bool ProcessUDStat()
+        public override void ProcessUDStat()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicUDStat()
+        public override void LogicUDStat()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessPOWDER()
+        public override void ProcessPowder()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicPOWDER()
+        public override void LogicPowder()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessOther()
+        public override void ProcessOther()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicOther()
+        public override void LogicOther()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessCare()
+        public override void ProcessCare()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicCare()
+        public override void LogicCare()
         {
             throw new NotImplementedException();
         }
 
-        public override ReturnsResultModel MethodShunt()
+        public override ReturnsResultModel DepartmentShunt()
         {
             _opd.Clear();
             _batch.Clear();
-            return base.MethodShunt();
+            return base.DepartmentShunt();
         }
     }
     internal class JenKang

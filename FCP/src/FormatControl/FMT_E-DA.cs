@@ -11,7 +11,7 @@ namespace FCP.src.FormatControl
     {
         private List<EDAUDBatch> _batch = new List<EDAUDBatch>();
 
-        public override bool ProcessUDBatch()
+        public override void ProcessUDBatch()
         {
             try
             {
@@ -19,128 +19,129 @@ namespace FCP.src.FormatControl
                 foreach (string s in GetPrescriptionInfoList)
                 {
                     exists = false;
-                    List<string> data = s.Split('	').Select(x => x.Trim()).ToList();
-                    if (data.Count <= 1 || data[5] == "BID+HS")
+                    List<string> list = s.Split('	').Select(x => x.Trim()).ToList();
+                    string medicineCode = list[4];
+                    string adminCode = list[5];
+                    float sumQty = float.Parse(list[10]);
+                    if (list.Count <= 1 || adminCode == "BID+HS")
                         continue;
-                    if (IsFilterMedicineCode(data[4]) || IsFilterAdminCode($"{data[5]}"))
+                    if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
                         continue;
-                    if (!IsExistsCombiAdminCode($"{data[5]}"))
+                    if (!IsExistsCombiAdminCode(adminCode))
                     {
-                        ReturnsResult.Shunt(eConvertResult.缺少種包頻率, data[5]);
-                        return false;
+                        LostCombiAdminCode(adminCode);
+                        return;
                     }
-                    DateTime startDate = DateTimeHelper.Convert($"{Convert.ToInt32(data[12]) + 19110000}", "yyyyMMdd");
+                    DateTime startDate = DateTimeHelper.Convert($"{Convert.ToInt32(list[12]) + 19110000}", "yyyyMMdd");
                     for (int i = _batch.Count - 1; i >= 0; i--)
                     {
-                        if (_batch[i].PatientName == data[1] & _batch[i].MedicineCode == data[4] & _batch[i].AdminTime == $"S{data[5]}")
+                        if (_batch[i].PatientName == list[1] & _batch[i].MedicineCode == medicineCode & _batch[i].AdminCode == $"S{adminCode}")
                         {
                             exists = true;
-                            _batch[i].SumQty = (float.Parse(_batch[i].SumQty) + float.Parse(data[10])).ToString("0.###");
+                            _batch[i].SumQty = (float.Parse(_batch[i].SumQty) + sumQty).ToString("0.###");
                             break;
                         }
                     }
                     if (!exists)
                     {
-                        _batch.Add(new EDAUDBatch
+                        _batch.Add(new EDAUDBatch()
                         {
-                            PatientName = data[1],
-                            MedicineCode = data[4],
-                            AdminTime = $"S{data[5]}",
-                            PerQty = data[9],
-                            SumQty = float.Parse(data[10]).ToString("0.###"),
+                            PatientName = list[1],
+                            MedicineCode = medicineCode,
+                            AdminCode = $"S{adminCode}",
+                            PerQty = list[9],
+                            SumQty = sumQty.ToString("0.###"),
                             StartDate = startDate.ToString("yyMMdd"),
-                            Days = data[13],
-                            BedNo = data[15],
-                            MedicineName = data[19],
-                            PrescriptionNo = data[20],
-                            StartTime = data[23],
-                            BirthDate = data[39].Insert(3, "/").Insert(6, "/")
+                            Days = list[13],
+                            BedNo = list[15],
+                            MedicineName = list[19],
+                            PrescriptionNo = list[20],
+                            StartTime = list[23],
+                            BirthDate = list[39].Insert(3, "/").Insert(6, "/")
                         });
                     }
                 }
                 if (_batch.Count == 0)
                 {
-                    ReturnsResult.Shunt(eConvertResult.全數過濾);
-                    return false;
+                    Pass();
+                    return;
                 }
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
-                ReturnsResult.Shunt(eConvertResult.讀取檔案失敗, ex);
-                return false;
+                ReadFileFail(ex);
             }
         }
 
-        public override bool LogicUDBatch()
+        public override void LogicUDBatch()
         {
             string outputDirectory = $@"{OutputDirectory}\{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
             try
             {
                 OP_OnCube.E_DA_UD(_batch, outputDirectory);
-                return true;
+                Success();
             }
             catch (Exception ex)
             {
-                ReturnsResult.Shunt(eConvertResult.產生OCS失敗, ex);
-                return false;
+                GenerateOCSFileFail(ex);
             }
         }
 
-        public override bool ProcessOPD()
+        public override void ProcessOPD()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicOPD()
+        public override void LogicOPD()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessUDStat()
+        public override void ProcessUDStat()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicUDStat()
+        public override void LogicUDStat()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessPOWDER()
+        public override void ProcessPowder()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicPOWDER()
+        public override void LogicPowder()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessOther()
+        public override void ProcessOther()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicOther()
+        public override void LogicOther()
         {
             throw new NotImplementedException();
         }
 
-        public override bool ProcessCare()
+        public override void ProcessCare()
         {
             throw new NotImplementedException();
         }
 
-        public override bool LogicCare()
+        public override void LogicCare()
         {
             throw new NotImplementedException();
         }
 
-        public override ReturnsResultModel MethodShunt()
+        public override ReturnsResultModel DepartmentShunt()
         {
             _batch.Clear();
-            return base.MethodShunt();
+            return base.DepartmentShunt();
         }
     }
     internal class EDAUDBatch
@@ -149,7 +150,7 @@ namespace FCP.src.FormatControl
         public string PatientName { get; set; }
         public string MedicineCode { get; set; }
         public string MedicineName { get; set; }
-        public string AdminTime { get; set; }
+        public string AdminCode { get; set; }
         public string PerQty { get; set; }
         public string SumQty { get; set; }
         public string StartDate { get; set; }

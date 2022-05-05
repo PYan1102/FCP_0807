@@ -260,109 +260,15 @@ namespace FCP
             }
         }
 
-        public static bool KuangTien_UD(List<string> MedicineName, List<string> MedicineCode, List<string> AdminTime, List<string> Dosage, List<string> TotalQuantity,
-            List<string> StartDate, List<string> EndDate, List<string> PatientName, List<string> PrescriptionNo, List<string> BedNo, Dictionary<int, string> BarcodeDic,
-            string outputDirectory, List<string> Class, List<string> StayDate, Dictionary<string, List<string>> DataDic, List<bool> DoseType, List<bool> CrossAdminTimeType, string FirstDate,
-            List<string> QODDescription, List<string> CurrentDate, string Type, List<string> SpecialCode)
+        public static bool KuangTien_UD()
         {
             try
             {
-                string MedicineCodeTemp = "";
-                string Name = "";
-                int InfoCount = 65;
-                StringBuilder sb = new StringBuilder();
-                foreach (var v in DataDic)
-                {
-                    int r = Convert.ToInt32(v.Key.Substring(0, v.Key.IndexOf("_")));
-                    string DateTemp = v.Key.Substring(v.Key.IndexOf("_") + 1, v.Key.Length - v.Key.IndexOf("_") - 1);
-                    DateTime.TryParseExact(DateTemp, "yyMMdd", null, DateTimeStyles.None, out DateTime Date);
-                    if (Type == "即時" & _settingModel.DoseType == eDoseType.餐包)
-                    {
-                        if (Name == "")
-                            Name = PatientName[r];
-                        if (MedicineCodeTemp == "")
-                        {
-                            MedicineCodeTemp = MedicineCode[r];
-                            PatientName[r] = $"{PatientName[r]}_{Convert.ToChar(InfoCount)}";
-                        }
-                        if (MedicineCodeTemp != MedicineCode[r])
-                        {
-                            InfoCount += 1;
-                            MedicineCodeTemp = MedicineCode[r];
-                            PatientName[r] = $"{PatientName[r]}_{Convert.ToChar(InfoCount)}";
-                        }
-                    }
-
-                    if (_settingModel.DoseType == eDoseType.種包)
-                    {
-                        if (Name == "")
-                            Name = PatientName[r];
-                    }
-
-                    foreach (string time in v.Value)
-                    {
-                        sb.Append(ECD(PatientName[r], 20));
-                        sb.Append(PrescriptionNo[r].PadRight(30));
-                        sb.Append(ECD(Type, 50));
-                        sb.Append("".PadRight(29));
-                        sb.Append(Dosage[r].PadRight(5));
-                        sb.Append(MedicineCode[r].PadRight(20));
-                        sb.Append(ECD(MedicineName[r], 50));
-                        if (DoseType[r] | CrossAdminTimeType[r])
-                            sb.Append(AdminTime[r].PadRight(20));
-                        else
-                        {
-                            sb.Append($"{AdminTime[r]}{time}".PadRight(20));
-                        }
-                        if (DoseType[r])
-                        {
-                            sb.Append(FirstDate);
-                            sb.Append(FirstDate);
-                        }
-                        else if (CrossAdminTimeType[r])
-                        {
-                            sb.Append(StartDate[r]);
-                            sb.Append(Date.ToString("yyMMdd"));
-                        }
-                        else
-                        {
-                            sb.Append(Date.ToString("yyMMdd"));
-                            sb.Append(Date.ToString("yyMMdd"));
-                            //DateTime.TryParseExact(StartDate[r], "yyMMdd", null, DateTimeStyles.None,out DateTime d1);
-                            //DateTime.TryParseExact(EndDate[r], "yyMMdd", null, DateTimeStyles.None, out DateTime d2);
-                            //Debug.WriteLine(DateTime.Compare(d1,d2));
-                        }
-                        sb.Append("".PadRight(58));
-                        sb.Append(PrescriptionNo[r].PadRight(50));
-                        sb.Append("".PadRight(50));
-                        sb.Append("1999-01-01");
-                        sb.Append("男    ");
-                        sb.Append(BedNo[r].PadRight(40));
-                        sb.Append("0");
-                        sb.Append(ECD("光田綜合醫院", 30));
-                        sb.Append($"{Math.Ceiling(Convert.ToSingle(Dosage[r]))}".PadRight(30));
-                        sb.Append(TotalQuantity[r].PadRight(30));
-                        sb.Append(ECD(Class[r], 30));
-                        sb.Append(StartDate[r].PadRight(30));
-                        if (DoseType[r] | CrossAdminTimeType[r])
-                            sb.Append(ECD(CurrentDate[r], 30));
-                        else
-                            sb.Append(ECD($"服用日{Date.ToString("yyyy/MM/dd")}", 30));
-                        sb.Append(ECD(Name, 30));
-                        sb.Append(ECD("", 30));
-                        sb.Append(ECD(BarcodeDic[Int32.Parse(PrescriptionNo[r])], 240));
-                        sb.Append(ECD(QODDescription[r].Trim(), 120));
-                        sb.Append(SpecialCode[r].PadRight(30));
-                        if (DoseType[r])
-                            sb.AppendLine("C");
-                        else
-                            sb.AppendLine("M");
-                    }
-                }
-                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
-                {
-                    sw.Write(sb.ToString());
-                }
+                
+                //using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
+                //{
+                //    sw.Write(sb.ToString());
+                //}
                 return true;
             }
             catch (Exception ex)
@@ -655,7 +561,7 @@ namespace FCP
                     sb.Append(float.Parse(v.SumQty).ToString("0.###").PadRight(5));
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
-                    sb.Append(v.AdminTime.PadRight(20));
+                    sb.Append(v.AdminCode.PadRight(20));
                     sb.Append(v.StartDate);
                     sb.Append(v.StartDate);
                     sb.Append("".PadRight(58));
