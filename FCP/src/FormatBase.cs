@@ -170,7 +170,6 @@ namespace FCP.src
         {
             string message = returnsResult.Message;
             string sourceFilePath = FileInfoModel.SourceFilePath;
-            Log.Write(message);
             ConvertResult convertResult = new ConvertResult(sourceFilePath, _successDirectory, _failDirectory);
             switch (returnsResult.Result)
             {

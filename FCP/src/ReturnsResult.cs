@@ -3,6 +3,7 @@ using FCP.Models;
 using FCP.src.Factory;
 using FCP.src.Interface;
 using FCP.src.Enum;
+using Helper;
 
 namespace FCP.src
 {
@@ -40,7 +41,8 @@ namespace FCP.src
                     break;
                 default:
                     throw new Exception($"未找到適配的 {convertResult}");
-           }
+            }
+            LogService.Info(_returnsResultFormat.Message);
         }
 
         public void Success()

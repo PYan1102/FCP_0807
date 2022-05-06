@@ -9,6 +9,7 @@ using FCP.Models;
 using FCP.src.Enum;
 using FCP.src.Interface;
 using FCP.src.Factory.Models;
+using System.Diagnostics;
 
 namespace FCP.src
 {
@@ -79,10 +80,16 @@ namespace FCP.src
         public eDepartment Department { get; set; }
         public IRetunrsResult ReturnsResult { get; set; }
         private ReturnsResultModel _returnsResultFormat { get; set; }
+        private List<string> _multiAdminCode;
+        private List<string> _combiAdminCode;
+        private Dictionary<string, List<string>> _multiAdminCodeTimes;
 
         public FormatCollection()
         {
             SettingModel = ModelsFactory.GenerateSettingModel();
+            _multiAdminCode = new List<string>();
+            _combiAdminCode = new List<string>();
+            _multiAdminCodeTimes = new Dictionary<string, List<string>>();
         }
 
 
@@ -148,6 +155,11 @@ namespace FCP.src
         public virtual ReturnsResultModel DepartmentShunt()
         {
             Init();
+            _multiAdminCode = GetAllMultiAdminCode();
+            _combiAdminCode = GetAllCombiAdminCode();
+            _multiAdminCodeTimes = GetAllMultiAdminCodeTimes();
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             switch (Department)
             {
                 case eDepartment.OPD:
@@ -193,6 +205,7 @@ namespace FCP.src
                     }
                     break;
             }
+            Console.WriteLine(sw.ElapsedMilliseconds);
             return _returnsResultFormat;
         }
 
@@ -337,17 +350,17 @@ namespace FCP.src
         }
 
         //判斷使用特定頻率及過濾特定頻率
-        public bool IsFilterAdminCode(string code)
+        public bool IsFilterAdminCode(string adminCode)
         {
             if (SettingModel.PackMode == ePackMode.正常)
                 return false;
             if (SettingModel.PackMode == ePackMode.過濾特殊)
             {
-                return FilterAdminCode.Contains(code);
+                return FilterAdminCode.Contains(adminCode);
             }
             else
             {
-                return !FilterAdminCode.Contains(code);
+                return !FilterAdminCode.Contains(adminCode);
             }
         }
 
@@ -389,52 +402,85 @@ namespace FCP.src
         /// <summary>
         /// 取得指定頻率在餐包裡的時間點
         /// </summary>
-        /// <param name="code">頻率</param>
-        /// <returns>時間點的陣列 (ex:08,13,18)</returns>
-        public List<string> GetMultiAdminCodeTimes(string code)
+        /// <param name="adminCode">頻率</param>
+        /// <returns>時間點的陣列 (ex:08:00,13:00,18:00)</returns>
+        public List<string> GetMultiAdminCodeTimes(string adminCode)
         {
-            List<string> list = CommonModel.SqlHelper.Query_List($@"SELECT
-	                                                                    LEFT(CONVERT(VARCHAR,A.StandardTime,108), 5) AS Time
-                                                                    ,	A.RawID
-                                                                    FROM AdminTime A,
-                                                                    (
-                                                                        SELECT
-	                                                                        RawID
-                                                                        FROM AdminTime A
-                                                                        WHERE A.AdminCode=N'{code}' AND DeletedYN=0 AND A.UpperAdminTimeID is null
-                                                                    ) #UpperAdminTime
-                                                                    WHERE A.UpperAdminTimeID=#UpperAdminTime.RawID AND A.DeletedYN=0", "Time");
-            var newList = list.Where(x => x.Length != 0).Select(x => x).ToList();
-            return newList;
+            _multiAdminCodeTimes.TryGetValue(adminCode, out List<string> value);
+            return value;
         }
+
 
         /// <summary>
         /// 確認指定頻率是否存在餐包的設定裡
         /// </summary>
-        /// <param name="code">頻率</param>
+        /// <param name="adminCode">頻率</param>
         /// <returns>存在為 <see langword="true"/> ，不存在為 <see langword="false"/></returns>
-        public bool IsExistsMultiAdminCode(string code)
+        public bool IsExistsMultiAdminCode(string adminCode)
         {
-            int result = CommonModel.SqlHelper.Query_FirstInt($@"SELECT
-	                                                                 TOP 1 COUNT(RawID)
-                                                                 FROM AdminTime A
-                                                                 WHERE A.AdminCode=N'{code}' AND DeletedYN=0 AND A.UpperAdminTimeID is null");
-
-            return result > 0;
+            return _multiAdminCode.Contains(adminCode);
         }
 
         /// <summary>
         /// 確認指定頻率是否存在種包的設定裡
         /// </summary>
-        /// <param name="code">頻率</param>
+        /// <param name="adminCode">頻率</param>
         /// <returns>存在為 <see langword="true"/> ，不存在為 <see langword="false"/></returns>
-        public bool IsExistsCombiAdminCode(string code)
+        public bool IsExistsCombiAdminCode(string adminCode)
         {
-            int result = CommonModel.SqlHelper.Query_FirstInt($@"SELECT
-	                                                                 TOP 1 COUNT(RawID)
-                                                                 FROM AdminTime A
-                                                                 WHERE A.AdminCode=N'S{code}' AND DeletedYN=0");
-            return result > 0;
+            return _combiAdminCode.Contains($"S{adminCode}");
+        }
+
+        private List<string> GetAllMultiAdminCode()
+        {
+            List<string> result = CommonModel.SqlHelper.Query_List(@"SELECT
+	                                                                     AdminCode
+                                                                     FROM AdminTime A
+                                                                     WHERE DeletedYN=0 AND A.UpperAdminTimeID is null
+                                                                     GROUP BY AdminCode", "AdminCode");
+            return result;
+        }
+
+        private List<string> GetAllCombiAdminCode()
+        {
+            List<string> result = CommonModel.SqlHelper.Query_List(@"SELECT
+	                                                                     AdminCode
+                                                                     FROM AdminTime A
+                                                                     WHERE A.AdminCode LIKE 'S%' AND AdminTimeDiv=1 AND DeletedYN=0
+                                                                     GROUP BY AdminCode", "AdminCode");
+            return result;
+        }
+
+        private Dictionary<string, List<string>> GetAllMultiAdminCodeTimes()
+        {
+            List<string> list = CommonModel.SqlHelper.Query_List($@"SELECT
+	                                                                    #UpperAdminTime.AdminCode
+                                                                    ,	LEFT(CONVERT(VARCHAR,A.StandardTime,108), 5) AS Time
+                                                                    ,	A.RawID
+                                                                    FROM AdminTime A,
+                                                                    (
+                                                                        SELECT
+	                                                                        RawID
+	                                                                    ,	AdminCode
+                                                                        FROM AdminTime A
+                                                                        WHERE DeletedYN=0 AND A.UpperAdminTimeID is null AND AdminTimeDiv=2
+                                                                    ) #UpperAdminTime
+                                                                    WHERE A.UpperAdminTimeID=#UpperAdminTime.RawID AND A.DeletedYN=0
+                                                                    ORDER BY A.AdminCode,Time", new List<string>() { "AdminCode", "Time" });
+            list = list.Where(x => x.Length != 0).Select(x => x).ToList();
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            foreach (var v in list)
+            {
+                string[] split = v.Split('|');
+                string adminCode = split[0];
+                string time = split[1];
+                if (!result.ContainsKey(adminCode))
+                {
+                    result.Add(adminCode, new List<string>());
+                }
+                result[adminCode].Add(time);
+            }
+            return result;
         }
 
         /// <summary>
@@ -447,11 +493,11 @@ namespace FCP.src
             return IsExistsMultiAdminCode(code) && IsExistsCombiAdminCode(code);
         }
 
-        public bool IsFilterMedicineCode(string code)
+        public bool IsFilterMedicineCode(string medicineCode)
         {
             if (!SettingModel.UseFilterMedicineCode)
                 return false;
-            return !GetMedicineCode().Contains(code);
+            return !GetMedicineCode().Contains(medicineCode);
         }
 
         private List<string> GetMedicineCode()
