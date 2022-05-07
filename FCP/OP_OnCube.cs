@@ -70,7 +70,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw;
             }
         }
@@ -146,7 +146,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw;
             }
         }
@@ -203,7 +203,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw;
             }
         }
@@ -255,12 +255,12 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw;
             }
         }
 
-        public static bool KuangTien_UD(Dictionary<KuangTienUDBasic, List<KuangTienUD>> ud, string outputDirectory)
+        public static void KuangTien_UD(Dictionary<KuangTienUDBasic, List<KuangTienUD>> ud, string outputDirectory)
         {
             try
             {
@@ -278,10 +278,9 @@ namespace FCP
                         string adminCode = medicine.AdminCode;
                         DateTime startDate = medicine.StartDate;
                         DateTime endDate = medicine.EndDate;
-                        if (stat && multiDose)
+                        if (stat && _settingModel.DoseType == eDoseType.餐包)
                         {
-                            int length = basic.PatientName.Length;
-                            basic.PatientName = $"{prescription.Key.PatientName.Substring(0, length - 1)}{Convert.ToChar(alphaIndex++)}";
+                            basic.PatientName = $"{patientName}_{Convert.ToChar(alphaIndex++)}";
                         }
                         string type = stat ? "即時" : "住院";
                         sb.Append(ECD(basic.PatientName, 20));
@@ -291,7 +290,6 @@ namespace FCP
                         sb.Append($"{medicine.PerQty}".PadRight(5));
                         sb.Append(medicine.MedicineCode.PadRight(20));
                         sb.Append(ECD(medicine.MedicineName, 50));
-                        Console.WriteLine($"{adminCode} {multiDose} {crossDay}");
                         sb.Append((multiDose && !crossDay ? $"{adminCode}{endDate:HH}" : adminCode).PadRight(20));
                         sb.Append(!multiDose ? $"{basic.TreatmentDate:yyMMdd}" : $"{medicine.StartDate:yyMMdd}");
                         sb.Append(!multiDose ? $"{basic.TreatmentDate:yyMMdd}" : $"{medicine.EndDate:yyMMdd}");
@@ -318,20 +316,19 @@ namespace FCP
                 {
                     sw.Write(sb.ToString());
                 }
-                return true;
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
-                return false;
+                LogService.Exception(ex);
+                throw;
             }
         }
 
-        public static bool KuangTien_OPD(KuangTienOPDBasic basic, List<KuangTienOPD> _opd, string outputDirectory)
+        public static void KuangTien_OPD(KuangTienOPDBasic basic, List<KuangTienOPD> _opd, string outputDirectory)
         {
             try
             {
-                int year = (Convert.ToInt32(basic.WriteDate.Substring(0, 3)) + 1911);  //民國
+                int year = Convert.ToInt32(basic.WriteDate.Substring(0, 3)) + 1911;  //民國
                 DateTime prescriptionDate = DateTimeHelper.Convert($"{year}{basic.WriteDate.Substring(3, 6)}", "yyyy/MM/dd");
                 string currentDateTime = $"{Convert.ToInt32(DateTime.Now.ToString("yyyy")) - 1911}/{DateTime.Now:MM/dd HH:mm}";
                 string effectivedDateTime = $"{Convert.ToInt32(DateTime.Now.AddDays(180).ToString("yyyy")) - 1911}/{DateTime.Now.AddDays(180):/MM/dd}";
@@ -366,12 +363,11 @@ namespace FCP
                 {
                     sw.Write(sb.ToString());
                 }
-                return true;
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
-                return false;
+                LogService.Exception(ex);
+                throw;
             }
         }
 
@@ -421,7 +417,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 return false;
             }
         }
@@ -482,61 +478,42 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw;
             }
         }
-        public static void MinSheng_UD(Dictionary<string, List<string>> dic, string outputDirectory, List<MinShengUDBatch> ud)
+
+        public static void MinSheng_UD(List<MinShengUDBatch> batch, string outputDirectory)
         {
             try
             {
                 string directoryName = Path.GetDirectoryName(outputDirectory);
-                foreach (var v in dic)
+                foreach (var v in batch)
                 {
-                    int index = Convert.ToInt32(v.Key.Substring(0, v.Key.IndexOf("_")));
-                    string dateTemp = v.Key.Substring(v.Key.IndexOf("_") + 1, v.Key.Length - v.Key.IndexOf("_") - 1);
-                    DateTime.TryParseExact(dateTemp, "yyMMdd", null, DateTimeStyles.None, out DateTime date);
-                    bool isCombi = false;
                     StringBuilder sb = new StringBuilder();
-                    foreach (string time in v.Value)
-                    {
-                        isCombi = time == nameof(eDoseType.種包);
-                        sb.Append(ECD(ud[index].PatientName, 20));
-                        sb.Append(ud[index].PrescriptionNo.PadRight(30));
-                        sb.Append(ECD("住院", 50));
-                        sb.Append("".PadRight(29));
-                        if (isCombi)
-                            sb.Append(float.Parse(ud[index].PerQty).ToString("0.###").PadRight(5));
-                        else
-                            sb.Append(float.Parse(ud[index].PerQty).ToString("0.###").PadRight(5));
-                        sb.Append(ud[index].MedicineCode.PadRight(20));
-                        sb.Append(ECD(ud[index].MedicineName, 50));
-                        if (isCombi)
-                        {
-                            sb.Append(ud[index].AdminCode.PadRight(20));
-                            //int Days = (int)(Convert.ToDecimal(MS_UD[r].Dosage) / Convert.ToDecimal(MS_UD[r].Dosage));
-                            sb.Append(date.ToString("yyMMdd"));
-                            sb.Append(date.ToString("yyMMdd"));
-                        }
-                        else
-                        {
-                            sb.Append($"{ud[index].AdminCode}{time}".PadRight(20));
-                            sb.Append(date.ToString("yyMMdd"));
-                            sb.Append(date.ToString("yyMMdd"));
-                        }
-                        sb.Append("".PadRight(58));
-                        sb.Append(ud[index].PrescriptionNo.PadRight(50));
-                        sb.Append("".PadRight(50));
-                        sb.Append("1999-01-01");
-                        sb.Append("男    ");
-                        sb.Append(ud[index].BedNo.PadRight(20));
-                        sb.Append("".PadRight(20));
-                        sb.Append("0");
-                        sb.Append(ECD("民生醫院", 30));
-                        sb.Append("".PadRight(450));
-                        sb.AppendLine(isCombi ? "C" : "M");
-                    }
-                    using (StreamWriter sw = new StreamWriter($@"{directoryName}\{ud[index].BedNo}_{ud[index].PatientName}.txt", true, Encoding.Default))
+                    bool multi = v.DoseType == eDoseType.餐包;
+                    sb.Append(ECD(v.PatientName, 20));
+                    sb.Append(v.PrescriptionNo.PadRight(30));
+                    sb.Append(ECD("住院", 50));
+                    sb.Append("".PadRight(29));
+                    sb.Append(v.PerQty.ToString("0.###").PadRight(5));
+                    sb.Append(v.MedicineCode.PadRight(20));
+                    sb.Append(ECD(v.MedicineName, 50));
+                    sb.Append((multi ? $"{v.AdminCode}{v.StartDate:HH}" : v.AdminCode).PadRight(20));
+                    sb.Append(v.StartDate.ToString("yyMMdd"));
+                    sb.Append(v.StartDate.ToString("yyMMdd"));
+                    sb.Append("".PadRight(58));
+                    sb.Append(v.PrescriptionNo.PadRight(50));
+                    sb.Append("".PadRight(50));
+                    sb.Append("1999-01-01");
+                    sb.Append("男    ");
+                    sb.Append(v.BedNo.PadRight(20));
+                    sb.Append("".PadRight(20));
+                    sb.Append("0");
+                    sb.Append(ECD("民生醫院", 30));
+                    sb.Append("".PadRight(450));
+                    sb.AppendLine(multi ? "M" : "C");
+                    using (StreamWriter sw = new StreamWriter($@"{directoryName}\{v.BedNo}-{v.PatientName}.txt", true, Encoding.Default))
                     {
                         sw.Write(sb.ToString());
                     }
@@ -544,7 +521,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw;
             }
         }
@@ -559,17 +536,16 @@ namespace FCP
                 foreach (var v in opd)
                 {
                     sb.Clear();
-                    DateTime.TryParse((Int32.Parse(v.StartDay) + 19110000).ToString(), out DateTime startdate);
                     sb.Append(ECD(v.PatientName, 20));
                     sb.Append(v.PrescriptionNo.PadRight(30));
                     sb.Append(ECD(location, 50));
                     sb.Append("".PadRight(29));
-                    sb.Append(float.Parse(v.PerQty).ToString("0.###").PadRight(5));
+                    sb.Append(v.PerQty.ToString("0.###").PadRight(5));
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
                     sb.Append(v.AdminCode.PadRight(20));
-                    sb.Append(v.StartDay);
-                    sb.Append(v.EndDay);
+                    sb.Append(v.StartDate.ToString("yyMMdd"));
+                    sb.Append(v.EndDate.ToString("yyMMdd"));
                     sb.Append("".PadRight(58));
                     sb.Append(v.PrescriptionNo.PadRight(50));
                     sb.Append("".PadRight(50));
@@ -591,7 +567,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw;
             }
         }
@@ -634,7 +610,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw;
             }
         }
@@ -690,7 +666,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw;
             }
         }
@@ -733,7 +709,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw;
             }
         }
@@ -784,7 +760,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 return false;
             }
         }
@@ -824,7 +800,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw;
             }
         }
@@ -870,7 +846,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw;
             }
         }
@@ -911,7 +887,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw;
             }
         }
@@ -950,7 +926,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw;
             }
         }

@@ -76,7 +76,7 @@ namespace FCP.ViewModels
         {
             try
             {
-                Process.Start($@"{Environment.CurrentDirectory}\Log\{DateTime.Now:yyyy-MM-dd}\Log.txt");
+                Process.Start($@"{Environment.CurrentDirectory}\Log\{DateTime.Now:yyyy-MM-dd}\Log_{DateTime.Now:HH}.txt");
             }
             catch
             {

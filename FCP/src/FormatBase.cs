@@ -105,32 +105,32 @@ namespace FCP.src
 
         public void SetOPDRule(string rule = null)
         {
-            _matchModel.Add(new MatchModel() { Department = eDepartment.OPD, Rule = rule, Enabled = MainWindowVM.OPDToogle1Checked, InputDirectory = SettingModel.InputDirectory1 });
+            _matchModel.Add(new MatchModel() { Department = eDepartment.OPD, Rule = rule, Enabled = MainWindowVM.OPDToogle1Checked && CommonModel.CurrentDepartment == eDepartment.OPD, InputDirectory = SettingModel.InputDirectory1 });
         }
 
         public void SetPowderRule(string rule = null)
         {
-            _matchModel.Add(new MatchModel() { Department = eDepartment.POWDER, Rule = rule, Enabled = MainWindowVM.OPDToogle2Checked, InputDirectory = SettingModel.InputDirectory2 });
+            _matchModel.Add(new MatchModel() { Department = eDepartment.POWDER, Rule = rule, Enabled = MainWindowVM.OPDToogle2Checked && CommonModel.CurrentDepartment == eDepartment.OPD, InputDirectory = SettingModel.InputDirectory2 });
         }
 
         public void SetCareRule(string rule = null)
         {
-            _matchModel.Add(new MatchModel() { Department = eDepartment.Care, Rule = rule, Enabled = MainWindowVM.OPDToogle3Checked, InputDirectory = SettingModel.InputDirectory3 });
+            _matchModel.Add(new MatchModel() { Department = eDepartment.Care, Rule = rule, Enabled = MainWindowVM.OPDToogle3Checked && CommonModel.CurrentDepartment == eDepartment.OPD, InputDirectory = SettingModel.InputDirectory3 });
         }
 
         public void SetOtherRule(string rule = null)
         {
-            _matchModel.Add(new MatchModel() { Department = eDepartment.Other, Rule = rule, Enabled = MainWindowVM.OPDToogle4Checked, InputDirectory = SettingModel.InputDirectory4 });
+            _matchModel.Add(new MatchModel() { Department = eDepartment.Other, Rule = rule, Enabled = MainWindowVM.OPDToogle4Checked && CommonModel.CurrentDepartment == eDepartment.OPD, InputDirectory = SettingModel.InputDirectory4 });
         }
 
         public void SetBatchRule(string rule = null)
         {
-            _matchModel.Add(new MatchModel() { Department = eDepartment.Batch, Rule = rule, Enabled = SettingModel.UseStatOrBatch && SettingModel.StatOrBatch == eDepartment.Batch, InputDirectory = SettingModel.InputDirectory5 });
+            _matchModel.Add(new MatchModel() { Department = eDepartment.Batch, Rule = rule, Enabled = SettingModel.UseStatOrBatch && SettingModel.StatOrBatch == eDepartment.Batch && CommonModel.CurrentDepartment == eDepartment.UD, InputDirectory = SettingModel.InputDirectory5 });
         }
 
         public void SetStatRule(string rule = null)
         {
-            _matchModel.Add(new MatchModel() { Department = eDepartment.Stat, Rule = rule, Enabled = SettingModel.UseStatOrBatch && SettingModel.StatOrBatch == eDepartment.Stat, InputDirectory = SettingModel.InputDirectory6 });
+            _matchModel.Add(new MatchModel() { Department = eDepartment.Stat, Rule = rule, Enabled = SettingModel.UseStatOrBatch && SettingModel.StatOrBatch == eDepartment.Stat && CommonModel.CurrentDepartment == eDepartment.UD, InputDirectory = SettingModel.InputDirectory6 });
         }
 
         public virtual void Start()
@@ -154,7 +154,7 @@ namespace FCP.src
                     }
                     catch (Exception ex)
                     {
-                        Log.Write(ex);
+                        LogService.Exception(ex);
                     }
                     await Task.Delay(SettingModel.Speed);
                 }

@@ -11,22 +11,8 @@ namespace FCP.src.FormatControl
 {
     class FMT_KuangTien : FormatCollection
     {
-        private string HospitalInformation = "";
-        private string PatientInformation = "";
-        private string MedicineInformation = "";
-        private List<string> TreatmentDate = new List<string>();
-        private List<string> PrescriptionCutTime = new List<string>();
-        private List<string> CalculationDays = new List<string>();
-        private List<string> SpecialCode = new List<string>();
-        private List<string> TimesPerDay = new List<string>();
-        private Dictionary<string, string> JudgeMedicineGivenDic = new Dictionary<string, string>();
-        private Dictionary<int, string> HospitalInformationDic = new Dictionary<int, string>();
-        private Dictionary<int, string> PatientInformationDic = new Dictionary<int, string>();
-        private Dictionary<int, string> MedicineInformationDic = new Dictionary<int, string>();
-        private Dictionary<int, string> BarcodeDic = new Dictionary<int, string>();
         private Dictionary<string, List<KuangTienPowder>> _powder = new Dictionary<string, List<KuangTienPowder>>();
         private Dictionary<KuangTienUDBasic, List<KuangTienUD>> _udPrescriptions = new Dictionary<KuangTienUDBasic, List<KuangTienUD>>();
-        private List<KuangTienStat> _stat = new List<KuangTienStat>();
         private KuangTienOPDBasic _opdBasic = new KuangTienOPDBasic();
         private List<KuangTienOPD> _opd = new List<KuangTienOPD>();
         private Stopwatch _sw = new Stopwatch();
@@ -56,7 +42,7 @@ namespace FCP.src.FormatControl
                     int id1 = GetID1(medicineCode);
                     int id2 = GetID2(medicineCode);
 
-                    if (IsFilterAdminCode(AdminCode_S))
+                    if (IsFilterAdminCode(adminCode))
                         continue;
                     if (IsFilterMedicineCode(medicineCode))
                         continue;
@@ -82,7 +68,7 @@ namespace FCP.src.FormatControl
                         TimesPerDay = $"{GetMultiAdminCodeTimes(adminCode).Count}"
                     });
                 }
-                if (AdminCode_L.Count == 0)
+                if (_opd.Count == 0)
                 {
                     Pass();
                     return;
@@ -114,12 +100,9 @@ namespace FCP.src.FormatControl
         {
             try
             {
-                _sw.Restart();
                 List<string> list = DeleteSpace(GetFileContent).Split('\n').ToList();
                 StringBuilder sb = new StringBuilder();
                 List<string> prescriptions = SeparateUD(list);
-                Console.WriteLine($"separate {_sw.ElapsedMilliseconds}");
-                _sw.Restart();
                 foreach (var s in prescriptions)
                 {
                     KuangTienUDBasic basic = new KuangTienUDBasic();
@@ -174,7 +157,7 @@ namespace FCP.src.FormatControl
                                 SumQty = sumQty,
                                 StartDate = startDate,
                                 PrintDate = startDate,
-                                MedicineSerialNo = EncodingHelper.GetString(107, 7)
+                                MedicineSerialNo = EncodingHelper.GetString(107, EncodingHelper.Length - 107)
                             });
                             if (EncodingHelper.GetString(99, 7).Length != 0)
                             {
@@ -189,14 +172,10 @@ namespace FCP.src.FormatControl
                         _udPrescriptions.Add(basic, ud);
                     }
                 }
-                Console.WriteLine($"progress {_sw.ElapsedMilliseconds}");
-                _sw.Reset();
                 if (_udPrescriptions.Count == 0)
                 {
                     Pass();
-                    return;
                 }
-                Success();
             }
             catch (Exception ex)
             {
@@ -208,8 +187,7 @@ namespace FCP.src.FormatControl
         {
             try
             {
-                _sw.Start();
-                foreach(var prescription in _udPrescriptions)
+                foreach (var prescription in _udPrescriptions)
                 {
                     List<KuangTienUD> ud = new List<KuangTienUD>();
                     for (int i = 0; i <= prescription.Value.Count - 1; i++)
@@ -230,8 +208,8 @@ namespace FCP.src.FormatControl
                         List<string> adminCodeTimes = GetMultiAdminCodeTimes(medicine.AdminCode);
                         if (basic.BedNo.Contains("111DAY"))
                         {
-                            medicine.Description = $"每次劑量 : {perQty}";
-                            medicine.Description = perQtyIsnteger ? "   " : " 非整數";
+                            medicine.Description += $"每次劑量 : {perQty}";
+                            medicine.Description += perQtyIsnteger ? "   " : " 非整數";
                             basic.Care = true;
                             medicine.DoseType = eDoseType.種包;
                             medicine.EndDate = medicine.StartDate;
@@ -246,6 +224,7 @@ namespace FCP.src.FormatControl
                             continue;
                         }
                         //種包
+                        //medicineCode == "23521" 為大甲需求
                         else if (!multiDose || !perQtyIsnteger || adminCode.Contains("STTS") || medicineCode == "23521")
                         {
                             medicine.DoseType = eDoseType.種包;
@@ -256,7 +235,10 @@ namespace FCP.src.FormatControl
                                 medicine.CrossDay = true;
                                 while (currentTimes <= times)
                                 {
-                                    if (currentTimes == 1)
+                                    bool startDateOutOfTreatmentDate = DateTime.Compare(startDate.AddDays(2), treatmentDate.AddDays(days)) == 1;
+                                    if (startDateOutOfTreatmentDate)
+                                        break;
+                                    if (currentTimes >= 2)
                                     {
                                         startDate = startDate.AddDays(2);
                                     }
@@ -311,7 +293,6 @@ namespace FCP.src.FormatControl
                     _udPrescriptions[prescription.Key].Clear();
                     _udPrescriptions[prescription.Key].AddRange(ud);
                 }
-                Console.WriteLine($"logic {_sw.ElapsedMilliseconds}");
             }
             catch (Exception ex)
             {
@@ -321,9 +302,7 @@ namespace FCP.src.FormatControl
             try
             {
                 string outputDirectory = $@"{OutputDirectory}\{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
-                _sw.Restart();
                 OP_OnCube.KuangTien_UD(_udPrescriptions, outputDirectory);
-                Console.WriteLine($"ocs {_sw.ElapsedMilliseconds}");
                 Success();
             }
             catch (Exception ex)
@@ -336,130 +315,83 @@ namespace FCP.src.FormatControl
         {
             try
             {
-                bool _JudgeMedicinePosition = false;
-                var ecd = Encoding.Default;
-                string[] FileContentSplit = DeleteSpace(GetFileContent).Split('\n');
-                int Hos = -1;
-                Byte[] Temp = Encoding.Default.GetBytes(FileContentSplit[0]);
-                for (int r = 0; r <= FileContentSplit.Length - 1; r++)  //將藥品資料放入List<string>
-                {
-                    if (FileContentSplit[r].Contains("-----"))
-                        continue;
-                    if (FileContentSplit[r].Trim().Equals(""))
-                        continue;
-                    if (FileContentSplit[r].Contains("診療日"))
-                    {
-                        Hos += 1;
-                        Byte[] ATemp = Encoding.Default.GetBytes(FileContentSplit[r]);
-                        string StartDay_L = (Convert.ToInt32(ecd.GetString(ATemp, 8, 3) + ecd.GetString(ATemp, 12, 2) + ecd.GetString(ATemp, 15, 2)) + 19110000).ToString();
-                        HospitalInformation = $"{StartDay_L};{ecd.GetString(ATemp, 27, 10).Trim()}";
-                        HospitalInformationDic[Hos] = HospitalInformation;
-                        HospitalInformation = "";
-                    }
-                    else if (FileContentSplit[r].Contains("床號"))
-                    {
-                        Byte[] ATemp = Encoding.Default.GetBytes(FileContentSplit[r]);
-                        PatientInformation = $"{ecd.GetString(ATemp, 6, 9).Trim()};{ecd.GetString(ATemp, 22, 11).Trim()};{ecd.GetString(ATemp, 38, 11).Trim()};{ecd.GetString(ATemp, 70, 10).Trim()}";
-                        PatientInformationDic[Hos] = PatientInformation;
-                        PatientInformation = "";
-                    }
-                    else if (FileContentSplit[r].Contains("醫囑代碼"))
-                    {
-                        _JudgeMedicinePosition = true;
-                        continue;
-                    }
-                    else if (FileContentSplit[r].Contains("C!"))
-                        _JudgeMedicinePosition = false;
-                    if (_JudgeMedicinePosition)
-                    {
-                        Byte[] ATemp = Encoding.Default.GetBytes(FileContentSplit[r]);
-                        MedicineInformation = $"{ecd.GetString(ATemp, 5, 10).Trim()};{ecd.GetString(ATemp, 15, 21).Trim()};{ecd.GetString(ATemp, 42, 6).Trim()};" +
-                            $"{ecd.GetString(ATemp, 48, 5).Trim()};{ecd.GetString(ATemp, 53, 5).Trim()};{ecd.GetString(ATemp, 58, 5)};{ecd.GetString(ATemp, 63, 8).Trim()};{ecd.GetString(ATemp, 71, 7).Trim()};" +
-                            $"{ecd.GetString(ATemp, 79, 4)};{ecd.GetString(ATemp, 83, ATemp.Length - 83)};{ecd.GetString(ATemp, 92, 7)}、";
-                        if (MedicineInformationDic.ContainsKey(Hos))
-                            MedicineInformationDic[Hos] = MedicineInformationDic[Hos] + MedicineInformation;
-                        else
-                        {
-                            MedicineInformationDic.Add(Hos, MedicineInformation);
-                        }
-                        MedicineInformation = "";
-                    }
-                }
+                List<string> list = DeleteSpace(GetFileContent).Split('\n').ToList();
                 StringBuilder sb = new StringBuilder();
-                List<string> Data = new List<string>();
-                foreach (var v in HospitalInformationDic)
+                List<string> prescriptions = SeparateUD(list);
+                foreach (var s in prescriptions)
                 {
-                    string[] MedicineSplit = MedicineInformationDic[v.Key].Split('、');
-                    foreach (string s in MedicineSplit)
+                    KuangTienUDBasic basic = new KuangTienUDBasic();
+                    List<KuangTienUD> ud = new List<KuangTienUD>();
+                    List<string> detail = s.Split('\n').ToList();
+                    foreach (var v in detail)
                     {
-                        if (!string.IsNullOrEmpty(s))
+                        if (v.Trim().Length == 0 || v.Contains("--------"))
+                            continue;
+                        int index = detail.IndexOf(v);
+                        if (index == 2)  //診療日
                         {
-                            sb.Append(HospitalInformationDic[v.Key] + ";");
-                            sb.Append(PatientInformationDic[v.Key] + ";");
-                            sb.Append(s);
+                            EncodingHelper.SetBytes(v);
+                            basic.TreatmentDate = DateTimeHelper.Convert($"{Convert.ToInt32(EncodingHelper.GetString(8, 9).Replace("/", "")) + 19110000}", "yyyyMMdd");
                         }
-                        Data.Add(sb.ToString());
-                        sb.Clear();
+                        else if (index == 3)  //床號
+                        {
+                            EncodingHelper.SetBytes(v);
+                            basic.BedNo = EncodingHelper.GetString(6, 9);
+                            basic.PatientNo = EncodingHelper.GetString(22, 11);
+                            basic.PatientName = EncodingHelper.GetString(38, 11);
+                            basic.Barcode = $"{basic.PatientNo},{basic.BedNo},{DateTime.Now:yyyy-MM-dd},";
+                        }
+                        else if (index > 5 && !v.Contains("◎") && v.Trim().Length != 0)  //藥品
+                        {
+                            EncodingHelper.SetBytes(v);
+                            DateTime startDate = DateTimeHelper.Convert($"{Convert.ToInt32(EncodingHelper.GetString(66, 7)) + 19110000} {EncodingHelper.GetString(74, 5)}", "yyyyMMdd HHmm");
+                            string medicineCode = EncodingHelper.GetString(0, 10);
+                            string adminCode = $"{EncodingHelper.GetString(43, 5)}{EncodingHelper.GetString(53, 5)}";
+                            float sumQty = Convert.ToSingle(EncodingHelper.GetString(58, 8));
+                            if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
+                                continue;
+                            adminCode = adminCode.Contains("TTS") ? "STTS" : adminCode;
+                            if (!adminCode.StartsWith("ST") && !IsExistsMultiAdminCode(adminCode))
+                            {
+                                LostMultiAdminCode(adminCode);
+                                continue;
+                            }
+                            if (!IsExistsCombiAdminCode(adminCode))
+                            {
+                                LostCombiAdminCode(adminCode);
+                                continue;
+                            }
+                            basic.Barcode += $"*{medicineCode}#{adminCode}#{Math.Ceiling(sumQty)}";
+                            ud.Add(new KuangTienUD()
+                            {
+                                MedicineCode = medicineCode,
+                                MedicineName = EncodingHelper.GetString(10, 21),
+                                PerQty = Convert.ToSingle(EncodingHelper.GetString(36, 6)),
+                                AdminCode = adminCode,
+                                Days = Convert.ToInt32(EncodingHelper.GetString(48, 5)),
+                                SumQty = sumQty,
+                                StartDate = startDate,
+                                PrintDate = startDate,
+                                MedicineSerialNo = EncodingHelper.GetString(86, EncodingHelper.Length - 86)
+                            });
+                            if (EncodingHelper.GetString(79, 7).Length != 0)
+                            {
+                                ud[ud.Count - 1].EndDate = DateTimeHelper.Convert($"{Convert.ToInt32(EncodingHelper.GetString(79, 7)) + 19110000}", "yyyyMMdd");
+                            }
+                            //var a = ud[ud.Count - 1];
+                            //Console.WriteLine($"{a.MedicineCode} {a.MedicineName} {a.PerQty} {a.AdminCode} {a.Days} {a.SumQty} {a.StartDate} {a.EndDate}");
+                        }
+                    }
+                    if (ud.Count > 0)
+                    {
+                        _udPrescriptions.Add(basic, ud);
                     }
                 }
-                int number = 0;
-                for (int r = 0; r <= Data.Count - 1; r++)
-                {
-                    BirthDate_L.Add("1997-01-01");
-                    if (string.IsNullOrEmpty(Data[r]))
-                        continue;
-                    string[] DataSplit = Data[r].Split(';');
-                    if (IsFilterMedicineCode(DataSplit[6]))
-                        continue;
-                    AdminCode_S = DataSplit[9] + DataSplit[11].Trim();
-                    if (IsFilterAdminCode(AdminCode_S))
-                    {
-                        continue;
-                    }
-                    if (AdminCode_S.Contains("TTS"))
-                        AdminCode_S = "STTS";
-                    if (!IsExistsMultiAdminCode(AdminCode_S))
-                    {
-                        Log.Write($"{SourceFilePath} 在OnCube中未建置此餐包頻率 {AdminCode_S}");
-                        continue;
-                    }
-                    else
-                        CalculationDays.Add($"{GetMultiAdminCodeTimes(AdminCode_S).Count}");
-                    if (!IsExistsCombiAdminCode($"{AdminCode_S}"))
-                    {
-                        Log.Write($"{SourceFilePath} 在OnCube中未建置此種包頻率 S{AdminCode_S}");
-                        continue;
-                    }
-                    DateTime treatmentDate = DateTimeHelper.Convert(DataSplit[0], "yyyyMMdd");
-                    TreatmentDate.Add(treatmentDate.ToString("yyyy-MM-dd"));
-                    StayDay_L.Add(DataSplit[1].Trim());
-                    BedNo_L.Add(DataSplit[2].Trim());
-                    PrescriptionNo_L.Add(DataSplit[3].Trim());
-                    PatientName_L.Add(DataSplit[4].Trim());
-                    Class_L.Add(DataSplit[5].Trim());
-                    MedicineCode_L.Add(DataSplit[6].Trim());
-                    MedicineName_L.Add(DataSplit[7].Trim());
-                    PerQty_L.Add(DataSplit[8].Trim());
-                    AdminCode_L.Add(AdminCode_S);
-                    Days_L.Add(DataSplit[10].Trim());
-                    SumQty_L.Add(DataSplit[12].Trim());
-                    PrescriptionCutTime.Add(DataSplit[14].Trim());
-                    SpecialCode.Add(DataSplit[16].Trim());
-                    DateTime startDate = DateTimeHelper.Convert((Convert.ToInt32(DataSplit[13]) + 19110000).ToString(), "yyyyMMdd");
-                    StartDay_L.Add(startDate.ToString("yyMMdd"));
-                    EndDay_L.Add("");
-                    if (!BarcodeDic.ContainsKey(Convert.ToInt32(DataSplit[3])))
-                        BarcodeDic.Add(Convert.ToInt32(DataSplit[3]), $"{DataSplit[3]},{DataSplit[2]},{DateTime.Now:yyyy-MM-dd},*{DataSplit[6]}#{DataSplit[9] + DataSplit[11].Trim()}#{Math.Ceiling(Convert.ToSingle(DataSplit[12]))}");
-                    else
-                        BarcodeDic[Convert.ToInt32(DataSplit[3])] += $"*{DataSplit[6]}#{DataSplit[9] + DataSplit[11].Trim()}#{Math.Ceiling(Convert.ToSingle(DataSplit[12]))}";
-                    number += 1;
-                }
-                if (AdminCode_L.Count == 0)
+                if (_udPrescriptions.Count == 0)
                 {
                     Pass();
                     return;
                 }
-                Success();
             }
             catch (Exception ex)
             {
@@ -469,163 +401,95 @@ namespace FCP.src.FormatControl
 
         public override void LogicUDStat()
         {
-            if (AdminCode_L.Count == 0)
-            {
-                Pass();
-                return;
-            }
             try
             {
-                Dictionary<string, List<string>> DataDic = new Dictionary<string, List<string>>();
-                List<bool> doseType = new List<bool>();  //False > MultiDose，True > CombiDose
-                List<bool> CrossAdminTimeType = new List<bool>();  //False > No，True > Yes
-                List<int> TimesList = new List<int>();
-                List<int> AdminTimeTimePointList = new List<int>();
-                DateTime DateTemp = new DateTime();
-                string JudgeTimer = "";
-                int TimesCount = 0;
-                string TimeTemp;
-                string QODTEMP;
-                List<string> QODDescription = new List<string>();
-                List<string> CurrentDate = new List<string>();
-                List<string> STAdminTime = new List<string>() { "STAC", "STPC", "STWM", "STPO", "STOTHER", "STOU", "STRECT" };
-                List<string> AdminTimeList = new List<string>();
-                for (int x = 0; x <= AdminCode_L.Count - 1; x++)
+                List<string> statAdminCode = new List<string>()
                 {
-                    Console.WriteLine(AdminCode_L[x]);
-                    TimesCount = 0;
-                    QODTEMP = "";
-                    CurrentDate.Add("");
-                    CrossAdminTimeType.Add(false);
-                    float PerQtyTemp = 0;
-                    if (PerQty_L[x].Contains("."))
-                        PerQtyTemp = Convert.ToSingle($"0{PerQty_L[x]}");
-                    else
-                        PerQtyTemp = Convert.ToSingle(PerQty_L[x]);
-                    int Times = Convert.ToInt32(Convert.ToSingle(SumQty_L[x]) / PerQtyTemp);
-
-                    DateTime tmd = DateTimeHelper.Convert(TreatmentDate[x], "yyyy-MM-dd");
-                    DateTime sd = DateTimeHelper.Convert(StartDay_L[x], "yyMMdd");
-                    if (AdminCode_L[x] == "STTS")  //途徑為TTS ，輸出種包
+                    "STAC",
+                    "STPC",
+                    "STWM",
+                    "STPO",
+                    "STOTHER",
+                    "STOU",
+                    "STRECT"
+                };
+                foreach (var prescription in _udPrescriptions)
+                {
+                    List<KuangTienUD> ud = new List<KuangTienUD>();
+                    for (int i = 0; i <= prescription.Value.Count - 1; i++)
                     {
-                        doseType.Add(true);
-                        EndDay_L[x] = sd.ToString("yyMMdd");
-                        if (DoseType == eDoseType.餐包 || !PerQtyTemp.ToString().Contains("."))
-                            QODDescription.Add($"每次劑量 : {PerQtyTemp}   ");
-                        else
-                            QODDescription.Add($"每次劑量 : {PerQtyTemp} 非整數");
-                        DataDic.Add($"{x}_{EndDay_L[x]}", new List<string>() { "" });
-                        PerQty_L[x] = Math.Ceiling(Convert.ToSingle(SumQty_L[x])).ToString();
-                        continue;
-                    }
-                    if (DoseType == eDoseType.種包 || !int.TryParse(PerQty_L[x], out int i) | STAdminTime.Contains(AdminCode_L[x]) | CrossDayAdminCode.Contains(AdminCode_L[x]))  //劑量為非整數 ，輸出種包
-                    {
-                        doseType.Add(true);
-                        EndDay_L[x] = sd.ToString("yyMMdd");
-                        DataDic.Add($"{x}_{EndDay_L[x]}", new List<string>() { "" });
-                        if (DoseType == eDoseType.餐包 || !PerQtyTemp.ToString().Contains("."))
-                            QODDescription.Add($"每次劑量 : {PerQtyTemp}   ");
-                        else
-                            QODDescription.Add($"每次劑量 : {PerQtyTemp} 非整數");
-                        AdminCode_L[x] = $"S{AdminCode_L[x]}";
-                        PerQty_L[x] = Math.Ceiling(Convert.ToSingle(SumQty_L[x])).ToString();
-                        continue;
-                    }
-                    JudgeTimer = PrescriptionCutTime[x].Insert(2, ":");
-                    doseType.Add(false);
-                    QODDescription.Add(QODTEMP);
-                    DateTemp = sd;
-                    AdminTimeTimePointList.Clear();
-                    foreach (string s in GetMultiAdminCodeTimes(AdminCode_L[x]))
-                    {
-                        AdminTimeTimePointList.Add(Convert.ToInt32(s.Substring(0, 2)));
-                    }
-                    AdminTimeList = GetMultiAdminCodeTimes(AdminCode_L[x]);
-                    foreach (int y in AdminTimeTimePointList)
-                    {
-                        if (TimesCount == Times)
-                            break;
-                        if (y.ToString().Length == 1)
-                            TimeTemp = "0" + y;
-                        else
-                            TimeTemp = y.ToString();
-                        DateTime PrescriptionTime = Convert.ToDateTime(JudgeTimer);
-                        if (!DataDic.ContainsKey($"{x}_{DateTemp:yyMMdd}"))
+                        KuangTienUDBasic basic = prescription.Key;
+                        var medicine = prescription.Value[i];
+                        float perQty = medicine.PerQty;
+                        float sumQty = medicine.SumQty;
+                        int days = medicine.Days;
+                        int times = Convert.ToInt32(sumQty / perQty);
+                        int currentTimes = 1;
+                        string adminCode = medicine.AdminCode;
+                        string medicineCode = medicine.MedicineCode;
+                        bool perQtyIsnteger = !$"{perQty}".Contains(".");
+                        bool multiDose = SettingModel.DoseType == eDoseType.餐包;
+                        DateTime startDate = medicine.StartDate;
+                        DateTime treatmentDate = basic.TreatmentDate;
+                        List<string> adminCodeTimes = GetMultiAdminCodeTimes(medicine.AdminCode);
+                        if (SettingModel.DoseType == eDoseType.種包 || !perQtyIsnteger || statAdminCode.Contains(adminCode) || CrossDayAdminCodeDays.TryGetValue(adminCode, out int value) || adminCode == "STTS")
                         {
-                            string Time = "";
-                            foreach (string s in AdminTimeList)
+                            medicine.DoseType = eDoseType.種包;
+                            medicine.EndDate = startDate;
+                            medicine.Description += $"每次劑量 : {perQty}";
+                            medicine.Description += multiDose || perQtyIsnteger ? "   " : " 非整數";
+                            medicine.PerQty = Convert.ToSingle(Math.Ceiling(sumQty));
+                            if (adminCode != "STTS")
                             {
-                                if (s.Substring(0, 2) == TimeTemp)
+                                medicine.AdminCode = $"S{adminCode}";
+                            }
+                            ud.Add(medicine.Clone());
+                            continue;
+                        }
+                        while (currentTimes <= times)
+                        {
+                            medicine.DoseType = eDoseType.餐包;
+                            foreach (var time in adminCodeTimes)
+                            {
+                                if (currentTimes > times)
                                 {
-                                    Time = s;
                                     break;
                                 }
+                                DateTime adminDate = DateTimeHelper.Convert($"{startDate:yyyyMMdd} {time}", "yyyyMMdd HH:mm");
+                                if (DateTime.Compare(adminDate, startDate) >= 0)
+                                {
+                                    medicine.StartDate = adminDate;
+                                    medicine.EndDate = adminDate;
+                                    ud.Add(medicine.Clone());
+
+                                    currentTimes++;
+                                }
                             }
-                            DateTime OnCubeTime = Convert.ToDateTime(Time);
-                            if (DateTime.Compare(PrescriptionTime, OnCubeTime) <= 0)
-                            {
-                                DataDic.Add($"{x}_{DateTemp:yyMMdd}", new List<string>() { TimeTemp });
-                                TimesCount += 1;
-                            }
-                        }
-                        else
-                        {
-                            DataDic[$"{x}_{DateTemp:yyMMdd}"].Add(TimeTemp);
-                            TimesCount += 1;
-                        }
-                        if (TimesCount == Times)
-                        {
-                            EndDay_L[x] = DateTemp.ToString("yyMMdd");
-                            continue;
+                            startDate = Convert.ToDateTime($"{startDate:yyyy/MM/dd} 00:00:00");
+                            startDate = startDate.AddDays(1);
                         }
                     }
-                    DateTemp = DateTemp.AddDays(1);
-                    if (TimesCount < Times)
-                    {
-                    Keep:
-                        foreach (int y in AdminTimeTimePointList)
-                        {
-                            if (TimesCount == Times)
-                                break;
-                            if (y.ToString().Length == 1)
-                                TimeTemp = "0" + y;
-                            else
-                                TimeTemp = y.ToString();
-                            if (DataDic.ContainsKey($"{x}_{DateTemp:yyMMdd}"))
-                            {
-                                DataDic[$"{x}_{DateTemp:yyMMdd}"].Add(TimeTemp.ToString());
-                            }
-                            else
-                            {
-                                DataDic.Add($"{x}_{DateTemp:yyMMdd}", new List<string>() { TimeTemp });
-                            }
-                            TimesCount += 1;
-                        }
-                        if (TimesCount == Times)
-                        {
-                            EndDay_L[x] = DateTemp.ToString("yyMMdd");
-                            continue;
-                        }
-                        DateTemp = DateTemp.AddDays(1);
-                        goto Keep;
-                    }
-                }
-                DateTime firstDate = DateTimeHelper.Convert(TreatmentDate[0], "yyyy-MM-dd");
-                bool yn = true;
-                string outputDirectory = $@"{OutputDirectory}\{PatientName_L[0]}_{PrescriptionNo_L[0]}_{CurrentSeconds}.txt";
-                //yn = OP_OnCube.KuangTien_UD(MedicineName_L, MedicineCode_L, AdminCode_L, PerQty_L, SumQty_L, StartDay_L, EndDay_L,
-                //    PatientName_L, PrescriptionNo_L, BedNo_L, BarcodeDic, outputDirectory, Class_L, StayDay_L, DataDic, doseType, CrossAdminTimeType, firstDate.ToString("yyMMdd"), QODDescription,
-                //    CurrentDate, "即時", SpecialCode);
-                if (yn)
-                    Success();
-                else
-                {
-                    GenerateOCSFileFail();
+                    _udPrescriptions[prescription.Key].Clear();
+                    _udPrescriptions[prescription.Key].AddRange(ud);
                 }
             }
             catch (Exception ex)
             {
                 ProgressLogicFail(ex);
+            }
+            try
+            {
+                var obj = _udPrescriptions.ToList().Select(x => (
+                    PatientName: x.Key.PatientName,
+                    PatientNo: x.Key.PatientNo
+                )).First();
+                string outputDirectory = $@"{OutputDirectory}\{obj.PatientName}-{obj.PatientNo}_{CurrentSeconds}.txt";
+                OP_OnCube.KuangTien_UD(_udPrescriptions, outputDirectory);
+                Success();
+            }
+            catch (Exception ex)
+            {
+                GenerateOCSFileFail(ex);
             }
         }
 
@@ -731,7 +595,8 @@ namespace FCP.src.FormatControl
 
         public override ReturnsResultModel DepartmentShunt()
         {
-            ClearList();
+            _powder.Clear();
+            _opd.Clear();
             _udPrescriptions.Clear();
             return base.DepartmentShunt();
         }
@@ -747,6 +612,10 @@ namespace FCP.src.FormatControl
                     prescriptions.Add(sb.ToString());
                     sb.Clear();
                 }
+                if (s.Contains("C!") && s.Trim().Length == 3)
+                {
+                    continue;
+                }
                 sb.AppendLine(s.Trim());
                 if (list.IndexOf(s) == list.Count - 1)
                 {
@@ -754,21 +623,6 @@ namespace FCP.src.FormatControl
                 }
             }
             return prescriptions;
-        }
-
-        private void ClearList()
-        {
-            TreatmentDate.Clear();
-            PrescriptionCutTime.Clear();
-            CalculationDays.Clear();
-            SpecialCode.Clear();
-            TimesPerDay.Clear();
-            _powder.Clear();
-            JudgeMedicineGivenDic.Clear();
-            HospitalInformationDic.Clear();
-            PatientInformationDic.Clear();
-            MedicineInformationDic.Clear();
-            BarcodeDic.Clear();
         }
     }
 

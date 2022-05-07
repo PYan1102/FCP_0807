@@ -9,47 +9,53 @@ namespace FCP.src.SQL
 {
     static class OLEDB
     {
-        public static List<MinShengUDBatch> GetMingSheng_UD(string filePath, string fileName, int index)
-        {
-            List<MinShengUDBatch> _UDBatch = new List<MinShengUDBatch>();
-            OleDbConnection conn = new OleDbConnection($@"Provider=vfpoledb;Data Source={filePath};Collating Sequence=machine;");
-            conn.Open();
-            OleDbCommand com = new OleDbCommand($"SELECT *, RecNo() AS RowNum FROM {fileName} WHERE RecNo() > {index}", conn);
-            OleDbDataReader dr = com.ExecuteReader();
-            while (dr.Read())
-            {
-                DateTime.TryParseExact((Convert.ToInt32($"{dr["BEDATE"]}".Trim()) + 19110000).ToString(), "yyyyMMdd", null, DateTimeStyles.None, out DateTime Start);
-                string StartDate = Start.ToString("yyMMdd");
-                _UDBatch.Add(new MinShengUDBatch
-                {
-                    RecNo = int.Parse($"{dr["RowNum"]}".Trim()),
-                    PrescriptionNo = $"{dr["MEDNO"]}".Trim(),
-                    BedNo = $"{dr["BEDNO"]}".Trim(),
-                    PatientName = $"{dr["MHNAME"]}".Trim().Replace('?', ' '),
-                    MedicineCode = $"{dr["DIACODE"]}".Trim(),
-                    MedicineName = $"{dr["DIANAME"]}".Trim(),
-                    PerQty = $"{dr["PER_QTY"]}".Trim(),
-                    AdminCode = $"{dr["USENO"]}".Trim(),
-                    Description = $"{dr["USENONAME"]}".Trim(),
-                    SumQty = $"{dr["SUMQTY"]}".Trim(),
-                    StartDay = StartDate,
-                    BeginTime = $"{dr["BETIME"]}".Trim(),
-                    Unit = $"{dr["UNITS"]}".Trim()
-                });
-            }
-            dr.Close();
-            com.Dispose();
-            conn.Close();
-            return _UDBatch;
-        }
-
-        public static List<MinShengOPD> GetMingSheng_OPD(string filePath, string fileName, int index)
+        public static List<MinShengUDBatch> GetMingSheng_UD(string oledbFilePath, string fileName, int index)
         {
             try
             {
-                List<MinShengOPD> _OPD = new List<MinShengOPD>();
-                OleDbConnection conn = new OleDbConnection($@"Provider=vfpoledb;Data Source={filePath};Collating Sequence=machine;");
-                conn.Open();
+                List<MinShengUDBatch> batch = new List<MinShengUDBatch>();
+                OleDbConnection cnn = new OleDbConnection($@"Provider=vfpoledb;Data Source={oledbFilePath};Collating Sequence=machine;");
+                cnn.Open();
+                OleDbCommand com = new OleDbCommand($"SELECT *, RecNo() AS RowNum FROM {fileName} WHERE RecNo() > {index}", cnn);
+                OleDbDataReader dr = com.ExecuteReader();
+                while (dr.Read())
+                {
+                    DateTime.TryParseExact((Convert.ToInt32($"{dr["BEDATE"]}".Trim()) + 19110000).ToString(), "yyyyMMdd", null, DateTimeStyles.None, out DateTime startDate);
+                    batch.Add(new MinShengUDBatch
+                    {
+                        RecNo = int.Parse($"{dr["RowNum"]}".Trim()),
+                        PrescriptionNo = $"{dr["MEDNO"]}".Trim(),
+                        BedNo = $"{dr["BEDNO"]}".Trim(),
+                        PatientName = $"{dr["MHNAME"]}".Trim().Replace('?', ' '),
+                        MedicineCode = $"{dr["DIACODE"]}".Trim(),
+                        MedicineName = $"{dr["DIANAME"]}".Trim(),
+                        PerQty = Convert.ToSingle($"{dr["PER_QTY"]}".Trim()),
+                        AdminCode = $"{dr["USENO"]}".Trim(),
+                        Description = $"{dr["USENONAME"]}".Trim(),
+                        SumQty = Convert.ToSingle($"{dr["SUMQTY"]}".Trim()),
+                        StartDate = startDate,
+                        BeginTime = $"{dr["BETIME"]}".Trim(),
+                        Unit = $"{dr["UNITS"]}".Trim()
+                    });
+                }
+                dr.Close();
+                com.Dispose();
+                cnn.Close();
+                return batch;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public static List<MinShengOPD> GetMingSheng_OPD(string oledbFilePath, string fileName, int index)
+        {
+            try
+            {
+                List<MinShengOPD> _opd = new List<MinShengOPD>();
+                OleDbConnection cnn = new OleDbConnection($@"Provider=vfpoledb;Data Source={oledbFilePath};Collating Sequence=machine;");
+                cnn.Open();
                 OleDbCommand com = new OleDbCommand($@"SELECT
                                                           RecNo() AS RowNum
                                                         , MEDNO
@@ -66,15 +72,14 @@ namespace FCP.src.SQL
                                                         , PROCDATE
                                                         , PROCTIME
                                                        FROM {fileName}
-                                                       WHERE RecNo() > {index}", conn);
+                                                       WHERE RecNo() > {index}", cnn);
                 OleDbDataReader dr = com.ExecuteReader();
                 while (dr.Read())
                 {
                     if (dr["PROCDATE"].ToString().Trim() == "XXX")
                         continue;
-                    DateTime.TryParseExact((Convert.ToInt32($"{dr["PROCDATE"]}".Trim()) + 19110000).ToString(), "yyyyMMdd", null, DateTimeStyles.None, out DateTime Start);
-                    string StartDate = Start.ToString("yyMMdd");
-                    _OPD.Add(new MinShengOPD
+                    DateTime.TryParseExact((Convert.ToInt32($"{dr["PROCDATE"]}".Trim()) + 19110000).ToString(), "yyyyMMdd", null, DateTimeStyles.None, out DateTime startDate);
+                    _opd.Add(new MinShengOPD
                     {
                         RecNo = int.Parse($"{dr["RowNum"]}".Trim()),
                         PrescriptionNo = $"{dr["MEDNO"]}".Trim(),
@@ -83,22 +88,22 @@ namespace FCP.src.SQL
                         DrugNo = $"{dr["DRUGNO"]}".Trim(),
                         MedicineCode = $"{dr["DIACODE"]}".Trim(),
                         MedicineName = $"{dr["DIANAME"]}".Trim(),
-                        PerQty = $"{dr["PER_QTY"]}".Trim(),
+                        PerQty = Convert.ToSingle($"{dr["PER_QTY"]}".Trim()),
                         Unit = $"{dr["Unit"]}".Trim(),
                         AdminCode = $"{dr["USENO"]}".Trim(),
-                        Days = $"{dr["DAYS"]}".Trim(),
-                        SumQty = $"{dr["SUMQTY"]}".Trim(),
-                        StartDay = StartDate,
+                        Days = Convert.ToInt32($"{dr["DAYS"]}".Trim()),
+                        SumQty = Convert.ToSingle($"{dr["SUMQTY"]}".Trim()),
+                        StartDate = startDate,
                         BeginTime = $"{dr["PROCTIME"]}".Trim(),
-                        EndDay = Start.AddDays(int.Parse($"{dr["DAYS"]}".Trim()) - 1).ToString("yyMMdd")
+                        EndDate = startDate.AddDays(int.Parse($"{dr["DAYS"]}".Trim()) - 1)
                     });
                 }
                 dr.Close();
                 //olecom = new OleDbCommand($"INSERT INTO {FileName} VALUES('00000','1100706','侯名哲','1','024','0000','34','750','OCELE2','(200 mg) Celebrex 200 mg',1,'CAP','PO','QD','28',28,'CAP','N','2','N','1100706','1400')", olecon);
                 //olecom.ExecuteNonQuery();
                 com.Dispose();
-                conn.Close();
-                return _OPD;
+                cnn.Close();
+                return _opd;
             }
             catch (Exception)
             {

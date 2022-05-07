@@ -40,7 +40,7 @@ namespace FCP.src.FormatInit
             var department = FileInfoModel.Department;
             var result = _format.DepartmentShunt();
             Result(result, false);
-            JsonService.UpdateJson(fileDate, department, _format.NewCount);
+            JsonService.UpdateJson(fileDate, department, _format.NewPrescriptionCount);
         }
 
         public override MainUILayoutModel SetUILayout(MainUILayoutModel UI)

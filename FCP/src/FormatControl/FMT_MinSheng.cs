@@ -15,13 +15,13 @@ namespace FCP.src.FormatControl
             set => _oledbIndex = value;
         }
 
-        public int NewCount
+        public int NewPrescriptionCount
         {
             get => _oledbCount;
             set => _oledbCount = value;
         }
 
-        private Dictionary<string, decimal> _sumQtyOfMedicine = new Dictionary<string, decimal>();
+        private Dictionary<string, float> _sumQtyOfMedicine = new Dictionary<string, float>();
         private List<MinShengUDBatch> _batch = new List<MinShengUDBatch>();
         private List<MinShengOPD> _opd = new List<MinShengOPD>();
         private List<string> _filterUnit = new List<string>() { "TUBE", "SUPP", "PCE", "BOT", "BTL", "FLEXPEN", "個", "IU", "適量", "CC" };
@@ -44,7 +44,7 @@ namespace FCP.src.FormatControl
                     }
                     if (!IsExistsMultiAdminCode(v.AdminCode))
                     {
-                        NewCount = 0;
+                        NewPrescriptionCount = 0;
                         LostMultiAdminCode(v.AdminCode);
                         return;
                     }
@@ -62,7 +62,7 @@ namespace FCP.src.FormatControl
             }
             catch (Exception ex)
             {
-                NewCount = 0;
+                NewPrescriptionCount = 0;
                 ReadFileFail(ex);
 
             }
@@ -95,19 +95,19 @@ namespace FCP.src.FormatControl
                         needRemoveList.Add(_batch.IndexOf(v));
                         continue;
                     }
-                    if (_sumQtyOfMedicine.Count == 0 || !_sumQtyOfMedicine.ContainsKey($"{v.PrescriptionNo}|{v.MedicineName}{v.StartDay}{v.BeginTime}"))
+                    if (_sumQtyOfMedicine.Count == 0 || !_sumQtyOfMedicine.ContainsKey($"{v.PrescriptionNo}|{v.MedicineName}{v.StartDate}{v.BeginTime}"))
                     {
-                        _sumQtyOfMedicine[$"{v.PrescriptionNo}|{v.MedicineName}{v.StartDay}{v.BeginTime}"] = decimal.Parse(v.PerQty);
+                        _sumQtyOfMedicine[$"{v.PrescriptionNo}|{v.MedicineName}{v.StartDate}{v.BeginTime}"] = v.PerQty;
                     }
                     else
                     {
-                        _sumQtyOfMedicine[$"{v.PrescriptionNo}|{v.MedicineName}{v.StartDay}{v.BeginTime}"] += decimal.Parse(v.PerQty);
+                        _sumQtyOfMedicine[$"{v.PrescriptionNo}|{v.MedicineName}{v.StartDate}{v.BeginTime}"] += v.PerQty;
                         needRemoveList.Add(_batch.IndexOf(v));
                         continue;
                     }
                     if (!IsExistsMultiAdminCode(v.AdminCode))
                     {
-                        NewCount = 0;
+                        NewPrescriptionCount = 0;
                         LostMultiAdminCode(v.AdminCode);
                         return;
                     }
@@ -118,83 +118,76 @@ namespace FCP.src.FormatControl
                 }
                 if (_batch.Count == 0)
                 {
-                    NewCount = 0;
+                    NewPrescriptionCount = 0;
                     Pass();
-                    return;
                 }
-                Success();
             }
             catch (Exception ex)
             {
-                NewCount = 0;
+                NewPrescriptionCount = 0;
                 ReadFileFail(ex);
             }
         }
 
         public override void LogicUDBatch()
         {
-            string outputDirectory = $@"{OutputDirectory}\{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
+            List<MinShengUDBatch> batch = new List<MinShengUDBatch>();
             try
             {
                 int count = _batch.Count;
-                int times = 0;
-                int currentTimes = 0;
-                List<string> adminCodeList = new List<string>();
+                List<string> adminCodeTimes = new List<string>();
                 for (int i = 0; i <= count - 1; i++)
                 {
                     if (CrossDayAdminCode.Contains(_batch[i].AdminCode))
                     {
-                        DataDic[$"{i}_{_batch[i].StartDay}"] = new List<string>() { nameof(eDoseType.種包) };
+                        batch.Add(_batch[i].Clone());
                         continue;
                     }
-                    currentTimes = 0;
-                    if (_sumQtyOfMedicine.TryGetValue($"{_batch[i].PrescriptionNo}|{_batch[i].MedicineName}{_batch[i].StartDay}{_batch[i].BeginTime}", out decimal sumQty))
+                    int currentTimes = 1;
+                    int times = 0;
+                    if (_sumQtyOfMedicine.TryGetValue($"{_batch[i].PrescriptionNo}|{_batch[i].MedicineName}{_batch[i].StartDate}{_batch[i].BeginTime}", out float sumQty))
                     {
-                        times = (int)(sumQty / Convert.ToDecimal(_batch[i].PerQty));
+                        times = Convert.ToInt32(sumQty / Convert.ToSingle(_batch[i].PerQty));
                     }
-                    adminCodeList = GetMultiAdminCodeTimes(_batch[i].AdminCode);
-                    DateTime startDate = DateTimeHelper.Convert($"{_batch[i].StartDay} {_batch[i].BeginTime}", "yyMMdd HHmm");
+                    adminCodeTimes = GetMultiAdminCodeTimes(_batch[i].AdminCode);
+                    DateTime startDate = DateTimeHelper.Convert($"{_batch[i].StartDate:yyMMdd} {_batch[i].BeginTime}", "yyMMdd HHmm");
                     DateTime startDateTemp = startDate;
-                    while (currentTimes < times)
+                    while (currentTimes <= times)
                     {
-                        DataDic[$"{i}_{startDateTemp:yyMMdd}"] = new List<string>();
-                        foreach (string time in adminCodeList)
+                        foreach (var time in adminCodeTimes)
                         {
-                            if (currentTimes == times)
+                            if (currentTimes > times)
+                            {
                                 break;
-                            DateTime adminDate = DateTimeHelper.Convert($"{_batch[i].StartDay} {time}", "yyMMdd HH:mm");
-                            if (DateTime.Compare(startDate, adminDate) <= 0 & startDateTemp == startDate)
-                            {
-                                DataDic[$"{i}_{startDateTemp:yyMMdd}"].Add(time.Substring(0, 2));
-                                currentTimes++;
-                                continue;
                             }
-                            if (startDate.CompareTo(startDateTemp) == -1)
+                            DateTime adminDate = DateTimeHelper.Convert($"{startDate:yyMMdd} {time}", "yyMMdd HH:mm");
+                            if (DateTime.Compare(adminDate, startDate) >= 0)
                             {
-                                DataDic[$"{i}_{startDateTemp:yyMMdd}"].Add(time.Substring(0, 2));
+                                _batch[i].StartDate = adminDate;
+                                batch.Add(_batch[i].Clone());
                                 currentTimes++;
-                                continue;
                             }
                         }
-                        startDateTemp = Convert.ToDateTime($"{startDateTemp:yyyy/MM/dd} 00:00:00");
-                        startDateTemp = startDateTemp.AddDays(1);
+                        startDate = Convert.ToDateTime($"{startDate:yyyy/MM/dd} 00:00:00");
+                        startDate = startDate.AddDays(1);
                     }
                 }
-
             }
             catch (Exception ex)
             {
-                NewCount = 0;
+                NewPrescriptionCount = 0;
                 ProgressLogicFail(ex);
+                return;
             }
             try
             {
-                OP_OnCube.MinSheng_UD(DataDic, outputDirectory, _batch);
+                string outputDirectory = $@"{OutputDirectory}\{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
+                OP_OnCube.MinSheng_UD(batch, outputDirectory);
                 Success();
             }
             catch (Exception ex)
             {
-                NewCount = 0;
+                NewPrescriptionCount = 0;
                 GenerateOCSFileFail(ex);
             }
         }
@@ -234,11 +227,11 @@ namespace FCP.src.FormatControl
             try
             {
                 _batch = OLEDB.GetMingSheng_UD(InputDirectory, SourceFilePath, Index);
-                NewCount = _batch.Count > 0 ? _batch[_batch.Count - 1].RecNo : 0;
+                NewPrescriptionCount = _batch.Count > 0 ? _batch[_batch.Count - 1].RecNo : 0;
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw ex;
             }
         }
@@ -258,7 +251,7 @@ namespace FCP.src.FormatControl
             try
             {
                 _opd = OLEDB.GetMingSheng_OPD(InputDirectory, SourceFilePath, Index);
-                NewCount = _opd.Count > 0 ? _opd[_opd.Count - 1].RecNo + 1 : 0;
+                NewPrescriptionCount = _opd.Count > 0 ? _opd[_opd.Count - 1].RecNo + 1 : 0;
             }
             catch (Exception ex)
             {
@@ -267,18 +260,13 @@ namespace FCP.src.FormatControl
             }
         }
 
-        private void ClearList()
-        {
-            DataDic.Clear();
-            _sumQtyOfMedicine.Clear();
-        }
-
         public override ReturnsResultModel DepartmentShunt()
         {
-            NewCount = 0;
+            NewPrescriptionCount = 0;
             _batch.Clear();
             _opd.Clear();
-            ClearList();
+            _sumQtyOfMedicine.Clear();
+
             _location = FileInfoModel.Department == eDepartment.OPD || FileInfoModel.Department == eDepartment.Care ? "門診" : "大寮";
             if (FileInfoModel.Department == eDepartment.Care || FileInfoModel.Department == eDepartment.Other)
             {
@@ -297,13 +285,19 @@ namespace FCP.src.FormatControl
         public string PatientName { get; set; }
         public string MedicineCode { get; set; }
         public string MedicineName { get; set; }
-        public string PerQty { get; set; }
+        public float PerQty { get; set; }
         public string AdminCode { get; set; }
         public string Description { get; set; }
-        public string SumQty { get; set; }
-        public string StartDay { get; set; }
+        public float SumQty { get; set; }
+        public DateTime StartDate { get; set; }
         public string BeginTime { get; set; }
         public string Unit { get; set; }
+        public eDoseType DoseType { get; set; } = eDoseType.餐包;
+
+        public MinShengUDBatch Clone()
+        {
+            return (MinShengUDBatch)this.MemberwiseClone();
+        }
     }
 
     internal class MinShengOPD
@@ -315,13 +309,13 @@ namespace FCP.src.FormatControl
         public string DrugNo { get; set; }
         public string MedicineCode { get; set; }
         public string MedicineName { get; set; }
-        public string PerQty { get; set; }
+        public float PerQty { get; set; }
         public string Unit { get; set; }
         public string AdminCode { get; set; }
-        public string Days { get; set; }
-        public string SumQty { get; set; }
-        public string StartDay { get; set; }
+        public int Days { get; set; }
+        public float SumQty { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public string BeginTime { get; set; }
-        public string EndDay { get; set; }
     }
 }

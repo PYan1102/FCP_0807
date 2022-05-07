@@ -105,7 +105,8 @@ namespace FCP.src.FormatControl
                 }
                 catch (Exception ex)
                 {
-                    ReturnsResult.Shunt(eConvertResult.處理邏輯失敗, ex);
+                    ProgressLogicFail(ex);
+                    return;
                 }
             }
             try

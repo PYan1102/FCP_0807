@@ -94,7 +94,10 @@ namespace FCP.src
 
         public void GenerateOCSFileFail(object message = null)
         {
-            _returnsResultFormat.Message = $"{FileInfoModel.SourceFilePath} 產生OCS時發生問題";
+            if (message != null)
+                _returnsResultFormat.Message = $"{FileInfoModel.SourceFilePath} 產生OCS時發生問題 {message}";
+            else
+                _returnsResultFormat.Message = $"{FileInfoModel.SourceFilePath} 產生OCS時發生問題";
             _returnsResultFormat.Result = eConvertResult.產生OCS失敗;
         }
     }
