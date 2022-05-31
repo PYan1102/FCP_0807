@@ -7,13 +7,12 @@ using FCP.Models;
 using FCP.src.Enum;
 using FCP.src.Interface;
 using FCP.src.Factory.Models;
-using System.Diagnostics;
 
 namespace FCP.src
 {
     abstract class FormatCollection
     {
-        public SettingModel SettingModel { get; private set; }
+        public SettingJsonModel SettingModel { get; private set; }
         public string InputDirectory { get; private set; }
         public string OutputDirectory { get; private set; }
         public string SourceFilePath { get; private set; }
@@ -64,9 +63,33 @@ namespace FCP.src
             CrossDayAdminCode = SettingModel.CrossDayAdminCode.Split(',').ToList();
             CurrentSeconds = FileInfoModel.CurrentDateTime.ToString("ss_fff");
             _department = FileInfoModel.Department;
+
             SetAdminCode();
-            if (SettingModel.Format != eFormat.光田醫院JVS)  //光田磨粉
-                GetMedicineCode();
+        }
+
+        public virtual bool FilterRule(string adminCode = null, string medicineCode = null, bool filterAdminCode = true, bool filterMedicine = true, bool filterCustomizeMedicineCode = true)
+        {
+            if (filterAdminCode && adminCode == null)
+            {
+                throw new Exception("頻率不可為null");
+            }
+            if ((filterMedicine || filterCustomizeMedicineCode) && medicineCode == null)
+            {
+                throw new Exception("藥品代碼不可為null");
+            }
+            if (filterAdminCode && FilterAdminCode(adminCode))
+            {
+                return true;
+            }
+            if (filterMedicine && IsFilterMedicineCode(medicineCode))
+            {
+                return true;
+            }
+            if (filterCustomizeMedicineCode && FilterCustomizeMedicineCode(medicineCode))
+            {
+                return true;
+            }
+            return false;
         }
 
         //分流
@@ -77,8 +100,6 @@ namespace FCP.src
             _combiAdminCode = GetAllCombiAdminCode();
             _multiAdminCodeTimes = GetAllMultiAdminCodeTimes();
             _crossDayAdminCodeDays = GetCrossDayAdminCodeDays();
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
             switch (_department)
             {
                 case eDepartment.OPD:
@@ -124,7 +145,6 @@ namespace FCP.src
                     }
                     break;
             }
-            Console.WriteLine(sw.ElapsedMilliseconds);
             return _returnsResultFormat;
         }
 
@@ -178,34 +198,34 @@ namespace FCP.src
         }
 
         //計算共有幾筆藥 for JVServer
-        public List<string> SeparateString(string Info, int Length)
+        public List<string> SeparateString(string content, int length)
         {
-            List<string> List = new List<string>();
-            Byte[] ATemp = Encoding.Default.GetBytes(Info);
+            List<string> list = new List<string>();
+            byte[] bytes = Encoding.Default.GetBytes(content);
             int x = 0;
             while (true)
             {
-                if (x < Encoding.Default.GetString(ATemp, 0, ATemp.Length).Length & ATemp.Length - x >= Length)
+                if (x < Encoding.Default.GetString(bytes, 0, bytes.Length).Length & bytes.Length - x >= length)
                 {
-                    string a = Encoding.Default.GetString(ATemp, x, Length);
+                    string a = Encoding.Default.GetString(bytes, x, length);
                     if (!string.IsNullOrWhiteSpace(a))
                     {
-                        List.Add(a);
-                        x += Length;
+                        list.Add(a);
+                        x += length;
                     }
                 }
                 else
                     break;
             }
-            return List;
+            return list;
         }
 
         //刪除空白
-        public string DeleteSpace(string FileContent)
+        public string DeleteSpace(string content)
         {
-            string[] FileContentSplit = FileContent.Split('\n');
+            string[] split = content.Split('\n');
             StringBuilder sb = new StringBuilder();
-            foreach (string s in FileContentSplit)
+            foreach (string s in split)
             {
                 if (!string.IsNullOrEmpty(s.Trim()))
                 {
@@ -238,31 +258,6 @@ namespace FCP.src
             }
         }
 
-        //判斷使用特定頻率及過濾特定頻率
-        public bool IsFilterAdminCode(string adminCode)
-        {
-            if (SettingModel.PackMode == ePackMode.正常)
-                return false;
-            if (SettingModel.PackMode == ePackMode.過濾特殊)
-            {
-                return _filterAdminCode.Contains(adminCode);
-            }
-            else
-            {
-                return !_filterAdminCode.Contains(adminCode);
-            }
-        }
-
-        /// <summary>
-        /// 判斷指定頻率頻率是否被設為需過濾
-        /// </summary>
-        /// <param name="Code">頻率</param>
-        /// <returns>如果為 <see langword="true"/> 則為需過濾，為 <see langword="false"/> 則為不需過濾</returns>
-        public bool NeedFilterMedicineCode(string Code)
-        {
-            return SettingModel.FilterMedicineCode.Contains(Code);
-        }
-
         /// <summary>
         /// 取得指定頻率在餐包裡的時間點
         /// </summary>
@@ -273,7 +268,6 @@ namespace FCP.src
             _multiAdminCodeTimes.TryGetValue(adminCode, out List<string> value);
             return value;
         }
-
 
         /// <summary>
         /// 確認指定頻率是否存在餐包的設定裡
@@ -341,6 +335,25 @@ namespace FCP.src
             return dictionary;
         }
 
+        //判斷使用特定頻率及過濾特定頻率
+        private bool FilterAdminCode(string adminCode)
+        {
+            if (SettingModel.PackMode == ePackMode.正常)
+                return false;
+            bool result = _filterAdminCode.Contains(adminCode);
+            return SettingModel.PackMode == ePackMode.過濾特殊 ? result : !result;
+        }
+
+        /// <summary>
+        /// 判斷指定藥品代碼是否被設為需過濾
+        /// </summary>
+        /// <param name="medicineCode">頻率</param>
+        /// <returns>如果為 <see langword="true"/> 則為需過濾，為 <see langword="false"/> 則為不需過濾</returns>
+        private bool FilterCustomizeMedicineCode(string medicineCode)
+        {
+            return SettingModel.FilterMedicineCode.Contains(medicineCode);
+        }
+
         private List<string> GetAllMultiAdminCode()
         {
             List<string> result = CommonModel.SqlHelper.Query_List(@"SELECT
@@ -396,24 +409,19 @@ namespace FCP.src
         /// <summary>
         /// 判斷頻率在餐包及種包的集合
         /// </summary>
-        /// <param name="code">頻率</param>
+        /// <param name="adminCode">頻率</param>
         /// <returns>都存在為 <see langword="true"/> ，有任一個不存在為 <see langword="false"/></returns>
-        public bool IsExistsMultiAndCombiAdminCode(string code)
+        public bool IsExistsMultiAndCombiAdminCode(string adminCode)
         {
-            return IsExistsMultiAdminCode(code) && IsExistsCombiAdminCode(code);
+            return IsExistsMultiAdminCode(adminCode) && IsExistsCombiAdminCode(adminCode);
         }
 
         public bool IsFilterMedicineCode(string medicineCode)
         {
             if (!SettingModel.UseFilterMedicineCode)
                 return false;
-            return !GetMedicineCode().Contains(medicineCode);
-        }
+            return SettingModel.FilterNoCanister ? GetMedicineCodeHasCanister().Contains(medicineCode) : GetAllMedicineCode().Contains(medicineCode);
 
-        private List<string> GetMedicineCode()
-        {
-            List<string> list = SettingModel.FilterNoCanister ? GetMedicineCodeHasCanister() : GetAllMedicineCode();
-            return list;
         }
 
         private List<string> GetMedicineCodeHasCanister()

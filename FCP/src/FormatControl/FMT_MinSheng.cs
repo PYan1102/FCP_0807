@@ -37,7 +37,7 @@ namespace FCP.src.FormatControl
                 List<int> neeedRemoveList = new List<int>();
                 foreach (var v in _opd)
                 {
-                    if (IsFilterMedicineCode(v.MedicineCode) || IsFilterAdminCode(v.AdminCode) || _filterUnit.Contains(v.Unit))
+                    if (FilterRule(v.AdminCode, v.MedicineCode) || _filterUnit.Contains(v.Unit))
                     {
                         neeedRemoveList.Add(_opd.IndexOf(v));
                         continue;
@@ -56,9 +56,7 @@ namespace FCP.src.FormatControl
                 if (_opd.Count == 0)
                 {
                     Pass();
-                    return;
                 }
-                Success();
             }
             catch (Exception ex)
             {
@@ -90,7 +88,7 @@ namespace FCP.src.FormatControl
                 List<int> needRemoveList = new List<int>();
                 foreach (var v in _batch)
                 {
-                    if (IsFilterMedicineCode(v.MedicineCode) || IsFilterAdminCode(v.AdminCode) || v.Unit == "BAG")
+                    if (FilterRule(v.AdminCode, v.MedicineCode) || v.Unit == "BAG")
                     {
                         needRemoveList.Add(_batch.IndexOf(v));
                         continue;
@@ -255,7 +253,7 @@ namespace FCP.src.FormatControl
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw ex;
             }
         }

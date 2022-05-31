@@ -17,5 +17,6 @@ namespace FCP.Models
         public static NotifyIcon NotifyIcon { get; set; }
         public static ISql SqlHelper { get; set; }
         public static eDepartment CurrentDepartment { get; set; }
+        public static eWindowType WindowType { get; set; } = eWindowType.MainWindow;
     }
 }

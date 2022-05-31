@@ -7,6 +7,7 @@ namespace FCP.Models
     public sealed class MainWindowModel
     {
         public Visibility Visibility { get; set; }
+        public bool Focusable { get; set; } = true;
         public string WindowTitle { get; set; }
         public string InputDirectory1Title { get; set; }
         public string InputDirectory2Title { get; set; }
@@ -58,19 +59,26 @@ namespace FCP.Models
         public Visibility BatchVisibility { get; set; }
         public Visibility SplitEachMealVisibility { get; set; }
         public bool IsAutoStartChecked { get; set; }
-        public string DoseType { get; set; }
+        public eDoseType DoseType { get; set; }
         public string WindowX { get; set; }
         public string WindowY { get; set; }
         public bool WindowXEnabled { get; set; }
         public bool WindowYEnabled { get; set; }
         public Visibility WindowXVisibility { get; set; }
         public Visibility WindowYVisibility { get; set; }
-        public eDoseType PackType { get; set; }
         public Visibility MinimumAndCloseVisibility { get; set; }
         public float OPDOpacity { get; set; } = 1;
         public float UDOpacity { get; set; } = 1;
         public SolidColorBrush OPDBacground { get; set; } = new SolidColorBrush(Color.FromRgb(255, 255, 255));
         public SolidColorBrush UDBackground { get; set; } = new SolidColorBrush(Color.FromRgb(255, 255, 255));
         public string ProgressBoxContent { get; set; }
+
+        public class ToogleModel
+        {
+            public bool Toogle1 { get; set; }
+            public bool Toogle2 { get; set; }
+            public bool Toogle3 { get; set; }
+            public bool Toogle4 { get; set; }
+        }
     }
 }

@@ -22,8 +22,10 @@ namespace FCP.src.FormatControl
                     List<string> properties = s.Split('|').Where(x => !string.IsNullOrEmpty(x)).ToList();
                     string adminCode = properties[9];
                     string medicineCode = properties[5];
-                    if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
+                    if (FilterRule(adminCode, medicineCode))
+                    {
                         continue;
+                    }
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
                         LostMultiAdminCode(adminCode);
@@ -48,9 +50,7 @@ namespace FCP.src.FormatControl
                 if (_opd.Count == 0)
                 {
                     Pass();
-                    return;
                 }
-                Success();
             }
             catch (Exception ex)
             {

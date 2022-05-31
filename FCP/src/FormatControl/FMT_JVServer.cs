@@ -46,8 +46,10 @@ namespace FCP.src.FormatControl
                     EncodingHelper.SetBytes(s);
                     string adminCode = EncodingHelper.GetString(66, 10);
                     string medicineCode = EncodingHelper.GetString(1, 15);
-                    if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
+                    if (FilterRule(adminCode, medicineCode))
+                    {
                         continue;
+                    }
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
                         LostMultiAdminCode(adminCode);
@@ -74,9 +76,7 @@ namespace FCP.src.FormatControl
                 if (_opd.Count == 0)
                 {
                     Pass();
-                    return;
                 }
-                Success();
             }
             catch (Exception ex)
             {

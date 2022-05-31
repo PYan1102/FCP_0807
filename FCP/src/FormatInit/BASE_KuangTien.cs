@@ -1,22 +1,23 @@
 ﻿using FCP.Models;
 using FCP.src.Enum;
 using FCP.src.FormatControl;
+using FCP.src.MessageManager;
+using Microsoft.Toolkit.Mvvm.Messaging;
 using System.Windows;
 
 namespace FCP.src.FormatInit
 {
     class BASE_KuangTien : FormatBase
     {
-        public string StatOrBatch { get; set; }
         private FMT_KuangTien _format;
 
         public override void Init()
         {
             base.Init();
-            MainWindowVM.OPDToogle2Checked = true;
+            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToogleModel() { Toogle2 = true }));
         }
 
-        public override void ConvertPrepare()
+        public override ActionResult PrepareStart()
         {
             SetFileSearchMode(eFileSearchMode.根據檔名開頭);
             if (SettingModel.Format == eFormat.光田醫院OC)
@@ -40,21 +41,18 @@ namespace FCP.src.FormatInit
             }
             else if (SettingModel.Format == eFormat.光田醫院JVS)  //磨粉
             {
-                base.ConvertPrepare();
                 SetPowderRule();
                 Start();
-                return;
+                return base.PrepareStart();
             }
-            base.ConvertPrepare();
             SetOPDRule();
             SetStatRule("uds3200");
             SetBatchRule("uds9100");
-            Start();
+            return base.PrepareStart();
         }
 
         public override void Converter()
         {
-            base.Converter();
             _format = _format ?? new FMT_KuangTien();
             var result = _format.DepartmentShunt();
             Result(result, true);

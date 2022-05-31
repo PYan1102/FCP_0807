@@ -2,23 +2,26 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
     <Style x:Key="FeatureTextBlock" TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignTextBlock}">
-        <Setter Property="Foreground" Value="{StaticResource DeepBlue}"/>
+        <Setter Property="Foreground" Value="{StaticResource DarkBlue}"/>
         <Setter Property="FontSize" Value="16"/>
         <Setter Property="Margin" Value="40 3 0 0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
     </Style>
 
     <Style x:Key="OtherTextBlock" TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignTextBlock}">
-        <Setter Property="Foreground" Value="{StaticResource DeepBlue}"/>
+        <Setter Property="Foreground" Value="{StaticResource DarkBlue}"/>
         <Setter Property="FontSize" Value="16"/>
         <Setter Property="Margin" Value="0 3 0 0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
     </Style>
 
     <Style x:Key="OtherTextBox" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
-        <Setter Property="Foreground" Value="{StaticResource DeepBlue}"/>
+        <Setter Property="Foreground" Value="{StaticResource DarkBlue}"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="Height" Value="25"/>
         <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
     </Style>
 </ResourceDictionary>

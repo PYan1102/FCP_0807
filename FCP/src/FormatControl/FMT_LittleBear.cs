@@ -19,8 +19,10 @@ namespace FCP.src.FormatControl
                     string[] data = s.Trim().Split(',');
                     string medicineCode = RemoveStringDoubleQuotes(data[2]);
                     string adminCode = RemoveStringDoubleQuotes(data[6]);
-                    if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
+                    if (FilterRule(adminCode, medicineCode))
+                    {
                         continue;
+                    }
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
                         LostMultiAdminCode(adminCode);
@@ -45,9 +47,7 @@ namespace FCP.src.FormatControl
                 if (_opd.Count == 0)
                 {
                     Pass();
-                    return;
                 }
-                Success();
             }
             catch (Exception ex)
             {

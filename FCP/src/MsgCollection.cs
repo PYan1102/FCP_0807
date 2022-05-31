@@ -1,14 +1,27 @@
 ﻿using System.Windows.Media;
 using FCP.ViewModels;
-using FCP.src.Factory.ViewModel;
 using MaterialDesignThemes.Wpf;
+using Microsoft.Extensions.DependencyInjection;
+using FCP.Views;
 
 namespace FCP.src
 {
     internal class MsgCollection
     {
-        private static MsgViewModel _msgVM => MsgFactory.GenerateMsgViewModel();
-        public static void Show(object content, object title, PackIconKind kind, Color kindColor) => _msgVM.Show(content, title, kind, kindColor);
-        public static void Show(object content) => _msgVM.Show(content);
+        public static void ShowDialog(object content, object title, PackIconKind kind, SolidColorBrush kindColor)
+        {
+            MsgViewModel viewModel = App.Current.Services.GetService<MsgViewModel>();
+            MsgView view = new MsgView(viewModel);
+            viewModel.Init(content, title, kind, kindColor);
+            view.ShowDialog();
+        }
+
+        public static void ShowDialog(object content)
+        {
+            MsgViewModel viewModel = App.Current.Services.GetService<MsgViewModel>();
+            MsgView view = new MsgView(viewModel);
+            viewModel.Init(content);
+            view.ShowDialog();
+        }
     }
 }

@@ -12,7 +12,7 @@ namespace FCP.Services.FileSearchService
     {
         private static eFileSearchMode _fileSearchMode;
         private static IGetFile _getFile = null;
-        private static SettingModel _settingModel => ModelsFactory.GenerateSettingModel();
+        private static SettingJsonModel _settingModel => ModelsFactory.GenerateSettingModel();
 
         public static void SetFileSearchMode(eFileSearchMode fileSearchMode)
         {

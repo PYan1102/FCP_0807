@@ -14,7 +14,7 @@ namespace FCP
 {
     internal static class OP_OnCube
     {
-        private static SettingModel _settingModel => ModelsFactory.GenerateSettingModel();
+        private static SettingJsonModel _settingModel => ModelsFactory.GenerateSettingModel();
         public static void JVServer(List<JVServerOPD> opd, JVServerOPDBasic basic, List<string> oncubeRandom, string random, string outputDirectory)
         {
             try

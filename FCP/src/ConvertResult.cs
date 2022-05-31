@@ -17,7 +17,7 @@ namespace FCP.src
             _failDirectory = failDirectory;
         }
 
-        private SettingModel _settingModel;
+        private SettingJsonModel _settingModel;
         private string _sourceFilePath;
         private string _fileName;
         private string _successDirectory;

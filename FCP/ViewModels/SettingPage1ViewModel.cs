@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using FCP.Core;
 using System.Collections.ObjectModel;
 using FCP.Models;
 using System.Windows;
@@ -13,10 +12,14 @@ using FCP.src.Factory;
 using FCP.src;
 using FCP.src.Factory.Models;
 using System.Text;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
+using FCP.src.Dictionary;
+using FCP.src.MessageManager;
 
 namespace FCP.ViewModels
 {
-    class SettingsPage1ViewModel : ViewModelBase
+    class SettingPage1ViewModel : ObservableRecipient
     {
         public ICommand NormalPack { get; set; }
         public ICommand FilterAdminCode { get; set; }
@@ -27,29 +30,23 @@ namespace FCP.ViewModels
         public ICommand RemoveFilterAdminCode { get; set; }
         public ICommand AddRandom { get; set; }
         public ICommand RemoveRandom { get; set; }
-        public Action SelectAllFilterAdminCode { get; set; }
-        public Action FocusFilterAdminCode { get; set; }
-        public Action SelectAllFilterMedicineCode { get; set; }
-        public Action FocusFilterMedicineCode { get; set; }
-        public Action RefreshRandomDataGridView { get; set; }
-        public Action RefreshFilterMedicineCodeComboBox { get; set; }
         private SettingPage1Model _model;
-        private SettingModel _settingModel;
+        private SettingJsonModel _settingModel;
 
-        public SettingsPage1ViewModel()
+        public SettingPage1ViewModel()
         {
             _model = ModelsFactory.GenerateSettingPage1Model();
             _settingModel = ModelsFactory.GenerateSettingModel();
 
-            NormalPack = new RelayCommand(() => NormalPackFunc());
-            FilterAdminCode = new RelayCommand(() => FilterAdminCodeFunc());
-            UseAdminCode = new RelayCommand(() => UseAdminCodeFunc());
-            AddFilterMedicineCode = new RelayCommand(() => AddFilterMedicineCodeFunc());
-            RemoveFilterMedicineCode = new RelayCommand(() => RemoveFilterMedicineCodeFunc());
-            AddFilterAdminCode = new RelayCommand(() => AddFilterAdminCodeFunc());
-            RemoveFilterAdminCode = new RelayCommand(() => RemoveFilterAdminCodeFunc());
-            AddRandom = new RelayCommand(() => AddRandomFunc());
-            RemoveRandom = new RelayCommand(() => RemoveRandomFunc());
+            NormalPack = new RelayCommand(NormalPackFunc);
+            FilterAdminCode = new RelayCommand(FilterAdminCodeFunc);
+            UseAdminCode = new RelayCommand(UseAdminCodeFunc);
+            AddFilterMedicineCode = new RelayCommand(AddFilterMedicineCodeFunc);
+            RemoveFilterMedicineCode = new RelayCommand(RemoveFilterMedicineCodeFunc);
+            AddFilterAdminCode = new RelayCommand(AddFilterAdminCodeFunc);
+            RemoveFilterAdminCode = new RelayCommand(RemoveFilterAdminCodeFunc);
+            AddRandom = new RelayCommand(AddRandomFunc);
+            RemoveRandom = new RelayCommand(RemoveRandomFunc);
 
             Init();
         }
@@ -57,166 +54,119 @@ namespace FCP.ViewModels
         public int SearchFrequency
         {
             get => _model.SearchFrequency;
-            set => _model.SearchFrequency = value;
+            set => SetProperty(_model.SearchFrequency, value, _model, (model, _value) => model.SearchFrequency = _value);
         }
 
         public ObservableCollection<string> Mode
         {
             get => _model.Mode;
-            set => _model.Mode = value;
+            set => SetProperty(_model.Mode, value, _model, (model, _value) => model.Mode = _value);
         }
 
         public int FormatIndex
         {
             get => _model.FormatIndex;
-            set => _model.FormatIndex = value;
+            set => SetProperty(_model.FormatIndex, value, _model, (model, _value) => model.FormatIndex = _value);
         }
 
         public bool NormalPackChecked
         {
-            //get => _Model.NormalPackChecked;
-            get
-            {
-                return _model.NormalPackChecked;
-            }
-            set
-            {
-                _model.NormalPackChecked = value;
-            }
+            get => _model.NormalPackChecked;
+            set => SetProperty(_model.NormalPackChecked, value, _model, (model, _value) => model.NormalPackChecked = _value);
         }
 
         public bool FilterAdminCodeChecked
         {
             get => _model.FilterAdminCodeChecked;
-            set
-            {
-                _model.FilterAdminCodeChecked = value;
-            }
+            set => SetProperty(_model.FilterAdminCodeChecked, value, _model, (model, _value) => model.FilterAdminCodeChecked = _value);
         }
 
         public bool UseAdminCodeChecked
         {
             get => _model.UseAdminCodeChecked;
-            set
-            {
-                _model.UseAdminCodeChecked = value;
-            }
+            set => SetProperty(_model.UseAdminCodeChecked, value, _model, (model, _value) => model.UseAdminCodeChecked = _value);
         }
 
         public Visibility PackMode
         {
             get => _model.PackModeVisible;
-            set
-            {
-                _model.PackModeVisible = value;
-            }
+            set => SetProperty(_model.PackModeVisible, value, _model, (model, _value) => model.PackModeVisible = _value);
         }
 
         public string AdminCode
         {
             get => _model.AdminCode;
-            set => _model.AdminCode = value.Trim();
+            set => SetProperty(_model.AdminCode, value.Trim(), _model, (model, _value) => model.AdminCode = _value);
         }
 
         public ObservableCollection<string> FilterAdminCodeList
         {
             get => _model.FilterAdminCodeList;
-            set
-            {
-                _model.FilterAdminCodeList = value;
-            }
+            set => SetProperty(_model.FilterAdminCodeList, value, _model, (model, _value) => model.FilterAdminCodeList = _value);
         }
 
         public int FilterAdminCodeIndex
         {
             get => _model.FilerAdminCodeIndex;
-            set => _model.FilerAdminCodeIndex = value;
+            set => SetProperty(_model.FilerAdminCodeIndex, value, _model, (model, _value) => model.FilerAdminCodeIndex = _value);
         }
 
         public ObservableCollection<RandomInfo> Random
         {
             get => _model.Random;
-            set
-            {
-                _model.Random = value;
-            }
+            set => SetProperty(_model.Random, value, _model, (model, _value) => model.Random = _value);
         }
 
         public int RandomIndex
         {
             get => _model.RandomIndex;
-            set
-            {
-                _model.RandomIndex = value;
-            }
+            set => SetProperty(_model.RandomIndex, value, _model, (model, _value) => model.RandomIndex = _value);
         }
         public bool MultiChecked
         {
             get => _model.MultiChecked;
-            set
-            {
-                _model.MultiChecked = value;
-            }
+            set => SetProperty(_model.MultiChecked, value, _model, (model, _value) => model.MultiChecked = _value);
         }
 
         public bool CombiChecked
         {
             get => _model.CombiChecked;
-            set
-            {
-                _model.CombiChecked = value;
-            }
+            set => SetProperty(_model.CombiChecked, value, _model, (model, _value) => model.CombiChecked = _value);
         }
 
         public string OutputSpecialAdminCode
         {
             get => _model.OutputSpecialAdminCode;
-            set => _model.OutputSpecialAdminCode = value;
-        }
-
-        public string CutTime
-        {
-            get => _model.CutTime;
-            set
-            {
-                _model.CutTime = value.Trim();
-            }
+            set => SetProperty(_model.OutputSpecialAdminCode, value, _model, (model, _value) => model.OutputSpecialAdminCode = _value);
         }
 
         public string AdminCodeOfCrossDay
         {
             get => _model.AdminCodeOfCrossDay;
-            set
-            {
-                _model.AdminCodeOfCrossDay = value.Trim();
-            }
+            set => SetProperty(_model.AdminCodeOfCrossDay, value.Trim(), _model, (model, _value) => model.AdminCodeOfCrossDay = _value);
         }
 
         public string MedicineCode
         {
             get => _model.MedicineCode;
-            set
-            {
-                _model.MedicineCode = value.Trim();
-            }
+            set => SetProperty(_model.MedicineCode, value.Trim(), _model, (model, _value) => model.MedicineCode = _value);
         }
 
         public ObservableCollection<string> FilterMedicineCodeList
         {
             get => _model.FilterMedicineCodeList;
-            set
-            {
-                _model.FilterMedicineCodeList = value;
-            }
+            set => SetProperty(_model.FilterMedicineCodeList, value, _model, (model, _value) => model.FilterMedicineCodeList = _value);
         }
 
         public int FilterMedicineCodeIndex
         {
             get => _model.FilterMedicineCodeIndex;
-            set
-            {
-                _model.FilterMedicineCodeIndex = value;
-            }
+            set => SetProperty(_model.FilterMedicineCodeIndex, value, _model, (model, _value) => model.FilterMedicineCodeIndex = _value);
+        }
+
+        public void ResetModel()
+        {
+            Init();
         }
 
         public void NormalPackFunc()
@@ -247,22 +197,22 @@ namespace FCP.ViewModels
         {
             if (MedicineCode.Length == 0)
             {
-                MsgCollection.Show("藥品代碼欄位為空白，請重新確認", "空白", PackIconKind.Error, KindColors.Error);
-                FocusFilterMedicineCode();
+                MsgCollection.ShowDialog("藥品代碼欄位為空白，請重新確認", "空白", PackIconKind.Error, dColor.GetSolidColorBrush(eColor.Red));
+                FocusedFilterMedicineCode();
                 return;
             }
             if (FilterMedicineCodeList.Contains(MedicineCode))
             {
-                MsgCollection.Show($"該藥品代碼 {MedicineCode} 已建立，請重新確認", "重複", PackIconKind.Error, KindColors.Error);
-                FocusFilterMedicineCode();
-                SelectAllFilterMedicineCode();
+                MsgCollection.ShowDialog($"該藥品代碼 {MedicineCode} 已建立，請重新確認", "重複", PackIconKind.Error, dColor.GetSolidColorBrush(eColor.Red));
+                FocusedFilterMedicineCode();
+                SelectedAllMedicineCode();
                 return;
             }
             FilterMedicineCodeList.Add(MedicineCode);
             FilterMedicineCodeList = ListHelper.ToObservableCollection(FilterMedicineCodeList.OrderBy(x => x).ToList());
             FilterMedicineCodeIndex = 0;
             MedicineCode = string.Empty;
-            FocusFilterMedicineCode();
+            FocusedFilterMedicineCode();
         }
 
         public void RemoveFilterMedicineCodeFunc()
@@ -273,29 +223,30 @@ namespace FCP.ViewModels
             }
             FilterMedicineCodeList.RemoveAt(FilterMedicineCodeIndex);
             FilterMedicineCodeIndex = FilterMedicineCodeList.Count == 0 ? -1 : 0;
-            RefreshFilterMedicineCodeComboBox();
+            RefreshedFilterMedicineCode();
         }
 
         public void AddFilterAdminCodeFunc()
         {
             if (AdminCode.Length == 0)
             {
-                MsgCollection.Show("頻率欄位為空白，請重新確認", "空白", PackIconKind.Error, KindColors.Error);
-                FocusFilterAdminCode();
+                MsgCollection.ShowDialog("頻率欄位為空白，請重新確認", "空白", PackIconKind.Error, dColor.GetSolidColorBrush(eColor.Red));
+                FocusedFilterAdminCode();
+
                 return;
             }
             if (FilterAdminCodeList.Contains(AdminCode))
             {
-                MsgCollection.Show($"該頻率 {AdminCode} 已建立，請重新確認", "重複", PackIconKind.Error, KindColors.Error);
-                FocusFilterAdminCode();
-                SelectAllFilterAdminCode();
+                MsgCollection.ShowDialog($"該頻率 {AdminCode} 已建立，請重新確認", "重複", PackIconKind.Error, dColor.GetSolidColorBrush(eColor.Red));
+                FocusedFilterAdminCode();
+                SelectedAllAdminCode();
                 return;
             }
             FilterAdminCodeList.Add(AdminCode);
             FilterAdminCodeList = ListHelper.ToObservableCollection(FilterAdminCodeList.OrderBy(x => x).ToList());
             FilterAdminCodeIndex = 0;
             AdminCode = string.Empty;
-            FocusFilterAdminCode();
+            FocusedFilterAdminCode();
         }
 
         public void RemoveFilterAdminCodeFunc()
@@ -314,7 +265,6 @@ namespace FCP.ViewModels
             MultiChecked = _settingModel.DoseType == eDoseType.餐包;
             CombiChecked = _settingModel.DoseType == eDoseType.種包;
             OutputSpecialAdminCode = _settingModel.OutputSpecialAdminCode;
-            CutTime = _settingModel.CutTime;
             AdminCodeOfCrossDay = _settingModel.CrossDayAdminCode;
             Mode = EnumHelper.ToObservableCollection<eFormat>();
             FormatIndex = (int)_settingModel.Format;
@@ -358,7 +308,37 @@ namespace FCP.ViewModels
             Random.RemoveAt(RandomIndex);
             RandomIndex = RandomIndex == 0 ? -1 : 0;
             Random.ToList().ForEach(x => x.No = Random.IndexOf(x).ToString());  //重新編排No
-            RefreshRandomDataGridView();
+            RefreshedRandomataGridView();
+        }
+
+        private void FocusedFilterAdminCode()
+        {
+            Messenger.Send(new View_FocusedElementMessage(), "Txt_FilterAdminCode");
+        }
+
+        private void FocusedFilterMedicineCode()
+        {
+            Messenger.Send(new View_FocusedElementMessage(), "Txt_FilterMedicineCode");
+        }
+
+        private void SelectedAllAdminCode()
+        {
+            Messenger.Send(new View_SelectedAllMessage(), "Txt_FilterAdminCode");
+        }
+
+        private void SelectedAllMedicineCode()
+        {
+            Messenger.Send(new View_SelectedAllMessage(), "Txt_FilterMedicineCode");
+        }
+
+        private void RefreshedRandomataGridView()
+        {
+            Messenger.Send(new View_RefresedhElementMessage(), "Dg_RandomSetting");
+        }
+
+        private void RefreshedFilterMedicineCode()
+        {
+            Messenger.Send(new View_RefresedhElementMessage(), "Cbo_FilterMedicineCode");
         }
     }
 }

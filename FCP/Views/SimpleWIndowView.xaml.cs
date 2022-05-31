@@ -1,20 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using FCP.Models;
-using FCP.Services;
-using FCP.src.Factory;
-using FCP.src.Enum;
+﻿using System.Windows;
 using FCP.ViewModels;
-using FCP.src.Factory.ViewModel;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using FCP.src.MessageManager;
 
 namespace FCP.Views
 {
@@ -23,17 +11,38 @@ namespace FCP.Views
     /// </summary>
     public partial class SimpleWindowView : Window
     {
-        public SimpleWindowView(MainWindow m)
+        public SimpleWindowView()
         {
             InitializeComponent();
-            this.DataContext = SimpleWindowFactory.GenerateSimpleWindowViewModel();
-            var vm = this.DataContext as SimpleWindowViewModel;
-            vm.ActivateWindow += ActivateWindow;
+            _simpleWindowVM = App.Current.Services.GetService<SimpleWindowViewModel>();
+            this.DataContext = _simpleWindowVM;
         }
+
+        private SimpleWindowViewModel _simpleWindowVM;
 
         private void ActivateWindow()
         {
             this.Activate();
+            this.Focus();
+            this.Topmost = true;
+        }
+
+        private void CloseWindow()
+        {
+            this.Close();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            _simpleWindowVM.IsActive = true;
+            WeakReferenceMessenger.Default.Register<ActivateMessage, string>(this, nameof(SimpleWindowView), (r, m) => { ActivateWindow(); });
+            WeakReferenceMessenger.Default.Register<CloseWindowMessage, string>(this, nameof(SimpleWindowView), (r, m) => { CloseWindow(); });
+        }
+
+        private void Window_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _simpleWindowVM.IsActive = false;
+            WeakReferenceMessenger.Default.UnregisterAll(this);
         }
     }
 }

@@ -5,9 +5,8 @@ namespace FCP.Models
 {
     public sealed class SimpleWindowModel
     {
-        public Visibility Visibility { get; set; } = Visibility.Hidden;
-        public bool Topmost { get; set; }
-        public bool Enabled { get; set; } = false;
+        public Visibility Visibility { get; set; } = Visibility.Visible;
+        public bool Focusable { get; set; } = true;
         public int Top { get; set; }
         public int Left { get; set; }
         public bool MultiChecked { get; set; }

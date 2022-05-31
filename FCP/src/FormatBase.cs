@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Windows;
 using System.Threading;
-using FCP.src.Factory.ViewModel;
 using FCP.Models;
 using FCP.src.Enum;
 using FCP.ViewModels;
@@ -15,42 +14,47 @@ using FCP.src.Factory.Models;
 using FCP.Services;
 using System.Windows.Forms;
 using System.Windows.Threading;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using FCP.src.MessageManager;
+using System.Text;
+using System.Windows.Media;
+using FCP.src.Dictionary;
 
 namespace FCP.src
 {
     abstract class FormatBase : Window
     {
+        public FormatBase()
+        {
+            SettingModel = ModelsFactory.GenerateSettingModel();
+        }
+
         public MainWindowViewModel MainWindowVM { get; set; }
-        public SettingModel SettingModel { get; set; }
+        public SettingJsonModel SettingModel { get; set; }
         private UIRefresh _uiRefresh { get; set; }
-        private AdvancedSettingsViewModel _advancedSettingsVM;
-        private SimpleWindowViewModel _simpleWindowVM;
         protected internal eDepartment CurrentDepartment;
         private string _successDirectory = string.Empty;
         private string _failDirectory = string.Empty;
         private CancellationTokenSource _cts;
         private List<MatchModel> _matchModel = null;
-
-        public FormatBase()
-        {
-            SettingModel = ModelsFactory.GenerateSettingModel();
-            MainWindowVM = MainWindowFactory.GenerateMainWindowViewModel();
-            _simpleWindowVM = SimpleWindowFactory.GenerateSimpleWindowViewModel();
-        }
+        private MainWindowModel.ToogleModel _toogleModel;
+        private StringBuilder _log = null;
 
         public virtual void Init()
         {
             try
             {
+                _log = new StringBuilder();
                 _uiRefresh = new UIRefresh() { UILayout = SetUILayout(new MainUILayoutModel()) };
-                _uiRefresh.StartAsync();
+                _uiRefresh.StartRefreshAsync();
                 _matchModel = new List<MatchModel>();
 
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
-                MsgCollection.Show(ex);
+                LogService.Exception(ex);
+                MsgCollection.ShowDialog(ex);
             }
         }
 
@@ -65,37 +69,25 @@ namespace FCP.src
             {
                 _cts.Cancel();
             }
-            _matchModel.Clear();
         }
 
-        public virtual void ConvertPrepare()
+        public virtual void SetMainWindowToogleChecked()
         {
-            if (CommonModel.CurrentDepartment == eDepartment.OPD)
+            _toogleModel = WeakReferenceMessenger.Default.Send(new GetMainWindowToogleCheckedRequestMessage());
+        }
+
+        public virtual ActionResult PrepareStart()
+        {
+            ActionResult checkResult = CheckMatchModel();
+            if (!checkResult.Success)
             {
-                if ((SettingModel.InputDirectory1 + SettingModel.InputDirectory2 + SettingModel.InputDirectory3 + SettingModel.InputDirectory4 + SettingModel.InputDirectory5 + SettingModel.InputDirectory6).Trim().Length == 0)
-                {
-                    MsgCollection.Show("來源路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
-                    return;
-                }
+                Stop();
+                WeakReferenceMessenger.Default.Send(new OpreationMessage(), nameof(eOpreation.Stop));
+                MsgCollection.ShowDialog(checkResult.Message, "設定發生錯誤", PackIconKind.Error, dColor.GetSolidColorBrush(eColor.Red));
+                return checkResult;
             }
-            else
-            {
-                if ((SettingModel.InputDirectory5 + SettingModel.InputDirectory6).Trim().Length == 0)
-                {
-                    MsgCollection.Show("住院路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
-                    return;
-                }
-            }
-            if (SettingModel.OutputDirectory.Trim().Length == 0)
-            {
-                MsgCollection.Show("輸出路徑為空白", "路徑空白", PackIconKind.Error, KindColors.Error);
-                return;
-            }
-            RefreshUIPropertyServices.SwitchUIStateForStart();
-            RefreshUIPropertyServices.SwitchMainWindowControlState(false);
-            _advancedSettingsVM = AdvancedSettingFactory.GenerateAdvancedSettingsViewModel();
-            _advancedSettingsVM.Visibility = Visibility.Hidden;
-            _cts = new CancellationTokenSource();
+            Start();
+            return new ActionResult();
         }
 
         public void SetFileSearchMode(eFileSearchMode fileSearchMode)
@@ -105,22 +97,22 @@ namespace FCP.src
 
         public void SetOPDRule(string rule = null)
         {
-            _matchModel.Add(new MatchModel() { Department = eDepartment.OPD, Rule = rule, Enabled = MainWindowVM.OPDToogle1Checked && CommonModel.CurrentDepartment == eDepartment.OPD, InputDirectory = SettingModel.InputDirectory1 });
+            _matchModel.Add(new MatchModel() { Department = eDepartment.OPD, Rule = rule, Enabled = _toogleModel.Toogle1 && CommonModel.CurrentDepartment == eDepartment.OPD, InputDirectory = SettingModel.InputDirectory1 });
         }
 
         public void SetPowderRule(string rule = null)
         {
-            _matchModel.Add(new MatchModel() { Department = eDepartment.POWDER, Rule = rule, Enabled = MainWindowVM.OPDToogle2Checked && CommonModel.CurrentDepartment == eDepartment.OPD, InputDirectory = SettingModel.InputDirectory2 });
+            _matchModel.Add(new MatchModel() { Department = eDepartment.POWDER, Rule = rule, Enabled = _toogleModel.Toogle2 && CommonModel.CurrentDepartment == eDepartment.OPD, InputDirectory = SettingModel.InputDirectory2 });
         }
 
         public void SetCareRule(string rule = null)
         {
-            _matchModel.Add(new MatchModel() { Department = eDepartment.Care, Rule = rule, Enabled = MainWindowVM.OPDToogle3Checked && CommonModel.CurrentDepartment == eDepartment.OPD, InputDirectory = SettingModel.InputDirectory3 });
+            _matchModel.Add(new MatchModel() { Department = eDepartment.Care, Rule = rule, Enabled = _toogleModel.Toogle3 && CommonModel.CurrentDepartment == eDepartment.OPD, InputDirectory = SettingModel.InputDirectory3 });
         }
 
         public void SetOtherRule(string rule = null)
         {
-            _matchModel.Add(new MatchModel() { Department = eDepartment.Other, Rule = rule, Enabled = MainWindowVM.OPDToogle4Checked && CommonModel.CurrentDepartment == eDepartment.OPD, InputDirectory = SettingModel.InputDirectory4 });
+            _matchModel.Add(new MatchModel() { Department = eDepartment.Other, Rule = rule, Enabled = _toogleModel.Toogle4 && CommonModel.CurrentDepartment == eDepartment.OPD, InputDirectory = SettingModel.InputDirectory4 });
         }
 
         public void SetBatchRule(string rule = null)
@@ -135,8 +127,7 @@ namespace FCP.src
 
         public virtual void Start()
         {
-            if (_cts == null)
-                return;
+            _cts = new CancellationTokenSource();
             FileSearchService.Init();
             Task.Run(async () =>
             {
@@ -158,13 +149,12 @@ namespace FCP.src
                     }
                     await Task.Delay(SettingModel.Speed);
                 }
+                _cts = null;
+                _matchModel.Clear();
             });
         }
 
-        public virtual void Converter()
-        {
-
-        }
+        public abstract void Converter();
 
         public void Result(ReturnsResultModel returnsResult, bool remind)
         {
@@ -209,7 +199,12 @@ namespace FCP.src
         public virtual void StopAll()
         {
             Stop();
-            _uiRefresh.Stop();
+            _uiRefresh.StopRefresh();
+        }
+
+        public void ClearLog()
+        {
+            _log.Clear();
         }
 
         public string MergeFilesAndGetNewFilePath(string InputDirectory, string fileName, int start, int length, string content)
@@ -229,10 +224,10 @@ namespace FCP.src
             {
                 File.Move(s, $@"{CommonModel.FileBackupRootDirectory}\{DateTime.Now:yyyy-MM-dd}\{folderName}\{Path.GetFileNameWithoutExtension(s)}.{extension}");
             }
-            if (_simpleWindowVM.Visibility == Visibility.Visible)
-                _simpleWindowVM.StopFunc();
-            else
-                Stop();
+            //if (_simpleWindowVM.Visibility == Visibility.Visible)
+            //    _simpleWindowVM.StopFunc();
+            //else
+            //    Stop();
         }
 
         private void ClearFileInfoModel()
@@ -258,12 +253,64 @@ namespace FCP.src
 
         private void AddNewMessageToProgressBox(string result)
         {
-            Dispatcher.Invoke(new Action(() =>
+            _log.AppendLine($"{DateTime.Now:HH:mm:ss:fff} {result}");
+            WeakReferenceMessenger.Default.Send(new LogChangeMessage(_log));
+        }
+
+        private ActionResult CheckMatchModel()
+        {
+            ActionResult result = new ActionResult();
+            StringBuilder sb = new StringBuilder();
+
+            if (CommonModel.CurrentDepartment == eDepartment.OPD)
             {
-                MainWindowVM.AddLog($"{DateTime.Now:HH:mm:ss:fff} {result}");
-                //MainWindow.Txt_ProgressBox.ScrollToEnd();
-                _simpleWindowVM.AddLog($"{DateTime.Now:HH:mm:ss:fff} {result}");
-            }));
+                if ((_toogleModel.Toogle1 || _toogleModel.Toogle2 || _toogleModel.Toogle3 || _toogleModel.Toogle4) == false)
+                {
+                    result.Success = false;
+                    sb.AppendLine("沒有勾選任一個模式");
+                }
+                if (_toogleModel.Toogle1 && SettingModel.InputDirectory1.Length == 0)
+                {
+                    result.Success = false;
+                    sb.AppendLine("使用輸入路徑1，但路徑沒有被設定");
+                }
+                if (_toogleModel.Toogle2 && SettingModel.InputDirectory2.Length == 0)
+                {
+                    result.Success = false;
+                    sb.AppendLine("使用輸入路徑2，但路徑沒有被設定");
+                }
+                if (_toogleModel.Toogle3 && SettingModel.InputDirectory3.Length == 0)
+                {
+                    result.Success = false;
+                    sb.AppendLine("使用輸入路徑3，但路徑沒有被設定");
+                }
+                if (_toogleModel.Toogle4 && SettingModel.InputDirectory4.Length == 0)
+                {
+                    result.Success = false;
+                    sb.AppendLine("使用輸入路徑4，但路徑沒有被設定");
+                }
+            }
+            else
+            {
+                if (SettingModel.UseStatOrBatch && SettingModel.StatOrBatch == eDepartment.Stat && SettingModel.InputDirectory6.Length == 0)
+                {
+                    result.Success = false;
+                    sb.AppendLine("使用即時包藥，但路徑沒有被設定");
+                }
+                else if ((SettingModel.UseStatOrBatch && SettingModel.StatOrBatch == eDepartment.Batch) || SettingModel.InputDirectory5.Length == 0)
+                {
+                    result.Success = false;
+                    sb.AppendLine("使用住院包藥，但路徑沒有被設定");
+                }
+            }
+            if (SettingModel.OutputDirectory.Length == 0)
+            {
+                result.Success = false;
+                sb.AppendLine("輸出路徑沒有被設定");
+            }
+            result.Message = sb.ToString();
+            sb = null;
+            return result;
         }
     }
 }

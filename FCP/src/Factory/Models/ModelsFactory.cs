@@ -6,7 +6,7 @@ namespace FCP.src.Factory.Models
     {
         private static SettingPage1Model _settingsPage1Model;
         private static SettingPage2Model _settingPage2Model;
-        private static SettingModel _settingModel;
+        private static SettingJsonModel _settingModel;
 
         public static SettingPage1Model GenerateSettingPage1Model()
         {
@@ -20,9 +20,9 @@ namespace FCP.src.Factory.Models
             return _settingPage2Model;
         }
 
-        public static SettingModel GenerateSettingModel()
+        public static SettingJsonModel GenerateSettingModel()
         {
-            _settingModel = _settingModel ?? new SettingModel();
+            _settingModel = _settingModel ?? new SettingJsonModel();
             return _settingModel;
         }
 

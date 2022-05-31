@@ -24,9 +24,9 @@ namespace FCP.src.FormatControl
                 foreach (string s in GetPrescriptionInfoList)
                 {
                     EncodingHelper.SetBytes(s.Trim());
-                    string numberOfPackages = EncodingHelper.GetString(307, 30);
+                    string adminCode = EncodingHelper.GetString(307, 30);
                     string medicineCode = EncodingHelper.GetString(155, 20);
-                    if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(numberOfPackages))
+                    if (FilterRule(adminCode, medicineCode))
                     {
                         continue;
                     }
@@ -55,16 +55,14 @@ namespace FCP.src.FormatControl
                         Unit = unit,
                         StartDay = DateTimeHelper.Convert(EncodingHelper.GetString(295, 6), "yyMMdd"),
                         EndDay = DateTimeHelper.Convert(EncodingHelper.GetString(301, 6), "yyMMdd"),
-                        NumOfPackages = numberOfPackages,
+                        NumOfPackages = adminCode,
                         Days = EncodingHelper.GetString(337, 30)
                     });
                 }
                 if (_opd.Count == 0)
                 {
                     Pass();
-                    return;
                 }
-                Success();
             }
             catch (Exception ex)
             {

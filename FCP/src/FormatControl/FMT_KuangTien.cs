@@ -5,7 +5,6 @@ using System.Text;
 using FCP.src.Enum;
 using Helper;
 using FCP.Models;
-using System.Diagnostics;
 
 namespace FCP.src.FormatControl
 {
@@ -15,13 +14,11 @@ namespace FCP.src.FormatControl
         private Dictionary<KuangTienUDBasic, List<KuangTienUD>> _udPrescriptions = new Dictionary<KuangTienUDBasic, List<KuangTienUD>>();
         private KuangTienOPDBasic _opdBasic = new KuangTienOPDBasic();
         private List<KuangTienOPD> _opd = new List<KuangTienOPD>();
-        private Stopwatch _sw = new Stopwatch();
 
         public override void ProcessOPD()
         {
             try
             {
-                var ecd = Encoding.Default;
                 string[] list = DeleteSpace(GetFileContent).Split('\n');
                 EncodingHelper.SetBytes(list[0]);
                 _opdBasic.WriteDate = EncodingHelper.GetString(9, 9);
@@ -42,16 +39,18 @@ namespace FCP.src.FormatControl
                     int id1 = GetID1(medicineCode);
                     int id2 = GetID2(medicineCode);
 
-                    if (IsFilterAdminCode(adminCode))
+                    if (FilterRule(adminCode, medicineCode))
+                    {
                         continue;
-                    if (IsFilterMedicineCode(medicineCode))
-                        continue;
+                    }
                     if (id1 >= 1 && sumQty % id1 == 0)  //總量可以被id1整除不包
                     {
                         continue;
                     }
                     if (id2 >= 1 && sumQty >= id2)  //總量超過id2(預包)數量不包
+                    {
                         continue;
+                    }
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
                         LostMultiAdminCode(adminCode);
@@ -71,9 +70,7 @@ namespace FCP.src.FormatControl
                 if (_opd.Count == 0)
                 {
                     Pass();
-                    return;
                 }
-                Success();
             }
             catch (Exception ex)
             {
@@ -133,8 +130,10 @@ namespace FCP.src.FormatControl
                             string medicineCode = EncodingHelper.GetString(0, 10);
                             string adminCode = $"{EncodingHelper.GetString(53, 11)}{EncodingHelper.GetString(69, 9)}";
                             float sumQty = Convert.ToSingle(EncodingHelper.GetString(78, 8));
-                            if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
+                            if (FilterRule(adminCode, medicineCode))
+                            {
                                 continue;
+                            }
                             adminCode = adminCode.Contains("TTS") ? "STTS" : adminCode;
                             if (!IsExistsMultiAdminCode(adminCode))
                             {
@@ -266,29 +265,7 @@ namespace FCP.src.FormatControl
                             ud.Add(medicine.Clone());
                             continue;
                         }
-                        while (currentTimes <= times)
-                        {
-                            medicine.DoseType = eDoseType.餐包;
-                            foreach (var time in adminCodeTimes)
-                            {
-                                if (currentTimes > times)
-                                {
-                                    break;
-                                }
-                                DateTime adminDate = DateTimeHelper.Convert($"{startDate:yyyyMMdd} {time}", "yyyyMMdd HH:mm");
-                                if (DateTime.Compare(adminDate, startDate) >= 0)
-                                {
-                                    medicine.TakingDescription = $"服用日 {adminDate:yyyy/MM/dd}";
-                                    medicine.StartDate = adminDate;
-                                    medicine.EndDate = adminDate;
-                                    ud.Add(medicine.Clone());
-
-                                    currentTimes++;
-                                }
-                            }
-                            startDate = Convert.ToDateTime($"{startDate:yyyy/MM/dd} 00:00:00");
-                            startDate = startDate.AddDays(1);
-                        }
+                        CalculatedMedicineStartAndEndDate(ud, medicine);
                     }
                     _udPrescriptions[prescription.Key].Clear();
                     _udPrescriptions[prescription.Key].AddRange(ud);
@@ -348,8 +325,10 @@ namespace FCP.src.FormatControl
                             string medicineCode = EncodingHelper.GetString(0, 10);
                             string adminCode = $"{EncodingHelper.GetString(43, 5)}{EncodingHelper.GetString(53, 5)}";
                             float sumQty = Convert.ToSingle(EncodingHelper.GetString(58, 8));
-                            if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
+                            if (FilterRule(adminCode, medicineCode))
+                            {
                                 continue;
+                            }
                             adminCode = adminCode.Contains("TTS") ? "STTS" : adminCode;
                             if (!adminCode.StartsWith("ST") && !IsExistsMultiAdminCode(adminCode))
                             {
@@ -390,7 +369,6 @@ namespace FCP.src.FormatControl
                 if (_udPrescriptions.Count == 0)
                 {
                     Pass();
-                    return;
                 }
             }
             catch (Exception ex)
@@ -423,15 +401,12 @@ namespace FCP.src.FormatControl
                         float perQty = medicine.PerQty;
                         float sumQty = medicine.SumQty;
                         int days = medicine.Days;
-                        int times = Convert.ToInt32(sumQty / perQty);
-                        int currentTimes = 1;
                         string adminCode = medicine.AdminCode;
                         string medicineCode = medicine.MedicineCode;
                         bool perQtyIsnteger = !$"{perQty}".Contains(".");
                         bool multiDose = SettingModel.DoseType == eDoseType.餐包;
                         DateTime startDate = medicine.StartDate;
                         DateTime treatmentDate = basic.TreatmentDate;
-                        List<string> adminCodeTimes = GetMultiAdminCodeTimes(medicine.AdminCode);
                         if (SettingModel.DoseType == eDoseType.種包 || !perQtyIsnteger || statAdminCode.Contains(adminCode) || CrossDayAdminCodeDays.TryGetValue(adminCode, out int value) || adminCode == "STTS")
                         {
                             medicine.DoseType = eDoseType.種包;
@@ -446,28 +421,7 @@ namespace FCP.src.FormatControl
                             ud.Add(medicine.Clone());
                             continue;
                         }
-                        while (currentTimes <= times)
-                        {
-                            medicine.DoseType = eDoseType.餐包;
-                            foreach (var time in adminCodeTimes)
-                            {
-                                if (currentTimes > times)
-                                {
-                                    break;
-                                }
-                                DateTime adminDate = DateTimeHelper.Convert($"{startDate:yyyyMMdd} {time}", "yyyyMMdd HH:mm");
-                                if (DateTime.Compare(adminDate, startDate) >= 0)
-                                {
-                                    medicine.StartDate = adminDate;
-                                    medicine.EndDate = adminDate;
-                                    ud.Add(medicine.Clone());
-
-                                    currentTimes++;
-                                }
-                            }
-                            startDate = Convert.ToDateTime($"{startDate:yyyy/MM/dd} 00:00:00");
-                            startDate = startDate.AddDays(1);
-                        }
+                        CalculatedMedicineStartAndEndDate(ud, medicine);
                     }
                     _udPrescriptions[prescription.Key].Clear();
                     _udPrescriptions[prescription.Key].AddRange(ud);
@@ -476,14 +430,15 @@ namespace FCP.src.FormatControl
             catch (Exception ex)
             {
                 ProgressLogicFail(ex);
+                return;
             }
             try
             {
-                var obj = _udPrescriptions.ToList().Select(x => (
+                var firstPatientBasicInfo = _udPrescriptions.ToList().Select(x => (
                     PatientName: x.Key.PatientName,
                     PatientNo: x.Key.PatientNo
                 )).First();
-                string outputDirectory = $@"{OutputDirectory}\{obj.PatientName}-{obj.PatientNo}_{CurrentSeconds}.txt";
+                string outputDirectory = $@"{OutputDirectory}\{firstPatientBasicInfo.PatientName}-{firstPatientBasicInfo.PatientNo}_{CurrentSeconds}.txt";
                 OP_OnCube.KuangTien_UD(_udPrescriptions, outputDirectory);
                 Success();
             }
@@ -518,8 +473,10 @@ namespace FCP.src.FormatControl
                     string grindTable = EncodingHelper.GetString(100, 8);
                     if (grindTable.Length == 0)
                         continue;
-                    if (IsFilterAdminCode(adminCode))
+                    if (FilterRule(adminCode, null, true, false, false))
+                    {
                         continue;
+                    }
                     var powder = new KuangTienPowder()
                     {
                         StartDate = startDate,
@@ -545,9 +502,7 @@ namespace FCP.src.FormatControl
                 if (_powder.Count == 0)
                 {
                     Pass();
-                    return;
                 }
-                Success();
             }
             catch (Exception ex)
             {
@@ -623,6 +578,38 @@ namespace FCP.src.FormatControl
                 }
             }
             return prescriptions;
+        }
+
+        private void CalculatedMedicineStartAndEndDate(List<KuangTienUD> ud, KuangTienUD medicine)
+        {
+            int currentTimes = 1;
+            float sumQty = medicine.SumQty;
+            float perQty = medicine.PerQty;
+            int times = Convert.ToInt32(sumQty / perQty);
+            DateTime startDate = medicine.StartDate;
+            List<string> adminCodeTimes = GetMultiAdminCodeTimes(medicine.AdminCode);
+            while (currentTimes <= times)
+            {
+                medicine.DoseType = eDoseType.餐包;
+                foreach (var time in adminCodeTimes)
+                {
+                    if (currentTimes > times)
+                    {
+                        break;
+                    }
+                    DateTime adminDate = DateTimeHelper.Convert($"{startDate:yyyyMMdd} {time}", "yyyyMMdd HH:mm");
+                    if (DateTime.Compare(adminDate, startDate) >= 0)
+                    {
+                        medicine.StartDate = adminDate;
+                        medicine.EndDate = adminDate;
+                        ud.Add(medicine.Clone());
+
+                        currentTimes++;
+                    }
+                }
+                startDate = Convert.ToDateTime($"{startDate:yyyy/MM/dd} 00:00:00");
+                startDate = startDate.AddDays(1);
+            }
         }
     }
 

@@ -2,6 +2,8 @@
 using FCP.src.Enum;
 using FCP.src.FormatControl;
 using FCP.Models;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using FCP.src.MessageManager;
 
 namespace FCP.src.FormatInit
 {
@@ -12,21 +14,19 @@ namespace FCP.src.FormatInit
         public override void Init()
         {
             base.Init();
-            MainWindowVM.OPDToogle1Checked = true;
+            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToogleModel() { Toogle1 = true }));
         }
 
-        public override void ConvertPrepare()
+        public override ActionResult PrepareStart()
         {
-            base.ConvertPrepare();
             SetFileSearchMode(eFileSearchMode.根據檔名開頭);
             SetOPDRule();
             CommonModel.SqlHelper.Execute($"UPDATE Job Set DeletedYN=1 WHERE DeletedYN=0 and LastUpdatedDate between '{DateTime.Now.AddDays(-1):yyyy/MM/dd 00:00:00:000}' and '{DateTime.Now.AddDays(-1):yyyy/MM/dd 23:59:59:999}'");
-            Start();
+            return base.PrepareStart();
         }
 
         public override void Converter()
         {
-            base.Converter();
             _format = _format ?? new FMT_HongYen();
             var result = _format.DepartmentShunt();
             Result(result, true);

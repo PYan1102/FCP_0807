@@ -2,42 +2,52 @@
 using System.Windows;
 using System.Runtime.InteropServices;
 using System.Windows.Input;
-using FCP.src.Factory.ViewModel;
 using FCP.Models;
 using FCP.ViewModels;
 using SqlHelper;
 using FCP.Services;
 using Helper;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using FCP.src.MessageManager;
 
 namespace FCP.Views
 {
     /// <summary>
     /// MainWindow.xaml 的互動邏輯
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindowView : Window
     {
-        public string CurrentWindow { get; set; }
-        private string _StatOrBatch = "S";
-        private const int _ShowMainWindow = 100;
 
+        public MainWindowView()
+        {
+            InitializeComponent();
+            _mainWindowVM = App.Current.Services.GetService<MainWindowViewModel>();
+            this.DataContext = _mainWindowVM;
+            Setting.Init();
+
+            CommonModel.SqlHelper = SqlConnectionFactory.GetConnection(eConnectionType.MsSql);
+            CommonModel.SqlHelper.ConnectionStr = CommonModel.SqlConnection;
+            CommonModel.SqlHelper.InitDb();
+        }
+
+        public string CurrentWindow { get; set; }
         public enum KeyModifilers
         {
             None = 0, Alt = 1, Ctrl = 2, Shift = 3
         }
-
         [DllImport("user32.dll", EntryPoint = "keybd_event", SetLastError = true)]
         public static extern void keybd_event(System.Windows.Forms.Keys bVk, byte bScan, uint dwFlags, uint dwExtraInfo);
-
         [DllImport("User32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
-
         [DllImport("User32.dll")]
         private static extern bool RegisterHotKey([In] IntPtr hWnd, [In] int id, [In] KeyModifilers fsModifiers, [In] System.Windows.Forms.Keys vk);
-
         [DllImport("User32.dll")]
         private static extern bool UnregisterHotKey([In] IntPtr hWnd, [In] int id);
-
         private System.Windows.Interop.HwndSource _source;
+        private string _StatOrBatch = "S";
+        private const int _ShowMainWindow = 100;
+        private MainWindowViewModel _mainWindowVM;
 
         protected override void OnSourceInitialized(EventArgs e)
         {
@@ -46,6 +56,40 @@ namespace FCP.Views
             _source = System.Windows.Interop.HwndSource.FromHwnd(helper.Handle);
             _source.AddHook(HwndHook);
             RegisterHotKey();
+        }
+
+        private void ActivateWindow()
+        {
+            this.Activate();
+            this.Focus();
+        }
+
+        private void SettingViewShowDialog()
+        {
+            SettingView view = new SettingView();
+            view.ShowDialog();
+            view = null;
+        }
+
+        private void SimpleWindowViewShowDialog()
+        {
+            SimpleWindowView view = new SimpleWindowView();
+            view.ShowDialog();
+            view = null;
+        }
+
+        public void ChangeUDFormatType(string Type)
+        {
+            _StatOrBatch = Type;
+            if (Type == "S")
+                Rdo_Stat.IsChecked = true;
+            else
+                Rdo_Batch.IsChecked = true;
+        }  //SmallForm切換即時與長期時，連帶更改主視窗的即時與長期
+
+        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            this.DragMove();
         }
 
         protected override void OnClosed(EventArgs e)
@@ -77,7 +121,7 @@ namespace FCP.Views
                     switch (wParam.ToInt32())
                     {
                         case _ShowMainWindow:
-                            MainWindowFactory.GenerateMainWindowViewModel().NotifyIconDBClick();
+                            _mainWindowVM.NotifyIconDBClick();
                             handled = true;
                             break;
                     }
@@ -86,37 +130,18 @@ namespace FCP.Views
             return IntPtr.Zero;
         }
 
-        public MainWindow()
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            InitializeComponent();
-            this.DataContext = MainWindowFactory.GenerateMainWindowViewModel();
-            SimpleWindowFactory.GenerateSimpleWindow();
-            Setting.Init();
-            var vm = this.DataContext as MainWindowViewModel;
-            vm.ActivateWindow += ActivateWindow;
-            CommonModel.SqlHelper = SqlConnectionFactory.GetConnection(eConnectionType.MsSql);
-            CommonModel.SqlHelper.ConnectionStr = CommonModel.SqlConnection;
-            CommonModel.SqlHelper.InitDb();
+            _mainWindowVM.IsActive = true;
+            WeakReferenceMessenger.Default.Register<ActivateMessage, string>(this, nameof(MainWindowView), (r, m) => { ActivateWindow(); });
+            WeakReferenceMessenger.Default.Register<ShowDialogMessage, string>(this, nameof(SettingView), (r, m) => { SettingViewShowDialog(); });
+            WeakReferenceMessenger.Default.Register<ShowDialogMessage, string>(this, nameof(SimpleWindowView), (r, m) => { SimpleWindowViewShowDialog(); });
         }
 
-        private void ActivateWindow()
+        private void Window_Unloaded(object sender, RoutedEventArgs e)
         {
-            this.Activate();
-        }
-
-        public void ChangeUDFormatType(string Type)
-        {
-            _StatOrBatch = Type;
-            if (Type == "S")
-                Rdo_Stat.IsChecked = true;
-            else
-                Rdo_Batch.IsChecked = true;
-
-        }  //SmallForm切換即時與長期時，連帶更改主視窗的即時與長期
-
-        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            this.DragMove();
+            _mainWindowVM.IsActive = false;
+            WeakReferenceMessenger.Default.UnregisterAll(this);
         }
     }
 }

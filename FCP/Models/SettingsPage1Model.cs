@@ -5,8 +5,8 @@ namespace FCP.Models
 {
     public sealed class SettingPage1Model
     {
-        public int SearchFrequency { get; set; } = 100;
-        public ObservableCollection<string> Mode { get; set; }
+        public int SearchFrequency { get; set; } = 500;
+        public ObservableCollection<string> Mode { get; set; } = new ObservableCollection<string>();
         public int FormatIndex { get; set; } = 0;
         public bool NormalPackChecked { get; set; }
         public bool FilterAdminCodeChecked { get; set; }
@@ -20,10 +20,9 @@ namespace FCP.Models
         public bool MultiChecked { get; set; }
         public bool CombiChecked { get; set; }
         public string OutputSpecialAdminCode { get; set; } = string.Empty;
-        public string CutTime { get; set; } = string.Empty;
         public string AdminCodeOfCrossDay { get; set; } = string.Empty;
         public string MedicineCode { get; set; } = string.Empty;
-        public ObservableCollection<string> FilterMedicineCodeList { get; set; }
+        public ObservableCollection<string> FilterMedicineCodeList { get; set; } = new ObservableCollection<string>();
         public int FilterMedicineCodeIndex { get; set; } = 0;
     }
 }

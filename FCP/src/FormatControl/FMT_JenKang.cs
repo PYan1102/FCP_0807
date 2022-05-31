@@ -25,7 +25,7 @@ namespace FCP.src.FormatControl
                     string adminCode = EncodingHelper.GetString(183, 10) + way;
                     string medicineCode = EncodingHelper.GetString(57, 10);
                     medicineCode = medicineCode == "EXFO160/51" ? "EXFO160／51" : medicineCode;
-                    if (!medicineList.Contains(medicineCode) || IsFilterAdminCode(adminCode))
+                    if (!medicineList.Contains(medicineCode) || FilterRule(adminCode, null, true, false, false))
                         continue;
                     if (!IsExistsCombiAdminCode(adminCode))
                     {
@@ -56,9 +56,7 @@ namespace FCP.src.FormatControl
                 if (_opd.Count == 0)
                 {
                     Pass();
-                    return;
                 }
-                Success();
             }
             catch (Exception ex)
             {
@@ -93,8 +91,10 @@ namespace FCP.src.FormatControl
                     string adminCode = EncodingHelper.GetString(183, 10) + way;
                     string medicineCode = EncodingHelper.GetString(57, 10);
                     medicineCode = medicineCode == "EXFO160/51" ? "EXFO160／51" : medicineCode;
-                    if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
+                    if (FilterRule(adminCode, medicineCode))
+                    {
                         continue;
+                    }
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
                         LostMultiAdminCode(adminCode);
@@ -136,9 +136,7 @@ namespace FCP.src.FormatControl
                 if (_batch.Count == 0)
                 {
                     Pass();
-                    return;
                 }
-                Success();
             }
             catch (Exception ex)
             {

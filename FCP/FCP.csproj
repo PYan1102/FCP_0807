@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\PropertyChanged.Fody.3.4.0\build\PropertyChanged.Fody.props" Condition="Exists('..\packages\PropertyChanged.Fody.3.4.0\build\PropertyChanged.Fody.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -67,23 +66,52 @@
     <Reference Include="MaterialDesignThemes.Wpf, Version=4.2.1.2, Culture=neutral, PublicKeyToken=df2a72020bd7962a, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialDesignThemes.4.2.1\lib\net452\MaterialDesignThemes.Wpf.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.6.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=6.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.6.0.0\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=6.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.6.0.0\lib\net461\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Toolkit.Mvvm, Version=7.1.0.0, Culture=neutral, PublicKeyToken=4aff67a105548ee2, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Toolkit.Mvvm.7.1.2\lib\netstandard2.0\Microsoft.Toolkit.Mvvm.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.31\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="PropertyChanged, Version=3.4.0.0, Culture=neutral, PublicKeyToken=ee3ee20bcf148ddd, processorArchitecture=MSIL">
-      <HintPath>..\packages\PropertyChanged.Fody.3.4.0\lib\net40\PropertyChanged.dll</HintPath>
-    </Reference>
     <Reference Include="SqlHelper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Helper\SqlHelper\bin\Debug\SqlHelper.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ComponentModel.Annotations.5.0.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -103,6 +131,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\ActionResult.cs" />
     <Compile Include="Models\CommonModel.cs" />
     <Compile Include="Models\MainUILayoutModel.cs" />
     <Compile Include="Models\MatchModel.cs" />
@@ -113,15 +142,31 @@
     <Compile Include="Services\MergeFileService.cs" />
     <Compile Include="Services\NoticeService.cs" />
     <Compile Include="src\ConvertResult.cs" />
+    <Compile Include="src\Dictionary\dColor.cs" />
+    <Compile Include="src\Enum\eColor.cs" />
+    <Compile Include="src\Enum\eCommandCollection.cs" />
+    <Compile Include="src\Enum\eOpreation.cs" />
+    <Compile Include="src\Enum\eWindowType.cs" />
     <Compile Include="src\Interface\IGetFIle.cs" />
-    <Compile Include="Views\AdvancedSettings.xaml.cs">
-      <DependentUpon>AdvancedSettings.xaml</DependentUpon>
+    <Compile Include="src\MessageManager\ActivateMessage.cs" />
+    <Compile Include="src\MessageManager\ClearSimpleWindowLogMessage.cs" />
+    <Compile Include="src\MessageManager\CloseWindowMessage.cs" />
+    <Compile Include="src\MessageManager\CommandMessage.cs" />
+    <Compile Include="src\MessageManager\View_FocusedElementMessage.cs" />
+    <Compile Include="src\MessageManager\GetMainWindowToogleCheckedRequestMessage.cs" />
+    <Compile Include="src\MessageManager\LogChangeMessage.cs" />
+    <Compile Include="src\MessageManager\OpreationMessage.cs" />
+    <Compile Include="src\MessageManager\View_RefresedhElementMessage.cs" />
+    <Compile Include="src\MessageManager\View_SelectedAllMessage.cs" />
+    <Compile Include="src\MessageManager\SetMainWindowToogleCheckedChangeMessage.cs" />
+    <Compile Include="src\MessageManager\UpdateMainUIChangeMessage.cs" />
+    <Compile Include="src\MessageManager\VisibilityMessage.cs" />
+    <Compile Include="src\MessageManager\ShowDialogMessage.cs" />
+    <Compile Include="Views\SettingView.xaml.cs">
+      <DependentUpon>SettingView.xaml</DependentUpon>
     </Compile>
     <Compile Include="src\ComparePrescription.cs" />
-    <Compile Include="src\Factory\ViewModel\AdvancedSettingFactory.cs" />
     <Compile Include="src\Factory\Models\ModelsFactory.cs" />
-    <Compile Include="src\Factory\ViewModel\MsgFactory.cs" />
-    <Compile Include="src\Factory\ViewModel\SimpleWindowFactory.cs" />
     <Compile Include="src\FormatControl\FMT_ChengYu.cs" />
     <Compile Include="src\FormatControl\FMT_Washinton.cs" />
     <Compile Include="src\FormatControl\FMT_LittleBear.cs" />
@@ -132,11 +177,9 @@
     <Compile Include="src\FormatInit\BASE_OnCube.cs" />
     <Compile Include="src\FormatInit\BASE_ChuangSheng.cs" />
     <Compile Include="src\FormatInit\BASE_FangDing.cs" />
-    <Compile Include="Core\RelayCommand.cs" />
     <Compile Include="Services\JsonService.cs" />
     <Compile Include="src\FormatInit\BASE_E_DA.cs" />
     <Compile Include="src\Factory\FormatFactory.cs" />
-    <Compile Include="src\Factory\ViewModel\MainWindowFactory.cs" />
     <Compile Include="src\FormatControl\FMT_FangDing.cs" />
     <Compile Include="src\FormatControl\FMT_JenKang.cs" />
     <Compile Include="src\FormatCollection.cs" />
@@ -152,7 +195,7 @@
     <Compile Include="src\FormatControl\FMT_YiSheng.cs" />
     <Compile Include="src\FormatInit\BASE_JenKang.cs" />
     <Compile Include="src\FormatInit\BASE_JVServer.cs" />
-    <Compile Include="Models\AdvancedSettingsModel.cs" />
+    <Compile Include="Models\SettingModel.cs" />
     <Compile Include="Models\FileInfoModel.cs" />
     <Compile Include="src\Enum\eConvertResult.cs" />
     <Compile Include="src\Enum\eDepartment.cs" />
@@ -163,32 +206,30 @@
     <Compile Include="Models\MsgModel.cs" />
     <Compile Include="Models\ReturnsResultModel.cs" />
     <Compile Include="Models\MainWindowModel.cs" />
-    <Compile Include="Models\SettingModel.cs" />
+    <Compile Include="Models\SettingJsonModel.cs" />
     <Compile Include="Models\SettingsPage1Model.cs" />
     <Compile Include="Models\SettingsPage2Model.cs" />
     <Compile Include="Models\SimpleWindowModel.cs" />
     <Compile Include="src\MsgCollection.cs" />
-    <Compile Include="ViewModels\AdvancedSettingsViewModel.cs" />
+    <Compile Include="ViewModels\SettingViewModel.cs" />
     <Compile Include="src\Interface\IRetunrsResult.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
-    <Compile Include="src\RefreshUIPropertyServices.cs" />
-    <Compile Include="ViewModels\SettingsPage1ViewModel.cs" />
+    <Compile Include="ViewModels\SettingPage1ViewModel.cs" />
     <Compile Include="ViewModels\MsgViewModel.cs" />
     <Compile Include="src\ReturnsResult.cs" />
-    <Compile Include="ViewModels\SettingsPage2ViewModel.cs" />
+    <Compile Include="ViewModels\SettingPage2ViewModel.cs" />
     <Compile Include="ViewModels\SimpleWindowViewModel.cs" />
-    <Compile Include="Core\ViewModelBase.cs" />
-    <Compile Include="Views\SettingsPage1View.xaml.cs">
-      <DependentUpon>SettingsPage1View.xaml</DependentUpon>
+    <Compile Include="Views\SettingPage1View.xaml.cs">
+      <DependentUpon>SettingPage1View.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SettingsPage2View.xaml.cs">
-      <DependentUpon>SettingsPage2View.xaml</DependentUpon>
+    <Compile Include="Views\SettingPage2View.xaml.cs">
+      <DependentUpon>SettingPage2View.xaml</DependentUpon>
     </Compile>
     <Compile Include="OP_JVServer.cs" />
     <Compile Include="src\FormatInit\BASE_KuangTien.cs" />
     <Compile Include="src\FormatInit\BASE_MinSheng.cs" />
-    <Compile Include="Views\Msg.xaml.cs">
-      <DependentUpon>Msg.xaml</DependentUpon>
+    <Compile Include="Views\MsgView.xaml.cs">
+      <DependentUpon>MsgView.xaml</DependentUpon>
     </Compile>
     <Compile Include="src\SQL\OLEDB.cs" />
     <Compile Include="OP_OnCube.cs" />
@@ -199,11 +240,11 @@
     <Compile Include="src\FormatInit\BASE_TaipeiDetention.cs" />
     <Compile Include="src\FormatInit\BASE_YiSheng.cs" />
     <Compile Include="src\UIRefresh.cs" />
-    <Page Include="Views\AdvancedSettings.xaml">
+    <Page Include="Views\SettingView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\MainWindow.xaml">
+    <Page Include="Views\MainWindowView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -211,19 +252,19 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Views\MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="Views\MainWindowView.xaml.cs">
+      <DependentUpon>MainWindowView.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Views\Msg.xaml">
+    <Page Include="Views\MsgView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SettingsPage1View.xaml">
+    <Page Include="Views\SettingPage1View.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SettingsPage2View.xaml">
+    <Page Include="Views\SettingPage2View.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -271,7 +312,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Resource Include="Core\XMLFile.xml" />
     <Content Include="lib\Helper.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -305,11 +345,8 @@
       <ErrorText>此專案參考這部電腦上所缺少的 NuGet 套件。請啟用 NuGet 套件還原，以下載該套件。如需詳細資訊，請參閱 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的檔案是 {0}。</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets'))" />
-    <Error Condition="!Exists('..\packages\Fody.6.5.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.6.5.1\build\Fody.targets'))" />
-    <Error Condition="!Exists('..\packages\PropertyChanged.Fody.3.4.0\build\PropertyChanged.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PropertyChanged.Fody.3.4.0\build\PropertyChanged.Fody.props'))" />
     <Error Condition="!Exists('..\packages\MaterialDesignThemes.4.2.1\build\MaterialDesignThemes.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MaterialDesignThemes.4.2.1\build\MaterialDesignThemes.targets'))" />
   </Target>
   <Import Project="..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets" Condition="Exists('..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets')" />
-  <Import Project="..\packages\Fody.6.5.1\build\Fody.targets" Condition="Exists('..\packages\Fody.6.5.1\build\Fody.targets')" />
   <Import Project="..\packages\MaterialDesignThemes.4.2.1\build\MaterialDesignThemes.targets" Condition="Exists('..\packages\MaterialDesignThemes.4.2.1\build\MaterialDesignThemes.targets')" />
 </Project>

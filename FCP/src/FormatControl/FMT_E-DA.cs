@@ -25,8 +25,10 @@ namespace FCP.src.FormatControl
                     float sumQty = float.Parse(list[10]);
                     if (list.Count <= 1 || adminCode == "BID+HS")
                         continue;
-                    if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
+                    if (FilterRule(adminCode, medicineCode))
+                    {
                         continue;
+                    }
                     if (!IsExistsCombiAdminCode(adminCode))
                     {
                         LostCombiAdminCode(adminCode);
@@ -64,9 +66,7 @@ namespace FCP.src.FormatControl
                 if (_batch.Count == 0)
                 {
                     Pass();
-                    return;
                 }
-                Success();
             }
             catch (Exception ex)
             {

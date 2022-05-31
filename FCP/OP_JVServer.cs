@@ -66,7 +66,7 @@ namespace FCP
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                LogService.Exception(ex);
                 throw;
             }
         }

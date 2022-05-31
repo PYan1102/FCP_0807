@@ -52,8 +52,10 @@ namespace FCP.src.FormatControl
                         return;
                     }
                     bool powder = node.Attributes["memo"].Value == "P";  //P為磨粉
-                    if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode) || powder || NeedFilterMedicineCode(medicineCode))
+                    if (FilterRule(adminCode, medicineCode) || powder)
+                    {
                         continue;
+                    }
                     if (!IsExistsMultiAdminCode(adminCode))
                     {
                         LostMultiAdminCode(adminCode);
@@ -118,9 +120,7 @@ namespace FCP.src.FormatControl
                 if (_opd.Count == 0 || ComparePrescription.IsPrescriptionRepeat(SourceFilePath, _basic, _opd))
                 {
                     Pass();
-                    return;
                 }
-                Success();
             }
             catch (Exception ex)
             {

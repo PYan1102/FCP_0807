@@ -1,4 +1,4 @@
-﻿<Window x:Class="FCP.Views.Msg"
+﻿<Window x:Class="FCP.Views.MsgView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -20,8 +20,7 @@
         Width="650"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        WindowStyle="None"
-        Visibility="{Binding WindowVisibility}">
+        WindowStyle="None">
     <Window.Style>
         <Style>
             <Style.Triggers>
@@ -31,12 +30,6 @@
             </Style.Triggers>
         </Style>
     </Window.Style>
-    <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Closed">
-            <i:InvokeCommandAction Command="{Binding WindowClosed}"
-                                   CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"/>
-        </i:EventTrigger>
-    </i:Interaction.Triggers>
     <Window.Resources>
         <ResourceDictionary>
             <RoutedCommand x:Key="Close" />
@@ -45,26 +38,20 @@
     <Window.InputBindings>
         <KeyBinding Gesture="Escape"
                     Command="{Binding Close}"
-                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,
-                    AncestorType={x:Type Window}}}"/>
+                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"/>
     </Window.InputBindings>
     <Window.CommandBindings>
         <CommandBinding Command="{StaticResource Close}"/>
     </Window.CommandBindings>
-    <Border BorderBrush="{StaticResource DeepBlue}"
+    <Border BorderBrush="{StaticResource DarkBlue}"
             BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid Background="{StaticResource DeepBlue}">
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="MouseLeftButtonDown">
-                        <i:InvokeCommandAction Command="{Binding DragMove}"
-                                               CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}}"/>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
+            <Grid Background="{StaticResource DarkBlue}"
+                  MouseLeftButtonDown="Grid_MouseLeftButtonDown">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
@@ -104,24 +91,25 @@
                     <materialDesign:PackIcon x:Name="MsgIcon"
                                              Width="30"
                                              Height="30"
-                                             Foreground="Red"
+                                             Foreground="{Binding KindColor}"
                                              Kind="{Binding Kind}"
                                              Margin="0 -5 0 0"/>
                     <ScrollViewer Grid.Row="1"
                                   VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Auto">
+                                  HorizontalScrollBarVisibility="Auto"
+                                   FocusVisualStyle="{x:Null}">
                         <TextBlock x:Name="MsgContent"
                                    FontSize="14"
+                                   FocusVisualStyle="{x:Null}"
                                    Text="{Binding Content}"
-                                   Foreground="{StaticResource DeepBlue}"/>
+                                   Foreground="{StaticResource DarkBlue}"/>
                     </ScrollViewer>
                     <Button x:Name="Btn_OK"
                             Grid.Row="2"
                             Width="150"
                             Height="auto"
                             Command="{Binding Close}"
-                            CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, 
-                           AncestorType={x:Type Window}}}"
+                            CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
                             Style="{StaticResource MsgOKButton}">
                         <TextBlock FontSize="20"
                                    Text="OK"/>

@@ -1,23 +1,24 @@
 ﻿using System.Windows;
 using System.Windows.Input;
-using FCP.Core;
 using FCP.Models;
 using FCP.src.Factory.Models;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 
 namespace FCP.ViewModels
 {
-    class SettingsPage2ViewModel : ViewModelBase
+    class SettingPage2ViewModel : ObservableObject
     {
         public ICommand ShowOnlyCanisterIn { get; set; }
         private SettingPage2Model _model;
-        private SettingModel _settingModel;
+        private SettingJsonModel _settingModel;
 
-        public SettingsPage2ViewModel()
+        public SettingPage2ViewModel()
         {
             _settingModel = ModelsFactory.GenerateSettingModel();
             _model = ModelsFactory.GenerateSettingPage2Model();
 
-            ShowOnlyCanisterIn = new RelayCommand(() => ShowOnlyCanisterInFunc());
+            ShowOnlyCanisterIn = new RelayCommand(ShowOnlyCanisterInFunc);
 
             Init();
         }
@@ -80,6 +81,11 @@ namespace FCP.ViewModels
         {
             get => _model.FileExtensionName;
             set => _model.FileExtensionName = value;
+        }
+
+        public void ResetModel()
+        {
+            Init();
         }
 
         private void Init()

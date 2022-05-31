@@ -49,8 +49,10 @@ namespace FCP.src.FormatControl
                         _separateIndex = _separateIndex == 0 ? _opd.Count : _separateIndex;
                         continue;
                     }
-                    if (IsFilterMedicineCode(medicineCode) || IsFilterAdminCode(adminCode))
+                    if (FilterRule(adminCode, medicineCode))
+                    {
                         continue;
+                    }
                     _opd.Add(new HongYenOPD()
                     {
                         MedicineCode = medicineCode,
@@ -66,9 +68,7 @@ namespace FCP.src.FormatControl
                 if (_opd.Count == 0)
                 {
                     Pass();
-                    return;
                 }
-                Success();
             }
             catch (Exception ex)
             {

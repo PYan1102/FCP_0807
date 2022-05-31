@@ -2,6 +2,8 @@
 using FCP.src.Enum;
 using System.Windows;
 using FCP.Models;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using FCP.src.MessageManager;
 
 namespace FCP.src.FormatInit
 {
@@ -12,20 +14,18 @@ namespace FCP.src.FormatInit
         public override void Init()
         {
             base.Init();
-            MainWindowVM.OPDToogle1Checked = true;
+            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToogleModel() { Toogle1 = true }));
         }
 
-        public override void ConvertPrepare()
+        public override ActionResult PrepareStart()
         {
-            base.ConvertPrepare();
             SetFileSearchMode(eFileSearchMode.根據檔名開頭);
             SetBatchRule();
-            Start();
+            return base.PrepareStart();
         }
 
         public override void Converter()
         {
-            base.Converter();
             _format = _format ?? new FMT_E_DA();
             var result = _format.DepartmentShunt();
             Result(result, true);

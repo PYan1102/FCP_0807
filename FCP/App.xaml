@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:FCP"
              xmlns:vm="clr-namespace:FCP.ViewModels"
              xmlns:v="clr-namespace:FCP.Views"
-             StartupUri="Views/MainWindow.xaml">
+             StartupUri="Views/MainWindowView.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -18,11 +18,11 @@
                 <ResourceDictionary Source="Theme/DataGridHeaderTheme.xaml"/>
                 <ResourceDictionary Source="Theme/TextBlockTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <DataTemplate DataType="{x:Type vm:SettingsPage1ViewModel}">
-                <v:SettingsPage1View/>
+            <DataTemplate DataType="{x:Type vm:SettingPage1ViewModel}">
+                <v:SettingPage1View/>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:SettingsPage2ViewModel}">
-                <v:SettingsPage2View/>
+            <DataTemplate DataType="{x:Type vm:SettingPage2ViewModel}">
+                <v:SettingPage2View/>
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>

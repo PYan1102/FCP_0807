@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:FCP.Views"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:vm="clr-namespace:FCP.ViewModels"
+        xmlns:vm="FCP.ViewModels.SimpleWindowViewModel"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
@@ -17,16 +17,17 @@
         FontFamily="{DynamicResource MaterialDesignFont}"
         Title="FCP"
         Height="149"
-        Width="450"
-        Top="{Binding Top,Mode=TwoWay}"
-        Left="{Binding Left,Mode=TwoWay}"
+        Width="350"
+        Top="{Binding Top, Mode = TwoWay}"
+        Left="{Binding Left, Mode = TwoWay}"
         WindowStyle="None"
         ResizeMode="NoResize"
         Background="Transparent"
         AllowsTransparency="True"
-        IsEnabled="{Binding Enabled,Mode=TwoWay}"
-        Visibility="{Binding Visibility,Mode=TwoWay}"
-        Topmost="{Binding Topmost}">
+        Visibility="{Binding Visibility, Mode = TwoWay}"
+        Loaded="Window_Loaded"
+        Unloaded="Window_Unloaded"
+        x:Name="Window">
     <i:Interaction.Triggers>
         <i:DataTrigger Binding="{Binding Visibility}" Value="Visible">
             <i:InvokeCommandAction Command="{Binding Activate}"
@@ -40,12 +41,90 @@
         <ResourceDictionary>
             <SolidColorBrush x:Key="ShallowBlue" Color="#7B97AB"/>
             <SolidColorBrush x:Key="NormalBlue" Color="#3797E3"/>
-            <SolidColorBrush x:Key="DeepBlue" Color="#1D6FB1"/>
+            <SolidColorBrush x:Key="DarkBlue" Color="#1D6FB1"/>
             <RoutedCommand x:Key="SwitchWindow"/>
             <RoutedCommand x:Key="StartConverter"/>
             <RoutedCommand x:Key="StopConverter"/>
             <RoutedCommand x:Key="UDConverter"/>
             <RoutedCommand x:Key="Exit"/>
+            
+            <Storyboard x:Key="ShowLog">
+                <DoubleAnimation Storyboard.TargetName="Border_Log"
+                                 Storyboard.TargetProperty="Width"
+                                 From="0"
+                                 To="92"
+                                 Duration="0:0:0.5">
+                    <DoubleAnimation.EasingFunction>
+                        <CubicEase EasingMode="EaseOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+                <DoubleAnimation Storyboard.TargetName="Btn_ShowLog"
+                                 Storyboard.TargetProperty="Width"
+                                 Duration="0:0:0"
+                                 From="10"
+                                 To="0">
+                    <DoubleAnimation.EasingFunction>
+                        <CubicEase EasingMode="EaseOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+                <DoubleAnimation Storyboard.TargetName="Btn_CloseLog"
+                                 Storyboard.TargetProperty="Width"
+                                 Duration="0:0:0"
+                                 From="0"
+                                 To="10">
+                    <DoubleAnimation.EasingFunction>
+                        <CubicEase EasingMode="EaseOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+                <DoubleAnimation Storyboard.TargetName="Window"
+                                 Storyboard.TargetProperty="Width"
+                                 From="350"
+                                 To="450"
+                                 Duration="0:0:0.5">
+                    <DoubleAnimation.EasingFunction>
+                        <CubicEase EasingMode="EaseOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+            </Storyboard>
+
+            <Storyboard x:Key="CloseLog">
+                <DoubleAnimation Storyboard.TargetName="Border_Log"
+                                 Storyboard.TargetProperty="Width"
+                                 From="92"
+                                 To="0"
+                                 Duration="0:0:0.5">
+                    <DoubleAnimation.EasingFunction>
+                        <CubicEase EasingMode="EaseOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+                <DoubleAnimation Storyboard.TargetName="Btn_ShowLog"
+                                 Storyboard.TargetProperty="Width"
+                                 Duration="0:0:0"
+                                 From="0"
+                                 To="10">
+                    <DoubleAnimation.EasingFunction>
+                        <CubicEase EasingMode="EaseOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+                <DoubleAnimation Storyboard.TargetName="Btn_CloseLog"
+                                 Storyboard.TargetProperty="Width"
+                                 Duration="0:0:0"
+                                 From="10"
+                                 To="0">
+                    <DoubleAnimation.EasingFunction>
+                        <CubicEase EasingMode="EaseOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+                <DoubleAnimation Storyboard.TargetName="Window"
+                                 Storyboard.TargetProperty="Width"
+                                 From="450"
+                                 To="350"
+                                 Duration="0:0:0.5">
+                    <DoubleAnimation.EasingFunction>
+                        <CubicEase EasingMode="EaseOut"/>
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+            </Storyboard>
         </ResourceDictionary>
     </Window.Resources>
     <Window.InputBindings>
@@ -55,20 +134,21 @@
         <KeyBinding Gesture="F7" Command="{Binding Stop}"/>
         <KeyBinding Gesture="Escape" Command="{Binding Close}"/>
     </Window.InputBindings>
-    <Border>
+    <Border CornerRadius="13">
+        <Border.Background>
+            <LinearGradientBrush EndPoint="0.5,1"
+                                         StartPoint="0.5,0">
+                <GradientStop Color="#FF3694E4"/>
+                <GradientStop Color="#FF155385" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="348"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid>
-                <Grid.Background>
-                    <LinearGradientBrush EndPoint="0.5,1"
-                                         StartPoint="0.5,0">
-                        <GradientStop Color="#FF3694E4"/>
-                        <GradientStop Color="#FF155385" Offset="1"/>
-                    </LinearGradientBrush>
-                </Grid.Background>
+
                 <Grid.RowDefinitions>
                     <RowDefinition Height="35"/>
                     <RowDefinition Height="*"/>
@@ -135,7 +215,7 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <Button FontSize="16"
-                                Foreground="{StaticResource DeepBlue}"
+                                Foreground="{StaticResource DarkBlue}"
                                 Height="Auto"
                                 materialDesign:ButtonAssist.CornerRadius="5"
                                 Background="{Binding OPDBackground}"
@@ -152,7 +232,7 @@
                                                          Width="35"/>
                                 <TextBlock x:Name="Txtb_StartConverter"
                                            FontSize="18"
-                                           Foreground="{StaticResource DeepBlue}"
+                                           Foreground="{StaticResource DarkBlue}"
                                            Text="{Binding OPDContent}"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
@@ -161,7 +241,7 @@
                         </Button>
                         <Button Grid.Column="1"
                                 FontSize="16"
-                                Foreground="{StaticResource DeepBlue}"
+                                Foreground="{StaticResource DarkBlue}"
                                 Height="Auto"
                                 materialDesign:ButtonAssist.CornerRadius="5"
                                 Background="{Binding StopBackground}"
@@ -176,7 +256,7 @@
                                                          Height="35"
                                                          Width="35"/>
                                 <TextBlock FontSize="18"
-                                           Foreground="{StaticResource DeepBlue}"
+                                           Foreground="{StaticResource DarkBlue}"
                                            Text="停止轉檔F7"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
@@ -185,7 +265,7 @@
                         </Button>
                         <Button Grid.Row="1"
                                 FontSize="16"
-                                Foreground="{StaticResource DeepBlue}"
+                                Foreground="{StaticResource DarkBlue}"
                                 Height="Auto"
                                 materialDesign:ButtonAssist.CornerRadius="5"
                                 Background="{Binding UDBackground}"
@@ -204,7 +284,7 @@
                                                          Margin="7 0 0 0"/>
                                 <TextBlock x:Name="Txtb_UD"
                                            FontSize="18"
-                                           Foreground="{StaticResource DeepBlue}"
+                                           Foreground="{StaticResource DarkBlue}"
                                            Text="住 院F6"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
@@ -226,13 +306,13 @@
                                     <ColumnDefinition Width="0.5*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <RadioButton Background="{StaticResource DeepBlue}"
+                                <RadioButton Background="{StaticResource DarkBlue}"
                                              HorizontalAlignment="Center"
                                              GroupName="UDFormat"
                                              IsChecked="{Binding StatChecked}"/>
                                 <Border Grid.Column="1"
                                         CornerRadius="0 6 6 0"
-                                        Background="{StaticResource DeepBlue}"
+                                        Background="{StaticResource DarkBlue}"
                                         Margin="0 3.2 3 3"
                                         HorizontalAlignment="Stretch">
                                     <TextBlock FontSize="18"
@@ -258,13 +338,13 @@
                                     <ColumnDefinition Width="0.5*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <RadioButton Background="{StaticResource DeepBlue}"
+                                <RadioButton Background="{StaticResource DarkBlue}"
                                              HorizontalAlignment="Center"
                                              GroupName="UDFormat"
                                              IsChecked="{Binding BatchChecked}"/>
                                 <Border Grid.Column="1"
                                         CornerRadius="0 6 6 0"
-                                        Background="{StaticResource DeepBlue}"
+                                        Background="{StaticResource DarkBlue}"
                                         Margin="0 3.2 3 3"
                                         HorizontalAlignment="Stretch">
                                     <TextBlock FontSize="18"
@@ -277,48 +357,68 @@
                         </Border>
                     </Grid>
                 </Border>
-                <Button Grid.Row="1"
+                <Button x:Name="Btn_ShowLog"
+                        Grid.Row="1"
                         Grid.Column="1"
                         Width="10"
                         Height="50"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
                         Background="White"
-                        BorderBrush="Transparent"
-                        Command="{Binding ShowAndCloseLog}">
+                        BorderBrush="Transparent">
+                    <Button.Triggers>
+                        <EventTrigger RoutedEvent="Button.Click">
+                            <BeginStoryboard Storyboard="{StaticResource ShowLog}"/>
+                        </EventTrigger>
+                    </Button.Triggers>
+                    <materialDesign:PackIcon Kind="Play"
+                                             Margin="-6.5 20 0 0"
+                                             Width="10"
+                                             Height="10"
+                                             Foreground="{StaticResource DarkBlue}">
+                        <materialDesign:PackIcon.RenderTransform>
+                            <RotateTransform Angle="180"/>
+                        </materialDesign:PackIcon.RenderTransform>
+                    </materialDesign:PackIcon>
+                </Button>
+                <Button x:Name="Btn_CloseLog"
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Width="0"
+                        Height="50"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Background="White"
+                        BorderBrush="Transparent">
+                    <Button.Triggers>
+                        <EventTrigger RoutedEvent="Button.Click">
+                            <BeginStoryboard Storyboard="{StaticResource CloseLog}"/>
+                        </EventTrigger>
+                    </Button.Triggers>
                     <materialDesign:PackIcon Kind="Play"
                                              Margin="-16 0 0 0"
                                              Width="10"
                                              Height="10"
-                                             Foreground="{StaticResource DeepBlue}"/>
-                </Button>
-                <Button Grid.Row="1"
-                        Grid.Column="1"
-                        Width="10"
-                        Height="10"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom"
-                        Background="White"
-                        BorderBrush="Transparent"
-                        Margin="0 0 0 10"
-                        Command="{Binding ClearLog}">
-                    <materialDesign:PackIcon Kind="Eraser"
-                                             Margin="-16 -4 0 -3"
-                                             Width="10"
-                                             Height="10"
-                                             Foreground="{StaticResource DeepBlue}"/>
+                                             Foreground="{StaticResource DarkBlue}"/>
                 </Button>
             </Grid>
-            <TextBox FontSize="12"
-                     IsReadOnly="True"
-                     Grid.Column="1"
-                     Background="White"
-                     Foreground="{StaticResource DeepBlue}"
-                     TextWrapping="Wrap"
-                     Text="{Binding Log}"
-                     ScrollViewer.VerticalScrollBarVisibility="Auto"
-                     Visibility="{Binding LogVisibility}">
-            </TextBox>
+            <Border x:Name="Border_Log"
+                    Grid.Column="1"
+                    CornerRadius="10"
+                    Background="White"
+                    HorizontalAlignment="Left"
+                    Width="0"
+                    Margin="5">
+                <TextBox FontSize="12"
+                         IsReadOnly="True"
+                         Width="Auto"
+                         Background="Transparent"
+                         Foreground="{StaticResource DarkBlue}"
+                         TextWrapping="Wrap"
+                         Text="{Binding Log}"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto">
+                </TextBox>
+            </Border>
         </Grid>
     </Border>
 </Window>

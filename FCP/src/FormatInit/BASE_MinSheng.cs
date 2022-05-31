@@ -4,6 +4,8 @@ using FCP.src.FormatControl;
 using FCP.Services;
 using System.Windows;
 using FCP.Models;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using FCP.src.MessageManager;
 
 namespace FCP.src.FormatInit
 {
@@ -14,25 +16,21 @@ namespace FCP.src.FormatInit
         public override void Init()
         {
             base.Init();
-            MainWindowVM.OPDToogle1Checked = true;
-            MainWindowVM.OPDToogle3Checked = true;
-            MainWindowVM.OPDToogle4Checked = true;
+            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToogleModel() { Toogle1 = true, Toogle3 = true, Toogle4 = true }));
         }
 
-        public override void ConvertPrepare()
+        public override ActionResult PrepareStart()
         {
-            base.ConvertPrepare();
             SetFileSearchMode(eFileSearchMode.根據檔名開頭);
             SetOPDRule("N");
             SetCareRule("E");
             SetOtherRule("K");
             SetBatchRule();
-            Start();
+            return base.PrepareStart();
         }
 
         public override void Converter()
         {
-            base.Converter();
             string fileDate = Path.GetFileNameWithoutExtension(FileInfoModel.SourceFilePath).Substring(1);
             JsonService.JudgeJsonFileIsAlreadyCreated(fileDate);
             _format = _format ?? new FMT_MinSheng();

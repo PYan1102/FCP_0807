@@ -1,11 +1,10 @@
-﻿<Window x:Class="FCP.Views.AdvancedSettings"
+﻿<Window x:Class="FCP.Views.SettingView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FCP"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:vm="clr-namespace:FCP.ViewModels"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -20,11 +19,12 @@
         Width="750"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize"
-        WindowStyle="None"
-        Visibility="{Binding Visibility}">
+        Background="Transparent"
+        AllowsTransparency="True"
+        WindowStyle="None">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
-            <i:InvokeCommandAction Command="{Binding Page1}"/>
+            <i:InvokeCommandAction Command="{Binding Page1Loaded}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Window.Resources>
@@ -34,21 +34,20 @@
         </ResourceDictionary>
     </Window.Resources>
     <Window.InputBindings>
-        <KeyBinding Gesture="Ctrl+S" Command="{Binding Save}"/>
-        <KeyBinding Gesture="Escape" Command="{Binding Close}"/>
+        <KeyBinding Gesture="Ctrl+S"
+                    Command="{Binding Save}"/>
+        <KeyBinding Gesture="Escape"
+                    Command="{Binding Close}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"/>
     </Window.InputBindings>
-    <Window.CommandBindings>
-        <CommandBinding Command="{StaticResource Save}"/>
-        <CommandBinding Command="{StaticResource Close}"/>
-    </Window.CommandBindings>
-    <Border BorderBrush="{StaticResource DeepBlue}" BorderThickness="1">
+    <Border CornerRadius="13">
+        <Border.Background>
+            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="#FF3694E4"/>
+                <GradientStop Color="#FF155385" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
         <Grid>
-            <Grid.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FF3694E4"/>
-                    <GradientStop Color="#FF155385" Offset="1"/>
-                </LinearGradientBrush>
-            </Grid.Background>
             <Grid.RowDefinitions>
                 <RowDefinition Height="35"/>
                 <RowDefinition Height="*"/>
@@ -70,7 +69,8 @@
                         Foreground="White"
                         Background="Transparent"
                         BorderBrush="Transparent"
-                        Command="{Binding Close}">
+                        Command="{Binding Close}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}">
                     <materialDesign:PackIcon Kind="Close"
                                              Height="30"
                                              Width="30"
@@ -80,10 +80,10 @@
             <Border Grid.Row="1" Padding="10">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="0.8*"/>
+                        <RowDefinition Height="50"/>
                         <RowDefinition Height="10"/>
-                        <RowDefinition Height="450"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="480"/>
+                        <RowDefinition Height="55"/>
                     </Grid.RowDefinitions>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -92,27 +92,23 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="4*"/>
                         </Grid.ColumnDefinitions>
-                        <Button x:Name="Btn_Page1"
-                                materialDesign:ButtonAssist.CornerRadius="5"
-                                Height="auto"
+                        <Button materialDesign:ButtonAssist.CornerRadius="5"
                                 Margin="0 0 5 0"
                                 Style="{StaticResource PageButton}"
-                                Background="{Binding Page1Backround}"
+                                Background="{Binding Page1Background}"
                                 Foreground="{Binding Page1Foreground}"
-                                Command="{Binding Page1}">
+                                Command="{Binding Page1Loaded}">
                             <materialDesign:PackIcon Kind="Numeric1Box"
                                                      Height="30"
                                                      Width="30"/>
                         </Button>
-                        <Button x:Name="Btn_Page2"
-                                Grid.Column="1"
+                        <Button Grid.Column="1"
                                 materialDesign:ButtonAssist.CornerRadius="5"
-                                Height="auto"
                                 Margin="0 0 5 0"
                                 Style="{StaticResource PageButton}"
-                                Background="{Binding Page2Backround}"
+                                Background="{Binding Page2Background}"
                                 Foreground="{Binding Page2Foreground}"
-                                Command="{Binding Page2}">
+                                Command="{Binding Page2Loaded}">
                             <materialDesign:PackIcon Kind="Numeric2Box"
                                                      Height="30"
                                                      Width="30"/>
@@ -120,34 +116,24 @@
                     </Grid>
                     <DockPanel Grid.Row="3"
                                HorizontalAlignment="Right">
-                        <Button Background="White"
-                                        Foreground="{StaticResource DeepBlue}"
-                                        BorderBrush="Transparent"
-                                        FontSize="20"
-                                        Width="150"
-                                        Height="Auto"
-                                        HorizontalAlignment="Right"
-                                        materialDesign:ButtonAssist.CornerRadius="5"
-                                        Command="{Binding Save}"
+                        <Button BorderBrush="Transparent"
+                                FontSize="20"
+                                Width="150"
+                                Command="{Binding Save}"
                                 Content="儲存"
-                                        Margin="0 10 10 10"/>
-                        <Button Background="White"
-                                        Foreground="{StaticResource DeepBlue}"
-                                        BorderBrush="Transparent"
-                                        FontSize="20"
-                                        Width="150"
-                                        Height="Auto"
-                                        HorizontalAlignment="Right"
-                                        materialDesign:ButtonAssist.CornerRadius="5"
-                                        Command="{Binding Cancel}"
+                                Margin="0 0 10 0"/>
+                        <Button BorderBrush="Transparent"
+                                FontSize="20"
+                                Width="150"
+                                Command="{Binding Cancel}"
                                 Content="取消"
-                                        Margin="0 10 10 10"/>
+                                Margin="0 0 10 0"/>
                     </DockPanel>
+                    <ContentControl Grid.Row="2"
+                                    Name="Control"
+                                    Content="{Binding CurrentView}"/>
                 </Grid>
             </Border>
-            <ContentControl Name="Control"
-                            Grid.Row="2"
-                            Content="{Binding CurrentView}"/>
         </Grid>
     </Border>
 </Window>
