@@ -21,19 +21,19 @@
                 <RowDefinition Height="45"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid>
+            <DockPanel>
                 <Border CornerRadius="7"
                         Background="{StaticResource DarkBlue}"
                         Margin="5 5 5 0">
+                    <TextBlock Text="開關設定"
+                               Foreground="White"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"
+                               Margin="0 4 0 0"/>
                 </Border>
-                <TextBlock Text="基本設定"
-                           Foreground="White"
-                           FontSize="18"
-                           FontWeight="Bold"
-                           VerticalAlignment="Center"
-                           HorizontalAlignment="Center"
-                           Margin="0 4 0 0"/>
-            </Grid>
+            </DockPanel>
             <Grid Grid.Row="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
@@ -134,6 +134,12 @@
                     <TextBlock Grid.Row="7"
                                Text="轉檔完成停止"
                                Style="{StaticResource FeatureTextBlock}"/>
+                    <ToggleButton Grid.Row="8"
+                                  HorizontalAlignment="Left"
+                                  IsChecked="{Binding IgnoreAdminCodeIfNotInOnCubeChecked}"/>
+                    <TextBlock Grid.Row="8"
+                               Text="忽略不在OnCube中的頻率"
+                               Style="{StaticResource FeatureTextBlock}"/>
                 </Grid>
                 <Border Grid.Column="2"
                         Padding="10"
@@ -177,7 +183,7 @@
                     <TextBox Grid.Row="1"
                              Width="60"
                              Style="{StaticResource OtherTextBox}"
-                             Text="{Binding FileExtensionName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                             Text="{Binding FileExtensionName,UpdateSourceTrigger=PropertyChanged}"
                              InputMethod.IsInputMethodEnabled="False"
                              Margin="90 0 0 0"/>
                 </Grid>

@@ -4,4 +4,6 @@
     <SolidColorBrush x:Key="ShallowBlue"  Color="#7B97AB"/>
     <SolidColorBrush x:Key="NormalBlue" Color="#3797E3"/>
     <SolidColorBrush x:Key="DarkBlue" Color="#1D6FB1"/>
+    <SolidColorBrush x:Key="RoyalBlue" Color="#0064D5"/>
+    <SolidColorBrush x:Key="Red" Color="#F84747"/>
 </ResourceDictionary>

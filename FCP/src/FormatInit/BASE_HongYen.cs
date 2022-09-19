@@ -1,20 +1,20 @@
 ﻿using System;
 using FCP.src.Enum;
-using FCP.src.FormatControl;
+using FCP.src.FormatLogic;
 using FCP.Models;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using FCP.src.MessageManager;
 
 namespace FCP.src.FormatInit
 {
-    class BASE_HongYen : FormatBase
+    class BASE_HongYen : ConvertBase
     {
         private FMT_HongYen _format;
 
         public override void Init()
         {
             base.Init();
-            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToogleModel() { Toogle1 = true }));
+            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToggleModel() { Toggle1 = true }));
         }
 
         public override ActionResult PrepareStart()

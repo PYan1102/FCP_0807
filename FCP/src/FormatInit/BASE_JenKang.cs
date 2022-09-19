@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.IO;
 using FCP.src.Enum;
-using FCP.src.FormatControl;
+using FCP.src.FormatLogic;
 using System.Windows;
 using FCP.Models;
 using Microsoft.Toolkit.Mvvm.Messaging;
@@ -9,14 +9,14 @@ using FCP.src.MessageManager;
 
 namespace FCP.src.FormatInit
 {
-    class BASE_JenKang : FormatBase
+    class BASE_JenKang : ConvertBase
     {
         private FMT_JenKang _format;
 
         public override void Init()
         {
             base.Init();
-            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToogleModel() { Toogle1 = true }));
+            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToggleModel() { Toggle1 = true }));
         }
 
         public override ActionResult PrepareStart()

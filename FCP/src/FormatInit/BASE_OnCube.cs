@@ -1,19 +1,19 @@
 ﻿using FCP.Models;
 using FCP.src.Enum;
-using FCP.src.FormatControl;
+using FCP.src.FormatLogic;
 using FCP.src.MessageManager;
 using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace FCP.src.FormatInit
 {
-    class BASE_OnCube : FormatBase
+    class BASE_OnCube : ConvertBase
     {
         private FMT_OnCube _format;
 
         public override void Init()
         {
             base.Init();
-            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToogleModel() { Toogle1 = true }));
+            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToggleModel() { Toggle1 = true }));
         }
 
         public override ActionResult PrepareStart()

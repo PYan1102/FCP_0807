@@ -2,14 +2,14 @@
 using System.Windows;
 using System.Runtime.InteropServices;
 using System.Windows.Input;
-using FCP.Models;
 using FCP.ViewModels;
-using SqlHelper;
 using FCP.Services;
-using Helper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using FCP.src.MessageManager;
+using System.Windows.Controls;
+using FCP.Models;
+using SqlHelper;
 
 namespace FCP.Views
 {
@@ -25,10 +25,7 @@ namespace FCP.Views
             _mainWindowVM = App.Current.Services.GetService<MainWindowViewModel>();
             this.DataContext = _mainWindowVM;
             Setting.Init();
-
             CommonModel.SqlHelper = SqlConnectionFactory.GetConnection(eConnectionType.MsSql);
-            CommonModel.SqlHelper.ConnectionStr = CommonModel.SqlConnection;
-            CommonModel.SqlHelper.InitDb();
         }
 
         public string CurrentWindow { get; set; }
@@ -133,15 +130,21 @@ namespace FCP.Views
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             _mainWindowVM.IsActive = true;
-            WeakReferenceMessenger.Default.Register<ActivateMessage, string>(this, nameof(MainWindowView), (r, m) => { ActivateWindow(); });
-            WeakReferenceMessenger.Default.Register<ShowDialogMessage, string>(this, nameof(SettingView), (r, m) => { SettingViewShowDialog(); });
-            WeakReferenceMessenger.Default.Register<ShowDialogMessage, string>(this, nameof(SimpleWindowView), (r, m) => { SimpleWindowViewShowDialog(); });
+            WeakReferenceMessenger.Default.Register<ActivateMessage, string>(this, nameof(MainWindowView), (r, m) =>  ActivateWindow());
+            WeakReferenceMessenger.Default.Register<ShowDialogMessage, string>(this, nameof(SettingView), (r, m) =>  SettingViewShowDialog());
+            WeakReferenceMessenger.Default.Register<ShowDialogMessage, string>(this, nameof(SimpleWindowView), (r, m) =>  SimpleWindowViewShowDialog());
         }
 
         private void Window_Unloaded(object sender, RoutedEventArgs e)
         {
             _mainWindowVM.IsActive = false;
             WeakReferenceMessenger.Default.UnregisterAll(this);
+        }
+
+        private void Txt_ProgressBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            textBox.ScrollToEnd();
         }
     }
 }

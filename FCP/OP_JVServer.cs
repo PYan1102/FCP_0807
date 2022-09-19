@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using System.Data;
 using Helper;
-using FCP.src.FormatControl;
+using FCP.src.FormatLogic;
 
 namespace FCP
 {

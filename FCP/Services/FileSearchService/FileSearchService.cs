@@ -43,13 +43,8 @@ namespace FCP.Services.FileSearchService
                 {
                     return;
                 }
-                MatchModel model = MatchDepartment.Macth(matchModel, sourceFilePath);
-                if (model == null)
-                {
-                    return;
-                }
                 FileInfoModel.InputDirectory = Path.GetDirectoryName(sourceFilePath);
-                FileInfoModel.Department = model.Department;
+                FileInfoModel.Department = _getFile.GetDepartment;
                 FileInfoModel.SourceFilePath = sourceFilePath;
                 FileInfoModel.CurrentDateTime = DateTime.Now;
             }

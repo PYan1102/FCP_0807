@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data.OleDb;
 using System.Globalization;
-using FCP.src.FormatControl;
+using FCP.src.FormatLogic;
 using Helper;
 
 namespace FCP.src.SQL

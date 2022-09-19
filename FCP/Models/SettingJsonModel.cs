@@ -3,7 +3,7 @@ using FCP.src.Enum;
 
 namespace FCP.Models
 {
-    public class SettingJsonModel
+    public sealed class SettingJsonModel
     {
         public string InputDirectory1 { get; set; } = string.Empty;
         public string InputDirectory2 { get; set; } = string.Empty;
@@ -17,28 +17,36 @@ namespace FCP.Models
         public eFormat Format { get; set; } = eFormat.JVS;
         public int Speed { get; set; } = 500;
         public ePackMode PackMode { get; set; } = ePackMode.正常;
-        public List<string> FilterAdminCode { get; set; } = new List<string>();
+        public List<string> NeedToFilterAdminCode { get; set; } = new List<string>();
         public List<RandomInfo> ExtraRandom { get; set; } = new List<RandomInfo>();
         public eDoseType DoseType { get; set; } = eDoseType.餐包;
         public string OutputSpecialAdminCode { get; set; } = string.Empty;
         public eDepartment StatOrBatch { get; set; } = eDepartment.Stat;
         public string CrossDayAdminCode { get; set; } = string.Empty;
-        public List<string> FilterMedicineCode { get; set; } = new List<string>();
-        public bool UseStatOrBatch { get; set; } = false;
-        public bool WindowMinimize { get; set; } = false;
-        public bool ShowWindowOperationButton { get; set; } = false;
-        public bool ShowXYParameter { get; set; } = false;
-        public bool UseFilterMedicineCode { get; set; } = false;
-        public bool FilterNoCanister { get; set; } = false;
-        public bool MoveSourceFileToBackupDirectoryWhenDone { get; set; } = true;
-        public bool StopWhenDone { get; set; } = false;
-        public bool FiterNoCanister { get; internal set; }
+        public List<string> NeedToFilterMedicineCode { get; set; } = new List<string>();
+        public bool UseStatAndBatchOption { get; set; } = false;
+        public bool MinimizeWindowWhenProgramStart { get; set; } = false;
+        public bool ShowCloseAndMinimizeButton { get; set; } = false;
+        public bool ShowXY { get; set; } = false;
+        public bool FilterMedicineCode { get; set; } = false;
+        public bool OnlyCanisterIn { get; set; } = false;
+        public bool WhenCompeletedMoveFile { get; set; } = true;
+        public bool WhenCompeletedStop { get; set; } = false;
+        public bool IgnoreAdminCodeIfNotInOnCube { get; set; } = false;
+        public List<ETCInfo> ETCData { get; set; } = new List<ETCInfo>();
     }
 
-    public class RandomInfo
+    public sealed class RandomInfo
     {
         public string No { get; set; }
         public string JVServer { get; set; }
         public string OnCube { get; set; }
+    }
+
+    public sealed class ETCInfo
+    {
+        public int ETCIndex { get; set; }
+        public int PrescriptionParameterIndex { get; set; }
+        public string Format { get; set; }
     }
 }

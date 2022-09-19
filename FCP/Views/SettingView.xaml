@@ -19,9 +19,11 @@
         Width="750"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize"
-        Background="Transparent"
+        Background="{x:Null}"
         AllowsTransparency="True"
-        WindowStyle="None">
+        WindowStyle="None"
+        Loaded="Window_Loaded"
+        Unloaded="Window_Unloaded">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding Page1Loaded}"/>
@@ -52,31 +54,31 @@
                 <RowDefinition Height="35"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid x:Name="Gd_Title"
-                  Background="Transparent"
-                  MouseLeftButtonDown="Gd_Title_MouseLeftButtonDown">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="35"/>
-                    <ColumnDefinition Width="10"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="進階設定"
-                           FontSize="16"
-                           Foreground="White"
-                           VerticalAlignment="Center"
-                           Margin="10 0 0 0"/>
-                <Button Grid.Column="1"
-                        Foreground="White"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        Command="{Binding Close}"
-                        CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}">
-                    <materialDesign:PackIcon Kind="Close"
-                                             Height="30"
-                                             Width="30"
-                                             Margin="-14 -4 -10 0"/>
-                </Button>
-            </Grid>
+            <Border x:Name="Gd_Title"                 
+                    Background="#FF3490DE"
+                    CornerRadius="13 13 0 0"
+                    MouseLeftButtonDown="Gd_Title_MouseLeftButtonDown">
+                <DockPanel>
+                    <TextBlock Text="進階設定"
+                               FontSize="16"
+                               Foreground="White"
+                               VerticalAlignment="Center"
+                               Margin="10 0 0 0"/>
+                    <Button Grid.Column="1"
+                            Command="{Binding Close}"
+                            Background="{x:Null}"
+                            BorderBrush="{x:Null}"
+                            HorizontalAlignment="Right"
+                            CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                            Style="{StaticResource ControlButton}"
+                            Margin="0 0 10 0">
+                        <materialDesign:PackIcon Kind="Close"
+                                                 Height="30"
+                                                 Width="30"
+                                                 Margin="-15.5 -3 -10 0"/>
+                    </Button>
+                </DockPanel>
+            </Border>
             <Border Grid.Row="1" Padding="10">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -85,16 +87,8 @@
                         <RowDefinition Height="480"/>
                         <RowDefinition Height="55"/>
                     </Grid.RowDefinitions>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="4*"/>
-                        </Grid.ColumnDefinitions>
-                        <Button materialDesign:ButtonAssist.CornerRadius="5"
-                                Margin="0 0 5 0"
-                                Style="{StaticResource PageButton}"
+                    <DockPanel>
+                        <Button Style="{StaticResource PageButton}"
                                 Background="{Binding Page1Background}"
                                 Foreground="{Binding Page1Foreground}"
                                 Command="{Binding Page1Loaded}">
@@ -102,10 +96,7 @@
                                                      Height="30"
                                                      Width="30"/>
                         </Button>
-                        <Button Grid.Column="1"
-                                materialDesign:ButtonAssist.CornerRadius="5"
-                                Margin="0 0 5 0"
-                                Style="{StaticResource PageButton}"
+                        <Button Style="{StaticResource PageButton}"
                                 Background="{Binding Page2Background}"
                                 Foreground="{Binding Page2Foreground}"
                                 Command="{Binding Page2Loaded}">
@@ -113,25 +104,35 @@
                                                      Height="30"
                                                      Width="30"/>
                         </Button>
-                    </Grid>
+                        <Button Style="{StaticResource PageButton}"
+                                Background="{Binding Page3Background}"
+                                Foreground="{Binding Page3Foreground}"
+                                Command="{Binding Page3Loaded}">
+                            <materialDesign:PackIcon Kind="Numeric3Box"
+                                                     Height="30"
+                                                     Width="30"/>
+                        </Button>
+                    </DockPanel>
+                    <ContentControl Grid.Row="2"
+                                    Name="Control"
+                                    FocusVisualStyle="{x:Null}"
+                                    Content="{Binding CurrentView}"
+                                    Validation.ErrorTemplate="{x:Null}"/>
                     <DockPanel Grid.Row="3"
                                HorizontalAlignment="Right">
-                        <Button BorderBrush="Transparent"
+                        <Button BorderBrush="{x:Null}"
                                 FontSize="20"
                                 Width="150"
                                 Command="{Binding Save}"
                                 Content="儲存"
                                 Margin="0 0 10 0"/>
-                        <Button BorderBrush="Transparent"
+                        <Button BorderBrush="{x:Null}"
                                 FontSize="20"
                                 Width="150"
                                 Command="{Binding Cancel}"
                                 Content="取消"
                                 Margin="0 0 10 0"/>
                     </DockPanel>
-                    <ContentControl Grid.Row="2"
-                                    Name="Control"
-                                    Content="{Binding CurrentView}"/>
                 </Grid>
             </Border>
         </Grid>

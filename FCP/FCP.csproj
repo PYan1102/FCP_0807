@@ -60,11 +60,11 @@
     <Reference Include="Lierda.WPFHelper, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cbb49eab16984ff2, processorArchitecture=MSIL">
       <HintPath>..\packages\Lierda.WPFHelper.1.0.3\lib\net462\Lierda.WPFHelper.dll</HintPath>
     </Reference>
-    <Reference Include="MaterialDesignColors, Version=2.0.3.2, Culture=neutral, PublicKeyToken=df2a72020bd7962a, processorArchitecture=MSIL">
-      <HintPath>..\packages\MaterialDesignColors.2.0.3\lib\net452\MaterialDesignColors.dll</HintPath>
+    <Reference Include="MaterialDesignColors, Version=2.0.6.0, Culture=neutral, PublicKeyToken=df2a72020bd7962a, processorArchitecture=MSIL">
+      <HintPath>..\packages\MaterialDesignColors.2.0.6\lib\net452\MaterialDesignColors.dll</HintPath>
     </Reference>
-    <Reference Include="MaterialDesignThemes.Wpf, Version=4.2.1.2, Culture=neutral, PublicKeyToken=df2a72020bd7962a, processorArchitecture=MSIL">
-      <HintPath>..\packages\MaterialDesignThemes.4.2.1\lib\net452\MaterialDesignThemes.Wpf.dll</HintPath>
+    <Reference Include="MaterialDesignThemes.Wpf, Version=4.5.0.0, Culture=neutral, PublicKeyToken=df2a72020bd7962a, processorArchitecture=MSIL">
+      <HintPath>..\packages\MaterialDesignThemes.4.5.0\lib\net452\MaterialDesignThemes.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.6.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
@@ -131,46 +131,66 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converter\Int32Converter.cs" />
     <Compile Include="Models\ActionResult.cs" />
     <Compile Include="Models\CommonModel.cs" />
+    <Compile Include="Models\PrescriptionModel.cs" />
+    <Compile Include="Models\SettingsPage3Model.cs" />
+    <Compile Include="Models\WindowPositionModel.cs" />
     <Compile Include="Models\MainUILayoutModel.cs" />
     <Compile Include="Models\MatchModel.cs" />
+    <Compile Include="Providers\ColorProvider.cs" />
     <Compile Include="Services\FileSearchService\FileNameHead.cs" />
     <Compile Include="Services\FileSearchService\FileSearchService.cs" />
     <Compile Include="Services\FileSearchService\InputDirectory.cs" />
-    <Compile Include="Services\FileSearchService\MatchDepartment.cs" />
     <Compile Include="Services\MergeFileService.cs" />
     <Compile Include="Services\NoticeService.cs" />
-    <Compile Include="src\ConvertResult.cs" />
-    <Compile Include="src\Dictionary\dColor.cs" />
+    <Compile Include="src\ControlButtonColorOnHover.cs" />
+    <Compile Include="src\Enum\eETC.cs" />
+    <Compile Include="src\Enum\ePrescriptionParameters.cs" />
+    <Compile Include="src\MoveFile.cs" />
     <Compile Include="src\Enum\eColor.cs" />
     <Compile Include="src\Enum\eCommandCollection.cs" />
     <Compile Include="src\Enum\eOpreation.cs" />
     <Compile Include="src\Enum\eWindowType.cs" />
     <Compile Include="src\Interface\IGetFIle.cs" />
     <Compile Include="src\MessageManager\ActivateMessage.cs" />
-    <Compile Include="src\MessageManager\ClearSimpleWindowLogMessage.cs" />
+    <Compile Include="src\MessageManager\Change\WindowXEnabledChangeMessage.cs" />
+    <Compile Include="src\MessageManager\Change\WindowYEnabledChangeMessage.cs" />
     <Compile Include="src\MessageManager\CloseWindowMessage.cs" />
     <Compile Include="src\MessageManager\CommandMessage.cs" />
+    <Compile Include="src\MessageManager\Request\HasErrorsRequestMessage.cs" />
     <Compile Include="src\MessageManager\View_FocusedElementMessage.cs" />
     <Compile Include="src\MessageManager\GetMainWindowToogleCheckedRequestMessage.cs" />
-    <Compile Include="src\MessageManager\LogChangeMessage.cs" />
+    <Compile Include="src\MessageManager\Change\LogChangeMessage.cs" />
     <Compile Include="src\MessageManager\OpreationMessage.cs" />
     <Compile Include="src\MessageManager\View_RefresedhElementMessage.cs" />
     <Compile Include="src\MessageManager\View_SelectedAllMessage.cs" />
     <Compile Include="src\MessageManager\SetMainWindowToogleCheckedChangeMessage.cs" />
-    <Compile Include="src\MessageManager\UpdateMainUIChangeMessage.cs" />
+    <Compile Include="src\MessageManager\Change\MainUIChangeMessage.cs" />
     <Compile Include="src\MessageManager\VisibilityMessage.cs" />
     <Compile Include="src\MessageManager\ShowDialogMessage.cs" />
+    <Compile Include="src\InteractivityHelper.cs" />
+    <Compile Include="src\MessageManager\Request\WindowXRequestMessage.cs" />
+    <Compile Include="src\MessageManager\Change\WindowPositionVisibilityChangeMessage.cs" />
+    <Compile Include="src\MessageManager\Request\WindowYRequestMessage.cs" />
+    <Compile Include="ViewModels\SettingPage3ViewModel.cs" />
+    <Compile Include="ViewModels\WindowPositionViewModel.cs" />
+    <Compile Include="Views\SettingPage3View.xaml.cs">
+      <DependentUpon>SettingPage3View.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\WindowPositionView.xaml.cs">
+      <DependentUpon>WindowPositionView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SettingView.xaml.cs">
       <DependentUpon>SettingView.xaml</DependentUpon>
     </Compile>
     <Compile Include="src\ComparePrescription.cs" />
     <Compile Include="src\Factory\Models\ModelsFactory.cs" />
-    <Compile Include="src\FormatControl\FMT_ChengYu.cs" />
-    <Compile Include="src\FormatControl\FMT_Washinton.cs" />
-    <Compile Include="src\FormatControl\FMT_LittleBear.cs" />
-    <Compile Include="src\FormatControl\FMT_OnCube.cs" />
+    <Compile Include="src\FormatLogic\FMT_ChengYu.cs" />
+    <Compile Include="src\FormatLogic\FMT_Washinton.cs" />
+    <Compile Include="src\FormatLogic\FMT_LittleBear.cs" />
+    <Compile Include="src\FormatLogic\FMT_OnCube.cs" />
     <Compile Include="src\FormatInit\BASE_ChengYu.cs" />
     <Compile Include="src\FormatInit\BASE_Washinton.cs" />
     <Compile Include="src\FormatInit\BASE_LittleBear.cs" />
@@ -180,19 +200,19 @@
     <Compile Include="Services\JsonService.cs" />
     <Compile Include="src\FormatInit\BASE_E_DA.cs" />
     <Compile Include="src\Factory\FormatFactory.cs" />
-    <Compile Include="src\FormatControl\FMT_FangDing.cs" />
-    <Compile Include="src\FormatControl\FMT_JenKang.cs" />
+    <Compile Include="src\FormatLogic\FMT_FangDing.cs" />
+    <Compile Include="src\FormatLogic\FMT_JenKang.cs" />
     <Compile Include="src\FormatCollection.cs" />
-    <Compile Include="src\FormatBase.cs" />
+    <Compile Include="src\ConvertBase.cs" />
     <Compile Include="src\FormatInit\BASE_HongYen.cs" />
-    <Compile Include="src\FormatControl\FMT_ChuangSheng.cs" />
-    <Compile Include="src\FormatControl\FMT_E-DA.cs" />
-    <Compile Include="src\FormatControl\FMT_HongYen.cs" />
-    <Compile Include="src\FormatControl\FMT_JVServer.cs" />
-    <Compile Include="src\FormatControl\FMT_KuangTien.cs" />
-    <Compile Include="src\FormatControl\FMT_MinSheng.cs" />
-    <Compile Include="src\FormatControl\FMT_TaipeiDetention.cs" />
-    <Compile Include="src\FormatControl\FMT_YiSheng.cs" />
+    <Compile Include="src\FormatLogic\FMT_ChuangSheng.cs" />
+    <Compile Include="src\FormatLogic\FMT_E-DA.cs" />
+    <Compile Include="src\FormatLogic\FMT_HongYen.cs" />
+    <Compile Include="src\FormatLogic\FMT_JVServer.cs" />
+    <Compile Include="src\FormatLogic\FMT_KuangTien.cs" />
+    <Compile Include="src\FormatLogic\FMT_MinSheng.cs" />
+    <Compile Include="src\FormatLogic\FMT_TaipeiDetention.cs" />
+    <Compile Include="src\FormatLogic\FMT_YiSheng.cs" />
     <Compile Include="src\FormatInit\BASE_JenKang.cs" />
     <Compile Include="src\FormatInit\BASE_JVServer.cs" />
     <Compile Include="Models\SettingModel.cs" />
@@ -240,6 +260,18 @@
     <Compile Include="src\FormatInit\BASE_TaipeiDetention.cs" />
     <Compile Include="src\FormatInit\BASE_YiSheng.cs" />
     <Compile Include="src\UIRefresh.cs" />
+    <Page Include="Theme\ToggleButtonTheme.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingPage3View.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\WindowPositionView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SettingView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -335,9 +367,6 @@
     <Content Include="FCP.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="MultipleFilesInOneFile.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -345,8 +374,8 @@
       <ErrorText>此專案參考這部電腦上所缺少的 NuGet 套件。請啟用 NuGet 套件還原，以下載該套件。如需詳細資訊，請參閱 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的檔案是 {0}。</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets'))" />
-    <Error Condition="!Exists('..\packages\MaterialDesignThemes.4.2.1\build\MaterialDesignThemes.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MaterialDesignThemes.4.2.1\build\MaterialDesignThemes.targets'))" />
+    <Error Condition="!Exists('..\packages\MaterialDesignThemes.4.5.0\build\MaterialDesignThemes.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MaterialDesignThemes.4.5.0\build\MaterialDesignThemes.targets'))" />
   </Target>
   <Import Project="..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets" Condition="Exists('..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets')" />
-  <Import Project="..\packages\MaterialDesignThemes.4.2.1\build\MaterialDesignThemes.targets" Condition="Exists('..\packages\MaterialDesignThemes.4.2.1\build\MaterialDesignThemes.targets')" />
+  <Import Project="..\packages\MaterialDesignThemes.4.5.0\build\MaterialDesignThemes.targets" Condition="Exists('..\packages\MaterialDesignThemes.4.5.0\build\MaterialDesignThemes.targets')" />
 </Project>

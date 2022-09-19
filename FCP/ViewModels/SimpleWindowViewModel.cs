@@ -4,22 +4,37 @@ using System.Windows.Media;
 using FCP.Models;
 using System.Windows.Input;
 using FCP.src.Enum;
-using System.Text;
 using System.Collections.Generic;
 using FCP.src.Factory.Models;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using FCP.src.MessageManager;
 using Microsoft.Toolkit.Mvvm.Messaging;
-using FCP.src.Dictionary;
+using FCP.Providers;
+using FCP.src.MessageManager.Change;
 
 namespace FCP.ViewModels
 {
     class SimpleWindowViewModel : ObservableRecipient
     {
+        public SimpleWindowViewModel()
+        {
+            _settingModel = ModelsFactory.GenerateSettingModel();
+            _model = new SimpleWindowModel();
+
+            Activate = new RelayCommand(() => Messenger.Send(new ActivateMessage(), nameof(FCP.Views.SimpleWindowView)), CanActivate);
+            SwitchWindow = new RelayCommand(SwitchWindowFunc, CanStartConverterOrShowAdvancedSettings);
+            ClearLog = new RelayCommand(ClearLogFunc);
+            OPD = new RelayCommand(OPDFunc, CanStartConverterOrShowAdvancedSettings);
+            UD = new RelayCommand(UDFunc, CanStartConverterOrShowAdvancedSettings);
+            Stop = new RelayCommand(StopFunc);
+            MinimumWindow = new RelayCommand(() => Visibility = Visibility.Hidden);
+            Close = new RelayCommand(() => Environment.Exit(0));
+            Loaded = new RelayCommand(LoadedFunc);
+        }
+
         public ICommand Activate { get; set; }
         public ICommand SwitchWindow { get; set; }
-        public ICommand ShowAndCloseLog { get; set; }
         public ICommand ClearLog { get; set; }
         public ICommand OPD { get; set; }
         public ICommand UD { get; set; }
@@ -29,22 +44,6 @@ namespace FCP.ViewModels
         public ICommand Loaded { get; set; }
         private SimpleWindowModel _model;
         private SettingJsonModel _settingModel;
-
-        public SimpleWindowViewModel()
-        {
-            _settingModel = ModelsFactory.GenerateSettingModel();
-            _model = new SimpleWindowModel();
-            Activate = new RelayCommand(() => Messenger.Send(new ActivateMessage(), nameof(FCP.Views.SimpleWindowView)), CanActivate);
-            SwitchWindow = new RelayCommand(SwitchWindowFunc, CanStartConverterOrShowAdvancedSettings);
-            ShowAndCloseLog = new RelayCommand(ShowAndCloseLogFunc);
-            ClearLog = new RelayCommand(() => Log = string.Empty);
-            OPD = new RelayCommand(OPDFunc, CanStartConverterOrShowAdvancedSettings);
-            UD = new RelayCommand(UDFunc, CanStartConverterOrShowAdvancedSettings);
-            Stop = new RelayCommand(StopFunc);
-            MinimumWindow = new RelayCommand(() => Visibility = Visibility.Hidden);
-            Close = new RelayCommand(() => Environment.Exit(0));
-            Loaded = new RelayCommand(LoadedFunc);
-        }
 
         public Visibility Visibility
         {
@@ -61,249 +60,173 @@ namespace FCP.ViewModels
         public int Top
         {
             get => _model.Top;
-            set => _model.Top = value;
+            set => SetProperty(_model.Top, value, _model, (model, _value) => model.Top = _value);
         }
 
         public int Left
         {
             get => _model.Left;
-            set => _model.Left = value;
+            set => SetProperty(_model.Left, value, _model, (model, _value) => model.Left = _value);
         }
 
         public bool MultiChecked
         {
             get => _model.MultiChecked;
-            set => _model.MultiChecked = value;
+            set => SetProperty(_model.MultiChecked, value, _model, (model, _value) => model.MultiChecked = _value);
         }
 
         public bool CombiChecked
         {
             get => _model.CombiChecked;
-            set => _model.CombiChecked = value;
+            set => SetProperty(_model.CombiChecked, value, _model, (model, _value) => model.CombiChecked = _value);
         }
 
         public bool MultiEnabled
         {
             get => _model.MultiEnabled;
-            set => _model.MultiEnabled = value;
+            set => SetProperty(_model.MultiEnabled, value, _model, (model, _value) => model.MultiEnabled = _value);
         }
 
         public bool CombiEnabled
         {
             get => _model.CombiEnabled;
-            set => _model.CombiEnabled = value;
+            set => SetProperty(_model.CombiEnabled, value, _model, (model, _value) => model.CombiEnabled = _value);
         }
 
         public Visibility MultiVisibility
         {
             get => _model.MultiVisibility;
-            set => _model.MultiVisibility = value;
+            set => SetProperty(_model.MultiVisibility, value, _model, (model, _value) => model.MultiVisibility = _value);
         }
 
         public Visibility CombiVisibility
         {
             get => _model.CombiVisibility;
-            set => _model.CombiVisibility = value;
+            set => SetProperty(_model.CombiVisibility, value, _model, (model, _value) => model.CombiVisibility = _value);
         }
 
         public string OPDContent
         {
             get => _model.OPDContent;
-            set => _model.OPDContent = value;
+            set => SetProperty(_model.OPDContent, value, _model, (model, _value) => model.OPDContent = _value);
         }
 
         public SolidColorBrush OPDBackground
         {
             get => _model.OPDBackground;
-            set => _model.OPDBackground = value;
+            set => SetProperty(_model.OPDBackground, value, _model, (model, _value) => model.OPDBackground = _value);
         }
 
         public bool OPDEnabled
         {
             get => _model.OPDEnabled;
-            set => _model.OPDEnabled = value;
+            set => SetProperty(_model.OPDEnabled, value, _model, (model, _value) => model.OPDEnabled = _value);
         }
 
         public float OPDOpacity
         {
             get => _model.OPDOpacity;
-            set => _model.OPDOpacity = value;
+            set => SetProperty(_model.OPDOpacity, value, _model, (model, _value) => model.OPDOpacity = _value);
         }
 
         public SolidColorBrush UDBackground
         {
             get => _model.UDBackground;
-            set => _model.UDBackground = value;
+            set => SetProperty(_model.UDBackground, value, _model, (model, _value) => model.UDBackground = _value);
         }
 
         public bool UDEnabled
         {
             get => _model.UDEnabled;
-            set => _model.UDEnabled = value;
+            set => SetProperty(_model.UDEnabled, value, _model, (model, _value) => model.UDEnabled = _value);
         }
 
         public float UDOpacity
         {
             get => _model.UDOpacity;
-            set => _model.UDOpacity = value;
+            set => SetProperty(_model.UDOpacity, value, _model, (model, _value) => model.UDOpacity = _value);
         }
 
         public Visibility UDVisibility
         {
             get => _model.UDVisibility;
-            set => _model.UDVisibility = value;
+            set => SetProperty(_model.UDVisibility, value, _model, (model, _value) => model.UDVisibility = _value);
         }
 
         public SolidColorBrush StopBackground
         {
             get => _model.StopBackground;
-            set => _model.StopBackground = value;
+            set => SetProperty(_model.StopBackground, value, _model, (model, _value) => model.StopBackground = _value);
         }
 
         public bool StopEnabled
         {
             get => _model.StopEnabled;
-            set => _model.StopEnabled = value;
+            set => SetProperty(_model.StopEnabled, value, _model, (model, _value) => model.StopEnabled = _value);
         }
 
         public float StopOpacity
         {
             get => _model.StopOpacity;
-            set => _model.StopOpacity = value;
+            set => SetProperty(_model.StopOpacity, value, _model, (model, _value) => model.StopOpacity = _value);
         }
 
         public Visibility StatVisibility
         {
             get => _model.StatVisibility;
-            set => _model.StatVisibility = value;
+            set => SetProperty(_model.StatVisibility, value, _model, (model, _value) => model.StatVisibility = _value);
         }
 
         public bool StatChecked
         {
-            get => _model.StatChecked;
-            set => _model.StatChecked = value;
+            get
+            {
+                _settingModel.StatOrBatch = _model.StatChecked ? eDepartment.Stat : eDepartment.Batch;
+                return _model.StatChecked;
+            }
+            set => SetProperty(_model.StatChecked, value, _model, (model, _value) => model.StatChecked = _value);
         }
 
         public bool StatEnabled
         {
             get => _model.StatEnabled;
-            set => _model.StatEnabled = value;
+            set => SetProperty(_model.StatEnabled, value, _model, (model, _value) => model.StatEnabled = _value);
         }
 
         public Visibility BatchVisibility
         {
             get => _model.BatchVisibility;
-            set => _model.BatchVisibility = value;
+            set => SetProperty(_model.BatchVisibility, value, _model, (model, _value) => model.BatchVisibility = _value);
         }
 
         public bool BatchChecked
         {
             get => _model.BatchChecked;
-            set => _model.BatchChecked = value;
+            set => SetProperty(_model.BatchChecked, value, _model, (model, _value) => model.BatchChecked = _value);
         }
 
         public bool BatchEnabled
         {
             get => _model.BatchEnabled;
-            set => _model.BatchEnabled = value;
+            set => SetProperty(_model.BatchEnabled, value, _model, (model, _value) => model.BatchEnabled = _value);
         }
 
-        public string Log
+        public string ProgressBox
         {
-            get => _model.Log;
-            set => _model.Log = value;
+            get => _model.ProgressBox;
+            set => SetProperty(_model.ProgressBox, value, _model, (model, _value) => model.ProgressBox = _value);
         }
 
         public Visibility CloseVisibility
         {
             get => _model.CloseVisibility;
-            set => _model.CloseVisibility = value;
+            set => SetProperty(_model.CloseVisibility, value, _model, (model, _value) => model.CloseVisibility = _value);
         }
 
         public Visibility MinimumVisibility
         {
             get => _model.MinimumVisibility;
-            set => _model.MinimumVisibility = value;
-        }
-
-        public Visibility LogVisibility
-        {
-            get => _model.LogVisibility;
-            set => _model.LogVisibility = value;
-        }
-
-        public void SwitchWindowFunc()
-        {
-            Messenger.Send(new CloseWindowMessage(), nameof(FCP.Views.SimpleWindowView));
-            Messenger.Send(new VisibilityMessage(), nameof(MainWindowViewModel));
-            CommonModel.WindowType = eWindowType.MainWindow;
-        }
-
-        public void ShowAndCloseLogFunc()
-        {
-            LogVisibility = LogVisibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
-        }
-
-        public void OPDFunc()
-        {
-            Messenger.Send(new OpreationMessage(), nameof(eOpreation.OPD));
-            OPDEnabled = false;
-            UDEnabled = false;
-            StopEnabled = true;
-            StatEnabled = false;
-            BatchEnabled = false;
-            MultiEnabled = false;
-            CombiEnabled = false;
-            OPDBackground = dColor.GetSolidColorBrush(eColor.Red);
-            UDOpacity = 0.2f;
-            StopOpacity = 1;
-        }
-
-        public void UDFunc()
-        {
-            Messenger.Send(new OpreationMessage(), nameof(eOpreation.UD));
-            Properties.Settings.Default.DoseType = MultiChecked ? "M" : "C";
-            Properties.Settings.Default.Save();
-            //if (StatChecked)
-            //    _mainWindowVM.StatChecked = true;
-            //else
-            //    _mainWindowVM.BatchChecked = true;
-            OPDEnabled = false;
-            UDEnabled = false;
-            StopEnabled = true;
-            StatEnabled = false;
-            BatchEnabled = false;
-            CombiEnabled = false;
-            MultiEnabled = false;
-            UDBackground = dColor.GetSolidColorBrush(eColor.Red);
-            OPDOpacity = 0.2f;
-            StopOpacity = 1;
-        }
-
-        public void StopFunc()
-        {
-            Messenger.Send(new OpreationMessage(), nameof(eOpreation.Stop));
-            OPDEnabled = true;
-            UDEnabled = true;
-            StopEnabled = false;
-            StatEnabled = true;
-            BatchEnabled = true;
-            CombiEnabled = true;
-            MultiEnabled = true;
-            OPDBackground = dColor.GetSolidColorBrush(eColor.White);
-            UDBackground = dColor.GetSolidColorBrush(eColor.White);
-            OPDOpacity = 1;
-            UDOpacity = 1;
-            StopOpacity = 0.2f;
-        }
-
-        public void AddLog(string message)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(Log);
-            sb.Append($"{message}\n");
-            Log = sb.ToString();
-            sb = null;
+            set => SetProperty(_model.MinimumVisibility, value, _model, (model, _value) => model.MinimumVisibility = _value);
         }
 
         protected override void OnActivated()
@@ -315,8 +238,75 @@ namespace FCP.ViewModels
                 Visibility = Visibility.Visible;
                 Focusable = true;
             });
-            Messenger.Register<CommandMessage, string>(this, nameof(eCommandCollection.SetSimpleWindowPosition), (r, m) => { SetWindowPosition(); });
-            Messenger.Register<ClearSimpleWindowLogMessage>(this, (r, m) => { Log = string.Empty; });
+            Messenger.Register<CommandMessage, string>(this, nameof(eCommandCollection.SetSimpleWindowPosition), (r, m) => SetWindowPosition());
+            Messenger.Register<LogChangeMessage>(this, (r, m) =>
+            {
+                ProgressBox += $"{m.Value}\n";
+            });
+        }
+
+        private void SwitchWindowFunc()
+        {
+            CommonModel.WindowType = eWindowType.MainWindow;
+            Messenger.Send(new CloseWindowMessage(), nameof(FCP.Views.SimpleWindowView));
+            Messenger.Send(new VisibilityMessage(), nameof(MainWindowViewModel));
+        }
+
+        private void ClearLogFunc()
+        {
+            ProgressBox = string.Empty;
+        }
+
+        private void OPDFunc()
+        {
+            Messenger.Send(new OpreationMessage(), nameof(eOpreation.OPD));
+            OPDEnabled = false;
+            UDEnabled = false;
+            StopEnabled = true;
+            StatEnabled = false;
+            BatchEnabled = false;
+            MultiEnabled = false;
+            CombiEnabled = false;
+            OPDBackground = ColorProvider.GetSolidColorBrush(eColor.Red);
+            UDOpacity = 0.2f;
+            StopOpacity = 1;
+        }
+
+        private void UDFunc()
+        {
+            Messenger.Send(new OpreationMessage(), nameof(eOpreation.UD));
+            Properties.Settings.Default.DoseType = MultiChecked ? "Multi" : "Combi";
+            Properties.Settings.Default.Save();
+            OPDEnabled = false;
+            UDEnabled = false;
+            StopEnabled = true;
+            StatEnabled = false;
+            BatchEnabled = false;
+            CombiEnabled = false;
+            MultiEnabled = false;
+            UDBackground = ColorProvider.GetSolidColorBrush(eColor.Red);
+            OPDOpacity = 0.2f;
+            StopOpacity = 1;
+        }
+
+        private void StopFunc()
+        {
+            Messenger.Send(new OpreationMessage(), nameof(eOpreation.Stop));
+            OPDEnabled = true;
+            UDEnabled = true;
+            StopEnabled = false;
+            StatEnabled = true;
+            BatchEnabled = true;
+            CombiEnabled = true;
+            MultiEnabled = true;
+            MultiChecked = true;
+            Properties.Settings.Default.DoseType = "Multi";
+            Properties.Settings.Default.Save();
+            OPDBackground = ColorProvider.GetSolidColorBrush(eColor.White);
+            UDBackground = ColorProvider.GetSolidColorBrush(eColor.White);
+            OPDOpacity = 1;
+            UDOpacity = 1;
+            StopOpacity = 0.2f;
         }
 
         private void LoadedFunc()
@@ -330,17 +320,20 @@ namespace FCP.ViewModels
             }
             MultiVisibility = _settingModel.Format == eFormat.光田醫院OC ? Visibility.Visible : Visibility.Hidden;
             CombiVisibility = _settingModel.Format == eFormat.光田醫院OC ? Visibility.Visible : Visibility.Hidden;
-            MultiChecked = Properties.Settings.Default.DoseType == "M";
+            Properties.Settings.Default.DoseType = "Multi";
+            Properties.Settings.Default.Save();
+            MultiChecked = true;
             if (powderCustomers.Contains(_settingModel.Format))
             {
                 OPDContent = "磨 粉F5";
                 UDVisibility = Visibility.Hidden;
             }
-            StatVisibility = _settingModel.UseStatOrBatch ? Visibility.Visible : Visibility.Hidden;
-            BatchVisibility = _settingModel.UseStatOrBatch ? Visibility.Visible : Visibility.Hidden;
-            CloseVisibility = _settingModel.ShowWindowOperationButton ? Visibility.Visible : Visibility.Hidden;
-            MinimumVisibility = _settingModel.ShowWindowOperationButton ? Visibility.Visible : Visibility.Hidden;
+            StatVisibility = _settingModel.UseStatAndBatchOption ? Visibility.Visible : Visibility.Hidden;
+            BatchVisibility = _settingModel.UseStatAndBatchOption ? Visibility.Visible : Visibility.Hidden;
+            CloseVisibility = _settingModel.ShowCloseAndMinimizeButton ? Visibility.Visible : Visibility.Hidden;
+            MinimumVisibility = _settingModel.ShowCloseAndMinimizeButton ? Visibility.Visible : Visibility.Hidden;
             StatChecked = _settingModel.StatOrBatch == eDepartment.Stat;
+            BatchChecked = _settingModel.StatOrBatch == eDepartment.Batch;
             StopEnabled = false;
             Top = Properties.Settings.Default.Y;
             Left = Properties.Settings.Default.X;

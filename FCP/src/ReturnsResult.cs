@@ -9,9 +9,11 @@ namespace FCP.src
 {
     internal class ReturnsResult : IRetunrsResult
     {
-        private ReturnsResultModel _returnsResultFormat { get; set; }
-        public ReturnsResult()
+        private ReturnsResultModel _returnsResultFormat;
+
+        public void SetReturnsResultModel(ReturnsResultModel returnsResultModel)
         {
+            _returnsResultFormat = returnsResultModel;
         }
 
         public void Shunt(eConvertResult convertResult, object message = null)
@@ -67,11 +69,6 @@ namespace FCP.src
         {
             _returnsResultFormat.Message = $"{FileInfoModel.SourceFilePath} 在OnCube中未建置此種包頻率 S{adminCode} 的頻率";
             _returnsResultFormat.Result = eConvertResult.缺少種包頻率;
-        }
-
-        public void SetReturnsResultModel(ReturnsResultModel returnsResultModel)
-        {
-            _returnsResultFormat = returnsResultModel;
         }
 
         public void ReadFileFail(object message = null)

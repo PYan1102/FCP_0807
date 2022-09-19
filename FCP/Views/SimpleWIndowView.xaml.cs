@@ -35,8 +35,8 @@ namespace FCP.Views
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             _simpleWindowVM.IsActive = true;
-            WeakReferenceMessenger.Default.Register<ActivateMessage, string>(this, nameof(SimpleWindowView), (r, m) => { ActivateWindow(); });
-            WeakReferenceMessenger.Default.Register<CloseWindowMessage, string>(this, nameof(SimpleWindowView), (r, m) => { CloseWindow(); });
+            WeakReferenceMessenger.Default.Register<ActivateMessage, string>(this, nameof(SimpleWindowView), (r, m) => ActivateWindow());
+            WeakReferenceMessenger.Default.Register<CloseWindowMessage, string>(this, nameof(SimpleWindowView), (r, m) => CloseWindow());
         }
 
         private void Window_Unloaded(object sender, RoutedEventArgs e)

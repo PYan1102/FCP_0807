@@ -13,16 +13,16 @@ namespace FCP.Models
         public bool UseAdminCodeChecked { get; set; }
         public Visibility PackModeVisible { get; set; }
         public string AdminCode { get; set; } = string.Empty;
-        public ObservableCollection<string> FilterAdminCodeList { get; set; }
-        public int FilerAdminCodeIndex { get; set; } = 0;
+        public ObservableCollection<string> NeedToFilterAdminCodeList { get; set; }
+        public int NeedToFilerAdminCodeIndex { get; set; } = 0;
         public ObservableCollection<RandomInfo> Random { get; set; } = new ObservableCollection<RandomInfo>();
+        public int NeedToFilterMedicineCodeIndex { get; set; } = 0;
         public int RandomIndex { get; set; } = 0;
         public bool MultiChecked { get; set; }
         public bool CombiChecked { get; set; }
         public string OutputSpecialAdminCode { get; set; } = string.Empty;
         public string AdminCodeOfCrossDay { get; set; } = string.Empty;
         public string MedicineCode { get; set; } = string.Empty;
-        public ObservableCollection<string> FilterMedicineCodeList { get; set; } = new ObservableCollection<string>();
-        public int FilterMedicineCodeIndex { get; set; } = 0;
+        public ObservableCollection<string> NeedToFilterMedicineCodeList { get; set; } = new ObservableCollection<string>();
     }
 }

@@ -68,12 +68,12 @@
                         Grid.Column="2"
                         materialDesign:ButtonAssist.CornerRadius="5"
                         Height="auto"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        Foreground="White"
+                        Background="{x:Null}"
+                        BorderBrush="{x:Null}"
                         Command="{Binding Close}"
                         CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,
-                        AncestorType={x:Type Window}}}">
+                        AncestorType={x:Type Window}}}"
+                        Style="{StaticResource ControlButton}" Cursor="Hand">
                     <materialDesign:PackIcon Kind="Close"
                                              Height="25"
                                              Width="25"

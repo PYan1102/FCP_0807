@@ -1,18 +1,17 @@
-﻿using System.Windows;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Windows;
 using System.Windows.Input;
 using FCP.Models;
 using FCP.src.Factory.Models;
+using FCP.src.MessageManager.Request;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace FCP.ViewModels
 {
-    class SettingPage2ViewModel : ObservableObject
+    class SettingPage2ViewModel : ObservableValidator
     {
-        public ICommand ShowOnlyCanisterIn { get; set; }
-        private SettingPage2Model _model;
-        private SettingJsonModel _settingModel;
-
         public SettingPage2ViewModel()
         {
             _settingModel = ModelsFactory.GenerateSettingModel();
@@ -23,82 +22,97 @@ namespace FCP.ViewModels
             Init();
         }
 
+        public ICommand ShowOnlyCanisterIn { get; set; }
+        private SettingPage2Model _model;
+        private SettingJsonModel _settingModel;
+
         public bool UseStatAndBatchOptionChecked
         {
             get => _model.UseStatAndBatchOptionChecked;
-            set => _model.UseStatAndBatchOptionChecked = value;
+            set => SetProperty(_model.UseStatAndBatchOptionChecked, value, _model, (model, _value) => model.UseStatAndBatchOptionChecked = _value);
         }
 
         public bool MinimizeWindowWhenProgramStartChecked
         {
             get => _model.MinimizeWindowWhenProgramStartChecked;
-            set => _model.MinimizeWindowWhenProgramStartChecked = value;
+            set => SetProperty(_model.MinimizeWindowWhenProgramStartChecked, value, _model, (model, _value) => model.MinimizeWindowWhenProgramStartChecked = _value);
         }
 
         public bool ShowCloseAndMinimizeButtonChecked
         {
             get => _model.ShowCloseAndMinimizeButtonChecked;
-            set => _model.ShowCloseAndMinimizeButtonChecked = value;
+            set => SetProperty(_model.ShowCloseAndMinimizeButtonChecked, value, _model, (model, _value) => model.ShowCloseAndMinimizeButtonChecked = _value);
         }
 
         public bool ShowXYChecked
         {
             get => _model.ShowXYChecked;
-            set => _model.ShowXYChecked = value;
+            set => SetProperty(_model.ShowXYChecked, value, _model, (model, _value) => model.ShowXYChecked = _value);
         }
 
         public bool FilterMedicineCodeChecked
         {
             get => _model.FilterMedicineCodeChecked;
-            set => _model.FilterMedicineCodeChecked = value;
+            set => SetProperty(_model.FilterMedicineCodeChecked, value, _model, (model, _value) => model.FilterMedicineCodeChecked = _value);
         }
 
         public bool OnlyCanisterInChecked
         {
             get => _model.OnlyCanisterInChecked;
-            set => _model.OnlyCanisterInChecked = value;
+            set => SetProperty(_model.OnlyCanisterInChecked, value, _model, (model, _value) => model.OnlyCanisterInChecked = _value);
         }
 
         public Visibility OnlyCanisterInVisibility
         {
             get => _model.OnlyCanisterInVisibility;
-            set => _model.OnlyCanisterInVisibility = value;
+            set => SetProperty(_model.OnlyCanisterInVisibility, value, _model, (model, _value) => model.OnlyCanisterInVisibility = _value);
         }
 
         public bool WhenCompeletedMoveFileChecked
         {
             get => _model.WhenCompeletedMoveFileChecked;
-            set => _model.WhenCompeletedMoveFileChecked = value;
+            set => SetProperty(_model.WhenCompeletedMoveFileChecked, value, _model, (model, _value) => model.WhenCompeletedMoveFileChecked = _value);
         }
 
         public bool WhenCompeletedStopChecked
         {
             get => _model.WhenCompeletedStopChecked;
-            set => _model.WhenCompeletedStopChecked = value;
+            set => SetProperty(_model.WhenCompeletedStopChecked, value, _model, (model, _value) => model.WhenCompeletedStopChecked = _value);
         }
 
+        public bool IgnoreAdminCodeIfNotInOnCubeChecked
+        {
+            get => _model.IgnoreAdminCodeIfNotInOnCubeChecked;
+            set => SetProperty(_model.IgnoreAdminCodeIfNotInOnCubeChecked, value, _model, (model, _value) => model.IgnoreAdminCodeIfNotInOnCubeChecked = _value);
+        }
+
+        [Required(ErrorMessage = "此欄位不可為空")]
         public string FileExtensionName
         {
             get => _model.FileExtensionName;
-            set => _model.FileExtensionName = value;
+            set => SetProperty(_model.FileExtensionName, value, _model, (model, _value) => model.FileExtensionName = _value, true);
         }
 
         public void ResetModel()
         {
+            WeakReferenceMessenger.Default.Unregister<HasErrorsRequestMessage, string>(this, nameof(SettingPage2ViewModel));
             Init();
         }
 
         private void Init()
         {
-            UseStatAndBatchOptionChecked = _settingModel.UseStatOrBatch;
-            MinimizeWindowWhenProgramStartChecked = _settingModel.WindowMinimize;
-            ShowCloseAndMinimizeButtonChecked = _settingModel.ShowWindowOperationButton;
-            ShowXYChecked = _settingModel.ShowXYParameter;
-            FilterMedicineCodeChecked = _settingModel.UseFilterMedicineCode;
-            OnlyCanisterInChecked = _settingModel.FilterNoCanister;
+            WeakReferenceMessenger.Default.Register<HasErrorsRequestMessage, string>(this, nameof(SettingPage2ViewModel), (r, m) => m.Reply(this.HasErrors));
+
+            UseStatAndBatchOptionChecked = _settingModel.UseStatAndBatchOption;
+            MinimizeWindowWhenProgramStartChecked = _settingModel.MinimizeWindowWhenProgramStart;
+            ShowCloseAndMinimizeButtonChecked = _settingModel.ShowCloseAndMinimizeButton;
+            ShowXYChecked = _settingModel.ShowXY;
+            FilterMedicineCodeChecked = _settingModel.FilterMedicineCode;
+            OnlyCanisterInChecked = _settingModel.OnlyCanisterIn;
             FileExtensionName = _settingModel.FileExtensionName;
-            WhenCompeletedMoveFileChecked = _settingModel.MoveSourceFileToBackupDirectoryWhenDone;
-            WhenCompeletedStopChecked = _settingModel.StopWhenDone;
+            WhenCompeletedMoveFileChecked = _settingModel.WhenCompeletedMoveFile;
+            WhenCompeletedStopChecked = _settingModel.WhenCompeletedStop;
+            IgnoreAdminCodeIfNotInOnCubeChecked = _settingModel.IgnoreAdminCodeIfNotInOnCube;
             ShowOnlyCanisterInFunc();
         }
 

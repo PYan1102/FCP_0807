@@ -1,20 +1,28 @@
 ﻿using FCP.Models;
 using FCP.src.Enum;
-using FCP.src.FormatControl;
+using FCP.src.FormatLogic;
 using FCP.src.MessageManager;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using System;
 using System.Windows;
 
 namespace FCP.src.FormatInit
 {
-    class BASE_KuangTien : FormatBase
+    class BASE_KuangTien : ConvertBase
     {
         private FMT_KuangTien _format;
 
         public override void Init()
         {
             base.Init();
-            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToogleModel() { Toogle2 = true }));
+            if (SettingModel.Format == eFormat.光田醫院OC)
+            {
+                WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToggleModel() { Toggle1 = true }));
+            }
+            else
+            {
+                WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToggleModel() { Toggle2 = true }));
+            }
         }
 
         public override ActionResult PrepareStart()
@@ -25,18 +33,18 @@ namespace FCP.src.FormatInit
                 if (SettingModel.DoseType == eDoseType.種包)
                 {
                     //沙鹿
-                    //CommonModel.SqlHelper.Execute(@"update PrintFormItem set DeletedYN=1 where RawID in (120180,120195)");
+                    CommonModel.SqlHelper.Execute(@"update PrintFormItem set DeletedYN=1 where RawID in (120180,120195)");
 
                     //大甲
-                    CommonModel.SqlHelper.Execute(@"update PrintFormItem set DeletedYN=1 where RawID in (120156,120172)");
+                    //CommonModel.SqlHelper.Execute(@"update PrintFormItem set DeletedYN=1 where RawID in (120156,120172)");
                 }
                 else
                 {
                     //沙鹿
-                    //CommonModel.SqlHelper.Execute(@"update PrintFormItem set DeletedYN=0 where RawID in (120180,120195)");
+                    CommonModel.SqlHelper.Execute(@"update PrintFormItem set DeletedYN=0 where RawID in (120180,120195)");
 
                     //大甲
-                    CommonModel.SqlHelper.Execute(@"update PrintFormItem set DeletedYN=0 where RawID in (120156,120172)");
+                    //CommonModel.SqlHelper.Execute(@"update PrintFormItem set DeletedYN=0 where RawID in (120156,120172)");
                 }
             }
             else if (SettingModel.Format == eFormat.光田醫院JVS)  //磨粉
@@ -65,7 +73,7 @@ namespace FCP.src.FormatInit
             UI.IP1Title = oncube ? "門診" : UI.IP1Title;
             UI.IP2Title = oncube ? UI.IP2Title : "磨粉";
             UI.IP1Enabled = oncube;
-            UI.IP2Enabled = !(oncube);
+            UI.IP2Enabled = !oncube;
             UI.IP3Enabled = false;
             UI.IP4Enabled = false;
             UI.IP5Enabled = oncube;

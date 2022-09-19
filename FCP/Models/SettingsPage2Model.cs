@@ -13,6 +13,7 @@ namespace FCP.Models
         public Visibility OnlyCanisterInVisibility { get; set; }
         public bool WhenCompeletedMoveFileChecked { get; set; }
         public bool WhenCompeletedStopChecked { get; set; }
+        public bool IgnoreAdminCodeIfNotInOnCubeChecked { get; set; }
         public string FileExtensionName { get; set; }
     }
 }

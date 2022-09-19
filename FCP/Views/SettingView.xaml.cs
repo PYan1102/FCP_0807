@@ -23,5 +23,15 @@ namespace FCP.Views
         {
             this.DragMove();
         }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            _settingVM.IsActive = true;
+        }
+
+        private void Window_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _settingVM.IsActive = false;
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Media;
+using FCP.Providers;
 using FCP.src.Enum;
 
 namespace FCP.Models
@@ -55,30 +56,24 @@ namespace FCP.Models
         public bool BatchChecked { get; set; }
         public bool StatEnabled { get; set; }
         public bool BatchEnabled { get; set; }
-        public Visibility StatVisibility { get; set; }
-        public Visibility BatchVisibility { get; set; }
+        public bool AutoStartEnabled { get; set; }
+        public Visibility UDTypeVisibility { get; set; }
         public Visibility SplitEachMealVisibility { get; set; }
         public bool IsAutoStartChecked { get; set; }
         public eDoseType DoseType { get; set; }
-        public string WindowX { get; set; }
-        public string WindowY { get; set; }
-        public bool WindowXEnabled { get; set; }
-        public bool WindowYEnabled { get; set; }
-        public Visibility WindowXVisibility { get; set; }
-        public Visibility WindowYVisibility { get; set; }
         public Visibility MinimumAndCloseVisibility { get; set; }
         public float OPDOpacity { get; set; } = 1;
         public float UDOpacity { get; set; } = 1;
-        public SolidColorBrush OPDBacground { get; set; } = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-        public SolidColorBrush UDBackground { get; set; } = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-        public string ProgressBoxContent { get; set; }
+        public SolidColorBrush OPDBacground { get; set; } = ColorProvider.GetSolidColorBrush(eColor.White);
+        public SolidColorBrush UDBackground { get; set; } = ColorProvider.GetSolidColorBrush(eColor.White);
+        public string ProgressBox { get; set; }
 
-        public class ToogleModel
+        public class ToggleModel
         {
-            public bool Toogle1 { get; set; }
-            public bool Toogle2 { get; set; }
-            public bool Toogle3 { get; set; }
-            public bool Toogle4 { get; set; }
+            public bool Toggle1 { get; set; }
+            public bool Toggle2 { get; set; }
+            public bool Toggle3 { get; set; }
+            public bool Toggle4 { get; set; }
         }
     }
 }

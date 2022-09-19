@@ -22,7 +22,7 @@
         Left="{Binding Left, Mode = TwoWay}"
         WindowStyle="None"
         ResizeMode="NoResize"
-        Background="Transparent"
+        Background="{x:Null}"
         AllowsTransparency="True"
         Visibility="{Binding Visibility, Mode = TwoWay}"
         Loaded="Window_Loaded"
@@ -30,8 +30,7 @@
         x:Name="Window">
     <i:Interaction.Triggers>
         <i:DataTrigger Binding="{Binding Visibility}" Value="Visible">
-            <i:InvokeCommandAction Command="{Binding Activate}"
-                                   CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"/>
+            <i:InvokeCommandAction Command="{Binding Activate}"/>
         </i:DataTrigger>
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding Loaded}"/>
@@ -157,7 +156,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                 </Grid.ColumnDefinitions>
-                <Grid Background="Transparent"
+                <Grid Background="{x:Null}"
                       Grid.ColumnSpan="2">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -169,39 +168,46 @@
                     <RadioButton FontSize="18"
                                  Background="White"
                                  Foreground="White"
-                                 IsChecked="True"
+                                 IsEnabled="{Binding MultiEnabled}"
+                                 IsChecked="{Binding MultiChecked}"
                                  Content="餐包"
+                                 HorizontalAlignment="Left"
+                                 FocusVisualStyle="{x:Null}"
                                  Margin="5 0 0 0"
                                  GroupName="DoseType"
-                                 Visibility="Hidden"/>
+                                 Visibility="{Binding MultiVisibility}"/>
                     <RadioButton FontSize="18"
                                  Background="White"
                                  Foreground="White"
+                                 IsEnabled="{Binding CombiEnabled}"
+                                 IsChecked="{Binding CombiChecked}"
                                  Content="總包"
+                                 HorizontalAlignment="Left"
+                                 FocusVisualStyle="{x:Null}"
                                  Margin="70 0 0 0"
                                  GroupName="DoseType"
-                                 Visibility="Hidden"/>
+                                 Visibility="{Binding CombiVisibility}"/>
                     <Button Grid.Column="1"
-                            Background="Transparent"
-                            BorderBrush="Transparent"
-                            Foreground="White"
+                            Background="{x:Null}"
+                            BorderBrush="{x:Null}"
                             Visibility="{Binding MinimumVisibility}"
-                            Command="{Binding MinimumWindow}">
+                            Command="{Binding MinimumWindow}"
+                            Style="{StaticResource ControlButton}">
                         <materialDesign:PackIcon Kind="Minus"
                                                  Height="30"
                                                  Width="30"
-                                                 Margin="-12 -5 -10 0"/>
+                                                 Margin="-15.5 -3 -10 0"/>
                     </Button>
                     <Button Grid.Column="3"
-                            Background="Transparent"
-                            BorderBrush="Transparent"
-                            Foreground="White"
+                            Background="{x:Null}"
+                            BorderBrush="{x:Null}"
                             Visibility="{Binding CloseVisibility}"
-                            Command="{Binding Close}">
+                            Command="{Binding Close}"
+                            Style="{StaticResource ControlButton}">
                         <materialDesign:PackIcon Kind="Close"
                                                  Height="30"
                                                  Width="30"
-                                                 Margin="-12 -5 -10 0"/>
+                                                 Margin="-15.5 -3 -10 0"/>
                     </Button>
                 </Grid>
                 <Border Grid.Row="1">
@@ -219,12 +225,11 @@
                                 Height="Auto"
                                 materialDesign:ButtonAssist.CornerRadius="5"
                                 Background="{Binding OPDBackground}"
-                                BorderBrush="Transparent"
+                                BorderBrush="{x:Null}"
                                 Margin="5"
                                 IsEnabled="{Binding OPDEnabled}"
                                 Opacity="{Binding OPDOpacity}"
-                                Command="{Binding OPD}"
-                                Style="{StaticResource ControlButton}">
+                                Command="{Binding OPD}">
                             <Grid Width="150"
                                   HorizontalAlignment="Center">
                                 <materialDesign:PackIcon Kind="Play"
@@ -245,7 +250,7 @@
                                 Height="Auto"
                                 materialDesign:ButtonAssist.CornerRadius="5"
                                 Background="{Binding StopBackground}"
-                                BorderBrush="Transparent"
+                                BorderBrush="{x:Null}"
                                 Margin="5"
                                 Opacity="{Binding StopOpacity}"
                                 IsEnabled="{Binding StopEnabled}"
@@ -269,13 +274,12 @@
                                 Height="Auto"
                                 materialDesign:ButtonAssist.CornerRadius="5"
                                 Background="{Binding UDBackground}"
-                                BorderBrush="Transparent"
+                                BorderBrush="{x:Null}"
                                 Margin="5"
                                 Opacity="{Binding UDOpacity}"
                                 IsEnabled="{Binding UDEnabled}"
                                 Command="{Binding UD}"
-                                Visibility="{Binding UDVisibility}"
-                                Style="{StaticResource ControlButton}">
+                                Visibility="{Binding UDVisibility}">
                             <Grid Width="150"
                                   HorizontalAlignment="Center">
                                 <materialDesign:PackIcon Kind="Bed"
@@ -365,21 +369,17 @@
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
                         Background="White"
-                        BorderBrush="Transparent">
+                        BorderBrush="{x:Null}">
                     <Button.Triggers>
                         <EventTrigger RoutedEvent="Button.Click">
                             <BeginStoryboard Storyboard="{StaticResource ShowLog}"/>
                         </EventTrigger>
                     </Button.Triggers>
                     <materialDesign:PackIcon Kind="Play"
-                                             Margin="-6.5 20 0 0"
+                                             Margin="-16 2 0 0"
                                              Width="10"
                                              Height="10"
-                                             Foreground="{StaticResource DarkBlue}">
-                        <materialDesign:PackIcon.RenderTransform>
-                            <RotateTransform Angle="180"/>
-                        </materialDesign:PackIcon.RenderTransform>
-                    </materialDesign:PackIcon>
+                                             Foreground="{StaticResource DarkBlue}"/>
                 </Button>
                 <Button x:Name="Btn_CloseLog"
                         Grid.Row="1"
@@ -389,17 +389,21 @@
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
                         Background="White"
-                        BorderBrush="Transparent">
+                        BorderBrush="{x:Null}">
                     <Button.Triggers>
                         <EventTrigger RoutedEvent="Button.Click">
                             <BeginStoryboard Storyboard="{StaticResource CloseLog}"/>
                         </EventTrigger>
                     </Button.Triggers>
                     <materialDesign:PackIcon Kind="Play"
-                                             Margin="-16 0 0 0"
+                                             Margin="-6.5 22 0 0"
                                              Width="10"
                                              Height="10"
-                                             Foreground="{StaticResource DarkBlue}"/>
+                                             Foreground="{StaticResource DarkBlue}">
+                        <materialDesign:PackIcon.RenderTransform>
+                            <RotateTransform Angle="180"/>
+                        </materialDesign:PackIcon.RenderTransform>
+                    </materialDesign:PackIcon>
                 </Button>
             </Grid>
             <Border x:Name="Border_Log"
@@ -412,10 +416,10 @@
                 <TextBox FontSize="12"
                          IsReadOnly="True"
                          Width="Auto"
-                         Background="Transparent"
+                         Background="{x:Null}"
                          Foreground="{StaticResource DarkBlue}"
                          TextWrapping="Wrap"
-                         Text="{Binding Log}"
+                         Text="{Binding ProgressBox}"
                          ScrollViewer.VerticalScrollBarVisibility="Auto">
                 </TextBox>
             </Border>

@@ -14,25 +14,16 @@ using FCP.src.Factory.Models;
 using System.Text;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
-using FCP.src.Dictionary;
+using FCP.Providers;
 using FCP.src.MessageManager;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using System.ComponentModel.DataAnnotations;
+using FCP.src.MessageManager.Request;
 
 namespace FCP.ViewModels
 {
-    class SettingPage1ViewModel : ObservableRecipient
+    class SettingPage1ViewModel : ObservableValidator
     {
-        public ICommand NormalPack { get; set; }
-        public ICommand FilterAdminCode { get; set; }
-        public ICommand UseAdminCode { get; set; }
-        public ICommand AddFilterMedicineCode { get; set; }
-        public ICommand RemoveFilterMedicineCode { get; set; }
-        public ICommand AddFilterAdminCode { get; set; }
-        public ICommand RemoveFilterAdminCode { get; set; }
-        public ICommand AddRandom { get; set; }
-        public ICommand RemoveRandom { get; set; }
-        private SettingPage1Model _model;
-        private SettingJsonModel _settingModel;
-
         public SettingPage1ViewModel()
         {
             _model = ModelsFactory.GenerateSettingPage1Model();
@@ -51,10 +42,24 @@ namespace FCP.ViewModels
             Init();
         }
 
+        public ICommand NormalPack { get; set; }
+        public ICommand FilterAdminCode { get; set; }
+        public ICommand UseAdminCode { get; set; }
+        public ICommand AddFilterMedicineCode { get; set; }
+        public ICommand RemoveFilterMedicineCode { get; set; }
+        public ICommand AddFilterAdminCode { get; set; }
+        public ICommand RemoveFilterAdminCode { get; set; }
+        public ICommand AddRandom { get; set; }
+        public ICommand RemoveRandom { get; set; }
+        private SettingPage1Model _model;
+        private SettingJsonModel _settingModel;
+
+        [Required]
+        [RegularExpression("[0-9]+", ErrorMessage = "不可輸入除 0-9 的數字")]
         public int SearchFrequency
         {
             get => _model.SearchFrequency;
-            set => SetProperty(_model.SearchFrequency, value, _model, (model, _value) => model.SearchFrequency = _value);
+            set => SetProperty(_model.SearchFrequency, value, _model, (model, _value) => model.SearchFrequency = _value, true);
         }
 
         public ObservableCollection<string> Mode
@@ -99,16 +104,16 @@ namespace FCP.ViewModels
             set => SetProperty(_model.AdminCode, value.Trim(), _model, (model, _value) => model.AdminCode = _value);
         }
 
-        public ObservableCollection<string> FilterAdminCodeList
+        public ObservableCollection<string> NeedToFilterAdminCodeList
         {
-            get => _model.FilterAdminCodeList;
-            set => SetProperty(_model.FilterAdminCodeList, value, _model, (model, _value) => model.FilterAdminCodeList = _value);
+            get => _model.NeedToFilterAdminCodeList;
+            set => SetProperty(_model.NeedToFilterAdminCodeList, value, _model, (model, _value) => model.NeedToFilterAdminCodeList = _value);
         }
 
-        public int FilterAdminCodeIndex
+        public int NeedToFilterAdminCodeIndex
         {
-            get => _model.FilerAdminCodeIndex;
-            set => SetProperty(_model.FilerAdminCodeIndex, value, _model, (model, _value) => model.FilerAdminCodeIndex = _value);
+            get => _model.NeedToFilerAdminCodeIndex;
+            set => SetProperty(_model.NeedToFilerAdminCodeIndex, value, _model, (model, _value) => model.NeedToFilerAdminCodeIndex = _value);
         }
 
         public ObservableCollection<RandomInfo> Random
@@ -152,20 +157,21 @@ namespace FCP.ViewModels
             set => SetProperty(_model.MedicineCode, value.Trim(), _model, (model, _value) => model.MedicineCode = _value);
         }
 
-        public ObservableCollection<string> FilterMedicineCodeList
+        public ObservableCollection<string> NeedToFilterMedicineCodeList
         {
-            get => _model.FilterMedicineCodeList;
-            set => SetProperty(_model.FilterMedicineCodeList, value, _model, (model, _value) => model.FilterMedicineCodeList = _value);
+            get => _model.NeedToFilterMedicineCodeList;
+            set => SetProperty(_model.NeedToFilterMedicineCodeList, value, _model, (model, _value) => model.NeedToFilterMedicineCodeList = _value);
         }
 
-        public int FilterMedicineCodeIndex
+        public int NeedToFilterMedicineCodeIndex
         {
-            get => _model.FilterMedicineCodeIndex;
-            set => SetProperty(_model.FilterMedicineCodeIndex, value, _model, (model, _value) => model.FilterMedicineCodeIndex = _value);
+            get => _model.NeedToFilterMedicineCodeIndex;
+            set => SetProperty(_model.NeedToFilterMedicineCodeIndex, value, _model, (model, _value) => model.NeedToFilterMedicineCodeIndex = _value);
         }
 
         public void ResetModel()
         {
+            WeakReferenceMessenger.Default.Unregister<HasErrorsRequestMessage, string>(this, nameof(SettingPage1ViewModel));
             Init();
         }
 
@@ -197,32 +203,32 @@ namespace FCP.ViewModels
         {
             if (MedicineCode.Length == 0)
             {
-                MsgCollection.ShowDialog("藥品代碼欄位為空白，請重新確認", "空白", PackIconKind.Error, dColor.GetSolidColorBrush(eColor.Red));
+                MsgCollection.ShowDialog("藥品代碼欄位為空白，請重新確認", "空白", PackIconKind.Error, ColorProvider.GetSolidColorBrush(eColor.Red));
                 FocusedFilterMedicineCode();
                 return;
             }
-            if (FilterMedicineCodeList.Contains(MedicineCode))
+            if (NeedToFilterMedicineCodeList.Contains(MedicineCode))
             {
-                MsgCollection.ShowDialog($"該藥品代碼 {MedicineCode} 已建立，請重新確認", "重複", PackIconKind.Error, dColor.GetSolidColorBrush(eColor.Red));
+                MsgCollection.ShowDialog($"該藥品代碼 {MedicineCode} 已建立，請重新確認", "重複", PackIconKind.Error, ColorProvider.GetSolidColorBrush(eColor.Red));
                 FocusedFilterMedicineCode();
                 SelectedAllMedicineCode();
                 return;
             }
-            FilterMedicineCodeList.Add(MedicineCode);
-            FilterMedicineCodeList = ListHelper.ToObservableCollection(FilterMedicineCodeList.OrderBy(x => x).ToList());
-            FilterMedicineCodeIndex = 0;
+            NeedToFilterMedicineCodeList.Add(MedicineCode);
+            NeedToFilterMedicineCodeList = ListHelper.ToObservableCollection(NeedToFilterMedicineCodeList.OrderBy(x => x).ToList());
+            NeedToFilterMedicineCodeIndex = 0;
             MedicineCode = string.Empty;
             FocusedFilterMedicineCode();
         }
 
         public void RemoveFilterMedicineCodeFunc()
         {
-            if (FilterMedicineCodeList.Count == 0 || FilterMedicineCodeIndex == -1)
+            if (NeedToFilterMedicineCodeList.Count == 0 || NeedToFilterMedicineCodeIndex == -1)
             {
                 return;
             }
-            FilterMedicineCodeList.RemoveAt(FilterMedicineCodeIndex);
-            FilterMedicineCodeIndex = FilterMedicineCodeList.Count == 0 ? -1 : 0;
+            NeedToFilterMedicineCodeList.RemoveAt(NeedToFilterMedicineCodeIndex);
+            NeedToFilterMedicineCodeIndex = NeedToFilterMedicineCodeList.Count == 0 ? -1 : 0;
             RefreshedFilterMedicineCode();
         }
 
@@ -230,37 +236,38 @@ namespace FCP.ViewModels
         {
             if (AdminCode.Length == 0)
             {
-                MsgCollection.ShowDialog("頻率欄位為空白，請重新確認", "空白", PackIconKind.Error, dColor.GetSolidColorBrush(eColor.Red));
+                MsgCollection.ShowDialog("頻率欄位為空白，請重新確認", "空白", PackIconKind.Error, ColorProvider.GetSolidColorBrush(eColor.Red));
                 FocusedFilterAdminCode();
 
                 return;
             }
-            if (FilterAdminCodeList.Contains(AdminCode))
+            if (NeedToFilterAdminCodeList.Contains(AdminCode))
             {
-                MsgCollection.ShowDialog($"該頻率 {AdminCode} 已建立，請重新確認", "重複", PackIconKind.Error, dColor.GetSolidColorBrush(eColor.Red));
+                MsgCollection.ShowDialog($"該頻率 {AdminCode} 已建立，請重新確認", "重複", PackIconKind.Error, ColorProvider.GetSolidColorBrush(eColor.Red));
                 FocusedFilterAdminCode();
                 SelectedAllAdminCode();
                 return;
             }
-            FilterAdminCodeList.Add(AdminCode);
-            FilterAdminCodeList = ListHelper.ToObservableCollection(FilterAdminCodeList.OrderBy(x => x).ToList());
-            FilterAdminCodeIndex = 0;
+            NeedToFilterAdminCodeList.Add(AdminCode);
+            NeedToFilterAdminCodeList = ListHelper.ToObservableCollection(NeedToFilterAdminCodeList.OrderBy(x => x).ToList());
+            NeedToFilterAdminCodeIndex = 0;
             AdminCode = string.Empty;
             FocusedFilterAdminCode();
         }
 
         public void RemoveFilterAdminCodeFunc()
         {
-            if (FilterAdminCodeList.Count == 0 || FilterAdminCodeIndex == -1)
+            if (NeedToFilterAdminCodeList.Count == 0 || NeedToFilterAdminCodeIndex == -1)
             {
                 return;
             }
-            FilterAdminCodeList.RemoveAt(FilterAdminCodeIndex);
-            FilterAdminCodeIndex = FilterAdminCodeList.Count == 0 ? -1 : 0;
+            NeedToFilterAdminCodeList.RemoveAt(NeedToFilterAdminCodeIndex);
+            NeedToFilterAdminCodeIndex = NeedToFilterAdminCodeList.Count == 0 ? -1 : 0;
         }
 
         private void Init()
         {
+            WeakReferenceMessenger.Default.Register<HasErrorsRequestMessage, string>(this, nameof(SettingPage1ViewModel), (r, m) => m.Reply(this.HasErrors));
             SearchFrequency = _settingModel.Speed;
             MultiChecked = _settingModel.DoseType == eDoseType.餐包;
             CombiChecked = _settingModel.DoseType == eDoseType.種包;
@@ -268,9 +275,9 @@ namespace FCP.ViewModels
             AdminCodeOfCrossDay = _settingModel.CrossDayAdminCode;
             Mode = EnumHelper.ToObservableCollection<eFormat>();
             FormatIndex = (int)_settingModel.Format;
-            FilterAdminCodeList = ListHelper.ToObservableCollection(_settingModel.FilterAdminCode);
+            NeedToFilterAdminCodeList = ListHelper.ToObservableCollection(_settingModel.NeedToFilterAdminCode);
             Random = ListHelper.ToObservableCollection(_settingModel.ExtraRandom);
-            FilterMedicineCodeList = ListHelper.ToObservableCollection(_settingModel.FilterMedicineCode);
+            NeedToFilterMedicineCodeList = ListHelper.ToObservableCollection(_settingModel.NeedToFilterMedicineCode);
 
             if (_settingModel.PackMode == ePackMode.正常)
             {
@@ -307,38 +314,38 @@ namespace FCP.ViewModels
             }
             Random.RemoveAt(RandomIndex);
             RandomIndex = RandomIndex == 0 ? -1 : 0;
-            Random.ToList().ForEach(x => x.No = Random.IndexOf(x).ToString());  //重新編排No
+            Random.ToList().ForEach(x => x.No = Random.IndexOf(x).ToString());  //重新編排No.
             RefreshedRandomataGridView();
         }
 
         private void FocusedFilterAdminCode()
         {
-            Messenger.Send(new View_FocusedElementMessage(), "Txt_FilterAdminCode");
+            WeakReferenceMessenger.Default.Send(new View_FocusedElementMessage(), "Txt_FilterAdminCode");
         }
 
         private void FocusedFilterMedicineCode()
         {
-            Messenger.Send(new View_FocusedElementMessage(), "Txt_FilterMedicineCode");
+            WeakReferenceMessenger.Default.Send(new View_FocusedElementMessage(), "Txt_FilterMedicineCode");
         }
 
         private void SelectedAllAdminCode()
         {
-            Messenger.Send(new View_SelectedAllMessage(), "Txt_FilterAdminCode");
+            WeakReferenceMessenger.Default.Send(new View_SelectedAllMessage(), "Txt_FilterAdminCode");
         }
 
         private void SelectedAllMedicineCode()
         {
-            Messenger.Send(new View_SelectedAllMessage(), "Txt_FilterMedicineCode");
+            WeakReferenceMessenger.Default.Send(new View_SelectedAllMessage(), "Txt_FilterMedicineCode");
         }
 
         private void RefreshedRandomataGridView()
         {
-            Messenger.Send(new View_RefresedhElementMessage(), "Dg_RandomSetting");
+            WeakReferenceMessenger.Default.Send(new View_RefresedhElementMessage(), "Dg_RandomSetting");
         }
 
         private void RefreshedFilterMedicineCode()
         {
-            Messenger.Send(new View_RefresedhElementMessage(), "Cbo_FilterMedicineCode");
+            WeakReferenceMessenger.Default.Send(new View_RefresedhElementMessage(), "Cbo_FilterMedicineCode");
         }
     }
 }

@@ -1,0 +1,111 @@
+﻿<UserControl x:Class="FCP.Views.SettingPage3View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:FCP.Views"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:vm="clr-namespace:FCP.ViewModels"
+             mc:Ignorable="d"
+             TextElement.FontWeight="Regular"
+             TextElement.FontSize="16"
+             TextElement.FontFamily="Consolas"
+             TextOptions.TextFormattingMode="Ideal" 
+             TextOptions.TextRenderingMode="Auto"
+             FontFamily="{DynamicResource MaterialDesignFont}">
+    <UserControl.Resources>
+        <vm:SettingPage3ViewModel x:Key="vm1"/>
+    </UserControl.Resources>
+    <Border CornerRadius="10"
+            Background="White"
+            Margin="5">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="45"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <DockPanel>
+                <Border CornerRadius="7"
+                        Background="{StaticResource DarkBlue}"
+                        Margin="5 5 5 0">
+                    <TextBlock Text="OnCube ETC 設定"
+                               Foreground="White"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"
+                               Margin="0 4 0 0"/>
+                </Border>
+            </DockPanel>
+            <StackPanel Grid.Row="1">
+                <Grid>
+                    <Border CornerRadius="10"
+                            Height="80"
+                            Background="White"
+                            Margin="10">
+                        <Border.Effect>
+                            <DropShadowEffect ShadowDepth="0"
+                                          BlurRadius="10"/>
+                        </Border.Effect>
+                    </Border>
+                    <DockPanel>
+                    </DockPanel>
+                </Grid>
+                <Border CornerRadius="10"
+                        Height="315"
+                        Margin="10 0 10 0">
+                    <Border.Effect>
+                        <DropShadowEffect ShadowDepth="0"
+                                          BlurRadius="10"/>
+                    </Border.Effect>
+                    <DataGrid Name="ETCDataGrid"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              CanUserResizeRows="False"
+                              CanUserSortColumns="False"
+                              AutoGenerateColumns="False"
+                              SelectionUnit="FullRow"
+                              materialDesign:DataGridAssist.CornerRadius="10"
+                              SelectionMode="Single"
+                              SelectedIndex="{Binding DataGridSelectedIndex}"
+                              ItemsSource="{Binding ETCData}"
+                              FocusVisualStyle="{x:Null}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="CellEditEnding">
+                                <i:InvokeCommandAction Command="{Binding CellEditEnding}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="添加" Command="{Binding Append}"/>
+                                <MenuItem Header="刪除" Command="{Binding Remove}"/>
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="ETC No."
+                                                    Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding ETC}" SelectedIndex="{Binding ETCIndex, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="綁定"
+                                                    Width="150">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding PrescriptionParameters}" SelectedIndex="{Binding PrescriptionParameterIndex, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="格式"
+                                                Width="120"
+                                                Binding="{Binding Format, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

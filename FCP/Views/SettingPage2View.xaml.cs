@@ -10,7 +10,6 @@ namespace FCP.Views
         public SettingPage2View()
         {
             InitializeComponent();
-            //this.DataContext = App.Current.Services.GetService<SettingPage2ViewModel>();
         }
     }
 }

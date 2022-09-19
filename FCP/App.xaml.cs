@@ -1,11 +1,7 @@
 ﻿using FCP.ViewModels;
 using Lierda.WPFHelper;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Toolkit.Mvvm.DependencyInjection;
-using Microsoft.Toolkit.Mvvm.Messaging;
 using System;
-using System.Data;
-using System.Linq;
 using System.Windows;
 
 namespace FCP
@@ -21,8 +17,9 @@ namespace FCP
             this.InitializeComponent();
         }
 
-        public new static App Current => (App)Application.Current;
         public IServiceProvider Services { get; set; }
+        public new static App Current => (App)Application.Current;
+        private LierdaCracker _cracker = new LierdaCracker();
 
         public static IServiceProvider ConfigureServices()
         {
@@ -30,18 +27,19 @@ namespace FCP
             services.AddTransient<MainWindowViewModel>();
             services.AddTransient<SettingPage1ViewModel>();
             services.AddTransient<SettingPage2ViewModel>();
+            services.AddTransient<SettingPage3ViewModel>();
             services.AddTransient<MsgViewModel>();
             services.AddTransient<SettingViewModel>();
             services.AddTransient<SimpleWindowViewModel>();
+            services.AddTransient<WindowPositionViewModel>();
 
             return services.BuildServiceProvider();
         }
 
-        //LierdaCracker cracker = new LierdaCracker();
-        //protected override void OnStartup(StartupEventArgs e)
-        //{
-        //    cracker.Cracker(60);
-        //    base.OnStartup(e);
-        //}
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            _cracker.Cracker(5);
+            base.OnStartup(e);
+        }
     }
 }

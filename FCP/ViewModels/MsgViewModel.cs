@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using FCP.Models;
-using FCP.src.Dictionary;
+using FCP.Providers;
 using FCP.src.Enum;
 using MaterialDesignThemes.Wpf;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
@@ -70,7 +70,7 @@ namespace FCP.ViewModels
             Content = content.ToString();
             Title = string.Empty;
             Kind = PackIconKind.Information;
-            KindColor = dColor.GetSolidColorBrush(eColor.RoyalBlue);
+            KindColor = ColorProvider.GetSolidColorBrush(eColor.RoyalBlue);
             OKButtonFocus = true;
             MessageBeep(1);
         }

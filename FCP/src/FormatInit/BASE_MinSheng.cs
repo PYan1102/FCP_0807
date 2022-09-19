@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using FCP.src.Enum;
-using FCP.src.FormatControl;
+using FCP.src.FormatLogic;
 using FCP.Services;
 using System.Windows;
 using FCP.Models;
@@ -9,14 +9,14 @@ using FCP.src.MessageManager;
 
 namespace FCP.src.FormatInit
 {
-    class BASE_MinSheng : FormatBase
+    class BASE_MinSheng : ConvertBase
     {
         private FMT_MinSheng _format;
 
         public override void Init()
         {
             base.Init();
-            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToogleModel() { Toogle1 = true, Toogle3 = true, Toogle4 = true }));
+            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToggleModel() { Toggle1 = true, Toggle3 = true, Toggle4 = true }));
         }
 
         public override ActionResult PrepareStart()

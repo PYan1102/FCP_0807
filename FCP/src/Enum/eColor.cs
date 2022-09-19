@@ -7,6 +7,7 @@
         Blue,
         DarkBlue,
         RoyalBlue,
+        ShallowBlue,
         White,
         Red
     }

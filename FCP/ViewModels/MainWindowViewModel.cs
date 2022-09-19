@@ -19,30 +19,15 @@ using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using FCP.src.MessageManager;
 using Microsoft.Extensions.DependencyInjection;
-using FCP.src.Dictionary;
+using FCP.Providers;
+using FCP.src.MessageManager.Change;
+using FCP.src.MessageManager.Request;
+using SqlHelper;
 
 namespace FCP.ViewModels
 {
     class MainWindowViewModel : ObservableRecipient
     {
-        public ICommand ShowAdvancedSettings { get; set; }
-        public ICommand OPD { get; set; }
-        public ICommand UD { get; set; }
-        public ICommand Stop { get; set; }
-        public ICommand Save { get; set; }
-        public ICommand Close { get; set; }
-        public ICommand MinimumWindow { get; set; }
-        public ICommand Loaded { get; set; }
-        public ICommand SwitchWindow { get; set; }
-        public ICommand Activate { get; set; }
-        public ICommand SelectFolder { get; set; }
-        public ICommand ClearPath { get; set; }
-        public ICommand OpenLog { get; set; }
-        public ICommand ClearProgressBoxContent { get; set; }
-        private FormatBase _formatBase;
-        private SettingJsonModel _settingModel;
-        private MainWindowModel _model;
-
         public MainWindowViewModel()
         {
             _settingModel = ModelsFactory.GenerateSettingModel();
@@ -61,8 +46,22 @@ namespace FCP.ViewModels
             SelectFolder = new RelayCommand<string>(s => SelectFolderFunc(s));
             ClearPath = new RelayCommand<string>(s => ClearPathFunc(s), s => CanStartConverterOrShowAdvancedSettings());
             OpenLog = new RelayCommand(OpenLogFunc);
-            ClearProgressBoxContent = new RelayCommand(ClearProgressBoxContentFunc);
+            ClearProgressBox = new RelayCommand(ClearProgressBoxFunc);
         }
+        public ICommand ShowAdvancedSettings { get; set; }
+        public ICommand OPD { get; set; }
+        public ICommand UD { get; set; }
+        public ICommand Stop { get; set; }
+        public ICommand Save { get; set; }
+        public ICommand Close { get; set; }
+        public ICommand MinimumWindow { get; set; }
+        public ICommand Loaded { get; set; }
+        public ICommand SwitchWindow { get; set; }
+        public ICommand Activate { get; set; }
+        public ICommand SelectFolder { get; set; }
+        public ICommand ClearPath { get; set; }
+        public ICommand OpenLog { get; set; }
+        public ICommand ClearProgressBox { get; set; }
 
         public Visibility Visibility
         {
@@ -362,16 +361,16 @@ namespace FCP.ViewModels
             set => SetProperty(_model.BatchEnabled, value, _model, (model, _value) => model.BatchEnabled = _value);
         }
 
-        public Visibility StatVisibility
+        public bool AutoStartEnabled
         {
-            get => _model.StatVisibility;
-            set => SetProperty(_model.StatVisibility, value, _model, (model, _value) => model.StatVisibility = _value);
+            get => _model.AutoStartEnabled;
+            set => SetProperty(_model.AutoStartEnabled, value, _model, (model, _value) => model.AutoStartEnabled = _value);
         }
 
-        public Visibility BatchVisibility
+        public Visibility UDTypeVisibility
         {
-            get => _model.BatchVisibility;
-            set => SetProperty(_model.BatchVisibility, value, _model, (model, _value) => model.BatchVisibility = _value);
+            get => _model.UDTypeVisibility;
+            set => SetProperty(_model.UDTypeVisibility, value, _model, (model, _value) => model.UDTypeVisibility = _value);
         }
 
         public Visibility SplitEachMealVisibility
@@ -400,42 +399,6 @@ namespace FCP.ViewModels
         {
             get => _model.DoseType;
             set => SetProperty(_model.DoseType, value, _model, (model, _value) => model.DoseType = _value);
-        }
-
-        public string WindowX
-        {
-            get => _model.WindowX;
-            set => SetProperty(_model.WindowX, value, _model, (model, _value) => model.WindowX = _value);
-        }
-
-        public string WindowY
-        {
-            get => _model.WindowY;
-            set => SetProperty(_model.WindowY, value, _model, (model, _value) => model.WindowY = _value);
-        }
-
-        public bool WindowXEnabled
-        {
-            get => _model.WindowXEnabled;
-            set => SetProperty(_model.WindowXEnabled, value, _model, (model, _value) => model.WindowXEnabled = _value);
-        }
-
-        public bool WindowYEnabled
-        {
-            get => _model.WindowYEnabled;
-            set => SetProperty(_model.WindowYEnabled, value, _model, (model, _value) => model.WindowYEnabled = _value);
-        }
-
-        public Visibility WindowXVisibility
-        {
-            get => _model.WindowXVisibility;
-            set => SetProperty(_model.WindowXVisibility, value, _model, (model, _value) => model.WindowXVisibility = _value);
-        }
-
-        public Visibility WindowYVisibility
-        {
-            get => _model.WindowYVisibility;
-            set => SetProperty(_model.WindowYVisibility, value, _model, (model, _value) => model.WindowYVisibility = _value);
         }
 
         public Visibility MinimumAndCloseVisibility
@@ -468,11 +431,22 @@ namespace FCP.ViewModels
             set => SetProperty(_model.UDBackground, value, _model, (model, _value) => model.UDBackground = _value);
         }
 
-        public string ProgressBoxContent
+        public string ProgressBox
         {
-            get => _model.ProgressBoxContent;
-            set => SetProperty(_model.ProgressBoxContent, value, _model, (model, _value) => model.ProgressBoxContent = _value);
+            get => _model.ProgressBox;
+            set => SetProperty(_model.ProgressBox, value, _model, (model, _value) => model.ProgressBox = _value);
         }
+
+        public object WindowPosition
+        {
+            get => _windowPosition;
+            set => SetProperty(ref _windowPosition, value);
+        }
+
+        private ConvertBase _formatBase;
+        private SettingJsonModel _settingModel;
+        private MainWindowModel _model;
+        private object _windowPosition;
 
         public void OPDFunc()
         {
@@ -507,8 +481,13 @@ namespace FCP.ViewModels
 
         public void SaveFunc()
         {
-            Properties.Settings.Default.X = Convert.ToInt32(WindowX);
-            Properties.Settings.Default.Y = Convert.ToInt32(WindowY);
+            if (HasAnyErrorsMessage())
+            {
+                MsgCollection.ShowDialog("可能有欄位處於未通過驗證的狀態，請確認各欄位是否符合驗證規則", "有未驗證成功的欄位", PackIconKind.Error, ColorProvider.GetSolidColorBrush(eColor.Red));
+                return;
+            }
+            Properties.Settings.Default.X = Messenger.Send(new WindowXRequestMessage());
+            Properties.Settings.Default.Y = Messenger.Send(new WindowYRequestMessage());
             Properties.Settings.Default.Save();
             SettingJsonModel model = _settingModel;
             model.InputDirectory1 = InputDirectory1;
@@ -520,27 +499,19 @@ namespace FCP.ViewModels
             model.OutputDirectory = OutputDirectory;
             model.AutoStart = IsAutoStartChecked;
             Setting.Save(model);
-            MsgCollection.ShowDialog("設定儲存成功", "成功", PackIconKind.Information, dColor.GetSolidColorBrush(eColor.RoyalBlue));
-        }
-
-        public void AddLog(string message)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(ProgressBoxContent);
-            sb.AppendLine(message);
-            ProgressBoxContent = sb.ToString();
-            sb = null;
+            MsgCollection.ShowDialog("設定儲存成功", "成功", PackIconKind.Information, ColorProvider.GetSolidColorBrush(eColor.RoyalBlue));
         }
 
         public void SwitchWindowFunc()
         {
             Visibility = Visibility.Hidden;
-            Messenger.Send(new ShowDialogMessage(), nameof(FCP.Views.SimpleWindowView));
             CommonModel.WindowType = eWindowType.SimpleWindow;
+            Messenger.Send(new ShowDialogMessage(), nameof(FCP.Views.SimpleWindowView));
         }
 
         public void NotifyIconDBClick()
         {
+            Console.WriteLine(CommonModel.WindowType);
             if (CommonModel.WindowType == eWindowType.SimpleWindow)
             {
                 Messenger.Send(new VisibilityMessage(), nameof(SimpleWindowViewModel));
@@ -548,6 +519,7 @@ namespace FCP.ViewModels
             else
             {
                 Visibility = Visibility.Visible;
+                Messenger.Send(new ActivateMessage(), nameof(FCP.Views.MainWindowView));
             }
         }
 
@@ -555,20 +527,20 @@ namespace FCP.ViewModels
         {
             base.OnActivated();
 
-            Messenger.Register<UpdateMainUIChangeMessage>(this, (r, m) => { RefreshMainWindowUI(m.Value); });
+            Messenger.Register<MainUIChangeMessage>(this, (r, m) => RefreshMainWindowUI(m.Value));
 
-            Messenger.Register<SetMainWindowToogleCheckedChangeMessage>(this, (r, m) => { SetToogleChecked(m.Value); });
+            Messenger.Register<SetMainWindowToogleCheckedChangeMessage>(this, (r, m) => SetToogleChecked(m.Value));
 
-            Messenger.Register<CommandMessage, string>(this, nameof(eCommandCollection.CreateNewFormat), (r, m) => { CreateNewFormat(); });
+            Messenger.Register<CommandMessage, string>(this, nameof(eCommandCollection.CreateNewFormat), (r, m) => NewFormat());
 
             Messenger.Register<GetMainWindowToogleCheckedRequestMessage>(this, (r, m) =>
             {
-                m.Reply(new MainWindowModel.ToogleModel()
+                m.Reply(new MainWindowModel.ToggleModel()
                 {
-                    Toogle1 = OPDToogle1Checked,
-                    Toogle2 = OPDToogle2Checked,
-                    Toogle3 = OPDToogle3Checked,
-                    Toogle4 = OPDToogle4Checked
+                    Toggle1 = OPDToogle1Checked,
+                    Toggle2 = OPDToogle2Checked,
+                    Toggle3 = OPDToogle3Checked,
+                    Toggle4 = OPDToogle4Checked
                 });
             });
 
@@ -578,14 +550,38 @@ namespace FCP.ViewModels
                 Focusable = true;
             });
 
-            Messenger.Register<OpreationMessage, string>(this, nameof(eOpreation.Stop), (r, m) => { StopFunc(); });
+            Messenger.Register<HasErrorsRequestMessage, string>(this, nameof(MainWindowViewModel), (r, m) => m.Reply(false));
 
+            Messenger.Register<LogChangeMessage>(this, (r, m) =>
+            {
+                ProgressBox += $"{m.Value}\n";
+            });
 
+            Messenger.Register<OpreationMessage, string>(this, nameof(eOpreation.OPD), (r, m) => OPDFunc());
+
+            Messenger.Register<OpreationMessage, string>(this, nameof(eOpreation.UD), (r, m) => UDFunc());
+
+            Messenger.Register<OpreationMessage, string>(this, nameof(eOpreation.Stop), (r, m) => StopFunc());
         }
 
-        private void CreateNewFormat()
+        private bool HasAnyErrorsMessage()
         {
-            _formatBase = FormatFactory.GenerateFormat(_settingModel.Format);
+            if (Messenger.Send(new HasErrorsRequestMessage(), nameof(MainWindowViewModel)))
+            {
+                return true;
+            }
+            if (Messenger.Send(new HasErrorsRequestMessage(), nameof(WindowPositionViewModel)))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private void NewFormat()
+        {
+            _formatBase = FormatFactory.GenerateNewFormat(_settingModel.Format);
+            CommonModel.SqlHelper.ConnectionStr = $"{_settingModel.Format}".Contains("OC") || $"{_settingModel.Format}" == "JVS" ? CommonModel.OnCubeSqlConnection : CommonModel.JVServerSqlConnection;
+            CommonModel.SqlHelper.InitDb();
             _formatBase.Init();
         }
 
@@ -597,12 +593,16 @@ namespace FCP.ViewModels
             NotifyIconHelper.Init(Properties.Resources.FCP, "轉檔");
             NotifyIconHelper.DoubleClickAction += NotifyIconDBClick;
             CommonModel.NotifyIcon = NotifyIconHelper.NotifyIcon;
-            CreateNewFormat();
+            NewFormat();
             Init();
             if (IsAutoStartChecked)
             {
-                await Task.Delay(1000);
+                await Task.Delay(500);
                 OPDFunc();
+            }
+            if (_settingModel.MinimizeWindowWhenProgramStart)
+            {
+                SwitchWindowFunc();
             }
         }
 
@@ -612,7 +612,7 @@ namespace FCP.ViewModels
             if (Process.GetProcessesByName("FCP").Length > 1)
             {
                 Log.Write("程式已開啟，請確認工具列");
-                MsgCollection.ShowDialog("程式已開啟，請確認工具列", "重複開啟", PackIconKind.Error, dColor.GetSolidColorBrush(eColor.Red));
+                MsgCollection.ShowDialog("程式已開啟，請確認工具列", "重複開啟", PackIconKind.Error, ColorProvider.GetSolidColorBrush(eColor.Red));
                 Environment.Exit(0);
             }
         }
@@ -697,22 +697,24 @@ namespace FCP.ViewModels
             InputDirectory6 = _settingModel.InputDirectory6;
             OutputDirectory = _settingModel.OutputDirectory;
             IsAutoStartChecked = _settingModel.AutoStart;
-            WindowX = Properties.Settings.Default.X.ToString();
-            WindowY = Properties.Settings.Default.Y.ToString();
             StopEnabled = false;
             StatChecked = _settingModel.StatOrBatch == eDepartment.Stat;
             BatchChecked = _settingModel.StatOrBatch == eDepartment.Batch;
+            WindowPosition = App.Current.Services.GetService<WindowPositionViewModel>();
         }
 
         private bool CanStartConverterOrShowAdvancedSettings()
         {
-            return !StopEnabled;
+            if (_formatBase == null)
+            {
+                return true;
+            }
+            return !_formatBase.IsStart;
         }
 
-        private void ClearProgressBoxContentFunc()
+        private void ClearProgressBoxFunc()
         {
-            ProgressBoxContent = string.Empty;
-            Messenger.Send(new ClearSimpleWindowLogMessage());
+            ProgressBox = string.Empty;
         }
 
         private void OpenLogFunc()
@@ -723,12 +725,16 @@ namespace FCP.ViewModels
             }
             catch
             {
-                MsgCollection.ShowDialog("目前尚未產生Log檔", "錯誤", PackIconKind.Error, dColor.GetSolidColorBrush(eColor.Red));
+                MsgCollection.ShowDialog("目前尚未產生Log檔", "錯誤", PackIconKind.Error, ColorProvider.GetSolidColorBrush(eColor.Red));
             }
         }
 
         private void RefreshMainWindowUI(MainUILayoutModel UI)
         {
+            if (_formatBase.IsStart)
+            {
+                return;
+            }
             WindowTitle = UI.Title;
             InputDirectory1Title = UI.IP1Title;
             InputDirectory2Title = UI.IP2Title;
@@ -751,11 +757,11 @@ namespace FCP.ViewModels
             OPDToogle2Visibility = UI.OPD2Visibility;
             OPDToogle3Visibility = UI.OPD3Visibility;
             OPDToogle4Visibility = UI.OPD4Visibility;
-            StatVisibility = _settingModel.UseStatOrBatch ? Visibility.Visible : Visibility.Hidden;
-            BatchVisibility = _settingModel.UseStatOrBatch ? Visibility.Visible : Visibility.Hidden;
-            MinimumAndCloseVisibility = _settingModel.ShowWindowOperationButton ? Visibility.Visible : Visibility.Hidden;
-            WindowXVisibility = _settingModel.ShowXYParameter ? Visibility.Visible : Visibility.Hidden;
-            WindowYVisibility = _settingModel.ShowXYParameter ? Visibility.Visible : Visibility.Hidden;
+            DoseType = _settingModel.DoseType == eDoseType.餐包 ? eDoseType.餐包 : eDoseType.種包;
+            UDTypeVisibility = _settingModel.UseStatAndBatchOption ? Visibility.Visible : Visibility.Hidden;
+            MinimumAndCloseVisibility = _settingModel.ShowCloseAndMinimizeButton ? Visibility.Visible : Visibility.Hidden;
+            SplitEachMealVisibility = _settingModel.Format == eFormat.JVS ? Visibility.Visible : Visibility.Hidden;
+            Messenger.Send(new WindowPositionVisibilityChangeMessage(_settingModel.ShowXY ? Visibility.Visible : Visibility.Hidden));
         }
 
         private void SwitchMainWindowControlState(bool b)
@@ -773,8 +779,9 @@ namespace FCP.ViewModels
             UDEnabled = b;
             StopEnabled = !b;
             SaveEnabled = b;
-            WindowXEnabled = b;
-            WindowYEnabled = b;
+            AutoStartEnabled = b;
+            Messenger.Send(new WindowXEnabledChangeMessage(b));
+            Messenger.Send(new WindowYEnabledChangeMessage(b));
             OPDToogle1Enabled = b;
             OPDToogle2Enabled = b;
             OPDToogle3Enabled = b;
@@ -785,30 +792,30 @@ namespace FCP.ViewModels
         {
             OPDOpacity = 1;
             UDOpacity = 1;
-            OPDBackground = dColor.GetSolidColorBrush(eColor.White);
-            UDBackground = dColor.GetSolidColorBrush(eColor.White);
+            OPDBackground = ColorProvider.GetSolidColorBrush(eColor.White);
+            UDBackground = ColorProvider.GetSolidColorBrush(eColor.White);
         }
 
         private void SwitchUIToStart()
         {
             if (CommonModel.CurrentDepartment == eDepartment.OPD)
             {
-                OPDBackground = dColor.GetSolidColorBrush(eColor.Red);
+                OPDBackground = ColorProvider.GetSolidColorBrush(eColor.Red);
                 UDOpacity = 0.2F;
             }
             else
             {
-                UDBackground = dColor.GetSolidColorBrush(eColor.Red);
+                UDBackground = ColorProvider.GetSolidColorBrush(eColor.Red);
                 OPDOpacity = 0.2F;
             }
         }
 
-        private void SetToogleChecked(MainWindowModel.ToogleModel model)
+        private void SetToogleChecked(MainWindowModel.ToggleModel model)
         {
-            OPDToogle1Checked = model.Toogle1;
-            OPDToogle2Checked = model.Toogle2;
-            OPDToogle3Checked = model.Toogle3;
-            OPDToogle4Checked = model.Toogle4;
+            OPDToogle1Checked = model.Toggle1;
+            OPDToogle2Checked = model.Toggle2;
+            OPDToogle3Checked = model.Toggle3;
+            OPDToogle4Checked = model.Toggle4;
         }
     }
 }

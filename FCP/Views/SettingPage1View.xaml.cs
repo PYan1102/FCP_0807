@@ -1,6 +1,7 @@
 ﻿using FCP.src.MessageManager;
 using FCP.ViewModels;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using System.Text.RegularExpressions;
 using System.Windows.Controls;
 
 namespace FCP.Views
@@ -47,17 +48,22 @@ namespace FCP.Views
 
         private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
-            WeakReferenceMessenger.Default.Register<View_FocusedElementMessage, string>(this, "Txt_FilterAdminCode", (r, m) => { FocusFilterAdminCode(); });
-            WeakReferenceMessenger.Default.Register<View_FocusedElementMessage, string>(this, "Txt_FilterMedicineCode", (r, m) => { FocusFilterMedicineCode(); });
-            WeakReferenceMessenger.Default.Register<View_SelectedAllMessage, string>(this, "Txt_FilterAdminCode", (r, m) => { SelectAllFilterAdminCode(); });
-            WeakReferenceMessenger.Default.Register<View_SelectedAllMessage, string>(this, "Txt_FilterMedicineCode", (r, m) => { SelectAllFilterMedicineCode(); });
-            WeakReferenceMessenger.Default.Register<View_RefresedhElementMessage, string>(this, "Dg_RandomSetting", (r, m) => { RefreshRandomDataGridView(); });
-            WeakReferenceMessenger.Default.Register<View_RefresedhElementMessage, string>(this, "Cbo_FilterMedicineCode", (r, m) => { RefreshFilterMedicineCodeComboBox(); });
+            WeakReferenceMessenger.Default.Register<View_FocusedElementMessage, string>(this, "Txt_FilterAdminCode", (r, m) =>  FocusFilterAdminCode());
+            WeakReferenceMessenger.Default.Register<View_FocusedElementMessage, string>(this, "Txt_FilterMedicineCode", (r, m) =>  FocusFilterMedicineCode());
+            WeakReferenceMessenger.Default.Register<View_SelectedAllMessage, string>(this, "Txt_FilterAdminCode", (r, m) =>  SelectAllFilterAdminCode());
+            WeakReferenceMessenger.Default.Register<View_SelectedAllMessage, string>(this, "Txt_FilterMedicineCode", (r, m) =>  SelectAllFilterMedicineCode());
+            WeakReferenceMessenger.Default.Register<View_RefresedhElementMessage, string>(this, "Dg_RandomSetting", (r, m) => RefreshRandomDataGridView());
+            WeakReferenceMessenger.Default.Register<View_RefresedhElementMessage, string>(this, "Cbo_FilterMedicineCode", (r, m) =>  RefreshFilterMedicineCodeComboBox());
         }
 
         private void UserControl_Unloaded(object sender, System.Windows.RoutedEventArgs e)
         {
             WeakReferenceMessenger.Default.UnregisterAll(this);
+        }
+
+        private void TextBox_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            e.Handled = new Regex("[^0-9]+").IsMatch(e.Text);
         }
     }
 }

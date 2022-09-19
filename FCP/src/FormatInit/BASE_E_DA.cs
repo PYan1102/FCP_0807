@@ -1,4 +1,4 @@
-﻿using FCP.src.FormatControl;
+﻿using FCP.src.FormatLogic;
 using FCP.src.Enum;
 using System.Windows;
 using FCP.Models;
@@ -7,14 +7,14 @@ using FCP.src.MessageManager;
 
 namespace FCP.src.FormatInit
 {
-    class BASE_E_DA : FormatBase
+    class BASE_E_DA : ConvertBase
     {
         private FMT_E_DA _format;
 
         public override void Init()
         {
             base.Init();
-            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToogleModel() { Toogle1 = true }));
+            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToggleModel() { Toggle1 = true }));
         }
 
         public override ActionResult PrepareStart()

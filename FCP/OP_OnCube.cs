@@ -6,61 +6,57 @@ using System.IO;
 using System.Globalization;
 using FCP.src.Enum;
 using Helper;
-using FCP.src.FormatControl;
+using FCP.src.FormatLogic;
 using FCP.src.Factory.Models;
 using FCP.Models;
+using System.Reflection;
 
 namespace FCP
 {
     internal static class OP_OnCube
     {
         private static SettingJsonModel _settingModel => ModelsFactory.GenerateSettingModel();
-        public static void JVServer(List<JVServerOPD> opd, JVServerOPDBasic basic, List<string> oncubeRandom, string random, string outputDirectory)
+
+        public static void JVServer(List<PrescriptionModel> data, string outputDirectory)
         {
             try
             {
                 StringBuilder sb = new StringBuilder();
-                foreach (var v in opd)
+                foreach (var v in data)
                 {
                     eDoseType doseType = GetDoseType(v.AdminCode);
-                    sb.Append(ECD(basic.PatientName, 20));
-                    sb.Append(basic.PatientNo.PadRight(30));
-                    sb.Append(ECD(basic.LocationName, 50));
+                    sb.Append(ECD(v.PatientName, 20));
+                    sb.Append(v.PatientNo.PadRight(30));
+                    sb.Append(ECD(v.LocationName, 50));
                     sb.Append("".PadRight(29));
                     if (doseType == eDoseType.餐包)
-                        sb.Append(v.PerQty.PadRight(5));
+                        sb.Append(ECD(v.PerQty, 5));
                     else
-                        sb.Append(v.SumQty.PadRight(5));
+                        sb.Append(ECD(v.SumQty, 5));
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
                     sb.Append(v.AdminCode.PadRight(20));
                     if (doseType == eDoseType.餐包)
                     {
-                        sb.Append(v.StartDay);
-                        sb.Append(v.EndDay);
+                        sb.Append(OnCubeDt(v.StartDate));
+                        sb.Append(OnCubeDt(v.EndDate));
                     }
                     else
                     {
-                        sb.Append(v.EndDay);
-                        sb.Append(v.EndDay);
+                        sb.Append(OnCubeDt(v.EndDate));
+                        sb.Append(OnCubeDt(v.EndDate));
                     }
                     sb.Append("3       ");
                     sb.Append("".PadRight(50));
-                    sb.Append(basic.PrescriptionNo.PadRight(50));
-                    sb.Append(ECD(basic.Class, 50));
-                    sb.Append(basic.BirthDate);
-                    sb.Append(basic.Gender == "1 " ? "男    " : "女    ");
-                    sb.Append(ECD(basic.Mark, 20));
-                    sb.Append(ECD(random, 20));
+                    sb.Append(v.PrescriptionNo.PadRight(50));
+                    sb.Append(ECD(v.Class, 50));
+                    sb.Append(v.BirthDate);
+                    sb.Append("".PadRight(6));
+                    sb.Append(ECD(v.Other2, 20));
+                    sb.Append(ECD(v.Other1, 20));
                     sb.Append("0");
-                    sb.Append(ECD(basic.HospitalName, 30));
-                    for (int i = 0; i <= 14; i++)
-                    {
-                        if (oncubeRandom.Count == 0 || string.IsNullOrEmpty(oncubeRandom[i]))
-                            sb.Append("".PadRight(30));
-                        else
-                            sb.Append(ECD(oncubeRandom[i], 30));
-                    }
+                    sb.Append(ECD(v.HospitalName, 30));
+                    sb.Append(MatchETC(v));
                     sb.AppendLine(ConvertDoseType(doseType));
                 }
                 using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
@@ -75,12 +71,12 @@ namespace FCP
             }
         }
 
-        public static void JVServer_SplitEachMeal(Dictionary<string, List<JVServerOPD>> dic, JVServerOPDBasic basic, List<string> oncubeRandom, string random, string outputDirectoryWithoutSeconsds, string currentSeconds)
+        public static void JVServer_SplitEachMeal(Dictionary<string, List<PrescriptionModel>> dict, string outputDirectoryWithoutSeconsds, string currentSeconds)
         {
             try
             {
                 StringBuilder sb = new StringBuilder();
-                foreach (var x in dic)
+                foreach (var x in dict)
                 {
                     sb.Clear();
                     if (x.Value.Count == 0)
@@ -88,54 +84,48 @@ namespace FCP
                         continue;
                     }
                     string newOutputDirectory = $"{outputDirectoryWithoutSeconsds}{x.Key}_{currentSeconds}.txt";
-                    foreach (var y in x.Value)
+                    foreach (var v in x.Value)
                     {
-                        eDoseType doseType = GetDoseType(y.AdminCode);
-                        sb.Append(ECD(basic.PatientName, 20));
-                        sb.Append(basic.PatientNo.PadRight(30));
-                        sb.Append(ECD(basic.LocationName, 50));
+                        eDoseType doseType = GetDoseType(v.AdminCode);
+                        sb.Append(ECD(v.PatientName, 20));
+                        sb.Append(v.PatientNo.PadRight(30));
+                        sb.Append(ECD(v.LocationName, 50));
                         sb.Append("".PadRight(29));
                         if (doseType == eDoseType.餐包)
-                            sb.Append(y.PerQty.PadRight(5));
+                            sb.Append(ECD(v.PerQty, 5));
                         else
-                            sb.Append(y.SumQty.PadRight(5));
-                        sb.Append(y.MedicineCode.PadRight(20));
-                        sb.Append(ECD(y.MedicineName, 50));
-                        if (doseType == eDoseType.餐包 && !_settingModel.CrossDayAdminCode.Contains(y.AdminCode))
+                            sb.Append(ECD(v.SumQty, 5));
+                        sb.Append(v.MedicineCode.PadRight(20));
+                        sb.Append(ECD(v.MedicineName, 50));
+                        if (doseType == eDoseType.餐包 && !_settingModel.CrossDayAdminCode.Contains(v.AdminCode))
                         {
-                            sb.Append($"{y.AdminCode}{x.Key}".PadRight(20));
+                            sb.Append($"{v.AdminCode}{x.Key}".PadRight(20));
                         }
                         else
                         {
-                            sb.Append(y.AdminCode.PadRight(20));
+                            sb.Append(v.AdminCode.PadRight(20));
                         }
                         if (doseType == eDoseType.餐包)
                         {
-                            sb.Append(y.StartDay);
-                            sb.Append(y.EndDay);
+                            sb.Append(OnCubeDt(v.StartDate));
+                            sb.Append(OnCubeDt(v.EndDate));
                         }
                         else
                         {
-                            sb.Append(y.EndDay);
-                            sb.Append(y.EndDay);
+                            sb.Append(OnCubeDt(v.EndDate));
+                            sb.Append(OnCubeDt(v.EndDate));
                         }
                         sb.Append("3       ");
                         sb.Append("".PadRight(50));
-                        sb.Append(basic.PrescriptionNo.PadRight(50));
-                        sb.Append(ECD(basic.Class, 50));
-                        sb.Append(basic.BirthDate);
-                        sb.Append(basic.Gender == "1 " ? "男    " : "女    ");
-                        sb.Append(ECD(basic.Mark, 20));
-                        sb.Append(ECD(random, 20));
+                        sb.Append(v.PrescriptionNo.PadRight(50));
+                        sb.Append(ECD(v.Class, 50));
+                        sb.Append(v.BirthDate);
+                        sb.Append("".PadRight(6));
+                        sb.Append(ECD(v.Other2, 20));
+                        sb.Append(ECD(v.Other1, 20));
                         sb.Append("0");
-                        sb.Append(ECD(basic.HospitalName, 30));
-                        for (int i = 0; i <= 14; i++)
-                        {
-                            if (oncubeRandom.Count == 0 || string.IsNullOrEmpty(oncubeRandom[i]))
-                                sb.Append("".PadRight(30));
-                            else
-                                sb.Append(ECD(oncubeRandom[i], 30));
-                        }
+                        sb.Append(ECD(v.HospitalName, 30));
+                        sb.Append(MatchETC(v));
                         sb.AppendLine(ConvertDoseType(doseType));
                     }
                     using (StreamWriter sw = new StreamWriter(newOutputDirectory, false, Encoding.Default))
@@ -208,12 +198,12 @@ namespace FCP
             }
         }
 
-        public static void ChuangSheng(List<ChuangShengOPD> opd, string outputDirectory)
+        public static void ChuangSheng(List<PrescriptionModel> data, string outputDirectory)
         {
             try
             {
                 StringBuilder sb = new StringBuilder();
-                foreach (var v in opd)
+                foreach (var v in data)
                 {
                     eDoseType doseType = GetDoseType(v.AdminCode);
                     sb.Append(ECD(v.PatientName, 20));
@@ -221,21 +211,21 @@ namespace FCP
                     sb.Append(ECD("門診", 50));
                     sb.Append("".PadRight(29));
                     if (doseType == eDoseType.餐包)
-                        sb.Append(v.PerQty.PadRight(5));
+                        sb.Append(ECD(v.PerQty, 5));
                     else
-                        sb.Append(v.SumQty.PadRight(5));
+                        sb.Append(ECD(v.SumQty, 5));
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
                     sb.Append(v.AdminCode.PadRight(20));
                     if (doseType == eDoseType.餐包)
                     {
-                        sb.Append(v.StartDate);
-                        sb.Append(v.EndDate);
+                        sb.Append(OnCubeDt(v.StartDate));
+                        sb.Append(OnCubeDt(v.EndDate));
                     }
                     else
                     {
-                        sb.Append(v.StartDate);
-                        sb.Append(v.StartDate);
+                        sb.Append(OnCubeDt(v.StartDate));
+                        sb.Append(OnCubeDt(v.StartDate));
                     }
                     sb.Append("3       ");
                     sb.Append("".PadRight(150));
@@ -244,8 +234,7 @@ namespace FCP
                     sb.Append("".PadRight(40));
                     sb.Append("0");
                     sb.Append(ECD(v.HospitalName, 30));
-                    sb.Append(ECD(v.Class, 30));
-                    sb.Append("".PadRight(420));
+                    sb.Append(MatchETC(v));
                     sb.AppendLine(ConvertDoseType(doseType));
                 }
                 using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
@@ -269,6 +258,8 @@ namespace FCP
                 foreach (var prescription in ud)
                 {
                     var basic = prescription.Key;
+                    string medicineCodeTemp = "";
+                    string name = "";
                     string patientName = basic.PatientName;
                     int alphaIndex = 65;
                     foreach (var medicine in prescription.Value)
@@ -278,12 +269,30 @@ namespace FCP
                         string adminCode = medicine.AdminCode;
                         DateTime startDate = medicine.StartDate;
                         DateTime endDate = medicine.EndDate;
-                        if (stat && _settingModel.DoseType == eDoseType.餐包)
+                        if (stat && Properties.Settings.Default.DoseType == "Multi")
                         {
-                            basic.PatientName = $"{patientName}_{Convert.ToChar(alphaIndex++)}";
+                            if (name == "")
+                            {
+                                name = patientName;
+                            }
+                            if (medicineCodeTemp == "")
+                            {
+                                medicineCodeTemp = medicine.MedicineCode;
+                                patientName = $"{patientName}_{Convert.ToChar(alphaIndex)}";
+                            }
+                            if (medicineCodeTemp != medicine.MedicineCode)
+                            {
+                                alphaIndex++;
+                                medicineCodeTemp = medicine.MedicineCode;
+                                patientName = $"{basic.PatientName}_{Convert.ToChar(alphaIndex)}";
+                            }
+                        }
+                        if (Properties.Settings.Default.DoseType == "Combi" && name == "")
+                        {
+                            name = patientName;
                         }
                         string type = stat ? "即時" : "住院";
-                        sb.Append(ECD(basic.PatientName, 20));
+                        sb.Append(ECD(patientName, 20));
                         sb.Append(basic.PatientNo.PadRight(30));
                         sb.Append(ECD(type, 50));
                         sb.Append("".PadRight(29));
@@ -302,13 +311,13 @@ namespace FCP
                         sb.Append($"{Math.Ceiling(Convert.ToSingle(medicine.PerQty))}".PadRight(30));
                         sb.Append($"{medicine.SumQty}".PadRight(30));
                         sb.Append("".PadRight(30));
-                        sb.Append($"{medicine.PrintDate:yyMMdd}".PadRight(30));
+                        sb.Append($"{medicine.PrintDate:yyyy/MM/dd}".PadRight(30));
                         sb.Append(ECD(!multiDose || crossDay ? medicine.TakingDescription : $"服用日{medicine.EndDate:yyyy/MM/dd}", 30));
-                        sb.Append(ECD(patientName, 30));
+                        sb.Append(ECD(name, 30));
                         sb.Append("".PadRight(30));
                         sb.Append(ECD(basic.Barcode, 240));
                         sb.Append(ECD(medicine.Description.Trim(), 120));
-                        sb.Append(medicine.MedicineSerialNo.PadRight(30));
+                        sb.Append(ECD(medicine.MedicineSerialNo, 30));
                         sb.AppendLine(multiDose ? "M" : "C");
                     }
                 }
@@ -572,35 +581,33 @@ namespace FCP
             }
         }
 
-        public static void E_DA_UD(List<EDAUDBatch> ud, string outputDirectory)
+        public static void E_DA_UD(List<PrescriptionModel> data, string outputDirectory)
         {
             try
             {
                 StringBuilder sb = new StringBuilder();
-                foreach (var v in ud)
+                foreach (var v in data)
                 {
                     sb.Append(ECD(v.PatientName, 20));
                     sb.Append(v.PrescriptionNo.PadRight(30));
-                    sb.Append(ECD("住院", 50));
+                    sb.Append(ECD(v.LocationName, 50));
                     sb.Append("".PadRight(29));
-                    sb.Append(float.Parse(v.SumQty).ToString("0.###").PadRight(5));
+                    sb.Append(v.SumQty.ToString("0.###").PadRight(5));
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
                     sb.Append(v.AdminCode.PadRight(20));
-                    sb.Append(v.StartDate);
-                    sb.Append(v.StartDate);
+                    sb.Append(OnCubeDt(v.StartDate));
+                    sb.Append(OnCubeDt(v.StartDate));
                     sb.Append("".PadRight(58));
                     sb.Append(v.PrescriptionNo.PadRight(50));
                     sb.Append("".PadRight(50));
-                    sb.Append("1999-01-01");
+                    sb.Append(v.BirthDate);
                     sb.Append("男    ");
                     sb.Append("".PadRight(20));
                     sb.Append(v.BedNo.PadRight(20));
                     sb.Append("0");
-                    sb.Append(ECD("義大醫院", 30));
-                    sb.Append(float.Parse(v.PerQty).ToString("0.###").PadRight(30));
-                    sb.Append(v.BirthDate.PadRight(30));
-                    sb.Append("".PadRight(390));
+                    sb.Append(ECD(v.HospitalName, 30));
+                    sb.Append(MatchETC(v));
                     sb.AppendLine("C");
                 }
                 using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
@@ -805,24 +812,24 @@ namespace FCP
             }
         }
 
-        public static void ChengYu(List<ChengYuOPD> OPD, string outputDirectory)
+        public static void ChengYu(List<PrescriptionModel> data, string outputDirectory)
         {
             try
             {
                 StringBuilder sb = new StringBuilder();
-                foreach (var v in OPD)
+                foreach (var v in data)
                 {
                     eDoseType doseType = GetDoseType(v.AdminCode);
                     sb.Append(ECD($"{v.PatientName}-{v.Unit}", 20));
                     sb.Append("".PadRight(30));
                     sb.Append(ECD("門診", 50));
                     sb.Append("".PadRight(29));
-                    sb.Append(v.PerQty.PadRight(5));
+                    sb.Append(ECD(v.PerQty, 5));
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
-                    sb.Append(v.NumOfPackages.PadRight(20));
-                    sb.Append(v.StartDay.ToString("yyMMdd"));
-                    sb.Append(v.EndDay.ToString("yyMMdd"));
+                    sb.Append(v.Other1.PadRight(20));
+                    sb.Append(OnCubeDt(v.StartDate));
+                    sb.Append(OnCubeDt(v.EndDate));
                     sb.Append("".PadRight(8));
                     sb.Append(ECD(v.AdminCodeDescription, 50));
                     sb.Append("".PadRight(100));
@@ -831,12 +838,7 @@ namespace FCP
                     sb.Append("".PadRight(40));
                     sb.Append("0");
                     sb.Append(ECD(v.HospitalName, 30));
-                    sb.Append(ECD(v.Unit, 30));
-                    sb.Append(v.Days.PadRight(30));
-                    sb.Append(ECD(v.AdminCode, 30));
-                    sb.Append(ECD(v.PatientName, 30));
-                    sb.Append("".PadRight(300));
-                    sb.Append(ECD(v.PatientName, 30));
+                    sb.Append(MatchETC(v));
                     sb.AppendLine("M");
                 }
                 using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
@@ -931,9 +933,9 @@ namespace FCP
             }
         }
 
-        private static string ECD(string data, int Length)  //處理中文
+        private static string ECD(object obj, int Length)  //處理中文
         {
-            data = data.PadRight(Length, ' ');
+            string data = obj.ToString().PadRight(Length, ' ');
             Byte[] Temp = Encoding.Default.GetBytes(data);
             return Encoding.Default.GetString(Temp, 0, Length);
         }
@@ -989,6 +991,43 @@ namespace FCP
                 else
                     return eDoseType.餐包;
             }
+        }
+
+        private static string OnCubeDt(DateTime value)
+        {
+            return value.ToString("yyMMdd");
+        }
+
+        private static string MatchETC(PrescriptionModel model)
+        {
+            StringBuilder sb = new StringBuilder();
+            var temp = GetProperties(model);
+            for (int i = 0; i < 15; i++)
+            {
+                var etc = _settingModel.ETCData.Where(x => x.ETCIndex == i).Select(x => x).FirstOrDefault();
+                if (etc == null)
+                {
+                    sb.Append("".PadRight(30));
+                    continue;
+                }
+                ePrescriptionParameters parameterName = (ePrescriptionParameters)etc.PrescriptionParameterIndex;
+                temp.TryGetValue(parameterName, out object obj);
+                sb.Append(ECD(string.Format(etc.Format, obj), 30));
+            }
+            string result = sb.ToString();
+            sb = null;
+            return result;
+        }
+
+        private static Dictionary<ePrescriptionParameters, object> GetProperties<T>(T model) where T : class
+        {
+            PropertyInfo[] properties = model.GetType().GetProperties();
+            Dictionary<ePrescriptionParameters, object> dict = new Dictionary<ePrescriptionParameters, object>();
+            foreach (var p in properties)
+            {
+                dict.Add(EnumHelper.StringConvertToEnum<ePrescriptionParameters>(p.Name), p.GetValue(model));
+            }
+            return dict;
         }
     }
 }

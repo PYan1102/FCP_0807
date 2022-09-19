@@ -1,19 +1,19 @@
 ﻿using FCP.src.Enum;
-using FCP.src.FormatControl;
+using FCP.src.FormatLogic;
 using FCP.src.MessageManager;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using FCP.Models;
 
 namespace FCP.src.FormatInit
 {
-    class BASE_ChengYu : FormatBase
+    class BASE_ChengYu : ConvertBase
     {
         private FMT_ChengYu _format;
 
         public override void Init()
         {
             base.Init();
-            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToogleModel() { Toogle1 = true }));
+            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToggleModel() { Toggle1 = true }));
         }
 
         public override ActionResult PrepareStart()

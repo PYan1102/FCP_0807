@@ -23,6 +23,7 @@ namespace FCP.src
         public List<string> MultiAdminCode { get => _multiAdminCode; }
         public List<string> CombiAdminCode { get => _combiAdminCode; }
         public Dictionary<string, int> CrossDayAdminCodeDays { get => _crossDayAdminCodeDays; }
+        public Dictionary<string, int> JVServerAdminCodeTimes { get => _jvserverAdminCodeTimes; }
         public string CurrentSeconds { get; set; }
         private IRetunrsResult _returnsResult;
         private eDepartment _department;
@@ -32,6 +33,7 @@ namespace FCP.src
         private List<string> _combiAdminCode;
         private Dictionary<string, List<string>> _multiAdminCodeTimes;
         private Dictionary<string, int> _crossDayAdminCodeDays;
+        private Dictionary<string, int> _jvserverAdminCodeTimes;  //For JVServer
 
         public FormatCollection()
         {
@@ -251,7 +253,7 @@ namespace FCP.src
         public void SetAdminCode()
         {
             _filterAdminCode.Clear();
-            foreach (string s in SettingModel.FilterAdminCode)
+            foreach (string s in SettingModel.NeedToFilterAdminCode)
             {
                 if (!string.IsNullOrEmpty(s))
                     _filterAdminCode.Add(s);
@@ -270,23 +272,33 @@ namespace FCP.src
         }
 
         /// <summary>
-        /// 確認指定頻率是否存在餐包的設定裡
+        /// 若指定之餐包頻率不存在是否暫停
         /// </summary>
         /// <param name="adminCode">頻率</param>
         /// <returns>存在為 <see langword="true"/> ，不存在為 <see langword="false"/></returns>
-        public bool IsExistsMultiAdminCode(string adminCode)
+        public bool WhetherToStopNotHasMultiAdminCode(string adminCode)
         {
-            return _multiAdminCode.Contains(adminCode);
+            bool result = _multiAdminCode.Contains(adminCode);
+            if (!result)
+            {
+                LostMultiAdminCode(adminCode);
+            }
+            return !result && !SettingModel.IgnoreAdminCodeIfNotInOnCube;
         }
 
         /// <summary>
-        /// 確認指定頻率是否存在種包的設定裡
+        /// 若指定之種包頻率不存在是否暫停
         /// </summary>
         /// <param name="adminCode">頻率</param>
         /// <returns>存在為 <see langword="true"/> ，不存在為 <see langword="false"/></returns>
-        public bool IsExistsCombiAdminCode(string adminCode)
+        public bool WhetherToStopNotHasCombiAdminCode(string adminCode)
         {
-            return _combiAdminCode.Contains($"S{adminCode}");
+            bool result = _combiAdminCode.Contains($"S{adminCode}");
+            if (!result)
+            {
+                LostCombiAdminCode(adminCode);
+            }
+            return !result && !SettingModel.IgnoreAdminCodeIfNotInOnCube;
         }
 
         public int GetCrossDayAdminCodeDays(string adminCode)
@@ -323,6 +335,10 @@ namespace FCP.src
             Dictionary<string, int> dictionary = new Dictionary<string, int>();
             foreach (var v in split1)
             {
+                if (v.Trim().Length == 0)
+                {
+                    continue;
+                }
                 string[] split2 = v.Split('^');
                 string rawID = split2[0];
                 int times = Convert.ToInt32(split2[2]);
@@ -351,7 +367,7 @@ namespace FCP.src
         /// <returns>如果為 <see langword="true"/> 則為需過濾，為 <see langword="false"/> 則為不需過濾</returns>
         private bool FilterCustomizeMedicineCode(string medicineCode)
         {
-            return SettingModel.FilterMedicineCode.Contains(medicineCode);
+            return SettingModel.NeedToFilterMedicineCode.Contains(medicineCode);
         }
 
         private List<string> GetAllMultiAdminCode()
@@ -413,15 +429,14 @@ namespace FCP.src
         /// <returns>都存在為 <see langword="true"/> ，有任一個不存在為 <see langword="false"/></returns>
         public bool IsExistsMultiAndCombiAdminCode(string adminCode)
         {
-            return IsExistsMultiAdminCode(adminCode) && IsExistsCombiAdminCode(adminCode);
+            return WhetherToStopNotHasMultiAdminCode(adminCode) && WhetherToStopNotHasCombiAdminCode(adminCode);
         }
 
         public bool IsFilterMedicineCode(string medicineCode)
         {
-            if (!SettingModel.UseFilterMedicineCode)
+            if (!SettingModel.FilterMedicineCode)
                 return false;
-            return SettingModel.FilterNoCanister ? GetMedicineCodeHasCanister().Contains(medicineCode) : GetAllMedicineCode().Contains(medicineCode);
-
+            return SettingModel.OnlyCanisterIn ? !GetMedicineCodeHasCanister().Contains(medicineCode) : !GetAllMedicineCode().Contains(medicineCode);
         }
 
         private List<string> GetMedicineCodeHasCanister()
@@ -458,6 +473,19 @@ namespace FCP.src
                 newList.Add(temp[0]);
             }
             return newList;
+        }
+
+        private Dictionary<string, int> GetJVServerAdminCodeTimes()
+        {
+            List<string> list = CommonModel.SqlHelper.Query_List(@"SELECT admin_code AS AdminCode, admin_pattern AS Times FROM admincode WHERE time_check = 'S'", new List<string>() { "AdminCode, Times" });
+            Dictionary<string, int> dict = new Dictionary<string, int>();
+            foreach (var v in list)
+            {
+                string[] split = v.Split('|');
+                int times = split[1].Count(x => x == '1');
+                dict.Add(split[0], times);
+            }
+            return dict;
         }
 
         public abstract void ProcessOPD();

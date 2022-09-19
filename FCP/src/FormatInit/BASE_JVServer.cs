@@ -1,4 +1,4 @@
-﻿using FCP.src.FormatControl;
+﻿using FCP.src.FormatLogic;
 using FCP.src.Enum;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using FCP.src.MessageManager;
@@ -6,14 +6,14 @@ using FCP.Models;
 
 namespace FCP.src.FormatInit
 {
-    class BASE_JVServer : FormatBase
+    class BASE_JVServer : ConvertBase
     {
         private FMT_JVServer _format;
 
         public override void Init()
         {
             base.Init();
-            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToogleModel() { Toogle1 = true }));
+            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToggleModel() { Toggle1 = true }));
         }
 
         public override ActionResult PrepareStart()
