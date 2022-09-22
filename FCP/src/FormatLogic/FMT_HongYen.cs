@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Data;
-using FCP.src.Enum;
-using FCP.Models;
+﻿using FCP.Models;
 using Helper;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 
 namespace FCP.src.FormatLogic
 {
@@ -87,7 +86,7 @@ namespace FCP.src.FormatLogic
                 opdUp = _separateIndex > 0 ? _opd.Where(x => _opd.IndexOf(x) < _separateIndex).ToList() : _opd;
                 opdDown = _separateIndex > 0 ? _opd.Where(x => _opd.IndexOf(x) >= _separateIndex & x.MedicineCode.Length > 0).ToList() : opdDown;
 
-                #region 排除天數重複2以下(不含)的
+                #region 排除天數重複次數 < 2 的資料
 
                 opdUp = ExcludeDaysRepeatedLessThan2Times(opdUp);
                 if (opdDown.Count > 1)
@@ -97,7 +96,7 @@ namespace FCP.src.FormatLogic
 
                 #endregion
 
-                #region 排除頻率重複2以下(不含)的
+                #region 排除頻率重複次數 < 2 的資料
 
                 opdUp = ExcludeAdminCodeRepeatedLessThan2Times(opdUp);
                 if (opdDown.Count > 1)
@@ -153,6 +152,11 @@ namespace FCP.src.FormatLogic
             }
         }
 
+        /// <summary>
+        /// 排除天數重複次數 < 2 的資料
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns>天數重複 >= 2 的資料</returns>
         private List<HongYenOPD> ExcludeDaysRepeatedLessThan2Times(List<HongYenOPD> list)
         {
             var daysCount = from days in list.Select(x => x.Days)
@@ -167,6 +171,11 @@ namespace FCP.src.FormatLogic
             return list;
         }
 
+        /// <summary>
+        /// 排除頻率重複次數 < 2 的資料
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns>頻率重複 >= 2 的資料</returns>
         private List<HongYenOPD> ExcludeAdminCodeRepeatedLessThan2Times(List<HongYenOPD> list)
         {
             var adminCodeCount = from s in list.Select(x => x.AdminCode)
