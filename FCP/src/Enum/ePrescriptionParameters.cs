@@ -11,6 +11,7 @@ namespace FCP.src.Enum
         PatientName,
         PatientNo,
         PrescriptionNo,
+        GetMedicineNo,
         BedNo,
         RoomNo,
         BirthDate,

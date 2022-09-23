@@ -22,6 +22,8 @@ namespace FCP.src.FormatLogic
                 string patientNo = EncodingHelper.GetString(1, 15);
                 string prescriptionNo = EncodingHelper.GetString(16, 20);
                 DateTime birthDate = DateTimeHelper.Convert(EncodingHelper.GetString(94, 8), "yyyyMMdd");
+                string getMedicineNo = EncodingHelper.GetString(102, 30);
+                string bedNo = EncodingHelper.GetString(132, 30);
                 string patientName = EncodingHelper.GetString(177, 20);
                 if (patientName.Contains("?"))
                     patientName = patientName.Replace("?", " ");
@@ -31,7 +33,6 @@ namespace FCP.src.FormatLogic
                 string locationName = EncodingHelper.GetString(229, 30).Replace("?", " ").Replace("？", "  ");
                 EncodingHelper.SetBytes(content.Substring(jvmPosition + 17, content.Length - 17 - jvmPosition));
                 List<string> list = SeparateString(EncodingHelper.GetString(0, EncodingHelper.Length), 547);  //計算有多少種藥品資料
-                Console.WriteLine($"{hospitalName} {locationName}");
                 foreach (string s in list)
                 {
                     EncodingHelper.SetBytes(s);
@@ -51,6 +52,8 @@ namespace FCP.src.FormatLogic
                         PatientNo = patientNo,
                         PrescriptionNo = prescriptionNo,
                         BirthDate = birthDate.ToString("yyyy-MM-dd"),
+                        GetMedicineNo = getMedicineNo,
+                        BedNo = bedNo,
                         Class = _class,
                         HospitalName = hospitalName,
                         LocationName = locationName,
@@ -196,33 +199,5 @@ namespace FCP.src.FormatLogic
             _data.Clear();
             return base.DepartmentShunt();
         }
-    }
-
-    internal class JVServerOPDBasic
-    {
-        public string PatientName { get; set; }
-        public string PatientNo { get; set; }
-        public string PrescriptionNo { get; set; }
-        public string Class { get; set; }
-        public string Mark { get; set; }
-        public string Age { get; set; }
-        public string ID { get; set; }
-        public string Gender { get; set; }
-        public string BirthDate { get; set; }
-        public string LocationName { get; set; }
-        public string HospitalName { get; set; }
-    }
-
-    internal class JVServerOPD
-    {
-        public string MedicineCode { get; set; }
-        public string MedicineName { get; set; }
-        public string PerQty { get; set; }
-        public string AdminCode { get; set; }
-        public string Days { get; set; }
-        public string SumQty { get; set; }
-        public string BedNo { get; set; }
-        public string StartDay { get; set; }
-        public string EndDay { get; set; }
     }
 }

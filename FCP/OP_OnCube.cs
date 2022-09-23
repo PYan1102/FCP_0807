@@ -52,8 +52,8 @@ namespace FCP
                     sb.Append(ECD(v.Class, 50));
                     sb.Append(v.BirthDate);
                     sb.Append("".PadRight(6));
-                    sb.Append(ECD(v.Other2, 20));
-                    sb.Append(ECD(v.Other1, 20));
+                    sb.Append(v.RoomNo.PadRight(20));
+                    sb.Append(v.BedNo.PadRight(20));
                     sb.Append("0");
                     sb.Append(ECD(v.HospitalName, 30));
                     sb.Append(MatchETC(v));
