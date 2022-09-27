@@ -54,6 +54,8 @@ namespace FCP.src.Factory
                     return new BASE_Washinton();
                 case eFormat.小熊藥局OC:
                     return new BASE_LittleBear();
+                case eFormat.吉安醫院OC:
+                    return new BASE_JiAn();
                 default:
                     throw new Exception($"沒有找到適配的格式 {format}");
             }

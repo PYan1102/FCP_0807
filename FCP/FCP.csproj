@@ -148,6 +148,8 @@
     <Compile Include="src\ControlButtonColorOnHover.cs" />
     <Compile Include="src\Enum\eETC.cs" />
     <Compile Include="src\Enum\ePrescriptionParameters.cs" />
+    <Compile Include="src\FormatInit\BASE_JiAn.cs" />
+    <Compile Include="src\FormatLogic\FMT_JiAn.cs" />
     <Compile Include="src\MoveFile.cs" />
     <Compile Include="src\Enum\eColor.cs" />
     <Compile Include="src\Enum\eCommandCollection.cs" />

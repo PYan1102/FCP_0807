@@ -8,5 +8,14 @@ namespace FCP.Models
         public string Rule { get; set; }
         public bool Enabled { get; set; } = false;
         public string InputDirectory { get; set; }
+
+        public override string ToString()
+        {
+            return $@"
+{nameof(Department)}: {Department}
+{nameof(Rule)}: {Rule}
+{nameof(Enabled)}: {Enabled}
+{nameof(InputDirectory)}: {InputDirectory}";
+        }
     }
 }

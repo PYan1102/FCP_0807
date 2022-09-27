@@ -933,6 +933,61 @@ namespace FCP
             }
         }
 
+        public static void JiAn(List<PrescriptionModel> OPD, string outputDirectory)
+        {
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (var v in OPD)
+                {
+                    sb.Append(ECD(v.PatientName, 20));
+                    sb.Append("".PadRight(30));
+                    sb.Append(ECD(v.LocationName, 50));
+                    sb.Append(ECD(v.DoctorName, 26));
+                    sb.Append("".PadRight(3));
+                    if (v.IsMultiDose)
+                    {
+                        sb.Append(ECD(v.PerQty, 5));
+                    }
+                    else
+                    {
+                        sb.Append(ECD(v.SumQty, 5));
+                    }
+                    sb.Append(v.MedicineCode.PadRight(20));
+                    sb.Append(ECD(v.MedicineName, 50));
+                    sb.Append(ECD(v.AdminCode, 20));
+                    if (v.IsMultiDose)
+                    {
+                        sb.Append(v.StartDate.ToString("yyMMdd"));
+                        sb.Append(v.EndDate.ToString("yyMMdd"));
+                    }
+                    else
+                    {
+                        sb.Append(v.StartDate.ToString("yyMMdd"));
+                        sb.Append(v.StartDate.ToString("yyMMdd"));
+                    }
+                    sb.Append("".PadRight(158));
+                    sb.Append("1999-01-01");
+                    sb.Append(ECD(v.Gender, 6));
+                    sb.Append(v.RoomNo.PadRight(20));
+                    sb.Append("".PadRight(20));
+                    sb.Append("0");
+                    sb.Append(ECD(v.HospitalName, 30));
+                    sb.Append(MatchETC(v));
+                    sb.AppendLine(v.IsMultiDose ? "M" : "C");
+                }
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
+                {
+                    sw.Write(sb.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                LogService.Exception(ex);
+                throw;
+            }
+        }
+
         private static string ECD(object obj, int Length)  //處理中文
         {
             string data = obj.ToString().PadRight(Length, ' ');

@@ -69,6 +69,15 @@ namespace FCP.src
             SetAdminCode();
         }
 
+        /// <summary>
+        /// 過濾規則
+        /// </summary>
+        /// <param name="adminCode">頻率</param>
+        /// <param name="medicineCode">藥品代碼</param>
+        /// <param name="filterAdminCode">使用設定中的使用特定頻率或過濾特定頻率功能</param>
+        /// <param name="filterMedicine">使用設定中的過濾藥品功能及是否只讓有藥盒的藥品進來</param>
+        /// <param name="filterCustomizeMedicineCode">使用設定中的過濾藥品功能</param>
+        /// <returns>回傳 <see langword="true"/> 為過濾，<see langword="false"/> 為不過濾</returns>
         public virtual bool FilterRule(string adminCode = null, string medicineCode = null, bool filterAdminCode = true, bool filterMedicine = true, bool filterCustomizeMedicineCode = true)
         {
             if (filterAdminCode && adminCode == null)

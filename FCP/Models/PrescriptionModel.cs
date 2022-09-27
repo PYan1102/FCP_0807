@@ -84,6 +84,18 @@ namespace FCP.Models
         /// 藥品單位
         /// </summary>
         public string Unit { get; set; } = string.Empty;
+        /// <summary>
+        /// 性別
+        /// </summary>
+        public string Gender { get; set; } = string.Empty;
+        /// <summary>
+        /// 醫師名稱
+        /// </summary>
+        public string DoctorName { get; set; } = string.Empty;
+        /// <summary>
+        /// 是否為餐包
+        /// </summary>
+        public bool IsMultiDose { get; set; } = true;
         public string Other1 { get; set; } = string.Empty;
         public string Other2 { get; set; } = string.Empty;
         public string Other3 { get; set; } = string.Empty;
