@@ -22,17 +22,13 @@ namespace FCP.src.FormatLogic
                     {
                         continue;
                     }
-                    if (WhetherToStopNotHasMultiAdminCode(adminCode))
-                    {
-                        return;
-                    }
                     _opd.Add(new PrescriptionModel()
                     {
                         PatientName = EncodingHelper.GetString(0, 20),
                         PatientNo = EncodingHelper.GetString(20, 30),
-                        LocationName = EncodingHelper.GetString(50, 50),
+                        LocationName = "門診",
                         DoctorName = EncodingHelper.GetString(100, 26),
-                        PerQty = Convert.ToSingle(EncodingHelper.GetString(129, 5)) / GetMultiAdminCodeTimes(adminCode).Count,
+                        PerQty = Convert.ToSingle(EncodingHelper.GetString(129, 5)) / GetMultiAdminCodeTimes(adminCode.Substring(1)).Count,
                         SumQty = Convert.ToSingle(EncodingHelper.GetString(129, 5)),
                         MedicineCode = medicineCode,
                         MedicineName = EncodingHelper.GetString(154, 50),
@@ -92,7 +88,7 @@ namespace FCP.src.FormatLogic
                     {
                         PatientName = EncodingHelper.GetString(0, 20),
                         PatientNo = EncodingHelper.GetString(20, 30),
-                        LocationName = EncodingHelper.GetString(50, 50),
+                        LocationName = "機構",
                         DoctorName = EncodingHelper.GetString(100, 26),
                         PerQty = Convert.ToSingle(EncodingHelper.GetString(129, 5)),
                         SumQty = Convert.ToSingle(EncodingHelper.GetString(129, 5)) * GetMultiAdminCodeTimes(adminCode).Count,
