@@ -18,9 +18,13 @@ namespace FCP.src.FormatLogic
                     EncodingHelper.SetBytes(s.Trim());
                     string adminCode = EncodingHelper.GetString(204, 20);
                     string medicineCode = EncodingHelper.GetString(134, 20);
-                    if (FilterRule(adminCode, medicineCode))
+                    if (FilterRule(adminCode.Substring(1), medicineCode))
                     {
                         continue;
+                    }
+                    if (WhetherToStopNotHasMultiAdminCode(adminCode.Substring(1)))
+                    {
+                        return;
                     }
                     _opd.Add(new PrescriptionModel()
                     {
