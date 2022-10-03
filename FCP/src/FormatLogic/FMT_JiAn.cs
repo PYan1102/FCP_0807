@@ -15,9 +15,10 @@ namespace FCP.src.FormatLogic
             {
                 foreach (string s in GetPrescriptionInfoList)
                 {
-                    EncodingHelper.SetBytes(s.Trim());
+                    EncodingHelper.SetBytes(s.Trim().Replace("?", "  "));
                     string adminCode = EncodingHelper.GetString(204, 20);
                     string medicineCode = EncodingHelper.GetString(134, 20);
+                    string medicineName = EncodingHelper.GetString(154, 50);
                     if (FilterRule(adminCode.Substring(1), medicineCode))
                     {
                         continue;
@@ -35,7 +36,7 @@ namespace FCP.src.FormatLogic
                         PerQty = Convert.ToSingle(EncodingHelper.GetString(129, 5)) / GetMultiAdminCodeTimes(adminCode.Substring(1)).Count,
                         SumQty = Convert.ToSingle(EncodingHelper.GetString(129, 5)),
                         MedicineCode = medicineCode,
-                        MedicineName = EncodingHelper.GetString(154, 50),
+                        MedicineName = medicineName,
                         AdminCode = adminCode,
                         StartDate = DateTimeHelper.Convert(EncodingHelper.GetString(224, 6), "yyMMdd"),
                         EndDate = DateTimeHelper.Convert(EncodingHelper.GetString(230, 6), "yyMMdd"),
