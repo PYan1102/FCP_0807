@@ -167,8 +167,7 @@ namespace FCP.src.FormatLogic
                                 g.Key,
                                 Num = g.Count()
                             };
-            list.Where(x => daysCount.Select(y => y.Key).ToList().Contains(x.Days)).ToList();
-            return list;
+            return list.Where(x => daysCount.Select(y => y.Key).Contains(x.Days)).ToList(); ;
         }
 
         /// <summary>
@@ -178,15 +177,15 @@ namespace FCP.src.FormatLogic
         /// <returns>頻率重複 >= 2 的資料</returns>
         private List<HongYenOPD> ExcludeAdminCodeRepeatedLessThan2Times(List<HongYenOPD> list)
         {
-            var adminCodeCount = from s in list.Select(x => x.AdminCode)
-                                 group s by s into g
+            var adminCodeCount = from codes in list.Select(x => x.AdminCode)
+                                 group codes by codes into g
                                  where g.Count() >= 2
                                  select new
                                  {
                                      g.Key,
                                      Num = g.Count()
                                  };
-            return list.Where(x => adminCodeCount.Select(y => y.Key).ToList().Contains(x.AdminCode)).ToList();
+            return list.Where(x => adminCodeCount.Select(y => y.Key).Contains(x.AdminCode)).ToList();
         }
 
         public override void ProcessUDBatch()
