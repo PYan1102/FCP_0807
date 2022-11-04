@@ -276,7 +276,7 @@ namespace FCP.src.FormatLogic
             try
             {
                 string outputDirectory = $@"{OutputDirectory}\{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
-                OP_OnCube.KuangTien_UD(_udPrescriptions, outputDirectory);
+                OP_OnCube.KuangTien_Batch(_udPrescriptions, outputDirectory);
                 Success();
             }
             catch (Exception ex)
@@ -434,7 +434,7 @@ namespace FCP.src.FormatLogic
                     PatientNo: x.Key.PatientNo
                 )).First();
                 string outputDirectory = $@"{OutputDirectory}\{firstPatientBasicInfo.PatientName}-{firstPatientBasicInfo.PatientNo}_{CurrentSeconds}.txt";
-                OP_OnCube.KuangTien_UD(_udPrescriptions, outputDirectory);
+                OP_OnCube.KuangTien_Stat(_udPrescriptions, outputDirectory);
                 Success();
             }
             catch (Exception ex)

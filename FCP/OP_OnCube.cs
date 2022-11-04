@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Globalization;
+﻿using FCP.Models;
 using FCP.src.Enum;
-using Helper;
-using FCP.src.FormatLogic;
 using FCP.src.Factory.Models;
-using FCP.Models;
+using FCP.src.FormatLogic;
+using Helper;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace FCP
 {
@@ -249,12 +248,90 @@ namespace FCP
             }
         }
 
-        public static void KuangTien_UD(Dictionary<KuangTienUDBasic, List<KuangTienUD>> ud, string outputDirectory)
+        public static void KuangTien_Batch(Dictionary<KuangTienUDBasic, List<KuangTienUD>> ud, string outputDirectory)
+        {
+            try
+            {
+                IEnumerable<string> floors = ud.Select(x => x.Key.BedNo.Substring(0, 4)).Distinct();
+                for (int i = 0; i < floors.Count(); i++)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    foreach (var prescription in ud)
+                    {
+                        var basic = prescription.Key;
+                        if (basic.BedNo.Substring(0, 4) != floors.ElementAt(i))
+                        {
+                            continue;
+                        }
+                        string name = "";
+                        string patientName = basic.PatientName;
+                        foreach (var medicine in prescription.Value)
+                        {
+                            bool multiDose = medicine.DoseType == eDoseType.餐包;
+                            bool crossDay = medicine.CrossDay;
+                            string adminCode = medicine.AdminCode;
+                            DateTime startDate = medicine.StartDate;
+                            DateTime endDate = medicine.EndDate;
+                            if (Properties.Settings.Default.DoseType == "Combi" && name == "")
+                            {
+                                name = patientName;
+                            }
+                            string type = "住院";
+                            sb.Append(ECD(patientName, 20));
+                            sb.Append(basic.PatientNo.PadRight(30));
+                            sb.Append(ECD(type, 50));
+                            sb.Append("".PadRight(29));
+                            sb.Append($"{medicine.PerQty}".PadRight(5));
+                            sb.Append(medicine.MedicineCode.PadRight(20));
+                            sb.Append(ECD(medicine.MedicineName, 50));
+                            sb.Append((multiDose && !crossDay ? $"{adminCode}{endDate:HH}" : adminCode).PadRight(20));
+                            sb.Append(!multiDose ? $"{basic.TreatmentDate:yyMMdd}" : $"{medicine.StartDate:yyMMdd}");
+                            sb.Append(!multiDose ? $"{basic.TreatmentDate:yyMMdd}" : $"{medicine.EndDate:yyMMdd}");
+                            sb.Append("".PadRight(158));
+                            sb.Append("1999-01-01");
+                            sb.Append("男    ");
+                            sb.Append(basic.BedNo.PadRight(40));
+                            sb.Append("0");
+                            sb.Append(ECD("光田綜合醫院", 30));
+                            sb.Append($"{Math.Ceiling(Convert.ToSingle(medicine.PerQty))}".PadRight(30));
+                            sb.Append($"{medicine.SumQty}".PadRight(30));
+                            sb.Append("".PadRight(30));
+                            sb.Append($"{medicine.PrintDate:yyyy/MM/dd}".PadRight(30));
+                            sb.Append(ECD(!multiDose || crossDay ? medicine.TakingDescription : $"服用日{medicine.EndDate:yyyy/MM/dd}", 30));
+                            sb.Append(ECD(name, 30));
+                            sb.Append("".PadRight(30));
+                            sb.Append(ECD(basic.Barcode, 240));
+                            sb.Append(ECD(medicine.Description.Trim(), 120));
+                            sb.Append(ECD(medicine.MedicineSerialNo, 30));
+                            sb.AppendLine(multiDose ? "M" : "C");
+                        }
+                    }
+                    if (sb.Length != 0)
+                    {
+                        string directory = Path.GetDirectoryName(outputDirectory);
+                        string fileName = Path.GetFileNameWithoutExtension(outputDirectory);
+                        string time = fileName.Substring(fileName.Length - 8, 8);
+                        string newOutputDirectory = $"{directory}/{fileName.Substring(0, fileName.Length - 7)}_{floors.ElementAt(i)}_{time}.txt";
+                        using (StreamWriter sw = new StreamWriter(newOutputDirectory, false, Encoding.Default))
+                        {
+                            sw.Write(sb.ToString());
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                LogService.Exception(ex);
+                throw;
+            }
+        }
+
+        public static void KuangTien_Stat(Dictionary<KuangTienUDBasic, List<KuangTienUD>> ud, string outputDirectory)
         {
             try
             {
                 StringBuilder sb = new StringBuilder();
-                bool stat = FileInfoModel.Department == eDepartment.Stat;
                 foreach (var prescription in ud)
                 {
                     var basic = prescription.Key;
@@ -269,7 +346,7 @@ namespace FCP
                         string adminCode = medicine.AdminCode;
                         DateTime startDate = medicine.StartDate;
                         DateTime endDate = medicine.EndDate;
-                        if (stat && Properties.Settings.Default.DoseType == "Multi")
+                        if (Properties.Settings.Default.DoseType == "Multi")
                         {
                             if (name == "")
                             {
@@ -291,7 +368,7 @@ namespace FCP
                         {
                             name = patientName;
                         }
-                        string type = stat ? "即時" : "住院";
+                        string type = "即時";
                         sb.Append(ECD(patientName, 20));
                         sb.Append(basic.PatientNo.PadRight(30));
                         sb.Append(ECD(type, 50));

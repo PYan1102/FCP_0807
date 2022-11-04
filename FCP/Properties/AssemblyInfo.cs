@@ -1,6 +1,4 @@
 ﻿using System.Reflection;
-using System.Resources;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 
@@ -29,7 +27,6 @@ using System.Windows;
 //以符合專案檔中的 UICulture 設定。
 
 //[assembly: NeutralResourcesLanguage("en-US", UltimateResourceFallbackLocation.Satellite)]
-
 
 [assembly: ThemeInfo(
     ResourceDictionaryLocation.None, //主題特定資源字典的位置
