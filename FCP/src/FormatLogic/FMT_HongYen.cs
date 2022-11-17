@@ -25,7 +25,7 @@ namespace FCP.src.FormatLogic
                 _basic.Age = EncodingHelper.GetString(36, 5);
                 _basic.ID = EncodingHelper.GetString(54, 10);
                 _basic.BirthDate = DateTimeHelper.Convert(EncodingHelper.GetString(94, 8), "yyyyMMdd").ToString("yyyy-MM-dd");
-                _basic.PatientName = EncodingHelper.GetString(177, 20).Replace("?", " ");
+                _basic.PatientName = EncodingHelper.GetString(177, 20).Replace("?", " ").Replace("*", " ");
                 _basic.Gender = EncodingHelper.GetString(197, 2);
                 _basic.HospitalName = EncodingHelper.GetString(229, 40);
                 _basic.LocationName = EncodingHelper.GetString(229, 30);
