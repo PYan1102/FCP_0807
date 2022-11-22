@@ -1,9 +1,8 @@
-﻿using System;
+﻿using FCP.Models;
+using Helper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using FCP.src.Enum;
-using FCP.Models;
-using Helper;
 
 namespace FCP.src.FormatLogic
 {

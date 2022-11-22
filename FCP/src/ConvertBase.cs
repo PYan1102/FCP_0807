@@ -140,6 +140,10 @@ namespace FCP.src
                         LogService.Exception(ex);
                     }
                     await Task.Delay(SettingModel.Speed);
+                    if (_cts == null)
+                    {
+                        break;
+                    }
                 }
                 _cts = null;
                 _matchModel.Clear();
@@ -162,6 +166,7 @@ namespace FCP.src
             string message = returnsResult.Message;
             string sourceFilePath = FileInfoModel.SourceFilePath;
             MoveFile convertResult = new MoveFile(sourceFilePath, _successDirectory, _failDirectory);
+            Console.WriteLine(message.Length);
             switch (returnsResult.Result)
             {
                 case eConvertResult.成功:

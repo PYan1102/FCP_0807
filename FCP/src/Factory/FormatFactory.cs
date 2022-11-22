@@ -1,13 +1,13 @@
-﻿using System;
-using FCP.src.Enum;
+﻿using FCP.src.Enum;
 using FCP.src.FormatInit;
+using System;
 
 namespace FCP.src.Factory
 {
     static class FormatFactory
     {
-        private static ConvertBase _format { get; set; }
-        private static eFormat _currentFormat { get; set; }
+        private static ConvertBase _format;
+        private static eFormat _currentFormat;
 
         public static ConvertBase GenerateNewFormat(eFormat format)
         {
@@ -22,7 +22,7 @@ namespace FCP.src.Factory
 
         private static ConvertBase GetFormat(eFormat format)
         {
-            switch(format)
+            switch (format)
             {
                 case eFormat.JVS:
                     return new BASE_JVServer();
@@ -56,6 +56,8 @@ namespace FCP.src.Factory
                     return new BASE_LittleBear();
                 case eFormat.吉安醫院OC:
                     return new BASE_JiAn();
+                case eFormat.金鶯診所OC:
+                    return new Base_Elite();
                 default:
                     throw new Exception($"沒有找到適配的格式 {format}");
             }

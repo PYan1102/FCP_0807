@@ -4,6 +4,11 @@ namespace FCP.Models
 {
     class PrescriptionModel
     {
+        public PrescriptionModel Clone()
+        {
+            return MemberwiseClone() as PrescriptionModel;
+        }
+
         /// <summary>
         /// 病患名稱
         /// </summary>
@@ -96,6 +101,8 @@ namespace FCP.Models
         /// 是否為餐包
         /// </summary>
         public bool IsMultiDose { get; set; } = true;
+        public string Random { get; set; } = string.Empty;
+        public string Mark { get; set; } = string.Empty;
         public string Other1 { get; set; } = string.Empty;
         public string Other2 { get; set; } = string.Empty;
         public string Other3 { get; set; } = string.Empty;
@@ -104,7 +111,5 @@ namespace FCP.Models
         public string Other6 { get; set; } = string.Empty;
         public string Other7 { get; set; } = string.Empty;
         public string Other8 { get; set; } = string.Empty;
-        public string Other9 { get; set; } = string.Empty;
-        public string Other10 { get; set; } = string.Empty;
     }
 }

@@ -31,6 +31,8 @@ namespace FCP.src.Enum
         Gender,
         DoctorName,
         IsMultiDose,
+        Random,
+        Mark,
         Other1,
         Other2,
         Other3,
@@ -38,8 +40,6 @@ namespace FCP.src.Enum
         Other5,
         Other6,
         Other7,
-        Other8,
-        Other9,
-        Other10
+        Other8
     }
 }

@@ -132,6 +132,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converter\Int32Converter.cs" />
+    <Compile Include="Helpers\RegexHelper.cs" />
     <Compile Include="Models\ActionResult.cs" />
     <Compile Include="Models\CommonModel.cs" />
     <Compile Include="Models\PrescriptionModel.cs" />
@@ -148,7 +149,9 @@
     <Compile Include="src\ControlButtonColorOnHover.cs" />
     <Compile Include="src\Enum\eETC.cs" />
     <Compile Include="src\Enum\ePrescriptionParameters.cs" />
+    <Compile Include="src\FormatInit\Base_Elite.cs" />
     <Compile Include="src\FormatInit\BASE_JiAn.cs" />
+    <Compile Include="src\FormatLogic\FMT_Elite.cs" />
     <Compile Include="src\FormatLogic\FMT_JiAn.cs" />
     <Compile Include="src\MoveFile.cs" />
     <Compile Include="src\Enum\eColor.cs" />

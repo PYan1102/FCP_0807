@@ -1,8 +1,7 @@
-﻿using Helper;
-using FCP.Models;
+﻿using FCP.Models;
+using Helper;
 using System;
 using System.Collections.Generic;
-using FCP.src.Enum;
 using System.Linq;
 
 namespace FCP.src.FormatLogic
@@ -55,7 +54,7 @@ namespace FCP.src.FormatLogic
                         Unit = unit,
                         StartDate = DateTimeHelper.Convert(EncodingHelper.GetString(295, 6), "yyMMdd"),
                         EndDate = DateTimeHelper.Convert(EncodingHelper.GetString(301, 6), "yyMMdd"),
-                        Other1 = adminCode,  //中醫的頻率是一天幾包藥，沒有像西醫有TID or QID等等的
+                        Random = adminCode,  //中醫的頻率是一天幾包藥，沒有像西醫有TID or QID等等的
                         Days = Convert.ToInt32(EncodingHelper.GetString(337, 30))
                     });
                 }

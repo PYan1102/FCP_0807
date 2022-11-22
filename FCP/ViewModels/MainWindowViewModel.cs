@@ -511,7 +511,6 @@ namespace FCP.ViewModels
 
         public void NotifyIconDBClick()
         {
-            Console.WriteLine(CommonModel.WindowType);
             if (CommonModel.WindowType == eWindowType.SimpleWindow)
             {
                 Messenger.Send(new VisibilityMessage(), nameof(SimpleWindowViewModel));

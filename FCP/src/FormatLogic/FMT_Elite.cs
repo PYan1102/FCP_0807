@@ -3,12 +3,14 @@ using FCP.Models;
 using Helper;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FCP.src.FormatLogic
 {
-    class FMT_JVServer : FormatCollection
+    internal class FMT_Elite : FormatCollection
     {
         private List<PrescriptionModel> _data = new List<PrescriptionModel>();
+
 
         public override void ProcessOPD()
         {
@@ -23,18 +25,27 @@ namespace FCP.src.FormatLogic
                 string getMedicineNo = EncodingHelper.GetString(102, 30);
                 string bedNo = EncodingHelper.GetString(132, 30);
                 string patientName = RegexHelper.FilterSpecialSymbols(EncodingHelper.GetString(177, 20));
-                
                 //有重疊風險
                 string _class = EncodingHelper.GetString(197, 30);
-                string hospitalName = EncodingHelper.GetString(229, 40).Replace("?", " ").Replace("？", "  ");
-                string locationName = EncodingHelper.GetString(229, 30).Replace("?", " ").Replace("？", "  ");
+                string hospitalName = EncodingHelper.GetString(229, 40);
+                string locationName = EncodingHelper.GetString(229, 30);
                 EncodingHelper.SetBytes(content.Substring(jvmPosition + 17, content.Length - 17 - jvmPosition));
-                List<string> list = SeparateString(EncodingHelper.GetString(0, EncodingHelper.Length), 547);  //計算有多少種藥品資料
+                List<string> list = SeparateString(EncodingHelper.GetString(0, EncodingHelper.Length), 547);
                 foreach (string s in list)
                 {
                     EncodingHelper.SetBytes(s);
+                    bool hasMark = false;
+                    string mark = EncodingHelper.GetString(132, 30);
+                    if (mark.Length > 0  && int.TryParse(mark, out int markValue) && Convert.ToInt32(mark) > 0)
+                    {
+                        hasMark = true;
+                    }
                     string adminCode = EncodingHelper.GetString(66, 10);
                     string medicineCode = EncodingHelper.GetString(1, 15);
+                    if (hasMark)
+                    {
+                        adminCode = "Custom";
+                    }
                     if (FilterRule(adminCode, medicineCode))
                     {
                         continue;
@@ -42,6 +53,11 @@ namespace FCP.src.FormatLogic
                     if (WhetherToStopNotHasMultiAdminCode(adminCode))
                     {
                         return;
+                    }
+                    List<string> customMealTime = new List<string>();
+                    if (hasMark)
+                    {
+                        customMealTime = MatchMealTime(EncodingHelper.GetString(132, 30));
                     }
                     _data.Add(new PrescriptionModel()
                     {
@@ -53,7 +69,7 @@ namespace FCP.src.FormatLogic
                         BedNo = bedNo,
                         Class = _class,
                         HospitalName = hospitalName,
-                        LocationName = locationName,
+                        LocationName = hasMark ? "自訂義頻率" : mark.Length > 0 ? mark : "正常",
                         MedicineCode = medicineCode,
                         MedicineName = EncodingHelper.GetString(16, 50),
                         AdminCode = adminCode,
@@ -72,6 +88,19 @@ namespace FCP.src.FormatLogic
                         StartDate = DateTimeHelper.Convert(EncodingHelper.GetString(507, 8), "yyyyMMdd"),
                         EndDate = DateTimeHelper.Convert(EncodingHelper.GetString(527, 8), "yyyyMMdd")
                     });
+                    foreach (var time in customMealTime)
+                    {
+                        if (customMealTime.IndexOf(time) == 0)
+                        {
+                            _data[_data.Count - 1].AdminCode = $"{_data[_data.Count - 1].AdminCode}{time}";
+                        }
+                        else
+                        {
+                            var data = _data[_data.Count - 1].Clone();
+                            data.AdminCode = $"{data.AdminCode.Substring(0, data.AdminCode.Length - 1)}{time}";
+                            _data.Add(data);
+                        }
+                    }
                 }
                 if (_data.Count == 0)
                 {
@@ -86,32 +115,10 @@ namespace FCP.src.FormatLogic
 
         public override void LogicOPD()
         {
-            Dictionary<string, List<PrescriptionModel>> dict = null;
-            var splitEachMeal = Properties.Settings.Default.IsSplitEachMeal;
-            if (splitEachMeal)
-            {
-                try
-                {
-                    dict = SplitEachMeal();
-                }
-                catch (Exception ex)
-                {
-                    ProgressLogicFail(ex);
-                    return;
-                }
-            }
             try
             {
-                if (splitEachMeal)
-                {
-                    string outputDirectoryWithoutSeconds = $@"{OutputDirectory}\{_data[0].PatientName}-{SourceFileNameWithoutExtension}_";
-                    OP_OnCube.JVServer_SplitEachMeal(dict, outputDirectoryWithoutSeconds, CurrentSeconds);
-                }
-                else
-                {
-                    string outputDirectory = $@"{OutputDirectory}\{_data[0].PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
-                    OP_OnCube.JVServer(_data, outputDirectory);
-                }
+                string outputDirectory = $@"{OutputDirectory}\{_data[0].PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
+                OP_OnCube.Elite(_data, outputDirectory);
                 Success();
             }
             catch (Exception ex)
@@ -120,58 +127,14 @@ namespace FCP.src.FormatLogic
             }
         }
 
-        private Dictionary<string, List<PrescriptionModel>> SplitEachMeal()
+        private List<string> MatchMealTime(string content)
         {
-            Dictionary<string, List<PrescriptionModel>> dic = new Dictionary<string, List<PrescriptionModel>>();
-            for (int x = 0; x <= 23; x++)
-            {
-                dic.Add(x.ToString().PadLeft(2, '0'), new List<PrescriptionModel>());
-            }
-            for (int i = 0; i <= _data.Count - 1; i++)
-            {
-                string adminCode = _data[i].AdminCode;
-                List<string> adminCodeTimeList = GetMultiAdminCodeTimes(adminCode);
-                foreach (var v in adminCodeTimeList)
-                {
-                    string hour = v.Substring(0, 2);
-                    dic[hour].Add(_data[i]);
-                }
-            }
-            return dic;
+            List<string> mealTime = new List<string>();
+            content.ToList().ForEach(x => mealTime.Add(x.ToString()));
+            return mealTime;
         }
 
-
-        public override void ProcessUDBatch()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void LogicUDBatch()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void ProcessUDStat()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void LogicUDStat()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void ProcessPowder()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void LogicPowder()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void ProcessOther()
+        public override void LogicCare()
         {
             throw new NotImplementedException();
         }
@@ -181,12 +144,42 @@ namespace FCP.src.FormatLogic
             throw new NotImplementedException();
         }
 
+        public override void LogicPowder()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void LogicUDBatch()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void LogicUDStat()
+        {
+            throw new NotImplementedException();
+        }
+
         public override void ProcessCare()
         {
             throw new NotImplementedException();
         }
 
-        public override void LogicCare()
+        public override void ProcessOther()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProcessPowder()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProcessUDBatch()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProcessUDStat()
         {
             throw new NotImplementedException();
         }
@@ -195,6 +188,14 @@ namespace FCP.src.FormatLogic
         {
             _data.Clear();
             return base.DepartmentShunt();
+        }
+
+        internal class MealModel
+        {
+            internal bool Breakfast { get; set; }
+            internal bool Lunch { get; set; }
+            internal bool Dinner { get; set; }
+            internal bool Sleep { get; set; }
         }
     }
 }
