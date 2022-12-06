@@ -7,7 +7,7 @@ using System.Windows;
 
 namespace FCP.src.FormatInit
 {
-    internal class Base_Elite : ConvertBase
+    internal class BASE_Elite : ConvertBase
     {
         private FMT_Elite _format;
 

@@ -56,8 +56,10 @@ namespace FCP.src.Factory
                     return new BASE_LittleBear();
                 case eFormat.吉安醫院OC:
                     return new BASE_JiAn();
+                case eFormat.立群診所OC:
+                    return new BASE_LiChiun();
                 case eFormat.金鶯診所OC:
-                    return new Base_Elite();
+                    return new BASE_Elite();
                 default:
                     throw new Exception($"沒有找到適配的格式 {format}");
             }
