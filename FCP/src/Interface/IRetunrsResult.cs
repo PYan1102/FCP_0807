@@ -1,5 +1,4 @@
-﻿using System;
-using FCP.Models;
+﻿using FCP.Models;
 using FCP.src.Enum;
 
 namespace FCP.src.Interface

@@ -16,12 +16,11 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Forms;
 
 namespace FCP.src
 {
-    abstract class ConvertBase : Window
+    abstract class ConvertBase
     {
         public ConvertBase()
         {
@@ -31,8 +30,8 @@ namespace FCP.src
         public bool IsStart { get => _isStart; private set => _isStart = value; }
         public MainWindowViewModel MainWindowVM { get; set; }
         public SettingJsonModel SettingModel { get; set; }
-        private UIRefresh _uiRefresh { get; set; }
         protected internal eDepartment CurrentDepartment;
+        private UIRefresh _uiRefresh { get; set; }
         private string _successDirectory = string.Empty;
         private string _failDirectory = string.Empty;
         private CancellationTokenSource _cts;
@@ -166,7 +165,6 @@ namespace FCP.src
             string message = returnsResult.Message;
             string sourceFilePath = FileInfoModel.SourceFilePath;
             MoveFile convertResult = new MoveFile(sourceFilePath, _successDirectory, _failDirectory);
-            Console.WriteLine(message.Length);
             switch (returnsResult.Result)
             {
                 case eConvertResult.成功:

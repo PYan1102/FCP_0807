@@ -23,8 +23,8 @@ namespace FCP
                     StringBuilder sb = new StringBuilder();
                     sb.Append("|JVPHEAD|");
                     sb.Append("1");
-                    sb.Append(firstPowder.PatientNo.PadRight(15));
-                    sb.Append("".PadRight(20));
+                    sb.Append(firstPowder.Barcode.PadRight(15));
+                    sb.Append(firstPowder.PatientNo.PadRight(20));
                     sb.Append("1".PadRight(5));
                     sb.Append(firstPowder.StartDate.ToString("yyyyMMdd"));
                     sb.Append("00:00");

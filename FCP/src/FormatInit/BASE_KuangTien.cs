@@ -50,7 +50,6 @@ namespace FCP.src.FormatInit
             else if (SettingModel.Format == eFormat.光田醫院JVS)  //磨粉
             {
                 SetPowderRule();
-                Start();
                 return base.PrepareStart();
             }
             SetOPDRule();

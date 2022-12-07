@@ -457,11 +457,17 @@ namespace FCP.src.FormatLogic
                 string patientName = EncodingHelper.GetString(25, 21);
                 string gender = EncodingHelper.GetString(47, 2);
                 string _class = EncodingHelper.GetString(67, EncodingHelper.Length - 67);
+                int barcodeIndex = list.Where(x => x.Contains("BARCODE")).Select(x => list.IndexOf(x)).First();
+                EncodingHelper.SetBytes(list[barcodeIndex]);
+                string barcode = EncodingHelper.GetString(10, EncodingHelper.Length - 10);
                 list.RemoveRange(0, 4);
                 list.RemoveRange(list.Count - 2, 2);
                 foreach (string s in list)
                 {
-                    if (s.Contains("=====") || s.Trim().Length == 0)
+                    if (s.Contains("=====")
+                        || s.Contains("光田綜合醫院")
+                        || s.Contains("BARCODE")
+                        || s.Trim().Length == 0)
                         continue;
                     EncodingHelper.SetBytes(s.TrimEnd('\n'));
                     string adminCode = EncodingHelper.GetString(57, 11) + EncodingHelper.GetString(68, 9);
@@ -487,7 +493,8 @@ namespace FCP.src.FormatLogic
                         Days = EncodingHelper.GetString(77, 5),
                         SumQty = EncodingHelper.GetString(82, 8),
                         GrindTable = grindTable,
-                        EffectiveDate = DateTime.Now.AddDays(Convert.ToInt32(EncodingHelper.GetString(77, 5)))
+                        EffectiveDate = DateTime.Now.AddDays(Convert.ToInt32(EncodingHelper.GetString(77, 5))),
+                        Barcode = barcode
                     };
                     if (adminCode.Contains("PRN"))
                     {
@@ -647,6 +654,7 @@ namespace FCP.src.FormatLogic
         public string GrindTable { get; set; }
         public string TimesPerDay { get; set; }
         public DateTime EffectiveDate { get; set; }
+        public string Barcode { get; set; }
     }
 
     internal class KuangTienUDBasic

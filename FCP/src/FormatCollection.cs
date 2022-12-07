@@ -108,10 +108,13 @@ namespace FCP.src
         public virtual ReturnsResultModel DepartmentShunt()
         {
             Init();
-            _multiAdminCode = GetAllMultiAdminCode();
-            _combiAdminCode = GetAllCombiAdminCode();
-            _multiAdminCodeTimes = GetAllMultiAdminCodeTimes();
-            _crossDayAdminCodeDays = GetCrossDayAdminCodeDays();
+            if (SettingModel.Format != eFormat.光田醫院JVS)
+            {
+                _multiAdminCode = GetAllMultiAdminCode();
+                _combiAdminCode = GetAllCombiAdminCode();
+                _multiAdminCodeTimes = GetAllMultiAdminCodeTimes();
+                _crossDayAdminCodeDays = GetCrossDayAdminCodeDays();
+            }
             switch (_department)
             {
                 case eDepartment.OPD:

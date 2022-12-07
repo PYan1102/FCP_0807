@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using FCP.src.Enum;
-using SqlHelper;
+﻿using FCP.src.Enum;
 using SqlHelper.Interface;
+using System.Windows.Forms;
 
 namespace FCP.Models
 {
