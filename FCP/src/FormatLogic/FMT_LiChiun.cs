@@ -38,7 +38,10 @@ namespace FCP.src.FormatLogic
                     string medicineCode = EncodingHelper.GetString(1, 15);
                     if (adminCode.Length == 0)
                     {
-                        _data.Clear();
+                        if(list.IndexOf(s) != list.Count - 1)
+                        {
+                            _data.Clear();
+                        }
                         continue;
                     }
                     if (FilterRule(adminCode, medicineCode))
@@ -114,28 +117,6 @@ namespace FCP.src.FormatLogic
                 GenerateOCSFileFail(ex);
             }
         }
-
-        private Dictionary<string, List<PrescriptionModel>> SplitEachMeal()
-        {
-            Dictionary<string, List<PrescriptionModel>> dic = new Dictionary<string, List<PrescriptionModel>>();
-            for (int x = 0; x <= 23; x++)
-            {
-                dic.Add(x.ToString().PadLeft(2, '0'), new List<PrescriptionModel>());
-            }
-            for (int i = 0; i <= _data.Count - 1; i++)
-            {
-                string adminCode = _data[i].AdminCode;
-                List<string> adminCodeTimeList = GetMultiAdminCodeTimes(adminCode);
-                foreach (var v in adminCodeTimeList)
-                {
-                    string hour = v.Substring(0, 2);
-                    dic[hour].Add(_data[i]);
-                }
-            }
-            return dic;
-        }
-
-
         public override void ProcessUDBatch()
         {
             throw new NotImplementedException();
