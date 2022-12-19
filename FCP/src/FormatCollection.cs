@@ -255,9 +255,17 @@ namespace FCP.src
         {
             get
             {
-                using (StreamReader sr = new StreamReader(SourceFilePath, Encoding.Default))
+                try
                 {
-                    return sr.ReadToEnd();
+                    using (StreamReader sr = new StreamReader(SourceFilePath, Encoding.Default))
+                    {
+                        return sr.ReadToEnd();
+                    }
+                }
+                catch
+                {
+                    LogService.Exception($"讀取目標檔案錯誤 {SourceFilePath}");
+                    return GetFileContent;
                 }
             }
         }

@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FCP
 {
@@ -252,7 +254,7 @@ namespace FCP
         {
             try
             {
-                IEnumerable<string> floors = ud.Select(x => x.Key.BedNo.Substring(0, 4)).Distinct();
+                IEnumerable<string> floors = ud.Select(x => x.Key.BedNo.Substring(0, 4)).Distinct().OrderBy(x => x);
                 for (int i = 0; i < floors.Count(); i++)
                 {
                     StringBuilder sb = new StringBuilder();
@@ -317,6 +319,7 @@ namespace FCP
                             sw.Write(sb.ToString());
                         }
                     }
+                    Thread.Sleep(15000);
                 }
 
             }

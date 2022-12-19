@@ -134,11 +134,7 @@ namespace FCP.src.FormatLogic
                                 continue;
                             }
                             adminCode = adminCode.Contains("TTS") ? "STTS" : adminCode;
-                            if (WhetherToStopNotHasMultiAdminCode(adminCode))
-                            {
-                                continue;
-                            }
-                            if (WhetherToStopNotHasCombiAdminCode(adminCode))
+                            if (WhetherToStopNotHasMultiAdminCode(adminCode) || WhetherToStopNotHasCombiAdminCode(adminCode))
                             {
                                 continue;
                             }
@@ -327,11 +323,8 @@ namespace FCP.src.FormatLogic
                                 continue;
                             }
                             adminCode = adminCode.Contains("TTS") ? "STTS" : adminCode;
-                            if (!adminCode.StartsWith("ST") && WhetherToStopNotHasMultiAdminCode(adminCode))
-                            {
-                                continue;
-                            }
-                            if (WhetherToStopNotHasCombiAdminCode(adminCode))
+                            if ((!adminCode.StartsWith("ST") && WhetherToStopNotHasMultiAdminCode(adminCode))
+                                || WhetherToStopNotHasCombiAdminCode(adminCode))
                             {
                                 continue;
                             }

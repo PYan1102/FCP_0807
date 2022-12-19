@@ -162,6 +162,7 @@ namespace FCP.src
 
         public void Result(ReturnsResultModel returnsResult, bool remind)
         {
+            returnsResult.Message = returnsResult.Message ?? "空白";
             string message = returnsResult.Message;
             string sourceFilePath = FileInfoModel.SourceFilePath;
             MoveFile convertResult = new MoveFile(sourceFilePath, _successDirectory, _failDirectory);
@@ -259,6 +260,7 @@ namespace FCP.src
         private void AddNewMessageToProgressBox(string result)
         {
             int index = result.IndexOf(" ");
+            Console.WriteLine(result);
             string newResult = $"{Path.GetFileName(result.Substring(0, index))} {result.Substring(index + 1, result.Length - index - 1)}";
             WeakReferenceMessenger.Default.Send(new LogChangeMessage($"{DateTime.Now:HH:mm:ss:fff} {newResult}"));
         }
