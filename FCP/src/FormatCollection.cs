@@ -43,6 +43,7 @@ namespace FCP.src
             _combiAdminCode = new List<string>();
             _multiAdminCodeTimes = new Dictionary<string, List<string>>();
             _crossDayAdminCodeDays = new Dictionary<string, int>();
+            _jvserverAdminCodeTimes = new Dictionary<string, int>();
             _filterAdminCode = new List<string>();
         }
 
@@ -114,6 +115,7 @@ namespace FCP.src
                 _combiAdminCode = GetAllCombiAdminCode();
                 _multiAdminCodeTimes = GetAllMultiAdminCodeTimes();
                 _crossDayAdminCodeDays = GetCrossDayAdminCodeDays();
+                _jvserverAdminCodeTimes = GetJVServerAdminCodeTimes();
             }
             switch (_department)
             {

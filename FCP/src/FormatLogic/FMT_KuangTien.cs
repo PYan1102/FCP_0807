@@ -489,6 +489,7 @@ namespace FCP.src.FormatLogic
                         EffectiveDate = DateTime.Now.AddDays(Convert.ToInt32(EncodingHelper.GetString(77, 5))),
                         Barcode = barcode
                     };
+                    Console.WriteLine(adminCode);
                     if (adminCode.Contains("PRN"))
                     {
                         JVServerAdminCodeTimes.TryGetValue(adminCode, out int times);
