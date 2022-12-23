@@ -109,13 +109,16 @@ namespace FCP.src
         public virtual ReturnsResultModel DepartmentShunt()
         {
             Init();
-            if (SettingModel.Format != eFormat.光田醫院JVS)
+            if (SettingModel.Format == eFormat.光田醫院JVS)
+            {
+                _jvserverAdminCodeTimes = GetJVServerAdminCodeTimes();
+            }
+            else
             {
                 _multiAdminCode = GetAllMultiAdminCode();
                 _combiAdminCode = GetAllCombiAdminCode();
                 _multiAdminCodeTimes = GetAllMultiAdminCodeTimes();
                 _crossDayAdminCodeDays = GetCrossDayAdminCodeDays();
-                _jvserverAdminCodeTimes = GetJVServerAdminCodeTimes();
             }
             switch (_department)
             {

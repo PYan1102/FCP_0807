@@ -1068,7 +1068,7 @@ namespace FCP
             }
         }
 
-        public static void Elite(List<PrescriptionModel> data , string outputDirectory)
+        public static void Elite(List<PrescriptionModel> data, string outputDirectory)
         {
             try
             {

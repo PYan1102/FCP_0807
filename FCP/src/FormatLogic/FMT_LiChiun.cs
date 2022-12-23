@@ -9,7 +9,8 @@ namespace FCP.src.FormatLogic
 {
     internal class FMT_LiChiun : FormatCollection
     {
-        private List<PrescriptionModel> _data = new List<PrescriptionModel>();
+        private List<PrescriptionModel> _up = new List<PrescriptionModel>();
+        private List<PrescriptionModel> _down = new List<PrescriptionModel>();
 
         public override void ProcessOPD()
         {
@@ -25,23 +26,29 @@ namespace FCP.src.FormatLogic
                 string bedNo = EncodingHelper.GetString(132, 30);
                 string patientName = RegexHelper.FilterSpecialSymbols(EncodingHelper.GetString(177, 20));
 
-                //有重疊風險
                 string _class = EncodingHelper.GetString(197, 30);
                 string hospitalName = EncodingHelper.GetString(229, 40).Replace("?", " ").Replace("？", "  ");
                 string locationName = EncodingHelper.GetString(229, 30).Replace("?", " ").Replace("？", "  ");
                 EncodingHelper.SetBytes(content.Substring(jvmPosition + 17, content.Length - 17 - jvmPosition));
                 List<string> list = SeparateString(EncodingHelper.GetString(0, EncodingHelper.Length), 547);  //計算有多少種藥品資料
+                bool twoND = false;
                 foreach (string s in list)
                 {
                     EncodingHelper.SetBytes(s);
                     string adminCode = EncodingHelper.GetString(66, 10);
                     string medicineCode = EncodingHelper.GetString(1, 15);
-                    if (adminCode.Length == 0)
+                    if (medicineCode == "/7")  //以下限領一次藥
                     {
-                        if(list.IndexOf(s) != list.Count - 1)
-                        {
-                            _data.Clear();
-                        }
+                        _up.Clear();
+                        continue;
+                    }
+                    if (medicineCode == "2ND")
+                    {
+                        twoND = true;
+                        continue;
+                    }
+                    if(medicineCode== "NND000" || medicineCode=="MORE")  //COVID-19、藥物天數超過三天
+                    {
                         continue;
                     }
                     if (FilterRule(adminCode, medicineCode))
@@ -52,7 +59,7 @@ namespace FCP.src.FormatLogic
                     {
                         return;
                     }
-                    _data.Add(new PrescriptionModel()
+                    PrescriptionModel model = new PrescriptionModel()
                     {
                         PatientName = patientName,
                         PatientNo = patientNo,
@@ -80,9 +87,17 @@ namespace FCP.src.FormatLogic
                         Other8 = EncodingHelper.GetString(387, 40),
                         StartDate = DateTimeHelper.Convert(EncodingHelper.GetString(507, 8), "yyyyMMdd"),
                         EndDate = DateTimeHelper.Convert(EncodingHelper.GetString(527, 8), "yyyyMMdd")
-                    });
+                    };
+                    if (!twoND)
+                    {
+                        _up.Add(model);
+                    }
+                    else
+                    {
+                        _down.Add(model);
+                    }
                 }
-                if (_data.Count == 0)
+                if (_up.Count == 0 && _down.Count == 0)
                 {
                     Pass();
                 }
@@ -97,19 +112,25 @@ namespace FCP.src.FormatLogic
         {
             try
             {
-                Dictionary<int, PrescriptionModel> temp = new Dictionary<int, PrescriptionModel>();
-                _data.ForEach(x =>
+                if (_up.Where(x => x.AdminCode.Contains("HS")).Count() > 0)
                 {
-                    if (x.AdminCode.Contains("HS"))
-                    {
-                        x.PatientName = $"{x.PatientName}_HS";
-                        temp.Add(_data.IndexOf(x), x.Clone());
-                    }
-                });
-                _data.RemoveAll(x => temp.Select(y => y.Key).Contains(_data.IndexOf(x)));
-                _data.AddRange(temp.Select(x => x.Value));
-                string outputDirectory = $@"{OutputDirectory}\{_data[0].PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
-                OP_OnCube.JVServer(_data, outputDirectory);
+                    SortedPrescriptionByHS(_up);
+                }
+                if (_down.Where(x => x.AdminCode.Contains("HS")).Count() > 0)
+                {
+                    SortedPrescriptionByHS(_down);
+                }
+
+                if (_up.Count > 0)
+                {
+                string outputDirectory = $@"{OutputDirectory}\{_up[0].PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
+                    OP_OnCube.JVServer(_up, outputDirectory);
+                }
+                if (_down.Count > 0)
+                {
+                string outputDirectory = $@"{OutputDirectory}\{_up[0].PatientName}_2-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
+                    OP_OnCube.JVServer(_down, outputDirectory);
+                }
                 Success();
             }
             catch (Exception ex)
@@ -117,6 +138,22 @@ namespace FCP.src.FormatLogic
                 GenerateOCSFileFail(ex);
             }
         }
+
+        private void SortedPrescriptionByHS(List<PrescriptionModel> prescriptions)
+        {
+            Dictionary<int, PrescriptionModel> temp = new Dictionary<int, PrescriptionModel>();
+            prescriptions.ForEach(x =>
+            {
+                if (x.AdminCode.Contains("HS"))
+                {
+                    x.PatientName = $"{x.PatientName}_HS";
+                    temp.Add(prescriptions.IndexOf(x), x.Clone());
+                }
+            });
+            prescriptions.RemoveAll(x => temp.Select(y => y.Key).Contains(prescriptions.IndexOf(x)));
+            prescriptions.AddRange(temp.Select(x => x.Value));
+        }
+
         public override void ProcessUDBatch()
         {
             throw new NotImplementedException();
@@ -169,7 +206,8 @@ namespace FCP.src.FormatLogic
 
         public override ReturnsResultModel DepartmentShunt()
         {
-            _data.Clear();
+            _up.Clear();
+            _down.Clear();
             return base.DepartmentShunt();
         }
     }

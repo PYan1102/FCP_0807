@@ -260,7 +260,6 @@ namespace FCP.src
         private void AddNewMessageToProgressBox(string result)
         {
             int index = result.IndexOf(" ");
-            Console.WriteLine(result);
             string newResult = $"{Path.GetFileName(result.Substring(0, index))} {result.Substring(index + 1, result.Length - index - 1)}";
             WeakReferenceMessenger.Default.Send(new LogChangeMessage($"{DateTime.Now:HH:mm:ss:fff} {newResult}"));
         }
