@@ -47,7 +47,7 @@ namespace FCP.src.FormatLogic
                         twoND = true;
                         continue;
                     }
-                    if(medicineCode== "NND000" || medicineCode=="MORE")  //COVID-19、藥物天數超過三天
+                    if (medicineCode == "NND000" || medicineCode == "MORE")  //COVID-19、藥物天數超過三天
                     {
                         continue;
                     }
@@ -112,23 +112,24 @@ namespace FCP.src.FormatLogic
         {
             try
             {
-                if (_up.Where(x => x.AdminCode.Contains("HS")).Count() > 0)
+                if (_up.Count > 0 && _up.Where(x => x.AdminCode.Contains("HS")).Count() > 0)
                 {
                     SortedPrescriptionByHS(_up);
                 }
-                if (_down.Where(x => x.AdminCode.Contains("HS")).Count() > 0)
+                if (_down.Count > 0 && _down.Where(x => x.AdminCode.Contains("HS")).Count() > 0)
                 {
                     SortedPrescriptionByHS(_down);
                 }
 
                 if (_up.Count > 0)
                 {
-                string outputDirectory = $@"{OutputDirectory}\{_up[0].PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
+                    string outputDirectory = $@"{OutputDirectory}\{_up[0].PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
                     OP_OnCube.JVServer(_up, outputDirectory);
                 }
                 if (_down.Count > 0)
                 {
-                string outputDirectory = $@"{OutputDirectory}\{_up[0].PatientName}_2-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
+                    string patientName = _up.Count == 0 ? _down[0].PatientName : _up[0].PatientName;
+                    string outputDirectory = $@"{OutputDirectory}\{patientName}_2-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
                     OP_OnCube.JVServer(_down, outputDirectory);
                 }
                 Success();
