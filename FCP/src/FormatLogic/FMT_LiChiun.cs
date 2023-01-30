@@ -120,11 +120,34 @@ namespace FCP.src.FormatLogic
                 {
                     SortedPrescriptionByHS(_down);
                 }
-
                 if (_up.Count > 0)
                 {
                     string outputDirectory = $@"{OutputDirectory}\{_up[0].PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
-                    OP_OnCube.JVServer(_up, outputDirectory);
+                    if (_down.Count == 0)
+                    {
+                        var tid = _up.Where(x => x.AdminCode == "TID").ToList();
+                        var qid = _up.Where(x => x.AdminCode == "QID").ToList();
+                        if (tid.Count > 0)
+                        {
+                            outputDirectory = $@"{OutputDirectory}\{_up[0].PatientName}_TID-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
+                            OP_OnCube.JVServer(tid, outputDirectory);
+                        }
+                        if (qid.Count > 0)
+                        {
+                            outputDirectory = $@"{OutputDirectory}\{_up[0].PatientName}_QID-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
+                            OP_OnCube.JVServer(qid, outputDirectory);
+                        }
+                        _up.RemoveAll(x => x.AdminCode == "TID" || x.AdminCode == "QID");
+                        if (_up.Count > 0)
+                        {
+                            outputDirectory = $@"{OutputDirectory}\{_up[0].PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
+                            OP_OnCube.JVServer(_up, outputDirectory);
+                        }
+                    }
+                    else
+                    {
+                        OP_OnCube.JVServer(_up, outputDirectory);
+                    }
                 }
                 if (_down.Count > 0)
                 {
