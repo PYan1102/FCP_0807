@@ -35,6 +35,7 @@ namespace FCP.src
         private Dictionary<string, List<string>> _multiAdminCodeTimes;
         private Dictionary<string, int> _crossDayAdminCodeDays;
         private Dictionary<string, int> _jvserverAdminCodeTimes;  //For JVServer
+        private static readonly object _lockFile = new object();
 
         public FormatCollection()
         {
@@ -262,9 +263,15 @@ namespace FCP.src
             {
                 try
                 {
-                    using (StreamReader sr = new StreamReader(SourceFilePath, Encoding.Default))
+                    using (FileStream fs = new FileStream(SourceFilePath, FileMode.Open,FileAccess.Read, FileShare.Read))
                     {
-                        return sr.ReadToEnd();
+                        using (StreamReader sr = new StreamReader(fs, Encoding.Default))
+                        {
+                            lock (_lockFile)
+                            {
+                                return sr.ReadToEnd();
+                            }
+                        }
                     }
                 }
                 catch

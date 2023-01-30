@@ -586,7 +586,7 @@ namespace FCP.ViewModels
 
         private async void LoadedFuncAsync()
         {
-            Log.Path = $@"{Environment.CurrentDirectory}\Log";
+            LogService.Path = $@"{Environment.CurrentDirectory}\Log";
             CheckProgramIsAlreadyOpen();
             SwitchMainWindowControlState(true);
             NotifyIconHelper.Init(Properties.Resources.FCP, "轉檔");
@@ -610,7 +610,7 @@ namespace FCP.ViewModels
         {
             if (Process.GetProcessesByName("FCP").Length > 1)
             {
-                Log.Write("程式已開啟，請確認工具列");
+                LogService.Warn("程式已開啟，請確認工具列");
                 MsgCollection.ShowDialog("程式已開啟，請確認工具列", "重複開啟", PackIconKind.Error, ColorProvider.GetSolidColorBrush(eColor.Red));
                 Environment.Exit(0);
             }
