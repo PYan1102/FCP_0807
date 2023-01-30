@@ -459,6 +459,8 @@ namespace FCP.src.FormatLogic
                 {
                     if (s.Contains("=====")
                         || s.Contains("光田綜合醫院")
+                        || s.Contains("大甲院區")
+                        || s.Contains("沙鹿院區")
                         || s.Contains("BARCODE")
                         || s.Trim().Length == 0)
                         continue;
