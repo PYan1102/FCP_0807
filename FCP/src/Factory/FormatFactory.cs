@@ -60,6 +60,8 @@ namespace FCP.src.Factory
                     return new BASE_LiChiun();
                 case eFormat.金鶯診所OC:
                     return new BASE_Elite();
+                case eFormat.健通藥局OC:
+                    return new BASE_JianTong();
                 default:
                     throw new Exception($"沒有找到適配的格式 {format}");
             }

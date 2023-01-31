@@ -3,7 +3,7 @@ using FCP.src.Enum;
 
 namespace FCP.Models
 {
-    public sealed class FileInfoModel
+    public sealed class FileInfoModel : ModelBase
     {
         public static string SourceFilePath { get; set; }
         public static string InputDirectory { get; set; }

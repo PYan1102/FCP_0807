@@ -1122,6 +1122,60 @@ namespace FCP
             }
         }
 
+        public static void JianTong(List<PrescriptionModel> data, string outputDirectory)
+        {
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (var v in data)
+                {
+                    eDoseType doseType = GetDoseType(v.AdminCode);
+                    sb.Append(ECD(v.PatientName, 20));
+                    sb.Append(v.PatientNo.PadRight(30));
+                    sb.Append(ECD(v.LocationName, 50));
+                    sb.Append("".PadRight(29));
+                    if (doseType == eDoseType.餐包)
+                        sb.Append(ECD(v.PerQty, 5));
+                    else
+                        sb.Append(ECD(v.SumQty, 5));
+                    sb.Append(v.MedicineCode.PadRight(20));
+                    sb.Append(ECD(v.MedicineName, 50));
+                    sb.Append(v.AdminCode.PadRight(20));
+                    if (doseType == eDoseType.餐包)
+                    {
+                        sb.Append(OnCubeDt(v.StartDate));
+                        sb.Append(OnCubeDt(v.EndDate));
+                    }
+                    else
+                    {
+                        sb.Append(OnCubeDt(v.EndDate));
+                        sb.Append(OnCubeDt(v.EndDate));
+                    }
+                    sb.Append("3       ");
+                    sb.Append("".PadRight(50));
+                    sb.Append(v.PrescriptionNo.PadRight(50));
+                    sb.Append(ECD(v.Class, 50));
+                    sb.Append(v.BirthDate);
+                    sb.Append("".PadRight(6));
+                    sb.Append(v.RoomNo.PadRight(20));
+                    sb.Append(v.BedNo.PadRight(20));
+                    sb.Append("0");
+                    sb.Append(ECD(v.HospitalName, 30));
+                    sb.Append(MatchETC(v));
+                    sb.AppendLine(ConvertDoseType(doseType));
+                }
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
+                {
+                    sw.Write(sb.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                LogService.Exception(ex);
+                throw;
+            }
+        }
+
         private static string ECD(object obj, int Length)  //處理中文
         {
             string data = obj.ToString().PadRight(Length, ' ');

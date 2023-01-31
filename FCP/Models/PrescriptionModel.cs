@@ -2,7 +2,7 @@
 
 namespace FCP.Models
 {
-    class PrescriptionModel
+    class PrescriptionModel : ModelBase
     {
         public PrescriptionModel Clone()
         {
