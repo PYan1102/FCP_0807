@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace FCP.src.FormatLogic
 {
@@ -47,7 +48,7 @@ namespace FCP.src.FormatLogic
                         Days = days
                     });
                 }
-                if (_data.Count == 0)
+                if (_data.Count == 0 || _data.Count == 1)
                 {
                     Pass();
                 }
@@ -62,6 +63,25 @@ namespace FCP.src.FormatLogic
         {
             try
             {
+                var adminCodes = from v in _data
+                                 group v by v.AdminCode into g
+                                 select new
+                                 {
+                                     g.Key,
+                                     Count = g.Count()
+                                 };
+                int maxTimes = 0;
+                string adminCode = "";
+                foreach (var v in adminCodes)
+                {
+                    int times = GetMultiAdminCodeTimes(v.Key).Count;
+                    if (maxTimes == 0 || times > maxTimes)
+                    {
+                        maxTimes = times;
+                        adminCode = v.Key;
+                    }
+                }
+                _data.RemoveAll(x => x.AdminCode != adminCode);
                 string outputDirectory = $@"{OutputDirectory}\{_data[0].PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
                 OP_OnCube.JianTong(_data, outputDirectory);
                 Success();
@@ -72,17 +92,27 @@ namespace FCP.src.FormatLogic
             }
         }
 
-        public override void LogicCare()
+        public override void ProcessCare()
         {
-            throw new System.NotImplementedException();
+            ProcessOPD();
         }
 
-        public override void LogicOther()
+        public override void ProcessPowder()
         {
-            throw new System.NotImplementedException();
+            ProcessOPD();
+        }
+
+        public override void LogicCare()
+        {
+            LogicOPD();
         }
 
         public override void LogicPowder()
+        {
+            LogicOPD();
+        }
+
+        public override void LogicOther()
         {
             throw new System.NotImplementedException();
         }
@@ -97,17 +127,7 @@ namespace FCP.src.FormatLogic
             throw new System.NotImplementedException();
         }
 
-        public override void ProcessCare()
-        {
-            throw new System.NotImplementedException();
-        }
-
         public override void ProcessOther()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override void ProcessPowder()
         {
             throw new System.NotImplementedException();
         }

@@ -14,13 +14,15 @@ namespace FCP.src.FormatInit
         public override void Init()
         {
             base.Init();
-            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToggleModel() { Toggle1 = true }));
+            WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToggleModel() { Toggle1 = true, Toggle2 = true, Toggle3 = true }));
         }
 
         public override ActionResult PrepareStart()
         {
             SetFileSearchMode(eFileSearchMode.根據檔名開頭);
             SetOPDRule();
+            SetPowderRule();
+            SetCareRule();
             return base.PrepareStart();
         }
 
