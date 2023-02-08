@@ -1134,22 +1134,22 @@ namespace FCP
                     sb.Append(v.PatientNo.PadRight(30));
                     sb.Append(ECD(v.LocationName, 50));
                     sb.Append("".PadRight(29));
-                    if (doseType == eDoseType.餐包)
+                    if (v.IsMultiDose)
                         sb.Append(ECD(v.PerQty, 5));
                     else
                         sb.Append(ECD(v.SumQty, 5));
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
                     sb.Append(v.AdminCode.PadRight(20));
-                    if (doseType == eDoseType.餐包)
+                    if (v.IsMultiDose)
                     {
                         sb.Append(OnCubeDt(v.StartDate));
                         sb.Append(OnCubeDt(v.EndDate));
                     }
                     else
                     {
-                        sb.Append(OnCubeDt(v.EndDate));
-                        sb.Append(OnCubeDt(v.EndDate));
+                        sb.Append(OnCubeDt(v.StartDate));
+                        sb.Append(OnCubeDt(v.StartDate));
                     }
                     sb.Append("3       ");
                     sb.Append("".PadRight(50));
@@ -1162,7 +1162,7 @@ namespace FCP
                     sb.Append("0");
                     sb.Append(ECD(v.HospitalName, 30));
                     sb.Append(MatchETC(v));
-                    sb.AppendLine(ConvertDoseType(doseType));
+                    sb.AppendLine(v.IsMultiDose ? "M" : "C");
                 }
                 using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
                 {
