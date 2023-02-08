@@ -1140,7 +1140,14 @@ namespace FCP
                         sb.Append(ECD(v.SumQty, 5));
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
-                    sb.Append(v.AdminCode.PadRight(20));
+                    if (v.IsMultiDose)
+                    {
+                        sb.Append(v.AdminCode.PadRight(20));
+                    }
+                    else
+                    {
+                        sb.Append($"S{v.AdminCode}".PadRight(20));
+                    }
                     if (v.IsMultiDose)
                     {
                         sb.Append(OnCubeDt(v.StartDate));
