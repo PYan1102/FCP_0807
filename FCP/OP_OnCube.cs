@@ -1137,7 +1137,7 @@ namespace FCP
                     if (v.IsMultiDose)
                         sb.Append(ECD(v.PerQty, 5));
                     else
-                        sb.Append(ECD(v.SumQty, 5));
+                        sb.Append(ECD(Math.Floor(v.SumQty), 5));
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
                     if (v.IsMultiDose)

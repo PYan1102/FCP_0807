@@ -2,11 +2,8 @@
 using Helper;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace FCP.src.FormatLogic
 {
@@ -113,7 +110,8 @@ namespace FCP.src.FormatLogic
                     model = basicModel.Clone();
                     string adminCode = splitDatas[2];
                     string medicineCode = splitDatas[0];
-                    if (FilterRule(adminCode, medicineCode))
+                    float sumQty = Convert.ToSingle(splitDatas[5]);
+                    if (FilterRule(adminCode, medicineCode) || sumQty.ToString("0.###").Contains("."))
                     {
                         continue;
                     }
@@ -125,7 +123,7 @@ namespace FCP.src.FormatLogic
                     model.MedicineName = splitDatas[1];
                     model.Days = Convert.ToInt32(splitDatas[3]);
                     model.PerQty = Convert.ToSingle(splitDatas[4]);
-                    model.SumQty = Convert.ToSingle(splitDatas[5]);
+                    model.SumQty = sumQty;
                     model.AdminCode = adminCode;
                     model.EndDate = model.StartDate.AddDays(model.Days - 1);
                     _data.Add(model);
