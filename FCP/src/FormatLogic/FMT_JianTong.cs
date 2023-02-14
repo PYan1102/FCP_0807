@@ -2,6 +2,7 @@
 using Helper;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -111,7 +112,7 @@ namespace FCP.src.FormatLogic
                     string adminCode = splitDatas[2];
                     string medicineCode = splitDatas[0];
                     float sumQty = Convert.ToSingle(splitDatas[5]);
-                    if (FilterRule(adminCode, medicineCode) || sumQty.ToString("0.###").Contains("."))
+                    if (FilterRule(adminCode, medicineCode))
                     {
                         continue;
                     }
@@ -127,12 +128,12 @@ namespace FCP.src.FormatLogic
                     model.AdminCode = adminCode;
                     model.EndDate = model.StartDate.AddDays(model.Days - 1);
                     _data.Add(model);
-                    //LogService.Info(model.PerQty.ToString().Contains("."));
                 }
                 if (_data.Count == 0 || _data.Count == 1)
                 {
                     Pass();
                 }
+                _data.ForEach(x => Debug.WriteLine($"{x.MedicineCode} {x.MedicineName} {x.AdminCode} {x.PerQty} {x.Days}"));
             }
             catch (Exception ex)
             {
@@ -144,6 +145,22 @@ namespace FCP.src.FormatLogic
         {
             try
             {
+                int quantity = GetTheNumOfPerQtyNotIntegerAndThreeDays();
+                if (quantity >= 2)
+                {
+                    Pass();
+                    return;
+                }
+
+                //總量小數點不包
+                for (int i = _data.Count - 1; i >= 0; i--)
+                {
+                    if (_data[i].SumQty.ToString().Contains("."))
+                    {
+                        _data.RemoveAt(i);
+                    }
+                }
+
                 string adminCode = GetMaxTimesAdminCode();
                 _data.RemoveAll(x => x.AdminCode != adminCode);
                 string outputDirectory = $@"{OutputDirectory}\{_data[0].PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
@@ -192,6 +209,20 @@ namespace FCP.src.FormatLogic
             return base.DepartmentShunt();
         }
 
+        /// <summary>
+        /// 取得處方裡面單次劑量<1並且天數為3天的筆數
+        /// </summary>
+        /// <returns>筆數</returns>
+        private int GetTheNumOfPerQtyNotIntegerAndThreeDays()
+        {
+            var quantity = _data.Where(x => x.PerQty < 1 && x.Days == 3).Count();
+            return quantity;
+        }
+
+        /// <summary>
+        /// 取得處方一天中吃藥頻率最高的服用頻率
+        /// </summary>
+        /// <returns>服用頻率</returns>
         private string GetMaxTimesAdminCode()
         {
             var adminCodes = from v in _data
