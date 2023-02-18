@@ -114,7 +114,7 @@ namespace FCP.src
             {
                 _jvserverAdminCodeTimes = GetJVServerAdminCodeTimes();
             }
-            else
+            else if (SettingModel.Format != eFormat.JVS)
             {
                 _multiAdminCode = GetAllMultiAdminCode();
                 _combiAdminCode = GetAllCombiAdminCode();
@@ -263,7 +263,7 @@ namespace FCP.src
             {
                 try
                 {
-                    using (FileStream fs = new FileStream(SourceFilePath, FileMode.Open,FileAccess.Read, FileShare.Read))
+                    using (FileStream fs = new FileStream(SourceFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
                         using (StreamReader sr = new StreamReader(fs, Encoding.Default))
                         {
@@ -510,7 +510,7 @@ namespace FCP.src
 
         private Dictionary<string, int> GetJVServerAdminCodeTimes()
         {
-            List<string> list = CommonModel.SqlHelper.Query_List(@"SELECT admin_code AS AdminCode, admin_pattern AS Times FROM admincode WHERE time_check = 'S'", new List<string>() { "AdminCode, Times" });
+            List<string> list = CommonModel.SqlHelper.Query_List(@"SELECT admin_code AS AdminCode, admin_pattern AS Times FROM admincode WHERE time_check = 'S'", new List<string>() { "AdminCode", "Times" });
             Dictionary<string, int> dict = new Dictionary<string, int>();
             foreach (var v in list)
             {
