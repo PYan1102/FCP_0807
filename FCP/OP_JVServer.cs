@@ -21,7 +21,8 @@ namespace FCP
                     string newFilePath = outputDirectory.Insert(outputDirectory.LastIndexOf("_") - 2, grindTable);
                     newFilePath = newFilePath.Insert(newFilePath.LastIndexOf(".") - 6, "_");
                     var firstPowder = powder.Select(x => x).First().Value[0];
-                    newFilePath = newFilePath.Insert(newFilePath.IndexOf("-") + 3, $"#{firstPowder.Barcode}^{grindTable.Substring(grindTable.Length - 2, 2)}");
+                    string barcode = $"#{firstPowder.Barcode}^{grindTable.Substring(grindTable.Length - 2, 2)}";
+                    newFilePath = newFilePath.Insert(newFilePath.IndexOf("-") + 3, barcode);
                     StringBuilder sb = new StringBuilder();
                     sb.Append("|JVPHEAD|");
                     sb.Append("1");
@@ -33,7 +34,8 @@ namespace FCP
                     sb.Append("D123456789".PadRight(40));
                     sb.Append("19970101");
                     sb.Append(firstPowder.GetMedicineNo.PadRight(30));
-                    sb.Append("".PadRight(45));
+                    sb.Append(barcode.TrimStart('#').PadRight(30));
+                    sb.Append("".PadRight(15));
                     sb.Append(ECD(firstPowder.PatientName, 20));
                     sb.Append("1 ");
                     sb.Append(firstPowder.EffectiveDate.ToString("yyyy/MM/dd").PadRight(30));
