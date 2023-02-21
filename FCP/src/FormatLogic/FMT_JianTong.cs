@@ -11,7 +11,14 @@ namespace FCP.src.FormatLogic
     internal class FMT_JianTong : FormatCollection
     {
         private List<PrescriptionModel> _data = new List<PrescriptionModel>();
+        /// <summary>
+        /// 展望格式若遇到不磨粉的，只包頻率為QD BID TID QID Q6H Q4H 其他過濾
+        /// </summary>
+        private List<string> _needToPackAdminCode = new List<string>() { "QD", "BID", "TID", "QID", "Q6H", "Q4H", "Q8H", "HS" };
 
+        /// <summary>
+        /// 展望格式
+        /// </summary>
         public override void ProcessOPD()
         {
             try
@@ -22,6 +29,12 @@ namespace FCP.src.FormatLogic
                     EncodingHelper.SetBytes(v);
                     string adminCode = EncodingHelper.GetString(131, 10);
                     string medicineCode = EncodingHelper.GetString(57, 10);
+                    bool isMultiDose = EncodingHelper.GetString(154, 1) == "N";
+                    // 為餐包(不磨粉) 並且頻率不在須包出的頻率列表中則過濾
+                    if (isMultiDose && !_needToPackAdminCode.Contains(adminCode))
+                    {
+                        continue;
+                    }
                     if (FilterRule(adminCode, medicineCode))
                     {
                         continue;
@@ -47,7 +60,7 @@ namespace FCP.src.FormatLogic
                         AdminCode = adminCode,
                         Days = days,
                         SumQty = Convert.ToSingle(EncodingHelper.GetString(144, 10)),
-                        IsMultiDose = EncodingHelper.GetString(154, 1) == "N"
+                        IsMultiDose = isMultiDose
                     });
                 }
                 if (_data.Count == 0 || _data.Count == 1)
@@ -66,7 +79,7 @@ namespace FCP.src.FormatLogic
             try
             {
                 string adminCode = GetMaxTimesAdminCode();
-                _data.RemoveAll(x => x.AdminCode != adminCode);
+                _data.RemoveAll(x => x.IsMultiDose && x.AdminCode != adminCode);
                 string outputDirectory = $@"{OutputDirectory}\{_data[0].PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
                 OP_OnCube.JianTong(_data, outputDirectory);
                 Success();
@@ -76,17 +89,9 @@ namespace FCP.src.FormatLogic
                 GenerateOCSFileFail(ex);
             }
         }
-
-        public override void ProcessPowder()
-        {
-            ProcessOPD();
-        }
-
-        public override void LogicPowder()
-        {
-            LogicOPD();
-        }
-
+        /// <summary>
+        /// 寶寶格式
+        /// </summary>
         public override void ProcessCare()
         {
             try
@@ -171,6 +176,16 @@ namespace FCP.src.FormatLogic
             {
                 GenerateOCSFileFail(ex);
             }
+        }
+
+        public override void ProcessPowder()
+        {
+            ProcessOPD();
+        }
+
+        public override void LogicPowder()
+        {
+            LogicOPD();
         }
 
         public override void LogicOther()
