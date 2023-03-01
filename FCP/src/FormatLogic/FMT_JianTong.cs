@@ -104,7 +104,7 @@ namespace FCP.src.FormatLogic
                     {
                         continue;
                     }
-                    string[] splitDatas = v.Split(',');
+                    List<string> splitDatas = v.Split(',').Select(x => x.Trim()).ToList();
                     if (list.IndexOf(v) == 0)
                     {
                         basicModel.StartDate = DateTimeHelper.Convert($"{Convert.ToInt32(splitDatas[1]) + 19110000}", "yyyyMMdd");

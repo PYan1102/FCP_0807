@@ -1,12 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Windows;
-using System.Windows.Input;
-using FCP.Models;
+﻿using FCP.Models;
 using FCP.src.Factory.Models;
 using FCP.src.MessageManager.Request;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using System.ComponentModel.DataAnnotations;
+using System.Windows;
+using System.Windows.Input;
 
 namespace FCP.ViewModels
 {
