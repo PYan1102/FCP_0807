@@ -70,6 +70,7 @@ namespace FCP.Services
                 _settingModel.OnlyCanisterIn = bool.Parse($"{jObject[nameof(SettingJsonModel.OnlyCanisterIn)]}");
                 _settingModel.WhenCompeletedMoveFile = bool.Parse($"{jObject[nameof(SettingJsonModel.WhenCompeletedMoveFile)]}");
                 _settingModel.WhenCompeletedStop = bool.Parse($"{jObject[nameof(SettingJsonModel.WhenCompeletedStop)]}");
+                _settingModel.IgnoreAdminCodeIfNotInOnCube = bool.Parse($"{jObject[nameof(SettingJsonModel.IgnoreAdminCodeIfNotInOnCube)]}");
                 _settingModel.ETCData = jObject[nameof(SettingJsonModel.ETCData)].ToObject<List<ETCInfo>>();
             }
             catch (Exception ex)
