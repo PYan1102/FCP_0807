@@ -311,15 +311,15 @@ namespace FCP.ViewModels
 
         private void LoadedFunc()
         {
-            List<eFormat> hospitalCustomers = new List<eFormat>() { eFormat.光田醫院OC, eFormat.民生醫院OC, eFormat.義大醫院OC };
+            List<eFormat> hospitalCustomers = new List<eFormat>() { eFormat.光田醫院_大甲OC, eFormat.民生醫院OC, eFormat.義大醫院OC };
             List<eFormat> powderCustomers = new List<eFormat>() { eFormat.光田醫院JVS };
             if (hospitalCustomers.Contains(_settingModel.Format))
             {
                 OPDContent = "門 診F5";
                 UDVisibility = Visibility.Visible;
             }
-            MultiVisibility = _settingModel.Format == eFormat.光田醫院OC ? Visibility.Visible : Visibility.Hidden;
-            CombiVisibility = _settingModel.Format == eFormat.光田醫院OC ? Visibility.Visible : Visibility.Hidden;
+            MultiVisibility = _settingModel.Format == eFormat.光田醫院_大甲OC ? Visibility.Visible : Visibility.Hidden;
+            CombiVisibility = _settingModel.Format == eFormat.光田醫院_大甲OC ? Visibility.Visible : Visibility.Hidden;
             Properties.Settings.Default.DoseType = "Multi";
             Properties.Settings.Default.Save();
             MultiChecked = true;

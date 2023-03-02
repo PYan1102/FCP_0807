@@ -10,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace FCP
 {
@@ -31,9 +30,9 @@ namespace FCP
                     sb.Append(ECD(v.LocationName, 50));
                     sb.Append("".PadRight(29));
                     if (doseType == eDoseType.餐包)
-                        sb.Append(ECD(v.PerQty, 5));
+                        sb.Append($"{v.PerQty}".PadRight(5));
                     else
-                        sb.Append(ECD(v.SumQty, 5));
+                        sb.Append($"{v.SumQty}".PadRight(5));
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
                     sb.Append(v.AdminCode.PadRight(20));
@@ -93,9 +92,9 @@ namespace FCP
                         sb.Append(ECD(v.LocationName, 50));
                         sb.Append("".PadRight(29));
                         if (doseType == eDoseType.餐包)
-                            sb.Append(ECD(v.PerQty, 5));
+                            sb.Append($"{v.PerQty}".PadRight(5));
                         else
-                            sb.Append(ECD(v.SumQty, 5));
+                            sb.Append($"{v.SumQty}".PadRight(5));
                         sb.Append(v.MedicineCode.PadRight(20));
                         sb.Append(ECD(v.MedicineName, 50));
                         if (doseType == eDoseType.餐包 && !_settingModel.CrossDayAdminCode.Contains(v.AdminCode))
@@ -212,9 +211,9 @@ namespace FCP
                     sb.Append(ECD("門診", 50));
                     sb.Append("".PadRight(29));
                     if (doseType == eDoseType.餐包)
-                        sb.Append(ECD(v.PerQty, 5));
+                        sb.Append($"{v.PerQty}".PadRight(5));
                     else
-                        sb.Append(ECD(v.SumQty, 5));
+                        sb.Append($"{v.SumQty}".PadRight(5));
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
                     sb.Append(v.AdminCode.PadRight(20));
@@ -417,8 +416,7 @@ namespace FCP
         {
             try
             {
-                int year = Convert.ToInt32(basic.WriteDate.Substring(0, 3)) + 1911;  //民國
-                DateTime prescriptionDate = DateTimeHelper.Convert($"{year}{basic.WriteDate.Substring(3, 6)}", "yyyy/MM/dd");
+                int year = Convert.ToInt32($"{basic.WriteDate:yyyy}") + 1911;  //民國
                 string currentDateTime = $"{Convert.ToInt32(DateTime.Now.ToString("yyyy")) - 1911}/{DateTime.Now:MM/dd HH:mm}";
                 string effectivedDateTime = $"{Convert.ToInt32(DateTime.Now.AddDays(180).ToString("yyyy")) - 1911}/{DateTime.Now.AddDays(180):/MM/dd}";
                 StringBuilder sb = new StringBuilder();
@@ -428,12 +426,12 @@ namespace FCP
                     sb.Append(basic.PatientNo.PadRight(30));
                     sb.Append(ECD("門診", 50));
                     sb.Append(ECD(basic.DoctorName, 29));
-                    sb.Append(v.SumQty.PadRight(5));
+                    sb.Append($"{v.SumQty}".PadRight(5));
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
-                    sb.Append(v.AdminCode.PadRight(20));
-                    sb.Append(prescriptionDate.ToString("yyMMdd"));
-                    sb.Append(prescriptionDate.ToString("yyMMdd"));
+                    sb.Append($"S{v.AdminCode}".PadRight(20));
+                    sb.Append($"{v.StartDate:yyMMdd}");
+                    sb.Append($"{v.StartDate:yyMMdd}");
                     sb.Append("".PadRight(158));
                     sb.Append("1997-01-01");
                     sb.Append("男    ");
@@ -441,11 +439,11 @@ namespace FCP
                     sb.Append("0");
                     sb.Append(ECD("光田綜合醫院", 30));
                     sb.Append($"{Math.Ceiling(Convert.ToSingle(v.PerQty))}".PadRight(30));
-                    sb.Append(v.SumQty.PadRight(30));
+                    sb.Append($"{v.SumQty}".PadRight(30));
                     sb.Append(currentDateTime.PadRight(30));
                     sb.Append(effectivedDateTime.PadRight(30));
                     sb.Append(ECD(basic.Class, 30));
-                    sb.Append("".PadRight(300));
+                    sb.Append("".PadRight(450));
                     sb.AppendLine("C");
                 }
                 using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
@@ -460,7 +458,7 @@ namespace FCP
             }
         }
 
-        public static bool YiSheng(List<YiShengOPD> opd, string outputDirectory)
+        public static void YiSheng(List<YiShengOPD> opd, string outputDirectory)
         {
             try
             {
@@ -502,12 +500,12 @@ namespace FCP
                 {
                     sw.Write(sb.ToString());
                 }
-                return true;
+                return;
             }
             catch (Exception ex)
             {
                 LogService.Exception(ex);
-                return false;
+                return;
             }
         }
         public static void HongYen(List<HongYenOPD> opdUp, List<HongYenOPD> opdDown, HongYenOPDBasic basic, List<string> outputDirectoryList)
@@ -801,19 +799,13 @@ namespace FCP
             }
         }
 
-        public static bool JenKang_UD(List<JenKang> ud, string outputDirectory, DateTime minStartDate)
+        public static void JenKang_UD(List<JenKang> ud, string outputDirectory, DateTime minStartDate)
         {
             try
             {
                 StringBuilder sb = new StringBuilder();
                 foreach (var v in ud)
                 {
-                    //bool isInteger = !v.PerQty.Contains('.');
-                    //string perQty = !isInteger ? Math.Ceiling(Convert.ToSingle(v.PerQty)).ToString() : v.PerQty;
-                    //if (isInteger)
-                    //    sb.Append(ECD($"{v.PatientName} 整數", 20));
-                    //else
-                    //    sb.Append(ECD($"{v.PatientName} 非整數", 20));
                     sb.Append(ECD(v.PatientName, 20));
                     sb.Append("".PadRight(30));
                     sb.Append(ECD(v.Location, 50));
@@ -843,12 +835,12 @@ namespace FCP
                 {
                     sw.Write(sb.ToString());
                 }
-                return true;
+                return;
             }
             catch (Exception ex)
             {
                 LogService.Exception(ex);
-                return false;
+                return;
             }
         }
 
@@ -904,7 +896,7 @@ namespace FCP
                     sb.Append("".PadRight(30));
                     sb.Append(ECD("門診", 50));
                     sb.Append("".PadRight(29));
-                    sb.Append(ECD(v.PerQty, 5));
+                    sb.Append($"{v.PerQty}".PadRight(5));
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
                     sb.Append(v.Random.PadRight(20));
@@ -1027,11 +1019,11 @@ namespace FCP
                     sb.Append("".PadRight(3));
                     if (v.IsMultiDose)
                     {
-                        sb.Append(ECD(v.PerQty, 5));
+                        sb.Append($"{v.PerQty}".PadRight(5));
                     }
                     else
                     {
-                        sb.Append(ECD(v.SumQty, 5));
+                        sb.Append($"{v.SumQty}".PadRight(5));
                     }
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
@@ -1081,9 +1073,9 @@ namespace FCP
                     sb.Append(ECD(v.LocationName, 50));
                     sb.Append("".PadRight(29));
                     if (doseType == eDoseType.餐包)
-                        sb.Append(ECD(v.PerQty, 5));
+                        sb.Append($"{v.PerQty}".PadRight(5));
                     else
-                        sb.Append(ECD(v.SumQty, 5));
+                        sb.Append($"{v.SumQty}".PadRight(5));
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
                     sb.Append(v.AdminCode.PadRight(20));
@@ -1135,9 +1127,9 @@ namespace FCP
                     sb.Append(ECD(v.LocationName, 50));
                     sb.Append("".PadRight(29));
                     if (v.IsMultiDose)
-                        sb.Append(ECD(v.PerQty, 5));
+                        sb.Append($"{v.PerQty}".PadRight(5));
                     else
-                        sb.Append(ECD(Math.Floor(v.SumQty), 5));
+                        sb.Append($"{v.SumQty}".PadRight(5));
                     sb.Append(v.MedicineCode.PadRight(20));
                     sb.Append(ECD(v.MedicineName, 50));
                     if (v.IsMultiDose)

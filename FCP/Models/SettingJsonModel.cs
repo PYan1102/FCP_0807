@@ -12,13 +12,12 @@ namespace FCP.Models
         public string InputDirectory5 { get; set; } = string.Empty;
         public string InputDirectory6 { get; set; } = string.Empty;
         public string OutputDirectory { get; set; } = string.Empty;
-        public string FileExtensionName { get; set; } = "txt";
+        public List<string> FileExtensionNames { get; set; } = new List<string>() { "txt" };
         public bool AutoStart { get; set; } = false;
         public eFormat Format { get; set; } = eFormat.JVS;
         public int Speed { get; set; } = 500;
         public ePackMode PackMode { get; set; } = ePackMode.正常;
         public List<string> NeedToFilterAdminCode { get; set; } = new List<string>();
-        public List<RandomInfo> ExtraRandom { get; set; } = new List<RandomInfo>();
         public eDoseType DoseType { get; set; } = eDoseType.餐包;
         public string OutputSpecialAdminCode { get; set; } = string.Empty;
         public eDepartment StatOrBatch { get; set; } = eDepartment.Stat;

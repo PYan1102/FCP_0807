@@ -182,7 +182,7 @@
                                                          Width="30"
                                                          Margin="-12 -4 -10 0"/>
                             </Button>
-                            </DockPanel>
+                        </DockPanel>
                         <DockPanel Margin="0 -5 0 0">
                             <ComboBox x:Name="Cbo_FilterMedicineCode"
                                           Grid.Row="1"
@@ -253,65 +253,6 @@
                 <Border Grid.Row="2"
                         Grid.RowSpan="2"
                         Padding="10"
-                        Margin="10 10 0 10">
-                    <StackPanel>
-                        <TextBlock Foreground="{StaticResource DarkBlue}"
-                                   Text="Random設定"
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Center"/>
-                        <Rectangle VerticalAlignment="Bottom"
-                                   Height="1"
-                                   Fill="{StaticResource DarkBlue}"
-                                   Opacity="0.5"
-                                   Margin="0 5 0 0"/>
-                        <DataGrid x:Name="Dg_RandomSetting"
-                                  AutoGenerateColumns="False"
-                                  CanUserAddRows="False"
-                                  CanUserSortColumns="False"
-                                  SelectionUnit="FullRow"
-                                  Background="White"
-                                  Foreground="{StaticResource DarkBlue}"
-                                  ItemsSource="{Binding Random,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                                  SelectedIndex="{Binding RandomIndex}"
-                                  InputMethod.IsInputMethodEnabled="False">
-                            <DataGrid.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="新增" Command="{Binding AddRandom}"/>
-                                    <MenuItem Header="刪除" Command="{Binding RemoveRandom}"/>
-                                </ContextMenu>
-                            </DataGrid.ContextMenu>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="編號"
-                                                    Width="80"
-                                                    Binding="{Binding No,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                                                    IsReadOnly="True"/>
-                                <DataGridTextColumn Header="JVServer"
-                                                    Width="100"
-                                                    Binding="{Binding JVServer,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-                                <DataGridTextColumn Header="OnCube"
-                                                    Width="100"
-                                                    Binding="{Binding OnCube,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </StackPanel>
-                </Border>
-                <Border Grid.Row="2"
-                        Grid.RowSpan="2"
-                        Grid.Column="2"
-                        CornerRadius="10"
-                        Padding="10"
-                        Background="White"
-                        Margin="0 10 0 10">
-                    <Border.Effect>
-                        <DropShadowEffect ShadowDepth="0"
-                                          BlurRadius="10"
-                                          Direction="270"/>
-                    </Border.Effect>
-                </Border>
-                <Border Grid.Row="2"
-                        Grid.RowSpan="2"
-                        Grid.Column="2"
-                        Padding="10"
                         Margin="0 10 0 10">
                     <StackPanel>
                         <DockPanel>
@@ -374,6 +315,19 @@
                             </DockPanel>
                         </StackPanel>
                     </StackPanel>
+                </Border>
+                <Border Grid.Row="2"
+                        Grid.RowSpan="2"
+                        Grid.Column="2"
+                        CornerRadius="10"
+                        Padding="10"
+                        Background="White"
+                        Margin="0 10 0 10">
+                    <Border.Effect>
+                        <DropShadowEffect ShadowDepth="0"
+                                          BlurRadius="10"
+                                          Direction="270"/>
+                    </Border.Effect>
                 </Border>
             </Grid>
         </Grid>

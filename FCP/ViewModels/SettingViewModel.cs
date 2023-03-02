@@ -159,12 +159,11 @@ namespace FCP.ViewModels
                     });
                 }
                 SettingJsonModel model = _settingModel;
-                model.FileExtensionName = page2VM.FileExtensionName;
+                model.FileExtensionNames = page2VM.FileExtensionNames.Split(',').Where(x => x.Trim().Length > 0).Select(x => x.Trim()).ToList();
                 model.Format = (eFormat)page1VM.FormatIndex;
                 model.Speed = Convert.ToInt32(page1VM.SearchFrequency);
                 model.PackMode = packMode;
                 model.NeedToFilterAdminCode = page1VM.NeedToFilterAdminCodeList.ToList();
-                model.ExtraRandom = page1VM.Random.ToList();
                 model.DoseType = doseType;
                 model.OutputSpecialAdminCode = page1VM.OutputSpecialAdminCode;
                 model.CrossDayAdminCode = page1VM.AdminCodeOfCrossDay;
@@ -189,7 +188,7 @@ namespace FCP.ViewModels
             catch (Exception ex)
             {
                 LogService.Exception(ex);
-                MsgCollection.ShowDialog(ex.ToString(), "錯誤", PackIconKind.Error, ColorProvider.GetSolidColorBrush(eColor.Red));
+                MsgCollection.ShowDialog(ex.Message, "錯誤", PackIconKind.Error, ColorProvider.GetSolidColorBrush(eColor.Red));
             }
         }
 

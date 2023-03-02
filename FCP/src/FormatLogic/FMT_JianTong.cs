@@ -30,8 +30,14 @@ namespace FCP.src.FormatLogic
                     string adminCode = EncodingHelper.GetString(131, 10);
                     string medicineCode = EncodingHelper.GetString(57, 10);
                     bool isMultiDose = EncodingHelper.GetString(154, 1) == "N";
+                    int days = Convert.ToInt32(EncodingHelper.GetString(141, 3));
                     // 為餐包(不磨粉) 並且頻率不在須包出的頻率列表中則過濾
                     if (isMultiDose && !_needToPackAdminCode.Contains(adminCode))
+                    {
+                        continue;
+                    }
+                    // 天數 >= 20天不包
+                    if (days >= 20)
                     {
                         continue;
                     }
@@ -42,9 +48,9 @@ namespace FCP.src.FormatLogic
                     if (WhetherToStopNotHasMultiAdminCode(adminCode))
                     {
                         return;
-                    }
+                    };
                     DateTime startDate = DateTimeHelper.Convert((Convert.ToInt32(EncodingHelper.GetString(50, 7)) + 19110000).ToString(), "yyyyMMdd");
-                    int days = Convert.ToInt32(EncodingHelper.GetString(141, 3));
+                    float sumQty = Convert.ToSingle(EncodingHelper.GetString(144, 10));
                     _data.Add(new PrescriptionModel
                     {
                         PatientName = EncodingHelper.GetString(0, 20),
@@ -59,11 +65,11 @@ namespace FCP.src.FormatLogic
                         PerQty = Convert.ToSingle(EncodingHelper.GetString(121, 10)),
                         AdminCode = adminCode,
                         Days = days,
-                        SumQty = Convert.ToSingle(EncodingHelper.GetString(144, 10)),
+                        SumQty = isMultiDose ? sumQty : Convert.ToSingle(Math.Ceiling(sumQty)),
                         IsMultiDose = isMultiDose
                     });
                 }
-                if (_data.Count == 0 || _data.Count == 1)
+                if (_data.Count <= 1)
                 {
                     Pass();
                 }
@@ -80,6 +86,12 @@ namespace FCP.src.FormatLogic
             {
                 string adminCode = GetMaxTimesAdminCode();
                 _data.RemoveAll(x => x.IsMultiDose && x.AdminCode != adminCode);
+                LogService.Info(_data.Count);
+                if (_data.Count <= 1)
+                {
+                    Pass();
+                    return;
+                }
                 string outputDirectory = $@"{OutputDirectory}\{_data[0].PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
                 OP_OnCube.JianTong(_data, outputDirectory);
                 Success();
@@ -116,7 +128,15 @@ namespace FCP.src.FormatLogic
                     model = basicModel.Clone();
                     string adminCode = splitDatas[2];
                     string medicineCode = splitDatas[0];
+                    int days = Convert.ToInt32(splitDatas[3]);
+                    float perQty = Convert.ToSingle(splitDatas[4]);
                     float sumQty = Convert.ToSingle(splitDatas[5]);
+                    bool isMultiDose = perQty < 1;
+                    // 天數 >= 20天不包
+                    if (days >= 20)
+                    {
+                        continue;
+                    }
                     if (FilterRule(adminCode, medicineCode))
                     {
                         continue;
@@ -127,18 +147,18 @@ namespace FCP.src.FormatLogic
                     }
                     model.MedicineCode = medicineCode;
                     model.MedicineName = splitDatas[1];
-                    model.Days = Convert.ToInt32(splitDatas[3]);
-                    model.PerQty = Convert.ToSingle(splitDatas[4]);
-                    model.SumQty = sumQty;
+                    model.Days = days;
+                    model.PerQty = perQty;
+                    model.SumQty = isMultiDose ? sumQty : Convert.ToSingle(Math.Ceiling(sumQty));
                     model.AdminCode = adminCode;
                     model.EndDate = model.StartDate.AddDays(model.Days - 1);
+                    model.IsMultiDose = isMultiDose;
                     _data.Add(model);
                 }
-                if (_data.Count == 0 || _data.Count == 1)
+                if (_data.Count <= 1)
                 {
                     Pass();
                 }
-                _data.ForEach(x => Debug.WriteLine($"{x.MedicineCode} {x.MedicineName} {x.AdminCode} {x.PerQty} {x.Days}"));
             }
             catch (Exception ex)
             {
@@ -150,13 +170,6 @@ namespace FCP.src.FormatLogic
         {
             try
             {
-                int quantity = GetTheNumOfPerQtyNotIntegerAndThreeDays();
-                if (quantity >= 2)
-                {
-                    Pass();
-                    return;
-                }
-
                 //總量小數點不包
                 for (int i = _data.Count - 1; i >= 0; i--)
                 {
@@ -167,7 +180,12 @@ namespace FCP.src.FormatLogic
                 }
 
                 string adminCode = GetMaxTimesAdminCode();
-                _data.RemoveAll(x => x.AdminCode != adminCode);
+                _data.RemoveAll(x => x.IsMultiDose && x.AdminCode != adminCode);
+                if (_data.Count <= 1)
+                {
+                    Pass();
+                    return;
+                }
                 string outputDirectory = $@"{OutputDirectory}\{_data[0].PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
                 OP_OnCube.JianTong(_data, outputDirectory);
                 Success();
@@ -225,17 +243,7 @@ namespace FCP.src.FormatLogic
         }
 
         /// <summary>
-        /// 取得處方裡面單次劑量<1並且天數為3天的筆數
-        /// </summary>
-        /// <returns>筆數</returns>
-        private int GetTheNumOfPerQtyNotIntegerAndThreeDays()
-        {
-            var quantity = _data.Where(x => x.PerQty < 1 && x.Days == 3).Count();
-            return quantity;
-        }
-
-        /// <summary>
-        /// 取得處方一天中吃藥頻率最高的服用頻率
+        /// 取得一天中服用頻率最高的頻率
         /// </summary>
         /// <returns>服用頻率</returns>
         private string GetMaxTimesAdminCode()

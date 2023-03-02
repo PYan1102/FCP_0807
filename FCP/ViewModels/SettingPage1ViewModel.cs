@@ -36,8 +36,6 @@ namespace FCP.ViewModels
             RemoveFilterMedicineCode = new RelayCommand(RemoveFilterMedicineCodeFunc);
             AddFilterAdminCode = new RelayCommand(AddFilterAdminCodeFunc);
             RemoveFilterAdminCode = new RelayCommand(RemoveFilterAdminCodeFunc);
-            AddRandom = new RelayCommand(AddRandomFunc);
-            RemoveRandom = new RelayCommand(RemoveRandomFunc);
 
             Init();
         }
@@ -276,7 +274,6 @@ namespace FCP.ViewModels
             Mode = EnumHelper.ToObservableCollection<eFormat>();
             FormatIndex = (int)_settingModel.Format;
             NeedToFilterAdminCodeList = ListHelper.ToObservableCollection(_settingModel.NeedToFilterAdminCode);
-            Random = ListHelper.ToObservableCollection(_settingModel.ExtraRandom);
             NeedToFilterMedicineCodeList = ListHelper.ToObservableCollection(_settingModel.NeedToFilterMedicineCode);
 
             if (_settingModel.PackMode == ePackMode.正常)
@@ -294,28 +291,6 @@ namespace FCP.ViewModels
                 UseAdminCodeChecked = true;
                 UseAdminCodeFunc();
             }
-        }
-
-        private void AddRandomFunc()
-        {
-            Random.Add(new RandomInfo()
-            {
-                No = $"{Random.Count}",
-                JVServer = string.Empty,
-                OnCube = string.Empty
-            });
-        }
-
-        private void RemoveRandomFunc()
-        {
-            if (Random.Count == 0 || RandomIndex == -1)
-            {
-                return;
-            }
-            Random.RemoveAt(RandomIndex);
-            RandomIndex = RandomIndex == 0 ? -1 : 0;
-            Random.ToList().ForEach(x => x.No = Random.IndexOf(x).ToString());  //重新編排No.
-            RefreshedRandomataGridView();
         }
 
         private void FocusedFilterAdminCode()

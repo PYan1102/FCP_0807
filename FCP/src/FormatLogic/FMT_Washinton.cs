@@ -16,8 +16,6 @@ namespace FCP.src.FormatLogic
         "0057404", "0096220"};
         private JVServerXMLOPDBasic _basic = new JVServerXMLOPDBasic();
         private List<JVServerXMLOPD> _opd = new List<JVServerXMLOPD>();
-        private List<string> _jvsRandom = new List<string>();
-        private List<string> _oncubeRandom = new List<string>();
 
         public override void ProcessOPD()
         {
@@ -129,16 +127,6 @@ namespace FCP.src.FormatLogic
 
         public override void LogicOPD()
         {
-            for (int x = 0; x <= 14; x++)
-                _oncubeRandom.Add("");
-            if (ExtraRandom.Count != 0)  //將JVServer的Random放入OnCube的Radnom
-            {
-                foreach (var random in ExtraRandom)
-                {
-                    _oncubeRandom[Convert.ToInt32(random.OnCube)] = _jvsRandom[Convert.ToInt32(random.JVServer)];
-                }
-            }
-
             #region 鄭小兒的處方如果只有vk一個品項則過濾
 
             if (_basic.LocationName.Contains("鄭小兒"))
@@ -217,18 +205,11 @@ namespace FCP.src.FormatLogic
             throw new NotImplementedException();
         }
 
-        private void ClearList()
-        {
-            _jvsRandom.Clear();
-            _oncubeRandom.Clear();
-        }
-
         public override ReturnsResultModel DepartmentShunt()
         {
             _basic = null;
             _basic = new JVServerXMLOPDBasic();
             _opd.Clear();
-            ClearList();
             return base.DepartmentShunt();
         }
     }

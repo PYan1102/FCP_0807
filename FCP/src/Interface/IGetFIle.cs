@@ -6,7 +6,7 @@ namespace FCP.src.Interface
 {
     interface IGetFile
     {
-        string GetFile(string extensionName, List<MatchModel> matchModel);
+        string GetFile(List<string> extensionNames, List<MatchModel> matchModel);
         eDepartment GetDepartment { get; }
     }
 }

@@ -20,7 +20,6 @@ namespace FCP.src
         public string SourceFileName { get; private set; }
         public string SourceFileNameWithoutExtension { get; private set; }
         public List<string> CrossDayAdminCode { get; private set; }
-        public List<RandomInfo> ExtraRandom { get; private set; }
         public List<string> MultiAdminCode { get => _multiAdminCode; }
         public List<string> CombiAdminCode { get => _combiAdminCode; }
         public Dictionary<string, int> CrossDayAdminCodeDays { get => _crossDayAdminCodeDays; }
@@ -64,7 +63,6 @@ namespace FCP.src
             SourceFilePath = FileInfoModel.SourceFilePath;
             SourceFileName = Path.GetFileName(FileInfoModel.SourceFilePath);
             SourceFileNameWithoutExtension = Path.GetFileNameWithoutExtension(FileInfoModel.SourceFilePath);
-            ExtraRandom = SettingModel.ExtraRandom;
             CrossDayAdminCode = SettingModel.CrossDayAdminCode.Split(',').ToList();
             CurrentSeconds = FileInfoModel.CurrentDateTime.ToString("ss_fff");
             _department = FileInfoModel.Department;
@@ -189,17 +187,17 @@ namespace FCP.src
             _returnsResult.Shunt(eConvertResult.缺少種包頻率, adminCode);
         }
 
-        public void ReadFileFail(object message = null)
+        public void ReadFileFail(Exception message)
         {
             _returnsResult.Shunt(eConvertResult.讀取檔案失敗, message);
         }
 
-        public void ProgressLogicFail(object message = null)
+        public void ProgressLogicFail(Exception message)
         {
             _returnsResult.Shunt(eConvertResult.處理邏輯失敗, message);
         }
 
-        public void GenerateOCSFileFail(object message = null)
+        public void GenerateOCSFileFail(Exception message)
         {
             _returnsResult.Shunt(eConvertResult.產生OCS失敗, message);
         }
@@ -207,15 +205,29 @@ namespace FCP.src
         //特控1
         public int GetID1(string medicinecode)
         {
-            int id1 = CommonModel.SqlHelper.Query_FirstInt($"SELECT ISNULL(ExternalID1, 0) FROM Item WHERE Mnemonic='{medicinecode}'");
-            return id1;
+            try
+            {
+                int id1 = CommonModel.SqlHelper.Query_FirstInt($"SELECT CASE ISNULL(ExternalID1, 0) WHEN '' THEN 0 ELSE ISNULL(ExternalID1, 0) END FROM Item WHERE Mnemonic='{medicinecode}' AND DELETEDYN = 0");
+                return id1;
+            }
+            catch
+            {
+                throw new ArgumentNullException($"在 Item 中找不到藥品代碼為 {medicinecode} 的藥品");
+            }
         }
 
         //特控2
         public int GetID2(string medicinecode)
         {
-            int id2 = CommonModel.SqlHelper.Query_FirstInt($"SELECT ISNULL(ExternalID2, 0) FROM Item WHERE Mnemonic='{medicinecode}'");
-            return id2;
+            try
+            {
+                int id2 = CommonModel.SqlHelper.Query_FirstInt($"SELECT CASE ISNULL(ExternalID2, 0) WHEN '' THEN 0 ELSE ISNULL(ExternalID2, 0) END FROM Item WHERE Mnemonic='{medicinecode}' AND DELETEDYN = 0");
+                return id2;
+            }
+            catch
+            {
+                throw new ArgumentNullException($"在 Item 中找不到藥品代碼為 {medicinecode} 的藥品");
+            }
         }
 
         //計算共有幾筆藥 for JVServer
@@ -348,8 +360,8 @@ namespace FCP.src
             List<string> list = CommonModel.SqlHelper.Query_List(@"SELECT
 	                                                                   B.Mnemonic + ',' + ISNULL(D.MultiMnemonic, '') AS Mnemonic
                                                                    FROM Medicine A
-                                                                   INNER JOIN Item B ON A.RawID=B.RawID AND A.DeletedYN=0 AND A.WeightMedicine=10
-                                                                   LEFT OUTER JOIN ItemMultiCode D ON B.RawID=D.ItemID AND D.DeletedYN=0", "Mnemonic");
+                                                                   INNER JOIN Item B ON A.RawID = B.RawID AND A.DeletedYN = 0 AND A.WeightMedicine = 10
+                                                                   LEFT OUTER JOIN ItemMultiCode D ON B.RawID = D.ItemID AND D.DeletedYN = 0", "Mnemonic");
             List<string> newList = new List<string>();
             foreach (string s in list)
             {
@@ -375,7 +387,7 @@ namespace FCP.src
                 string[] split2 = v.Split('^');
                 string rawID = split2[0];
                 int times = Convert.ToInt32(split2[2]);
-                string adminCode = CommonModel.SqlHelper.Query_FirstString($"SELECT AdminCode FROM AdminTime WHERE RawID={rawID}");
+                string adminCode = CommonModel.SqlHelper.Query_FirstString($"SELECT AdminCode FROM AdminTime WHERE RawID = {rawID}");
                 if (times != 0)
                 {
                     dictionary.Add(adminCode, times);
@@ -408,7 +420,7 @@ namespace FCP.src
             List<string> result = CommonModel.SqlHelper.Query_List(@"SELECT
 	                                                                     AdminCode
                                                                      FROM AdminTime A
-                                                                     WHERE DeletedYN=0 AND A.UpperAdminTimeID is null
+                                                                     WHERE DeletedYN = 0 AND A.UpperAdminTimeID is null
                                                                      GROUP BY AdminCode", "AdminCode");
             return result;
         }
@@ -418,7 +430,7 @@ namespace FCP.src
             List<string> result = CommonModel.SqlHelper.Query_List(@"SELECT
 	                                                                     AdminCode
                                                                      FROM AdminTime A
-                                                                     WHERE A.AdminCode LIKE 'S%' AND AdminTimeDiv=1 AND DeletedYN=0
+                                                                     WHERE A.AdminCode LIKE 'S%' AND AdminTimeDiv = 1 AND DeletedYN = 0
                                                                      GROUP BY AdminCode", "AdminCode");
             return result;
         }
@@ -435,9 +447,9 @@ namespace FCP.src
 	                                                                        RawID
 	                                                                    ,	AdminCode
                                                                         FROM AdminTime A
-                                                                        WHERE DeletedYN=0 AND A.UpperAdminTimeID is null AND AdminTimeDiv=2
+                                                                        WHERE DeletedYN = 0 AND A.UpperAdminTimeID is null AND AdminTimeDiv = 2
                                                                     ) #UpperAdminTime
-                                                                    WHERE A.UpperAdminTimeID=#UpperAdminTime.RawID AND A.DeletedYN=0
+                                                                    WHERE A.UpperAdminTimeID = #UpperAdminTime.RawID AND A.DeletedYN = 0
                                                                     ORDER BY A.AdminCode,Time", new List<string>() { "AdminCode", "Time" });
             list = list.Where(x => x.Length != 0).Select(x => x).ToList();
             Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();

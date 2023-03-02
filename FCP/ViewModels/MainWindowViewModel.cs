@@ -509,7 +509,7 @@ namespace FCP.ViewModels
             Messenger.Send(new ShowDialogMessage(), nameof(FCP.Views.SimpleWindowView));
         }
 
-        public void NotifyIconDBClick()
+        public void NotifyIconDoubleClick()
         {
             if (CommonModel.WindowType == eWindowType.SimpleWindow)
             {
@@ -553,7 +553,11 @@ namespace FCP.ViewModels
 
             Messenger.Register<LogChangeMessage>(this, (r, m) =>
             {
-                ProgressBox += $"{m.Value}\n";
+                StringBuilder sb = new StringBuilder();
+                sb.Append(ProgressBox);
+                sb.AppendLine($"{m.Value}\n");
+                ProgressBox = sb.ToString();
+                sb = null;
             });
 
             Messenger.Register<OpreationMessage, string>(this, nameof(eOpreation.OPD), (r, m) => OPDFunc());
@@ -590,7 +594,7 @@ namespace FCP.ViewModels
             CheckProgramIsAlreadyOpen();
             SwitchMainWindowControlState(true);
             NotifyIconHelper.Init(Properties.Resources.FCP, "轉檔");
-            NotifyIconHelper.DoubleClickAction += NotifyIconDBClick;
+            NotifyIconHelper.DoubleClickAction += NotifyIconDoubleClick;
             CommonModel.NotifyIcon = NotifyIconHelper.NotifyIcon;
             NewFormat();
             Init();

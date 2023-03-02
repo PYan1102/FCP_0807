@@ -30,10 +30,12 @@ namespace FCP.src.Factory
                     return new BASE_ChuangSheng();
                 case eFormat.醫聖系統OC:
                     return new BASE_YiSheng();
-                case eFormat.光田醫院OC:
-                    return new BASE_KuangTien();
+                case eFormat.光田醫院_沙鹿OC:
+                    return new BASE_KuangTien(false);
+                case eFormat.光田醫院_大甲OC:
+                    return new BASE_KuangTien(true);
                 case eFormat.光田醫院JVS:
-                    return new BASE_KuangTien();
+                    return new BASE_KuangTien(null);
                 case eFormat.民生醫院OC:
                     return new BASE_MinSheng();
                 case eFormat.宏彥診所OC:

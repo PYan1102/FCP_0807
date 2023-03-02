@@ -14,6 +14,6 @@ namespace FCP.Models
         public bool WhenCompeletedMoveFileChecked { get; set; }
         public bool WhenCompeletedStopChecked { get; set; }
         public bool IgnoreAdminCodeIfNotInOnCubeChecked { get; set; }
-        public string FileExtensionName { get; set; }
+        public string FileExtensionNames { get; set; }
     }
 }

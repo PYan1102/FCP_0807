@@ -3,6 +3,7 @@ using FCP.src.Enum;
 using FCP.src.FormatLogic;
 using FCP.src.MessageManager;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using System;
 using System.Windows;
 
 namespace FCP.src.FormatInit
