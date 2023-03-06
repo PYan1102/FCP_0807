@@ -458,6 +458,7 @@ namespace FCP.ViewModels
             }
             SwitchUIToStart();
             SwitchMainWindowControlState(false);
+            CommonModel.IsStart = true;
         }
 
         public void UDFunc()
@@ -470,10 +471,12 @@ namespace FCP.ViewModels
             }
             SwitchUIToStart();
             SwitchMainWindowControlState(false);
+            CommonModel.IsStart = true;
         }
 
         public void StopFunc()
         {
+            CommonModel.IsStart = false;
             _formatBase.Stop();
             SwitchUIToStop();
             SwitchMainWindowControlState(true);
@@ -600,7 +603,7 @@ namespace FCP.ViewModels
             Init();
             if (IsAutoStartChecked)
             {
-                await Task.Delay(500);
+                await Task.Delay(1000);
                 OPDFunc();
             }
             if (_settingModel.MinimizeWindowWhenProgramStart)

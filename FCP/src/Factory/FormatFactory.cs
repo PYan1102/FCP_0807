@@ -60,6 +60,8 @@ namespace FCP.src.Factory
                     return new BASE_JiAn();
                 case eFormat.立群診所OC:
                     return new BASE_LiChiun();
+                case eFormat.義群診所OC:
+                    return new BASE_YiChiun();
                 case eFormat.金鶯診所OC:
                     return new BASE_Elite();
                 case eFormat.健通藥局OC:

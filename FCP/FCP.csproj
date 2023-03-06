@@ -153,10 +153,12 @@
     <Compile Include="src\FormatInit\BASE_Elite.cs" />
     <Compile Include="src\FormatInit\BASE_JiAn.cs" />
     <Compile Include="src\FormatInit\BASE_JianTong.cs" />
-    <Compile Include="src\FormatInit\Base_LiChiun.cs" />
+    <Compile Include="src\FormatInit\BASE_YiChiun.cs" />
+    <Compile Include="src\FormatInit\BASE_LiChiun.cs" />
     <Compile Include="src\FormatLogic\FMT_Elite.cs" />
     <Compile Include="src\FormatLogic\FMT_JiAn.cs" />
     <Compile Include="src\FormatLogic\FMT_JianTong.cs" />
+    <Compile Include="src\FormatLogic\FMT_YiChiun.cs" />
     <Compile Include="src\FormatLogic\FMT_LiChiun.cs" />
     <Compile Include="src\MoveFile.cs" />
     <Compile Include="src\Enum\eColor.cs" />

@@ -249,21 +249,21 @@ namespace FCP
             }
         }
 
-        public static void KuangTien_Batch(Dictionary<KuangTienUDBasic, List<KuangTienUD>> ud, string outputDirectory)
+        public static void KuangTien_Batch(Dictionary<KuangTienUDBasic, List<KuangTienUD>> ud, string outputDirectory, bool daJia, List<string> floors)
         {
             try
             {
-                IEnumerable<string> floors = ud.Select(x => x.Key.BedNo.Substring(0, 4)).Distinct().OrderBy(x => x);
-                for (int i = 0; i < floors.Count(); i++)
+                foreach (var floor in floors)
                 {
+                    if (!CommonModel.IsStart)
+                    {
+                        return;
+                    }
                     StringBuilder sb = new StringBuilder();
-                    foreach (var prescription in ud)
+                    var floorPrescriptions = ud.Where(x => x.Key.BedNo.Substring(2, 2) == floor).ToList();
+                    foreach (var prescription in floorPrescriptions)
                     {
                         var basic = prescription.Key;
-                        if (basic.BedNo.Substring(0, 4) != floors.ElementAt(i))
-                        {
-                            continue;
-                        }
                         string name = "";
                         string patientName = basic.PatientName;
                         foreach (var medicine in prescription.Value)
@@ -311,16 +311,18 @@ namespace FCP
                     {
                         string directory = Path.GetDirectoryName(outputDirectory);
                         string fileName = Path.GetFileNameWithoutExtension(outputDirectory);
-                        string time = fileName.Substring(fileName.Length - 8, 8);
-                        string newOutputDirectory = $"{directory}/{fileName.Substring(0, fileName.Length - 7)}_{floors.ElementAt(i)}_{time}.txt";
+                        string time = fileName.Substring(fileName.Length - 6, 6);
+                        string newOutputDirectory = $"{directory}/{fileName.Substring(0, fileName.Length - 7)}_{floor}_{time}.txt";
                         using (StreamWriter sw = new StreamWriter(newOutputDirectory, false, Encoding.Default))
                         {
                             sw.Write(sb.ToString());
                         }
                     }
-                    Thread.Sleep(15000);
+                    if (floors.IndexOf(floor) < floors.Count - 1)
+                    {
+                        Thread.Sleep(daJia ? floorPrescriptions.Count > 20 ? 60000 : 45000 : 15000);
+                    }
                 }
-
             }
             catch (Exception ex)
             {
@@ -338,6 +340,7 @@ namespace FCP
                 {
                     var basic = prescription.Key;
                     string medicineCodeTemp = "";
+                    string adminCodeTemp = "";
                     string name = "";
                     string patientName = basic.PatientName;
                     int alphaIndex = 65;
@@ -346,6 +349,7 @@ namespace FCP
                         bool multiDose = medicine.DoseType == eDoseType.餐包;
                         bool crossDay = medicine.CrossDay;
                         string adminCode = medicine.AdminCode;
+                        string medicineCode = medicine.MedicineCode;
                         DateTime startDate = medicine.StartDate;
                         DateTime endDate = medicine.EndDate;
                         if (Properties.Settings.Default.DoseType == "Multi")
@@ -356,13 +360,15 @@ namespace FCP
                             }
                             if (medicineCodeTemp == "")
                             {
-                                medicineCodeTemp = medicine.MedicineCode;
+                                medicineCodeTemp = medicineCode;
+                                adminCodeTemp = adminCode;
                                 patientName = $"{patientName}_{Convert.ToChar(alphaIndex)}";
                             }
-                            if (medicineCodeTemp != medicine.MedicineCode)
+                            if (medicineCodeTemp != medicineCode || adminCodeTemp != adminCode)
                             {
                                 alphaIndex++;
-                                medicineCodeTemp = medicine.MedicineCode;
+                                medicineCodeTemp = medicineCode;
+                                adminCodeTemp = adminCode;
                                 patientName = $"{basic.PatientName}_{Convert.ToChar(alphaIndex)}";
                             }
                         }
@@ -376,7 +382,7 @@ namespace FCP
                         sb.Append(ECD(type, 50));
                         sb.Append("".PadRight(29));
                         sb.Append($"{medicine.PerQty}".PadRight(5));
-                        sb.Append(medicine.MedicineCode.PadRight(20));
+                        sb.Append(medicineCode.PadRight(20));
                         sb.Append(ECD(medicine.MedicineName, 50));
                         sb.Append((multiDose && !crossDay ? $"{adminCode}{endDate:HH}" : adminCode).PadRight(20));
                         sb.Append(!multiDose ? $"{basic.TreatmentDate:yyMMdd}" : $"{medicine.StartDate:yyMMdd}");
@@ -443,7 +449,8 @@ namespace FCP
                     sb.Append(currentDateTime.PadRight(30));
                     sb.Append(effectivedDateTime.PadRight(30));
                     sb.Append(ECD(basic.Class, 30));
-                    sb.Append("".PadRight(450));
+                    sb.Append($"{basic.GetMedicineNo}".PadRight(30));
+                    sb.Append("".PadRight(420));
                     sb.AppendLine("C");
                 }
                 using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))

@@ -131,7 +131,7 @@ namespace FCP.src.FormatLogic
                     int days = Convert.ToInt32(splitDatas[3]);
                     float perQty = Convert.ToSingle(splitDatas[4]);
                     float sumQty = Convert.ToSingle(splitDatas[5]);
-                    bool isMultiDose = perQty < 1;
+                    bool isMultiDose = perQty >= 1;
                     // 天數 >= 20天不包
                     if (days >= 20)
                     {

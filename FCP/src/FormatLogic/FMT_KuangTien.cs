@@ -6,6 +6,7 @@ using FCP.src.Enum;
 using Helper;
 using FCP.Models;
 using System.Text.RegularExpressions;
+using System.Windows.Controls;
 
 namespace FCP.src.FormatLogic
 {
@@ -282,8 +283,18 @@ namespace FCP.src.FormatLogic
             }
             try
             {
+                Dictionary<KuangTienUDBasic, List<KuangTienUD>> newDict = new Dictionary<KuangTienUDBasic, List<KuangTienUD>>();
+                List<string> floors = new List<string> { "3S", "6M", "11", "12", "08", "10", "09", "07", "05" };
+                foreach (var floor in floors)
+                {
+                    var data = _udPrescriptions.Where(x => GetFloor(x.Key.BedNo) == floor).ToList();
+                    foreach(var v in data)
+                    {
+                        newDict.Add(v.Key, v.Value);
+                    }
+                }
                 string outputDirectory = $@"{OutputDirectory}\{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
-                OP_OnCube.KuangTien_Batch(_udPrescriptions, outputDirectory);
+                OP_OnCube.KuangTien_Batch(newDict, outputDirectory, (bool)_daJia, floors);
                 Success();
             }
             catch (Exception ex)
@@ -627,6 +638,11 @@ namespace FCP.src.FormatLogic
                 startDate = Convert.ToDateTime($"{startDate:yyyy/MM/dd} 00:00:00");
                 startDate = startDate.AddDays(1);
             }
+        }
+
+        private string GetFloor(string bedNo)
+        {
+            return bedNo.Substring(2, 2);
         }
     }
 
