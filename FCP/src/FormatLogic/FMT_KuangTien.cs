@@ -7,6 +7,7 @@ using Helper;
 using FCP.Models;
 using System.Text.RegularExpressions;
 using System.Windows.Controls;
+using System.Diagnostics;
 
 namespace FCP.src.FormatLogic
 {
@@ -283,18 +284,25 @@ namespace FCP.src.FormatLogic
             }
             try
             {
-                Dictionary<KuangTienUDBasic, List<KuangTienUD>> newDict = new Dictionary<KuangTienUDBasic, List<KuangTienUD>>();
-                List<string> floors = new List<string> { "3S", "6M", "11", "12", "08", "10", "09", "07", "05" };
-                foreach (var floor in floors)
-                {
-                    var data = _udPrescriptions.Where(x => GetFloor(x.Key.BedNo) == floor).ToList();
-                    foreach(var v in data)
-                    {
-                        newDict.Add(v.Key, v.Value);
-                    }
-                }
                 string outputDirectory = $@"{OutputDirectory}\{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
-                OP_OnCube.KuangTien_Batch(newDict, outputDirectory, (bool)_daJia, floors);
+                if ((bool)_daJia)
+                {
+                    OP_OnCube.KuangTien_Batch(_udPrescriptions, outputDirectory);
+                }
+                else
+                {
+                    Dictionary<KuangTienUDBasic, List<KuangTienUD>> newDict = new Dictionary<KuangTienUDBasic, List<KuangTienUD>>();
+                    List<string> floors = new List<string> { "3S", "6M", "11", "12", "08", "10", "09", "07", "05" };
+                    foreach (var floor in floors)
+                    {
+                        var data = _udPrescriptions.Where(x => GetFloor(x.Key.BedNo) == floor).ToList();
+                        foreach (var v in data)
+                        {
+                            newDict.Add(v.Key, v.Value);
+                        }
+                    }
+                    OP_OnCube.KuangTien_Batch(_udPrescriptions, outputDirectory, floors);
+                }
                 Success();
             }
             catch (Exception ex)

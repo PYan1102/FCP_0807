@@ -249,7 +249,7 @@ namespace FCP
             }
         }
 
-        public static void KuangTien_Batch(Dictionary<KuangTienUDBasic, List<KuangTienUD>> ud, string outputDirectory, bool daJia, List<string> floors)
+        public static void KuangTien_Batch(Dictionary<KuangTienUDBasic, List<KuangTienUD>> ud, string outputDirectory, List<string> floors)
         {
             try
             {
@@ -318,10 +318,70 @@ namespace FCP
                             sw.Write(sb.ToString());
                         }
                     }
-                    if (floors.IndexOf(floor) < floors.Count - 1)
+                    Thread.Sleep(15000);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogService.Exception(ex);
+                throw;
+            }
+        }
+        
+        public static void KuangTien_Batch(Dictionary<KuangTienUDBasic, List<KuangTienUD>> ud, string outputDirectory)
+        {
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (var prescription in ud)
+                {
+                    var basic = prescription.Key;
+                    string name = "";
+                    string patientName = basic.PatientName;
+                    foreach (var medicine in prescription.Value)
                     {
-                        Thread.Sleep(daJia ? floorPrescriptions.Count > 20 ? 60000 : 45000 : 15000);
+                        bool multiDose = medicine.DoseType == eDoseType.餐包;
+                        bool crossDay = medicine.CrossDay;
+                        string adminCode = medicine.AdminCode;
+                        DateTime startDate = medicine.StartDate;
+                        DateTime endDate = medicine.EndDate;
+                        if (Properties.Settings.Default.DoseType == "Combi" && name == "")
+                        {
+                            name = patientName;
+                        }
+                        string type = "住院";
+                        sb.Append(ECD(patientName, 20));
+                        sb.Append(basic.PatientNo.PadRight(30));
+                        sb.Append(ECD(type, 50));
+                        sb.Append("".PadRight(29));
+                        sb.Append($"{medicine.PerQty}".PadRight(5));
+                        sb.Append(medicine.MedicineCode.PadRight(20));
+                        sb.Append(ECD(medicine.MedicineName, 50));
+                        sb.Append((multiDose && !crossDay ? $"{adminCode}{endDate:HH}" : adminCode).PadRight(20));
+                        sb.Append(!multiDose ? $"{basic.TreatmentDate:yyMMdd}" : $"{medicine.StartDate:yyMMdd}");
+                        sb.Append(!multiDose ? $"{basic.TreatmentDate:yyMMdd}" : $"{medicine.EndDate:yyMMdd}");
+                        sb.Append("".PadRight(158));
+                        sb.Append("1999-01-01");
+                        sb.Append("男    ");
+                        sb.Append(basic.BedNo.PadRight(40));
+                        sb.Append("0");
+                        sb.Append(ECD("光田綜合醫院", 30));
+                        sb.Append($"{Math.Ceiling(Convert.ToSingle(medicine.PerQty))}".PadRight(30));
+                        sb.Append($"{medicine.SumQty}".PadRight(30));
+                        sb.Append("".PadRight(30));
+                        sb.Append($"{medicine.PrintDate:yyyy/MM/dd}".PadRight(30));
+                        sb.Append(ECD(!multiDose || crossDay ? medicine.TakingDescription : $"服用日{medicine.EndDate:yyyy/MM/dd}", 30));
+                        sb.Append(ECD(name, 30));
+                        sb.Append("".PadRight(30));
+                        sb.Append(ECD(basic.Barcode, 240));
+                        sb.Append(ECD(medicine.Description.Trim(), 120));
+                        sb.Append(ECD(medicine.MedicineSerialNo, 30));
+                        sb.AppendLine(multiDose ? "M" : "C");
                     }
+                }
+                using (StreamWriter sw = new StreamWriter(outputDirectory, false, Encoding.Default))
+                {
+                    sw.Write(sb.ToString());
                 }
             }
             catch (Exception ex)
