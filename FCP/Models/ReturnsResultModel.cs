@@ -2,7 +2,7 @@
 
 namespace FCP.Models
 {
-    public sealed class ReturnsResultModel
+    public sealed class ReturnsResultModel : ModelBase
     {
         public eConvertResult Result { get; set; }
         public string Message { get; set; }

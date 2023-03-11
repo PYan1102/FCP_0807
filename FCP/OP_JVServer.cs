@@ -6,6 +6,7 @@ using System.IO;
 using System.Data;
 using Helper;
 using FCP.src.FormatLogic;
+using System.Diagnostics;
 
 namespace FCP
 {
@@ -17,9 +18,11 @@ namespace FCP
             {
                 foreach (string grindTable in grindTableList)
                 {
-                    string newFilePath = outputDirectory.Insert(outputDirectory.LastIndexOf("_") + 1, grindTable);
-                    newFilePath = newFilePath.Insert(newFilePath.LastIndexOf(".") - 7, "_");
+                    string newFilePath = outputDirectory.Insert(outputDirectory.LastIndexOf("_") - 2, grindTable);
+                    newFilePath = newFilePath.Insert(newFilePath.LastIndexOf(".") - 6, "_");
                     var firstPowder = powder.Select(x => x).First().Value[0];
+                    string barcode = $"#{firstPowder.Barcode}^{grindTable.Substring(grindTable.Length - 2, 2)}";
+                    newFilePath = newFilePath.Insert(newFilePath.IndexOf("-") + 3, barcode);
                     StringBuilder sb = new StringBuilder();
                     sb.Append("|JVPHEAD|");
                     sb.Append("1");
@@ -31,12 +34,13 @@ namespace FCP
                     sb.Append("D123456789".PadRight(40));
                     sb.Append("19970101");
                     sb.Append(firstPowder.GetMedicineNo.PadRight(30));
-                    sb.Append("".PadRight(45));
+                    sb.Append(barcode.TrimStart('#').PadRight(30));
+                    sb.Append("".PadRight(15));
                     sb.Append(ECD(firstPowder.PatientName, 20));
                     sb.Append("1 ");
                     sb.Append(firstPowder.EffectiveDate.ToString("yyyy/MM/dd").PadRight(30));
                     sb.Append(ECD("光田醫院", 40));
-                    sb.Append("".PadRight(20));
+                    sb.Append(ECD(grindTable, 20));
                     sb.Append("".PadRight(121));
                     sb.Append("M  ");
                     sb.Append("|JVPEND|");

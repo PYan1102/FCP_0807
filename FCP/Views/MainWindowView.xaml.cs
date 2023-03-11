@@ -118,7 +118,7 @@ namespace FCP.Views
                     switch (wParam.ToInt32())
                     {
                         case _ShowMainWindow:
-                            _mainWindowVM.NotifyIconDBClick();
+                            _mainWindowVM.NotifyIconDoubleClick();
                             handled = true;
                             break;
                     }

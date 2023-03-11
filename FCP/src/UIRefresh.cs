@@ -32,7 +32,7 @@ namespace FCP.src
                 catch (Exception ex)
                 {
                     LogService.Exception(ex);
-                    MsgCollection.ShowDialog(ex, "錯誤", PackIconKind.Error, ColorProvider.GetSolidColorBrush(eColor.Red));
+                    MsgCollection.ShowDialog(ex.Message, "錯誤", PackIconKind.Error, ColorProvider.GetSolidColorBrush(eColor.Red));
                 }
             }
             _cts = null;

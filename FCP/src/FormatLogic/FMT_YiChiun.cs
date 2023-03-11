@@ -4,10 +4,11 @@ using Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace FCP.src.FormatLogic
 {
-    internal class FMT_LiChiun : FormatCollection
+    internal class FMT_YiChiun : FormatCollection
     {
         private List<PrescriptionModel> _up = new List<PrescriptionModel>();
         private List<PrescriptionModel> _down = new List<PrescriptionModel>();
@@ -59,6 +60,9 @@ namespace FCP.src.FormatLogic
                     {
                         return;
                     }
+                    float sumQty = Convert.ToSingle(EncodingHelper.GetString(87, 8));
+                    float perQty = Convert.ToSingle(EncodingHelper.GetString(81, 6));
+                    int days = Convert.ToInt32(sumQty / perQty / GetMultiAdminCodeTimes(adminCode).Count);
                     PrescriptionModel model = new PrescriptionModel()
                     {
                         PatientName = patientName,
@@ -73,8 +77,9 @@ namespace FCP.src.FormatLogic
                         MedicineCode = medicineCode,
                         MedicineName = EncodingHelper.GetString(16, 50),
                         AdminCode = adminCode,
-                        PerQty = Convert.ToSingle(EncodingHelper.GetString(81, 6)),
-                        SumQty = Convert.ToSingle(EncodingHelper.GetString(87, 8)),
+                        PerQty = perQty,
+                        SumQty = sumQty,
+                        Days = days,
                         Random = EncodingHelper.GetString(132, 30),
                         Mark = EncodingHelper.GetString(339, 20),
                         Other1 = EncodingHelper.GetString(107, 40),
@@ -112,48 +117,41 @@ namespace FCP.src.FormatLogic
         {
             try
             {
-                if (_up.Count > 0 && _up.Where(x => x.AdminCode.Contains("HS")).Count() > 0)
-                {
-                    SortedPrescriptionByHS(_up);
-                }
-                if (_down.Count > 0 && _down.Where(x => x.AdminCode.Contains("HS")).Count() > 0)
-                {
-                    SortedPrescriptionByHS(_down);
-                }
                 if (_up.Count > 0)
                 {
-                    string outputDirectory = $@"{OutputDirectory}\{_up[0].PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
-                    if (_down.Count == 0)
+                    Dictionary<string, List<PrescriptionModel>> up = new Dictionary<string, List<PrescriptionModel>>();
+                    foreach (var v in _up)
                     {
-                        var tid = _up.Where(x => x.AdminCode == "TID").ToList();
-                        var qid = _up.Where(x => x.AdminCode == "QID").ToList();
-                        if (tid.Count > 0)
+                        string key = $"{v.AdminCode}^{v.Days}";
+                        if (!up.ContainsKey(key))
                         {
-                            outputDirectory = $@"{OutputDirectory}\{_up[0].PatientName}_TID-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
-                            OP_OnCube.JVServer(tid, outputDirectory);
+                            up.Add(key, new List<PrescriptionModel>());
                         }
-                        if (qid.Count > 0)
-                        {
-                            outputDirectory = $@"{OutputDirectory}\{_up[0].PatientName}_QID-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
-                            OP_OnCube.JVServer(qid, outputDirectory);
-                        }
-                        _up.RemoveAll(x => x.AdminCode == "TID" || x.AdminCode == "QID");
-                        if (_up.Count > 0)
-                        {
-                            outputDirectory = $@"{OutputDirectory}\{_up[0].PatientName}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
-                            OP_OnCube.JVServer(_up, outputDirectory);
-                        }
+                        up[key].Add(v);
                     }
-                    else
+                    foreach (var v in up)
                     {
-                        OP_OnCube.JVServer(_up, outputDirectory);
+                        string outputDirectory = $@"{OutputDirectory}\{_up[0].PatientName}_UP_{v.Key}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
+                        OP_OnCube.JVServer(v.Value, outputDirectory);
                     }
                 }
                 if (_down.Count > 0)
                 {
-                    string patientName = _up.Count == 0 ? _down[0].PatientName : _up[0].PatientName;
-                    string outputDirectory = $@"{OutputDirectory}\{patientName}_2-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
-                    OP_OnCube.JVServer(_down, outputDirectory);
+                    Dictionary<string, List<PrescriptionModel>> down = new Dictionary<string, List<PrescriptionModel>>();
+                    foreach (var v in _down)
+                    {
+                        string key = $"{v.AdminCode}^{v.Days}";
+                        if (!down.ContainsKey(key))
+                        {
+                            down.Add(key, new List<PrescriptionModel>());
+                        }
+                        down[key].Add(v);
+                    }
+                    foreach (var v in down)
+                    {
+                        string outputDirectory = $@"{OutputDirectory}\{_down[0].PatientName}_DOWN_{v.Key}-{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
+                        OP_OnCube.JVServer(v.Value, outputDirectory);
+                    }
                 }
                 Success();
             }
@@ -161,21 +159,6 @@ namespace FCP.src.FormatLogic
             {
                 GenerateOCSFileFail(ex);
             }
-        }
-
-        private void SortedPrescriptionByHS(List<PrescriptionModel> prescriptions)
-        {
-            Dictionary<int, PrescriptionModel> temp = new Dictionary<int, PrescriptionModel>();
-            prescriptions.ForEach(x =>
-            {
-                if (x.AdminCode.Contains("HS"))
-                {
-                    x.PatientName = $"{x.PatientName}_HS";
-                    temp.Add(prescriptions.IndexOf(x), x.Clone());
-                }
-            });
-            prescriptions.RemoveAll(x => temp.Select(y => y.Key).Contains(prescriptions.IndexOf(x)));
-            prescriptions.AddRange(temp.Select(x => x.Value));
         }
 
         public override void ProcessUDBatch()

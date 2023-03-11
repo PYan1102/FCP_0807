@@ -86,24 +86,27 @@
                                   IsChecked="{Binding UseStatAndBatchOptionChecked}"/>
                     <TextBlock Grid.Row="1"
                                Text="使用住院即時與長期"
+                               ToolTip="在主頁及小視窗顯示及時及長期的單選按鈕"
                                Style="{StaticResource FeatureTextBlock}"/>
                     <ToggleButton Grid.Row="2"
                                   HorizontalAlignment="Left"
                                   IsChecked="{Binding MinimizeWindowWhenProgramStartChecked}"/>
                     <TextBlock Grid.Row="2"
-                               Text="程式開啟後自動縮小視窗"
+                               Text="程式開啟後轉為小視窗"
                                Style="{StaticResource FeatureTextBlock}"/>
                     <ToggleButton Grid.Row="3"
                                   HorizontalAlignment="Left"
                                   IsChecked="{Binding ShowCloseAndMinimizeButtonChecked}"/>
                     <TextBlock Grid.Row="3"
                                Text="顯示關閉與縮小按鈕"
+                               ToolTip="在主頁右上角顯示關閉及縮小按鈕"
                                Style="{StaticResource FeatureTextBlock}"/>
                     <ToggleButton Grid.Row="4"
                                   HorizontalAlignment="Left"
                                   IsChecked="{Binding ShowXYChecked}"/>
                     <TextBlock Grid.Row="4"
                                Text="顯示XY軸設定"
+                               ToolTip="在主頁顯示設定轉檔為小視窗時的視窗位置"
                                Style="{StaticResource FeatureTextBlock}"/>
                     <ToggleButton Grid.Row="5"
                                   HorizontalAlignment="Left"
@@ -111,6 +114,7 @@
                                   Command="{Binding ShowOnlyCanisterIn}"/>
                     <TextBlock Grid.Row="5"
                                Text="過濾藥品代碼"
+                               ToolTip="只讓有被建立在Oncube中的藥品可以進來，並且藥品必須設定為啟用，否則將被過濾"
                                Style="{StaticResource FeatureTextBlock}"/>
                     <ToggleButton Grid.Row="5"
                                   HorizontalAlignment="Left"
@@ -119,6 +123,7 @@
                                   IsChecked="{Binding OnlyCanisterInChecked}"/>
                     <TextBlock Grid.Row="5"
                                Text="只讓藥盒藥進來"
+                               ToolTip="只讓有綁定藥盒的藥品可以進來，其餘藥品將被過濾"
                                Visibility="{Binding OnlyCanisterInVisibility}"
                                Style="{StaticResource FeatureTextBlock}"
                                Margin="200 0 0 0"/>
@@ -139,7 +144,9 @@
                                   IsChecked="{Binding IgnoreAdminCodeIfNotInOnCubeChecked}"/>
                     <TextBlock Grid.Row="8"
                                Text="忽略不在OnCube中的頻率"
-                               Style="{StaticResource FeatureTextBlock}"/>
+                               ToolTip="檔案將會被移至失敗資料夾內"
+                               Style="{StaticResource FeatureTextBlock}">
+                    </TextBlock>
                 </Grid>
                 <Border Grid.Column="2"
                         Padding="10"
@@ -183,7 +190,7 @@
                     <TextBox Grid.Row="1"
                              Width="60"
                              Style="{StaticResource OtherTextBox}"
-                             Text="{Binding FileExtensionName,UpdateSourceTrigger=PropertyChanged}"
+                             Text="{Binding FileExtensionNames,UpdateSourceTrigger=PropertyChanged}"
                              InputMethod.IsInputMethodEnabled="False"
                              Margin="90 0 0 0"/>
                 </Grid>

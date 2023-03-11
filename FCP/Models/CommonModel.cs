@@ -13,5 +13,6 @@ namespace FCP.Models
         public static ISql SqlHelper { get; set; }
         public static eDepartment CurrentDepartment { get; set; }
         public static eWindowType WindowType { get; set; } = eWindowType.MainWindow;
+        public static bool IsStart { get; set; }
     }
 }

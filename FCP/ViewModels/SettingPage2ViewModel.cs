@@ -1,12 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Windows;
-using System.Windows.Input;
-using FCP.Models;
+﻿using FCP.Models;
 using FCP.src.Factory.Models;
 using FCP.src.MessageManager.Request;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Windows;
+using System.Windows.Input;
 
 namespace FCP.ViewModels
 {
@@ -87,10 +89,10 @@ namespace FCP.ViewModels
         }
 
         [Required(ErrorMessage = "此欄位不可為空")]
-        public string FileExtensionName
+        public string FileExtensionNames
         {
-            get => _model.FileExtensionName;
-            set => SetProperty(_model.FileExtensionName, value, _model, (model, _value) => model.FileExtensionName = _value, true);
+            get => _model.FileExtensionNames;
+            set => SetProperty(_model.FileExtensionNames, value, _model, (model, _value) => model.FileExtensionNames = _value, true);
         }
 
         public void ResetModel()
@@ -109,7 +111,10 @@ namespace FCP.ViewModels
             ShowXYChecked = _settingModel.ShowXY;
             FilterMedicineCodeChecked = _settingModel.FilterMedicineCode;
             OnlyCanisterInChecked = _settingModel.OnlyCanisterIn;
-            FileExtensionName = _settingModel.FileExtensionName;
+            string extensionNames = "";
+            _settingModel.FileExtensionNames.ForEach(x => extensionNames += $"{x},");
+            extensionNames = extensionNames.TrimEnd(',');
+            FileExtensionNames = extensionNames;
             WhenCompeletedMoveFileChecked = _settingModel.WhenCompeletedMoveFile;
             WhenCompeletedStopChecked = _settingModel.WhenCompeletedStop;
             IgnoreAdminCodeIfNotInOnCubeChecked = _settingModel.IgnoreAdminCodeIfNotInOnCube;

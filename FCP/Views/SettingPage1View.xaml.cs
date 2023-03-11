@@ -36,11 +36,6 @@ namespace FCP.Views
             Txt_FilterMedicineCode.SelectAll();
         }
 
-        private void RefreshRandomDataGridView()
-        {
-            Dg_RandomSetting.Items.Refresh();
-        }
-
         private void RefreshFilterMedicineCodeComboBox()
         {
             Cbo_FilterMedicineCode.Items.Refresh();
@@ -52,7 +47,6 @@ namespace FCP.Views
             WeakReferenceMessenger.Default.Register<View_FocusedElementMessage, string>(this, "Txt_FilterMedicineCode", (r, m) =>  FocusFilterMedicineCode());
             WeakReferenceMessenger.Default.Register<View_SelectedAllMessage, string>(this, "Txt_FilterAdminCode", (r, m) =>  SelectAllFilterAdminCode());
             WeakReferenceMessenger.Default.Register<View_SelectedAllMessage, string>(this, "Txt_FilterMedicineCode", (r, m) =>  SelectAllFilterMedicineCode());
-            WeakReferenceMessenger.Default.Register<View_RefresedhElementMessage, string>(this, "Dg_RandomSetting", (r, m) => RefreshRandomDataGridView());
             WeakReferenceMessenger.Default.Register<View_RefresedhElementMessage, string>(this, "Cbo_FilterMedicineCode", (r, m) =>  RefreshFilterMedicineCodeComboBox());
         }
 

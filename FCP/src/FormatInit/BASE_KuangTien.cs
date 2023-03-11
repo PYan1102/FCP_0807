@@ -3,19 +3,24 @@ using FCP.src.Enum;
 using FCP.src.FormatLogic;
 using FCP.src.MessageManager;
 using Microsoft.Toolkit.Mvvm.Messaging;
-using System;
 using System.Windows;
 
 namespace FCP.src.FormatInit
 {
     class BASE_KuangTien : ConvertBase
     {
+        public BASE_KuangTien(bool? daJia)
+        {
+            _daJia = daJia;
+        }
+
         private FMT_KuangTien _format;
+        private bool? _daJia;
 
         public override void Init()
         {
             base.Init();
-            if (SettingModel.Format == eFormat.光田醫院OC)
+            if (SettingModel.Format == eFormat.光田醫院_大甲OC || SettingModel.Format == eFormat.光田醫院_沙鹿OC)
             {
                 WeakReferenceMessenger.Default.Send(new SetMainWindowToogleCheckedChangeMessage(new MainWindowModel.ToggleModel() { Toggle1 = true }));
             }
@@ -28,23 +33,15 @@ namespace FCP.src.FormatInit
         public override ActionResult PrepareStart()
         {
             SetFileSearchMode(eFileSearchMode.根據檔名開頭);
-            if (SettingModel.Format == eFormat.光田醫院OC)
+            if (SettingModel.Format == eFormat.光田醫院_大甲OC || SettingModel.Format == eFormat.光田醫院_沙鹿OC)
             {
                 if (SettingModel.DoseType == eDoseType.種包)
                 {
-                    //沙鹿
-                    CommonModel.SqlHelper.Execute(@"update PrintFormItem set DeletedYN=1 where RawID in (120180,120195)");
-
-                    //大甲
-                    //CommonModel.SqlHelper.Execute(@"update PrintFormItem set DeletedYN=1 where RawID in (120156,120172)");
+                    CommonModel.SqlHelper.Execute((bool)_daJia ? "update PrintFormItem set DeletedYN = 1 where RawID in (120156,120172)" : "update PrintFormItem set DeletedYN = 1 where RawID in (120180,120195)");
                 }
                 else
                 {
-                    //沙鹿
-                    CommonModel.SqlHelper.Execute(@"update PrintFormItem set DeletedYN=0 where RawID in (120180,120195)");
-
-                    //大甲
-                    //CommonModel.SqlHelper.Execute(@"update PrintFormItem set DeletedYN=0 where RawID in (120156,120172)");
+                    CommonModel.SqlHelper.Execute((bool)_daJia ? "update PrintFormItem set DeletedYN = 0 where RawID in (120156, 120172)" : "update PrintFormItem set DeletedYN=0 where RawID in (120180,120195)");
                 }
             }
             else if (SettingModel.Format == eFormat.光田醫院JVS)  //磨粉
@@ -60,15 +57,15 @@ namespace FCP.src.FormatInit
 
         public override void Converter()
         {
-            _format = _format ?? new FMT_KuangTien();
+            _format = _format ?? new FMT_KuangTien(_daJia);
             var result = _format.DepartmentShunt();
             Result(result, true);
         }
 
         public override MainUILayoutModel SetUILayout(MainUILayoutModel UI)
         {
-            bool oncube = SettingModel.Format == eFormat.光田醫院OC;
-            UI.Title = "光田醫院";
+            bool oncube = SettingModel.Format == eFormat.光田醫院_大甲OC || SettingModel.Format == eFormat.光田醫院_沙鹿OC;
+            UI.Title = SettingModel.Format == eFormat.光田醫院_大甲OC ? "光田醫院 大甲" : "光田醫院 沙鹿";
             UI.IP1Title = oncube ? "門診" : UI.IP1Title;
             UI.IP2Title = oncube ? UI.IP2Title : "磨粉";
             UI.IP1Enabled = oncube;

@@ -10,7 +10,7 @@ namespace FCP.Services.FileSearchService
         public eDepartment GetDepartment { get => _department; }
         private eDepartment _department;
 
-        public string GetFile(string extensionName, List<MatchModel> matchModel)
+        public string GetFile(List<string> extensionNames, List<MatchModel> matchModel)
         {
             return string.Empty;
         }

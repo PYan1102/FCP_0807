@@ -44,58 +44,58 @@ namespace FCP.src
                 default:
                     throw new Exception($"未找到適配的 {convertResult}");
             }
-            LogService.Info(_returnsResultModel.Message);
         }
 
         public void Success()
         {
             _returnsResultModel.Message = $"{FileInfoModel.SourceFilePath} {nameof(eConvertResult.成功)}";
             _returnsResultModel.Result = eConvertResult.成功;
+            LogService.Info(_returnsResultModel.Message);
         }
 
         public void Pass(object message = null)
         {
             _returnsResultModel.Message = $"{FileInfoModel.SourceFilePath} {nameof(eConvertResult.全數過濾)}";
             _returnsResultModel.Result = eConvertResult.全數過濾;
+            LogService.Info(_returnsResultModel.Message);
         }
 
         public void LostMultiAdminCode(string adminCode)
         {
             _returnsResultModel.Message = $"{FileInfoModel.SourceFilePath} 在OnCube中未建置此餐包頻率 {adminCode} 的頻率";
             _returnsResultModel.Result = eConvertResult.缺少餐包頻率;
+            LogService.Exception(_returnsResultModel.Message);
         }
 
         public void LostCombiAdminCode(string adminCode)
         {
             _returnsResultModel.Message = $"{FileInfoModel.SourceFilePath} 在OnCube中未建置此種包頻率 S{adminCode} 的頻率";
             _returnsResultModel.Result = eConvertResult.缺少種包頻率;
+            LogService.Exception(_returnsResultModel.Message);
         }
 
-        public void ReadFileFail(object message = null)
+        public void ReadFileFail(object message)
         {
-            if (message != null)
-                _returnsResultModel.Message = $"{FileInfoModel.SourceFilePath} 讀取處方籤時發生問題 {message}";
-            else
-                _returnsResultModel.Message = $"{FileInfoModel.SourceFilePath} 讀取處方籤時發生問題";
+            Exception ex = message as Exception;
+            _returnsResultModel.Message = $"{FileInfoModel.SourceFilePath} 讀取處方籤時發生問題 {ex.Message}";
             _returnsResultModel.Result = eConvertResult.讀取檔案失敗;
+            LogService.Exception(ex);
         }
 
-        public void ProcessFileFail(object message = null)
+        public void ProcessFileFail(object message)
         {
-            if (message != null)
-                _returnsResultModel.Message = $"{FileInfoModel.SourceFilePath} 處理邏輯時發生問題 {message}";
-            else
-                _returnsResultModel.Message = $"{FileInfoModel.SourceFilePath} 處理邏輯時發生問題";
+            Exception ex = message as Exception;
+            _returnsResultModel.Message = $"{FileInfoModel.SourceFilePath} 處理邏輯時發生問題 {ex.Message}";
             _returnsResultModel.Result = eConvertResult.處理邏輯失敗;
+            LogService.Exception(ex);
         }
 
-        public void GenerateOCSFileFail(object message = null)
+        public void GenerateOCSFileFail(object message)
         {
-            if (message != null)
-                _returnsResultModel.Message = $"{FileInfoModel.SourceFilePath} 產生OCS時發生問題 {message}";
-            else
-                _returnsResultModel.Message = $"{FileInfoModel.SourceFilePath} 產生OCS時發生問題";
+            Exception ex = message as Exception;
+            _returnsResultModel.Message = $"{FileInfoModel.SourceFilePath} 產生OCS時發生問題 {ex.Message}";
             _returnsResultModel.Result = eConvertResult.產生OCS失敗;
+            LogService.Exception(ex);
         }
     }
 }

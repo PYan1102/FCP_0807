@@ -170,21 +170,4 @@ namespace FCP.src.FormatLogic
             return base.DepartmentShunt();
         }
     }
-    internal class ChengYuOPD
-    {
-        public string PatientNo { get; set; }
-        public string PatientName { get; set; }
-        public string MedicineCode { get; set; }
-        public string MedicineName { get; set; }
-        public string PerQty { get; set; }
-        public string AdminCode { get; set; }
-        public string AdminCodeDescription { get; set; }
-        public string Days { get; set; }
-        public string NumOfPackages { get; set; }
-        public DateTime StartDay { get; set; }
-        public DateTime EndDay { get; set; }
-        public string BedNo { get; set; }
-        public string HospitalName { get; set; }
-        public string Unit { get; set; }
-    }
 }

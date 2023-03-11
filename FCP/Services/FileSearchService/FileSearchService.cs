@@ -38,7 +38,7 @@ namespace FCP.Services.FileSearchService
         {
             try
             {
-                string sourceFilePath = _getFile.GetFile(_settingModel.FileExtensionName, matchModel);
+                string sourceFilePath = _getFile.GetFile(_settingModel.FileExtensionNames, matchModel);
                 if (string.IsNullOrEmpty(sourceFilePath))
                 {
                     return;

@@ -135,6 +135,7 @@
     <Compile Include="Helpers\RegexHelper.cs" />
     <Compile Include="Models\ActionResult.cs" />
     <Compile Include="Models\CommonModel.cs" />
+    <Compile Include="Models\ModelBase.cs" />
     <Compile Include="Models\PrescriptionModel.cs" />
     <Compile Include="Models\SettingsPage3Model.cs" />
     <Compile Include="Models\WindowPositionModel.cs" />
@@ -151,9 +152,13 @@
     <Compile Include="src\Enum\ePrescriptionParameters.cs" />
     <Compile Include="src\FormatInit\BASE_Elite.cs" />
     <Compile Include="src\FormatInit\BASE_JiAn.cs" />
-    <Compile Include="src\FormatInit\Base_LiChiun.cs" />
+    <Compile Include="src\FormatInit\BASE_JianTong.cs" />
+    <Compile Include="src\FormatInit\BASE_YiChiun.cs" />
+    <Compile Include="src\FormatInit\BASE_LiChiun.cs" />
     <Compile Include="src\FormatLogic\FMT_Elite.cs" />
     <Compile Include="src\FormatLogic\FMT_JiAn.cs" />
+    <Compile Include="src\FormatLogic\FMT_JianTong.cs" />
+    <Compile Include="src\FormatLogic\FMT_YiChiun.cs" />
     <Compile Include="src\FormatLogic\FMT_LiChiun.cs" />
     <Compile Include="src\MoveFile.cs" />
     <Compile Include="src\Enum\eColor.cs" />

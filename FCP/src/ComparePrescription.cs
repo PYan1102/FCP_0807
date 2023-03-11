@@ -15,7 +15,7 @@ namespace FCP.src
         private static List<JVServerXMLOPD> _OPD = new List<JVServerXMLOPD>();
         public static bool IsPrescriptionRepeat(string filePath, JVServerXMLOPDBasic basic, List<JVServerXMLOPD> OPD)
         {
-            Log.Write("Washington got repeat prescriptions");
+            LogService.Info("Washington got repeat prescriptions");
             _OPD.Clear();
             string fileName = Path.GetFileNameWithoutExtension(filePath).Substring(0, Path.GetFileNameWithoutExtension(filePath).Length - 1);
             int count = CommonModel.SqlHelper.Query_FirstInt($@"SELECT
@@ -29,7 +29,7 @@ namespace FCP.src
                                                                  WHERE B.DeletedYN=0 AND B.LastUpdatedDate BETWEEN '2021-11-25' AND '2021-11-26'
                                                                  AND D.PrescriptionItemValue LIKE '%{fileName}%'
                                                                  GROUP BY D.PrescriptionItemValue");
-            Log.Write($"FileName:{fileName}, SearchStartDate:{DateTime.Now:yyyy-MM-dd}, SearchEndDate:{DateTime.Now.AddDays(1):yyyy-MM-dd}, SqlCount:{count}");
+            LogService.Info($"FileName:{fileName}, SearchStartDate:{DateTime.Now:yyyy-MM-dd}, SearchEndDate:{DateTime.Now.AddDays(1):yyyy-MM-dd}, SqlCount:{count}");
             if (count == 0)
                 return false;
             XMLHelper.Load(filePath);
@@ -41,7 +41,7 @@ namespace FCP.src
                 Add(_OPD, v, patientName, startDate);
             }
             List<string> files = Directory.GetFiles($@"{CommonModel.FileBackupRootDirectory}\{DateTime.Now:yyyy-MM-dd}\Success", $"*{fileName}*").ToList();
-            Log.Write($"{CommonModel.FileBackupRootDirectory} file count is {files.Count}");
+            LogService.Info($"{CommonModel.FileBackupRootDirectory} file count is {files.Count}");
             foreach (var file in files)
             {
                 XMLHelper.Load(file);
@@ -55,11 +55,11 @@ namespace FCP.src
                 }
                 if (Equal(_OPD, list, currentlabeno_type, targetlabeno_type))
                 {
-                    Log.Write("Repeat");
+                    LogService.Info("Repeat");
                     return true;
                 }
             }
-            Log.Write("Not repeat");
+            LogService.Info("Not repeat");
             return false;
         }
 
@@ -81,7 +81,7 @@ namespace FCP.src
 
         private static bool Equal(List<JVServerXMLOPD> current, List<JVServerXMLOPD> target, string currentlabeno_type, string targetlabeno_type)
         {
-            Log.Write($"CurrentCount:{current.Count}, TargetCount:{target.Count}");
+            LogService.Info($"CurrentCount:{current.Count}, TargetCount:{target.Count}");
             if (current.Count != target.Count)
                 return false;
             StringBuilder cur = new StringBuilder();
@@ -95,8 +95,8 @@ namespace FCP.src
                 cur.Append($"{ECD(a.MedicineCode, 20)}{ECD(a.MedicineName, 30)}{ECD(a.AdminCode, 10)}{ECD(a.PerQty, 10)}{ECD(a.SumQty, 10)}{ECD(a.Days, 5)}{ECD(a.StartDay, 12)}{ECD(a.Memo, 20)}{ECD(a.CorrectPatientName, 20)}\n");
                 targ.Append($"{ECD(b.MedicineCode, 20)}{ECD(b.MedicineName, 30)}{ECD(b.AdminCode, 10)}{ECD(b.PerQty, 10)}{ECD(b.SumQty, 10)}{ECD(b.Days, 5)}{ECD(b.StartDay, 12)}{ECD(b.Memo, 20)}{ECD(b.CorrectPatientName, 20)}\n");
             }
-            Log.Write(cur.ToString().Trim());
-            Log.Write(targ.ToString().Trim());
+            LogService.Info(cur.ToString().Trim());
+            LogService.Info(targ.ToString().Trim());
             var v = from t in target
                     from c in current
                     where t.AdminCode == c.AdminCode &&

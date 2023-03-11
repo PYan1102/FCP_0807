@@ -5,15 +5,24 @@ using System.Text;
 using FCP.src.Enum;
 using Helper;
 using FCP.Models;
+using System.Text.RegularExpressions;
+using System.Windows.Controls;
+using System.Diagnostics;
 
 namespace FCP.src.FormatLogic
 {
     class FMT_KuangTien : FormatCollection
     {
+        public FMT_KuangTien(bool? daJia)
+        {
+            _daJia = daJia;
+        }
+
         private Dictionary<string, List<KuangTienPowder>> _powder = new Dictionary<string, List<KuangTienPowder>>();
         private Dictionary<KuangTienUDBasic, List<KuangTienUD>> _udPrescriptions = new Dictionary<KuangTienUDBasic, List<KuangTienUD>>();
         private KuangTienOPDBasic _opdBasic = new KuangTienOPDBasic();
         private List<KuangTienOPD> _opd = new List<KuangTienOPD>();
+        private bool? _daJia;
 
         public override void ProcessOPD()
         {
@@ -21,7 +30,7 @@ namespace FCP.src.FormatLogic
             {
                 string[] list = DeleteSpace(GetFileContent).Split('\n');
                 EncodingHelper.SetBytes(list[0]);
-                _opdBasic.WriteDate = EncodingHelper.GetString(9, 9);
+                _opdBasic.WriteDate = DateTimeHelper.Convert($"{Convert.ToInt32(EncodingHelper.GetString(9, 9).Replace("/", "")) + 19110000}", "yyyyMMdd");
                 _opdBasic.GetMedicineNo = EncodingHelper.GetString(54, 8);
                 _opdBasic.Age = EncodingHelper.GetString(67, 5);
                 _opdBasic.DoctorName = EncodingHelper.GetString(77, 11);
@@ -30,8 +39,12 @@ namespace FCP.src.FormatLogic
                 _opdBasic.PatientName = EncodingHelper.GetString(25, 21);
                 _opdBasic.Gender = EncodingHelper.GetString(47, 2);
                 _opdBasic.Class = EncodingHelper.GetString(67, EncodingHelper.Length - 67);
-                for (int x = 4; x <= list.ToList().Count - 3; x++)
+                for (int x = 4; x <= list.Length - 1; x++)
                 {
+                    if (list[x].Trim().Length == 0 || list[x].Contains("===========") || list[x].Contains("BARCODE") || list[x].Contains("光田綜合醫院"))
+                    {
+                        continue;
+                    }
                     EncodingHelper.SetBytes(list[x]);
                     string adminCode = EncodingHelper.GetString(57, 11) + EncodingHelper.GetString(68, 9);
                     string medicineCode = EncodingHelper.GetString(2, 10);
@@ -55,15 +68,18 @@ namespace FCP.src.FormatLogic
                     {
                         return;
                     }
+                    int days = Convert.ToInt32(EncodingHelper.GetString(77, 5));
                     _opd.Add(new KuangTienOPD()
                     {
                         MedicineCode = medicineCode,
                         MedicineName = EncodingHelper.GetString(12, 31),
                         AdminCode = adminCode,
-                        PerQty = EncodingHelper.GetString(43, 8),
-                        Days = EncodingHelper.GetString(77, 5),
-                        SumQty = EncodingHelper.GetString(82, 8),
-                        TimesPerDay = $"{GetMultiAdminCodeTimes(adminCode).Count}"
+                        PerQty = Convert.ToSingle(EncodingHelper.GetString(43, 8)),
+                        Days = days,
+                        SumQty = Convert.ToSingle(EncodingHelper.GetString(82, 8)),
+                        TimesPerDay = GetMultiAdminCodeTimes(adminCode).Count,
+                        StartDate = _opdBasic.WriteDate,
+                        EndDate = _opdBasic.WriteDate.AddDays(days - 1)
                     });
                 }
                 if (_opd.Count == 0)
@@ -79,7 +95,7 @@ namespace FCP.src.FormatLogic
 
         public override void LogicOPD()
         {
-            int year = Convert.ToInt32(DateTime.Now.ToString("yyyy")) - 1911;
+            int year = Convert.ToInt32($"{DateTime.Now:yyyy}") - 1911;
             string outputDirectory = $@"{OutputDirectory}\{year}{DateTime.Now:MMdd}-{_opdBasic.GetMedicineNo}-{_opdBasic.PatientName}_{CurrentSeconds}.txt";
             try
             {
@@ -208,11 +224,8 @@ namespace FCP.src.FormatLogic
                             medicine.AdminCode = $"S{medicine.AdminCode}";
                             medicine.PerQty = sumQty;
                             ud.Add(medicine.Clone());
-                            //沙鹿
-                            CommonModel.SqlHelper.Execute("update PrintFormItem set DeletedYN=1 where RawID in (120180,120195)");
 
-                            //大甲
-                            //CommonModel.SqlHelper.Execute("update PrintFormItem set DeletedYN=1 where RawID in (120156,120172)");
+                            CommonModel.SqlHelper.Execute((bool)_daJia ? "update PrintFormItem set DeletedYN=1 where RawID in (120156,120172)" : "update PrintFormItem set DeletedYN=1 where RawID in (120180,120195)");
                             continue;
                         }
                         //種包
@@ -272,7 +285,24 @@ namespace FCP.src.FormatLogic
             try
             {
                 string outputDirectory = $@"{OutputDirectory}\{SourceFileNameWithoutExtension}_{CurrentSeconds}.txt";
-                OP_OnCube.KuangTien_Batch(_udPrescriptions, outputDirectory);
+                if ((bool)_daJia)
+                {
+                    OP_OnCube.KuangTien_Batch(_udPrescriptions, outputDirectory);
+                }
+                else
+                {
+                    Dictionary<KuangTienUDBasic, List<KuangTienUD>> newDict = new Dictionary<KuangTienUDBasic, List<KuangTienUD>>();
+                    List<string> floors = new List<string> { "3S", "6M", "11", "12", "08", "10", "09", "07", "05" };
+                    foreach (var floor in floors)
+                    {
+                        var data = _udPrescriptions.Where(x => GetFloor(x.Key.BedNo) == floor).ToList();
+                        foreach (var v in data)
+                        {
+                            newDict.Add(v.Key, v.Value);
+                        }
+                    }
+                    OP_OnCube.KuangTien_Batch(_udPrescriptions, outputDirectory, floors);
+                }
                 Success();
             }
             catch (Exception ex)
@@ -459,6 +489,8 @@ namespace FCP.src.FormatLogic
                 {
                     if (s.Contains("=====")
                         || s.Contains("光田綜合醫院")
+                        || s.Contains("大甲院區")
+                        || s.Contains("沙鹿院區")
                         || s.Contains("BARCODE")
                         || s.Trim().Length == 0)
                         continue;
@@ -489,7 +521,6 @@ namespace FCP.src.FormatLogic
                         EffectiveDate = DateTime.Now.AddDays(Convert.ToInt32(EncodingHelper.GetString(77, 5))),
                         Barcode = barcode
                     };
-                    Console.WriteLine(adminCode);
                     if (adminCode.Contains("PRN"))
                     {
                         JVServerAdminCodeTimes.TryGetValue(adminCode, out int times);
@@ -616,12 +647,16 @@ namespace FCP.src.FormatLogic
                 startDate = startDate.AddDays(1);
             }
         }
+
+        private string GetFloor(string bedNo)
+        {
+            return bedNo.Substring(2, 2);
+        }
     }
 
-
-    internal class KuangTienOPDBasic
+    internal class KuangTienOPDBasic : ModelBase
     {
-        public string WriteDate { get; set; }
+        public DateTime WriteDate { get; set; }
         public string GetMedicineNo { get; set; }
         public string Age { get; set; }
         public string DoctorName { get; set; }
@@ -631,7 +666,20 @@ namespace FCP.src.FormatLogic
         public string Class { get; set; }
     }
 
-    internal class KuangTienPowder
+    internal class KuangTienOPD : ModelBase
+    {
+        public string MedicineCode { get; set; }
+        public string MedicineName { get; set; }
+        public string AdminCode { get; set; }
+        public float PerQty { get; set; }
+        public int Days { get; set; }
+        public float SumQty { get; set; }
+        public int TimesPerDay { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+    }
+
+    internal class KuangTienPowder : ModelBase
     {
         public DateTime StartDate { get; set; }
         public string GetMedicineNo { get; set; }
@@ -651,7 +699,7 @@ namespace FCP.src.FormatLogic
         public string Barcode { get; set; }
     }
 
-    internal class KuangTienUDBasic
+    internal class KuangTienUDBasic : ModelBase
     {
         public DateTime TreatmentDate { get; set; }
         public string BedNo { get; set; }
@@ -661,7 +709,7 @@ namespace FCP.src.FormatLogic
         public bool Care { get; set; }
     }
 
-    internal class KuangTienUD
+    internal class KuangTienUD : ModelBase
     {
         public string MedicineCode { get; set; }
         public string MedicineName { get; set; }
@@ -682,21 +730,5 @@ namespace FCP.src.FormatLogic
         {
             return (KuangTienUD)this.MemberwiseClone();
         }
-    }
-
-    internal class KuangTienStat
-    {
-
-    }
-
-    internal class KuangTienOPD
-    {
-        public string MedicineCode { get; set; }
-        public string MedicineName { get; set; }
-        public string AdminCode { get; set; }
-        public string PerQty { get; set; }
-        public string Days { get; set; }
-        public string SumQty { get; set; }
-        public string TimesPerDay { get; set; }
     }
 }
