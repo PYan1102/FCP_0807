@@ -15,7 +15,7 @@ namespace FCP.src
         private static List<JVServerXMLOPD> _OPD = new List<JVServerXMLOPD>();
         public static bool IsPrescriptionRepeat(string filePath, JVServerXMLOPDBasic basic, List<JVServerXMLOPD> OPD)
         {
-            LogService.Info("Washington got repeat prescriptions ");
+            LogService.Info("Washington got repeat prescriptions");
             _OPD.Clear();
             string fileName = Path.GetFileNameWithoutExtension(filePath).Substring(0, Path.GetFileNameWithoutExtension(filePath).Length - 1);
             int count = CommonModel.SqlHelper.Query_FirstInt($@"SELECT
